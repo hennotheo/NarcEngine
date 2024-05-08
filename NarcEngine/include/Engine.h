@@ -18,9 +18,12 @@ private:
 	void InitVulkan();
 	void MainLoop();
 	void CleanUp();
+
 	void CreateInstance();
+	void SetupDebugMessenger();
 
 private:
 	GLFWwindow* m_window;
 	VkInstance m_instance;
+	VkDebugUtilsMessengerEXT m_debugMessenger;
 };
