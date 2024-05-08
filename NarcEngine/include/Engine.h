@@ -21,6 +21,8 @@ private:
 
 	void CreateInstance();
 	void SetupDebugMessenger();
+	void PickPhysicalDevice();
+	int RateDeviceSuitability(VkPhysicalDevice device);
 
 private:
 	GLFWwindow* m_window;
