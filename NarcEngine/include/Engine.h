@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <stdlib.h>
+#include <vector>
 
 class Engine
 {
@@ -20,9 +21,6 @@ private:
 	void CreateInstance();
 
 private:
-	const uint32_t WIDTH = 800;
-	const uint32_t HEIGHT = 600;
-
 	GLFWwindow* m_window;
 	VkInstance m_instance;
 };

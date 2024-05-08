@@ -1,6 +1,46 @@
 #include "Engine.h"
 
-#include <vector>
+const uint32_t WIDTH = 800;
+const uint32_t HEIGHT = 600;
+
+const std::vector<const char*> ValidationLayers =
+{
+	"VK_LAYER_KHRONOS_validation"
+};
+
+#ifdef NDEBUG
+const bool EnableValidationLayers = false;
+#else
+const bool EnableValidationLayers = true;
+#endif
+
+bool CheckValidationLayerSupport()
+{
+	uint32_t layerCount;
+	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+	std::vector<VkLayerProperties> availableLayers(layerCount);
+	vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+	for (const auto& layerName : ValidationLayers)
+	{
+		bool layerFound = false;
+
+		for (const auto& layerProperties : availableLayers)
+		{
+			if (strcmp(layerName, layerProperties.layerName) == 0)
+			{
+				layerFound = true;
+				break;
+			}
+		}
+
+		if (!layerFound)
+			return false;
+	}
+
+	return true;
+}
 
 void Engine::Run()
 {
@@ -42,6 +82,11 @@ void Engine::CleanUp()
 
 void Engine::CreateInstance()
 {
+	if (EnableValidationLayers && !CheckValidationLayerSupport())
+	{
+		throw std::runtime_error("validation layers requested, but not available!");
+	}
+
 	VkApplicationInfo appInfo{};
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appInfo.pApplicationName = "Narcoleptic Engine";
@@ -53,10 +98,18 @@ void Engine::CreateInstance()
 	VkInstanceCreateInfo createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	createInfo.pApplicationInfo = &appInfo;
+	if (EnableValidationLayers)
+	{
+		createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
+		createInfo.ppEnabledLayerNames = ValidationLayers.data();
+	}
+	else
+	{
+		createInfo.enabledLayerCount = 0;
+	}
 
 	uint32_t glfwExtensionCount = 0;
 	const char** glfwExtensions;
-
 	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
 	createInfo.enabledExtensionCount = glfwExtensionCount;
