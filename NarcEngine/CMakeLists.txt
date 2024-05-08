@@ -1,3 +1,5 @@
+message(STATUS "Building NarcEngine")
+
 #----------------------
 #----- GET VULKAN -----
 #----------------------
@@ -54,8 +56,6 @@ endif()
 set(Recipe_Name "NarcEngine")
 set(VULKAN_LIB_LIST "vulkan-1")
 set(GLFW_LIB_LIST "glfw3")
-
-message(STATUS "SOURCE " ${PROJECT_SOURCE_DIR})
 
 # Gather list of header and source files for compilation
 file(GLOB_RECURSE CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)

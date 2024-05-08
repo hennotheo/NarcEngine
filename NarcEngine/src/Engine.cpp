@@ -1,4 +1,6 @@
-#include "../include/Engine.h"
+#include "Engine.h"
+
+#include <vector>
 
 void Engine::Run()
 {
@@ -64,5 +66,16 @@ void Engine::CreateInstance()
 	if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create instance!");
+	}
+
+	uint32_t extensionCount = 0;
+	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+	std::vector<VkExtensionProperties> extensions(extensionCount);
+	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
+
+	std::cout << "available extensions:\n";
+	for (const auto& extension : extensions)
+	{
+		std::cout << '\t' << extension.extensionName << '\n';
 	}
 }
