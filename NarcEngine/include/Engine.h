@@ -22,10 +22,11 @@ private:
 	void CreateInstance();
 	void SetupDebugMessenger();
 	void PickPhysicalDevice();
-	int RateDeviceSuitability(VkPhysicalDevice device);
+	void CreateLogicalDevice();
 
 private:
 	GLFWwindow* m_window;
 	VkInstance m_instance;
 	VkDebugUtilsMessengerEXT m_debugMessenger;
+	VkDevice m_device;
 };

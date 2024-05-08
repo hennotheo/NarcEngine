@@ -1,6 +1,7 @@
 #include "Engine.h"
 
 #include <map>
+#include <optional>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -16,6 +17,16 @@ const bool EnableValidationLayers = false;
 const bool EnableValidationLayers = true;
 #endif
 
+struct QueueFamilyIndices
+{
+	std::optional<uint32_t> GraphicsFamily;
+
+	bool IsComplete()
+	{
+		return GraphicsFamily.has_value();
+	}
+};
+
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
 	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 	VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -30,6 +41,71 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
 	}
 
 	return VK_FALSE;
+}
+
+QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device)
+{
+	QueueFamilyIndices indices;
+
+	uint32_t queueFamilyCount = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+	int i = 0;
+	for (const auto& queueFamily : queueFamilies)
+	{
+		if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+		{
+			indices.GraphicsFamily = i;
+		}
+
+		if (indices.IsComplete())
+			break;
+
+		i++;
+	}
+
+	return indices;
+}
+
+int RateDeviceSuitability(VkPhysicalDevice device)
+{
+	VkPhysicalDeviceProperties deviceProperties;
+	VkPhysicalDeviceFeatures deviceFeatures;
+	vkGetPhysicalDeviceProperties(device, &deviceProperties);
+	vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+	int score = 0;
+
+	//Performance advantage
+	if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+	{
+		score += 1000;
+	}
+
+	//Max possible size of texture affect graphics quality
+	score += deviceProperties.limits.maxImageDimension2D;
+
+	//Application can't function without geometry shaders
+	if (!deviceFeatures.geometryShader)
+	{
+		return 0;
+	}
+
+	QueueFamilyIndices indices = findQueueFamilies(device);
+	VkDeviceQueueCreateInfo queueCreateInfo{};
+	queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+	queueCreateInfo.queueFamilyIndex = indices.GraphicsFamily.value();
+	queueCreateInfo.queueCount = 1;
+	float queuePriority = 1.0f;
+	queueCreateInfo.pQueuePriorities = &queuePriority;
+	if (!indices.IsComplete())
+	{
+		return 0;
+	}
+
+	return score;
 }
 
 void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
@@ -132,6 +208,7 @@ void Engine::InitVulkan()
 	CreateInstance();
 	SetupDebugMessenger();
 	PickPhysicalDevice();
+	CreateLogicalDevice();
 }
 
 void Engine::MainLoop()
@@ -153,10 +230,7 @@ void Engine::CleanUp()
 	glfwDestroyWindow(m_window);
 	glfwTerminate();
 
-	while (true)
-	{
-
-	}
+	std::cin.get();
 }
 
 void Engine::CreateInstance()
@@ -248,30 +322,7 @@ void Engine::PickPhysicalDevice()
 	}
 }
 
-int Engine::RateDeviceSuitability(VkPhysicalDevice device)
+void Engine::CreateLogicalDevice()
 {
-	VkPhysicalDeviceProperties deviceProperties;
-	VkPhysicalDeviceFeatures deviceFeatures;
-	vkGetPhysicalDeviceProperties(device, &deviceProperties);
-	vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
-	int score = 0;
-
-	//Performance advantage
-	if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
-	{
-		score += 1000;
-	}
-
-	//Max possible size of texture affect graphics quality
-	score += deviceProperties.limits.maxImageDimension2D;
-
-	//Application can't function without geometry shaders
-	if (!deviceFeatures.geometryShader)
-	{
-		return 0;
-	}
-
-	return score;
 }
-
