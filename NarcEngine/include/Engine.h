@@ -29,4 +29,5 @@ private:
 	VkInstance m_instance;
 	VkDebugUtilsMessengerEXT m_debugMessenger;
 	VkDevice m_device;
+	VkPhysicalDevice m_physicalDevice;
 };

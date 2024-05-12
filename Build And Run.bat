@@ -1,4 +1,4 @@
-call Build.bat
+call BuildFast.bat
 
 cd cmake
 cd NarcEngine
