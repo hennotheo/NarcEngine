@@ -54,6 +54,7 @@ namespace NarcEngine
 		std::vector<VkImage> m_swapChainImages;
 		VkFormat m_swapChainImageFormat;
 		VkExtent2D m_swapChainExtent;
+		std::vector<VkImageView> m_swapChainImageViews;
 
 	private:
 		void InitWindow();
@@ -67,6 +68,7 @@ namespace NarcEngine
 		void PickPhysicalDevice();
 		void CreateLogicalDevice();
 		void CreateSwapChain();
+		void CreateImageViews();
 
 		bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 		int RateDeviceSuitability(VkPhysicalDevice device);
