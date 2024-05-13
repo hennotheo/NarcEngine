@@ -54,8 +54,9 @@ endif()
 #----------------
 
 set(VULKAN_GLSLC_PATH ${VULKAN_PATH}/Bin/glslc.exe)
+set(SHADER_PATH ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
 
-file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/shaders/compile-shaders.bat
+file(WRITE ${SHADER_PATH}/compile-shaders.bat
 	${VULKAN_GLSLC_PATH} " shader.vert -o vert.spv \n"
 	${VULKAN_GLSLC_PATH} " shader.frag -o frag.spv \n"
 	pause
@@ -106,3 +107,10 @@ include_directories("vendors/glfw/include")
 
 target_link_libraries( ${Recipe_Name} ${VULKAN_LIB_LIST} )
 target_link_libraries( ${Recipe_Name} ${GLFW_LIB_LIST} )
+
+#-----------------------------
+#----- POST BUILD MOVING -----
+#-----------------------------
+
+file(GLOB SHADER_FILES "shaders/*.spv")
+file(COPY ${SHADER_FILES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Debug/shaders/)

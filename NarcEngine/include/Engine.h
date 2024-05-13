@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <limits>
 #include <algorithm> 
+#include <fstream>
 
 namespace NarcEngine
 {
@@ -81,11 +82,13 @@ namespace NarcEngine
 		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 		VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 		VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+		VkShaderModule CreateShaderModule(const std::vector<char>& code);
 
 		static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
 			VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 			VkDebugUtilsMessageTypeFlagsEXT messageType,
 			const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 			void* pUserData);
+		static std::vector<char> ReadFile(const std::string& filename);
 	};
 }
