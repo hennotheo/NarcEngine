@@ -60,6 +60,14 @@ namespace NarcEngine
 				indices.GraphicsFamily = i;
 			}
 
+			VkBool32 presentSupport = false;
+			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, m_surface, &presentSupport);
+
+			if (presentSupport)
+			{
+				indices.PresentFamily = i;
+			}
+
 			if (indices.IsComplete())
 				break;
 
@@ -273,7 +281,7 @@ namespace NarcEngine
 
 	void Engine::CreateSurface()
 	{
-		if (glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface) != VK_SUCCESS) 
+		if (glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface) != VK_SUCCESS)
 		{
 			throw std::runtime_error("failed to create window surface!");
 		}
@@ -281,8 +289,6 @@ namespace NarcEngine
 
 	void Engine::PickPhysicalDevice()
 	{
-		m_physicalDevice = VK_NULL_HANDLE;
-
 		uint32_t deviceCount = 0;
 		vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
 		std::vector<VkPhysicalDevice> devices(deviceCount);

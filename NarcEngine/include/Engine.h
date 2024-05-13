@@ -15,10 +15,11 @@ namespace NarcEngine
 	struct QueueFamilyIndices
 	{
 		std::optional<uint32_t> GraphicsFamily;
+		std::optional<uint32_t> PresentFamily;
 
 		bool IsComplete()
 		{
-			return GraphicsFamily.has_value();
+			return GraphicsFamily.has_value() && PresentFamily.has_value();
 		}
 	};
 
@@ -32,7 +33,7 @@ namespace NarcEngine
 		VkInstance m_instance;
 		VkDebugUtilsMessengerEXT m_debugMessenger;
 		VkDevice m_device;
-		VkPhysicalDevice m_physicalDevice;
+		VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
 		VkSurfaceKHR m_surface;
 
 	private:
