@@ -9,6 +9,7 @@
 #include <vector>
 #include <map>
 #include <optional>
+#include <set>
 
 namespace NarcEngine
 {
@@ -35,6 +36,9 @@ namespace NarcEngine
 		VkDevice m_device;
 		VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
 		VkSurfaceKHR m_surface;
+
+		VkQueue m_presentQueue;
+		VkQueue m_graphicsQueue;
 
 	private:
 		void InitWindow();
