@@ -33,6 +33,7 @@ namespace NarcEngine
 		VkDebugUtilsMessengerEXT m_debugMessenger;
 		VkDevice m_device;
 		VkPhysicalDevice m_physicalDevice;
+		VkSurfaceKHR m_surface;
 
 	private:
 		void InitWindow();
@@ -42,6 +43,7 @@ namespace NarcEngine
 
 		void CreateInstance();
 		void SetupDebugMessenger();
+		void CreateSurface();
 		void PickPhysicalDevice();
 		void CreateLogicalDevice();
 

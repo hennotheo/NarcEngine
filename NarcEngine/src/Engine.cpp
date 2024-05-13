@@ -182,6 +182,7 @@ namespace NarcEngine
 	{
 		CreateInstance();
 		SetupDebugMessenger();
+		CreateSurface();
 		PickPhysicalDevice();
 		CreateLogicalDevice();
 	}
@@ -196,13 +197,16 @@ namespace NarcEngine
 
 	void Engine::CleanUp()
 	{
+		vkDestroyDevice(m_device, nullptr);
+
 		if (EnableValidationLayers)
 		{
 			DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
 		}
 
+		vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
 		vkDestroyInstance(m_instance, nullptr);
-		vkDestroyDevice(m_device, nullptr);
+
 		glfwDestroyWindow(m_window);
 		glfwTerminate();
 
@@ -264,6 +268,14 @@ namespace NarcEngine
 		if (CreateDebugUtilsMessengerEXT(m_instance, &createInfo, nullptr, &m_debugMessenger) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to set up debug messenger!");
+		}
+	}
+
+	void Engine::CreateSurface()
+	{
+		if (glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface) != VK_SUCCESS) 
+		{
+			throw std::runtime_error("failed to create window surface!");
 		}
 	}
 
