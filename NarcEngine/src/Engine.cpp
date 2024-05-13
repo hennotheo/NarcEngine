@@ -10,6 +10,11 @@ namespace NarcEngine
 		"VK_LAYER_KHRONOS_validation"
 	};
 
+	const std::vector<const char*> deviceExtensions =
+	{
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME
+	};
+
 #ifdef NDEBUG
 	const bool EnableValidationLayers = false;
 #else
@@ -77,6 +82,23 @@ namespace NarcEngine
 		return indices;
 	}
 
+	bool Engine::CheckDeviceExtensionSupport(VkPhysicalDevice device)
+	{
+		uint32_t extensionCount;
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+		std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+		std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+		for (const auto& extension : availableExtensions)
+		{
+			requiredExtensions.erase(extension.extensionName);
+		}
+
+		return requiredExtensions.empty();
+	}
+
 	int Engine::RateDeviceSuitability(VkPhysicalDevice device)
 	{
 		VkPhysicalDeviceProperties deviceProperties;
@@ -97,6 +119,12 @@ namespace NarcEngine
 
 		//Application can't function without geometry shaders
 		if (!deviceFeatures.geometryShader)
+		{
+			return 0;
+		}
+
+		bool extensionsSupported = CheckDeviceExtensionSupport(device);
+		if (!extensionsSupported)
 		{
 			return 0;
 		}
@@ -324,7 +352,7 @@ namespace NarcEngine
 		std::set<uint32_t> uniqueQueueFamilies = { indices.GraphicsFamily.value(), indices.PresentFamily.value() };
 
 		float queuePriority = 1.0f;
-		for (uint32_t queueFamily : uniqueQueueFamilies) 
+		for (uint32_t queueFamily : uniqueQueueFamilies)
 		{
 			VkDeviceQueueCreateInfo queueCreateInfo{};
 			queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;

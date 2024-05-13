@@ -52,6 +52,7 @@ namespace NarcEngine
 		void PickPhysicalDevice();
 		void CreateLogicalDevice();
 
+		bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 		int RateDeviceSuitability(VkPhysicalDevice device);
 		bool CheckValidationLayerSupport();
 		std::vector<const char*> GetRequiredExtensions();
