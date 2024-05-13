@@ -34,3 +34,7 @@ cmake/
 *.exe
 *.out
 *.app
+
+#Shaders
+NarcEngine/shaders/compile-shaders.bat
+*.spv

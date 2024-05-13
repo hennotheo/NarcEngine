@@ -50,6 +50,19 @@ else()
 endif()
 
 #----------------
+#--- CMD FILES---
+#----------------
+
+set(VULKAN_GLSLC_PATH ${VULKAN_PATH}/Bin/glslc.exe)
+
+file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/shaders/compile-shaders.bat
+	${VULKAN_GLSLC_PATH} " shader.vert -o vert.spv \n"
+	${VULKAN_GLSLC_PATH} " shader.frag -o frag.spv \n"
+	pause
+)
+
+
+#----------------
 #----- MAIN -----
 #----------------
 

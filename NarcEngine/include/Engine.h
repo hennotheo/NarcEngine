@@ -69,6 +69,7 @@ namespace NarcEngine
 		void CreateLogicalDevice();
 		void CreateSwapChain();
 		void CreateImageViews();
+		void CreateGraphicsPipeline();
 
 		bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 		int RateDeviceSuitability(VkPhysicalDevice device);

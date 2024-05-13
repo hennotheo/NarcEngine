@@ -308,6 +308,7 @@ namespace NarcEngine
 		CreateLogicalDevice();
 		CreateSwapChain();
 		CreateImageViews();
+		CreateGraphicsPipeline();
 	}
 
 	void Engine::MainLoop()
@@ -575,6 +576,10 @@ namespace NarcEngine
 			}
 		}
 
+	}
+
+	void Engine::CreateGraphicsPipeline()
+	{
 	}
 
 	VKAPI_ATTR VkBool32 VKAPI_CALL Engine::DebugCallback(
