@@ -10,6 +10,9 @@
 #include <map>
 #include <optional>
 #include <set>
+#include <cstdint>
+#include <limits>
+#include <algorithm> 
 
 namespace NarcEngine
 {
@@ -22,6 +25,13 @@ namespace NarcEngine
 		{
 			return GraphicsFamily.has_value() && PresentFamily.has_value();
 		}
+	};
+
+	struct SwapChainSupportDetails 
+	{
+		VkSurfaceCapabilitiesKHR Capabilities;
+		std::vector<VkSurfaceFormatKHR> Formats;
+		std::vector<VkPresentModeKHR> PresentModes;
 	};
 
 	class Engine
@@ -40,6 +50,11 @@ namespace NarcEngine
 		VkQueue m_presentQueue;
 		VkQueue m_graphicsQueue;
 
+		VkSwapchainKHR m_swapChain;
+		std::vector<VkImage> m_swapChainImages;
+		VkFormat m_swapChainImageFormat;
+		VkExtent2D m_swapChainExtent;
+
 	private:
 		void InitWindow();
 		void InitVulkan();
@@ -51,6 +66,7 @@ namespace NarcEngine
 		void CreateSurface();
 		void PickPhysicalDevice();
 		void CreateLogicalDevice();
+		void CreateSwapChain();
 
 		bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 		int RateDeviceSuitability(VkPhysicalDevice device);
@@ -58,6 +74,10 @@ namespace NarcEngine
 		std::vector<const char*> GetRequiredExtensions();
 		void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 		QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
+		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
+		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+		VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+		VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
 		static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
 			VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
