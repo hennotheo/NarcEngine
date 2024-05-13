@@ -2,7 +2,7 @@
 
 int main()
 {
-	Engine engine;
+	NarcEngine::Engine engine;
 
 	try
 	{
