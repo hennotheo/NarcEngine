@@ -113,4 +113,4 @@ target_link_libraries( ${Recipe_Name} ${GLFW_LIB_LIST} )
 #-----------------------------
 
 file(GLOB SHADER_FILES "shaders/*.spv")
-file(COPY ${SHADER_FILES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Debug/shaders/)
+file(COPY ${SHADER_FILES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CONFIGURATION}/shaders/)
