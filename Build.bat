@@ -1,5 +1,3 @@
-cd cmake
-cmake ..
-cmake --build .
+call BuildFast.bat
 
 pause

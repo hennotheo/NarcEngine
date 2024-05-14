@@ -73,12 +73,14 @@ set(GLFW_LIB_LIST "glfw3")
 
 # Gather list of header and source files for compilation
 file(GLOB_RECURSE CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
+file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
 
 link_directories("vendors/glfw/lib-vc2022")
 link_directories(${VULKAN_PATH}/Lib)
 
-add_library(${NARC_ENGINE} SHARED main.cpp)# ${CPP_FILES} ${HPP_FILES})
+add_compile_definitions(NARC_ENGINE_BUILD_DLL)
+
+add_library(${NARC_ENGINE} SHARED src/NarcEngine.h ${CPP_FILES} ${HPP_FILES})# ${CPP_FILES} ${HPP_FILES})
 
 # # Define project properties
 # set(NARCENGINE_BIN_PATH ${PROJECT_SOURCE_DIR}/binaries/x64)
@@ -111,4 +113,8 @@ target_link_libraries( ${NARC_ENGINE} PRIVATE ${GLFW_LIB_LIST} )
 
 file(GLOB SHADER_FILES "shaders/*.spv")
 file(COPY ${SHADER_FILES} DESTINATION ${SANDBOX_BIN_DIR}/shaders/)
-file(COPY ${CMAKE_CURRENT_BINARY_DIR}/${CONFIGURATION}/${NARC_ENGINE}.dll DESTINATION ${SANDBOX_BIN_DIR}/)
+
+message(Check ${CMAKE_CURRENT_BINARY_DIR}/${CONFIGURATION}/${NARC_ENGINE}.dll)
+if (EXISTS  ${CMAKE_CURRENT_BINARY_DIR}/${CONFIGURATION}/${NARC_ENGINE}.dll)
+    file(COPY ${CMAKE_CURRENT_BINARY_DIR}/${CONFIGURATION}/${NARC_ENGINE}.dll DESTINATION ${SANDBOX_BIN_DIR}/)
+endif()
