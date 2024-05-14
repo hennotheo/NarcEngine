@@ -57,6 +57,7 @@ namespace NarcEngine
 		VkExtent2D m_swapChainExtent;
 		std::vector<VkImageView> m_swapChainImageViews;
 
+		VkRenderPass m_renderPass;
 		VkPipelineLayout m_pipelineLayout;
 
 	private:
@@ -72,6 +73,7 @@ namespace NarcEngine
 		void CreateLogicalDevice();
 		void CreateSwapChain();
 		void CreateImageViews();
+		void CreateRenderPass();
 		void CreateGraphicsPipeline();
 
 		bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
