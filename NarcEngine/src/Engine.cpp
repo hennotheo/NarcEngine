@@ -1,3 +1,5 @@
+#ifndef RRR
+#else
 #include "Engine.h"
 
 namespace NarcEngine
@@ -791,3 +793,4 @@ namespace NarcEngine
 		return buffer;
 	}
 }
+#endif

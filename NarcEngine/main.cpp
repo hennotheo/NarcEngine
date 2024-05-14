@@ -1,19 +1,28 @@
-#include "Engine.h"
+//#include "Engine.h"
+#include <iostream>
 
-int main()
+namespace NarcEngine
 {
-	NarcEngine::Engine engine;
-
-	try
+	__declspec(dllexport) void Test()
 	{
-		engine.Run();
+		std::cout << "TEST" << std::endl;
 	}
-	catch (const std::exception& e)
-	{
-		std::cerr << e.what() << std::endl;
-		std::cin.get();
-		return EXIT_FAILURE;
-	}
-
-	return EXIT_SUCCESS;
 }
+
+//int main()
+//{
+//	NarcEngine::Engine engine;
+//
+//	try
+//	{
+//		engine.Run();
+//	}
+//	catch (const std::exception& e)
+//	{
+//		std::cerr << e.what() << std::endl;
+//		std::cin.get();
+//		return EXIT_FAILURE;
+//	}
+//
+//	return EXIT_SUCCESS;
+//}

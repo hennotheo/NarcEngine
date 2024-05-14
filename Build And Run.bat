@@ -1,7 +1,7 @@
 call BuildFast.bat
 
 cd cmake
-cd NarcEngine
+cd Sandbox
 cd Debug
 
-start NarcEngine.exe
+start Sandbox.exe
