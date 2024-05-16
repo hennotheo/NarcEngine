@@ -60,6 +60,8 @@ namespace NarcEngine
 		VkRenderPass m_renderPass;
 		VkPipelineLayout m_pipelineLayout;
 
+		VkPipeline m_graphicsPipeline;
+
 	private:
 		void InitWindow();
 		void InitVulkan();
