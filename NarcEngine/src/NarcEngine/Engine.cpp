@@ -325,6 +325,7 @@ namespace NarcEngine
 		CreateRenderPass();
 		CreateGraphicsPipeline();
 		CreateFramebuffers();
+		CreateCommandPool();
 	}
 
 	void Engine::MainLoop()
@@ -793,6 +794,10 @@ namespace NarcEngine
 			}
 		}
 
+	}
+
+	void Engine::CreateCommandPool()
+	{
 	}
 
 	VKAPI_ATTR VkBool32 VKAPI_CALL Engine::DebugCallback(
