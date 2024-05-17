@@ -61,6 +61,8 @@ namespace NarcEngine
 		VkRenderPass m_renderPass;
 		VkPipelineLayout m_pipelineLayout;
 		VkPipeline m_graphicsPipeline;
+		VkCommandPool m_commandPool;
+		VkCommandBuffer m_commandBuffer;
 
 	private:
 		void InitWindow();
@@ -79,6 +81,7 @@ namespace NarcEngine
 		void CreateGraphicsPipeline();
 		void CreateFramebuffers();
 		void CreateCommandPool();
+		void CreateCommandBuffer();
 
 		bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 		int RateDeviceSuitability(VkPhysicalDevice device);
@@ -91,6 +94,7 @@ namespace NarcEngine
 		VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 		VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 		VkShaderModule CreateShaderModule(const std::vector<char>& code);
+		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
 		static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
 			VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
