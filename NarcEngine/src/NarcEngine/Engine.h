@@ -64,6 +64,11 @@ namespace NarcEngine
 		VkCommandPool m_commandPool;
 		VkCommandBuffer m_commandBuffer;
 
+		//Sync objects -> Waiting them to make operation... cf doc vulkan
+		VkSemaphore m_imageAvailableSemaphore;
+		VkSemaphore m_renderFinishedSemaphore;
+		VkFence m_inFlightFence;
+
 	private:
 		void InitWindow();
 		void InitVulkan();
@@ -82,6 +87,9 @@ namespace NarcEngine
 		void CreateFramebuffers();
 		void CreateCommandPool();
 		void CreateCommandBuffer();
+		void CreateSyncObjects();
+
+		void DrawFrame();
 
 		bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 		int RateDeviceSuitability(VkPhysicalDevice device);
