@@ -56,10 +56,10 @@ namespace NarcEngine
 		VkFormat m_swapChainImageFormat;
 		VkExtent2D m_swapChainExtent;
 		std::vector<VkImageView> m_swapChainImageViews;
+		std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
 		VkRenderPass m_renderPass;
 		VkPipelineLayout m_pipelineLayout;
-
 		VkPipeline m_graphicsPipeline;
 
 	private:
@@ -77,6 +77,7 @@ namespace NarcEngine
 		void CreateImageViews();
 		void CreateRenderPass();
 		void CreateGraphicsPipeline();
+		void CreateFramebuffers();
 
 		bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 		int RateDeviceSuitability(VkPhysicalDevice device);

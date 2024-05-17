@@ -324,6 +324,7 @@ namespace NarcEngine
 		CreateImageViews();
 		CreateRenderPass();
 		CreateGraphicsPipeline();
+		CreateFramebuffers();
 	}
 
 	void Engine::MainLoop()
@@ -336,6 +337,10 @@ namespace NarcEngine
 
 	void Engine::CleanUp()
 	{
+		for (auto framebuffer : m_swapChainFramebuffers) 
+		{
+			vkDestroyFramebuffer(m_device, framebuffer, nullptr);
+		}
 		vkDestroyPipeline(m_device, m_graphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
 		vkDestroyRenderPass(m_device, m_renderPass, nullptr);
@@ -381,6 +386,10 @@ namespace NarcEngine
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		createInfo.pApplicationInfo = &appInfo;
 
+		auto extensions = GetRequiredExtensions();
+		createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+		createInfo.ppEnabledExtensionNames = extensions.data();
+
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 		if (EnableValidationLayers)
 		{
@@ -395,10 +404,6 @@ namespace NarcEngine
 			createInfo.enabledLayerCount = 0;
 			createInfo.pNext = nullptr;
 		}
-
-		auto extensions = GetRequiredExtensions();
-		createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-		createInfo.ppEnabledExtensionNames = extensions.data();
 
 		if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
 		{
@@ -667,24 +672,12 @@ namespace NarcEngine
 		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 		inputAssembly.primitiveRestartEnable = VK_FALSE;
 
-		VkRect2D scissor{};
-		scissor.offset = { 0, 0 };
-		scissor.extent = m_swapChainExtent;
-
-		VkViewport viewport{};
-		viewport.x = 0.0f;
-		viewport.y = 0.0f;
-		viewport.width = (float)m_swapChainExtent.width;
-		viewport.height = (float)m_swapChainExtent.height;
-		viewport.minDepth = 0.0f;
-		viewport.maxDepth = 1.0f;
-
 		VkPipelineViewportStateCreateInfo viewportState{};
 		viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 		viewportState.viewportCount = 1;
-		viewportState.pViewports = &viewport;
 		viewportState.scissorCount = 1;
-		viewportState.pScissors = &scissor;
+		//viewportState.pViewports = &viewport;
+		//viewportState.pScissors = &scissor;
 
 		VkPipelineRasterizationStateCreateInfo rasterizer{};
 		rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
@@ -710,13 +703,7 @@ namespace NarcEngine
 
 		VkPipelineColorBlendAttachmentState colorBlendAttachment{};
 		colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-		colorBlendAttachment.blendEnable = VK_TRUE;
-		colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-		colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-		colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-		colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-		colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-		colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+		colorBlendAttachment.blendEnable = VK_FALSE;
 
 		VkPipelineColorBlendStateCreateInfo colorBlending{};
 		colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
@@ -741,6 +728,7 @@ namespace NarcEngine
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		pipelineLayoutInfo.pushConstantRangeCount = 0;
 		pipelineLayoutInfo.setLayoutCount = 0; // Optional
 		pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
 		pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
@@ -750,10 +738,6 @@ namespace NarcEngine
 		{
 			throw std::runtime_error("failed to create pipeline layout!");
 		}
-
-
-		vkDestroyShaderModule(m_device, fragShaderModule, nullptr);
-		vkDestroyShaderModule(m_device, vertShaderModule, nullptr);
 
 		VkGraphicsPipelineCreateInfo pipelineInfo{};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -768,12 +752,9 @@ namespace NarcEngine
 		pipelineInfo.pDepthStencilState = nullptr; // Optional
 		pipelineInfo.pColorBlendState = &colorBlending;
 		pipelineInfo.pDynamicState = &dynamicState;
-
 		pipelineInfo.layout = m_pipelineLayout;
-
 		pipelineInfo.renderPass = m_renderPass;
 		pipelineInfo.subpass = 0;
-
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
 		pipelineInfo.basePipelineIndex = -1; // Optional
 
@@ -782,6 +763,35 @@ namespace NarcEngine
 			throw std::runtime_error("Failed to create graphics pipeline!");
 		}
 
+		vkDestroyShaderModule(m_device, fragShaderModule, nullptr);
+		vkDestroyShaderModule(m_device, vertShaderModule, nullptr);
+	}
+
+	void Engine::CreateFramebuffers()
+	{
+		m_swapChainFramebuffers.resize(m_swapChainImageViews.size());
+
+		for (size_t i = 0; i < m_swapChainImageViews.size(); i++) 
+		{
+			VkImageView attachments[] =
+			{
+				m_swapChainImageViews[i]
+			};
+
+			VkFramebufferCreateInfo framebufferInfo{};
+			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			framebufferInfo.renderPass = m_renderPass;
+			framebufferInfo.attachmentCount = 1;
+			framebufferInfo.pAttachments = attachments;
+			framebufferInfo.width = m_swapChainExtent.width;
+			framebufferInfo.height = m_swapChainExtent.height;
+			framebufferInfo.layers = 1;
+
+			if (vkCreateFramebuffer(m_device, &framebufferInfo, nullptr, &m_swapChainFramebuffers[i]) != VK_SUCCESS)
+			{
+				throw std::runtime_error("failed to create framebuffer!");
+			}
+		}
 
 	}
 
