@@ -71,6 +71,8 @@ set(NARC_ENGINE "NarcEngine")
 set(VULKAN_LIB_LIST "vulkan-1")
 set(GLFW_LIB_LIST "glfw3")
 
+variable_watch(GLFW_LIB_LIST)
+
 # Gather list of header and source files for compilation
 file(GLOB_RECURSE CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
@@ -102,7 +104,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(AFTER ${VULKAN_PATH}/Include)
 include_directories("vendors/glm")
 include_directories("vendors/glfw/include")
-
 
 target_link_libraries( ${NARC_ENGINE} PRIVATE ${VULKAN_LIB_LIST} )
 target_link_libraries( ${NARC_ENGINE} PRIVATE ${GLFW_LIB_LIST} )
