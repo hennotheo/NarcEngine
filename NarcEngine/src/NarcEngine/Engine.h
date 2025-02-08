@@ -89,6 +89,7 @@ namespace NarcEngine
         std::vector<VkImage> m_swapChainImages;
         VkFormat m_swapChainImageFormat;
         VkExtent2D m_swapChainExtent;
+        VkBuffer m_vertexBuffer;
         std::vector<VkImageView> m_swapChainImageViews;
         std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
@@ -104,10 +105,13 @@ namespace NarcEngine
         std::vector<VkSemaphore> m_renderFinishedSemaphores;
         std::vector<VkFence> m_inFlightFences;
 
+        bool m_framebufferResized = false;
+
     private:
         void InitWindow();
         void InitVulkan();
         void MainLoop();
+        void CleanupSwapChain();
         void CleanUp();
 
         void CreateInstance();
@@ -116,11 +120,13 @@ namespace NarcEngine
         void PickPhysicalDevice();
         void CreateLogicalDevice();
         void CreateSwapChain();
+        void RecreateSwapChain();
         void CreateImageViews();
         void CreateRenderPass();
         void CreateGraphicsPipeline();
         void CreateFramebuffers();
         void CreateCommandPool();
+        void CreateVertexBuffer();
         void CreateCommandBuffer();
         void CreateSyncObjects();
 
@@ -145,5 +151,6 @@ namespace NarcEngine
             const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
             void* pUserData);
         static std::vector<char> ReadFile(const std::string& filename);
+        static void FramebufferResizeCallback(GLFWwindow* window, int width, int height);
     };
 }

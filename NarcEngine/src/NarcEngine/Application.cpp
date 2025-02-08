@@ -15,4 +15,5 @@ void NarcEngine::Application::Run()
 	Engine engine;
 
 	engine.Run();
+	std::cin.get();
 }

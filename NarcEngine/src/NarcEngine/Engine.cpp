@@ -367,6 +367,8 @@ namespace NarcEngine
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
         m_window = glfwCreateWindow(WIDTH, HEIGHT, "Narcoleptic Engine", nullptr, nullptr);
+        glfwSetWindowUserPointer(m_window, this);
+        glfwSetFramebufferSizeCallback(m_window, FramebufferResizeCallback); //call static function because GLFW does know how to call a member function
     }
 
     void Engine::InitVulkan()
@@ -397,8 +399,32 @@ namespace NarcEngine
         vkDeviceWaitIdle(m_device);
     }
 
+    void Engine::CleanupSwapChain()
+    {
+        for (auto framebuffer : m_swapChainFramebuffers)
+        {
+            vkDestroyFramebuffer(m_device, framebuffer, nullptr);
+        }
+
+        for (auto imageView : m_swapChainImageViews)
+        {
+            vkDestroyImageView(m_device, imageView, nullptr);
+        }
+
+        vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
+    }
+
     void Engine::CleanUp()
     {
+        CleanupSwapChain();
+
+        vkDestroyBuffer(m_device, m_vertexBuffer, nullptr);
+
+        vkDestroyPipeline(m_device, m_graphicsPipeline, nullptr);
+        vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
+
+        vkDestroyRenderPass(m_device, m_renderPass, nullptr);
+
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
         {
             vkDestroySemaphore(m_device, m_renderFinishedSemaphores[i], nullptr);
@@ -408,20 +434,6 @@ namespace NarcEngine
 
         vkDestroyCommandPool(m_device, m_commandPool, nullptr);
 
-        for (auto framebuffer : m_swapChainFramebuffers)
-        {
-            vkDestroyFramebuffer(m_device, framebuffer, nullptr);
-        }
-        vkDestroyPipeline(m_device, m_graphicsPipeline, nullptr);
-        vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
-        vkDestroyRenderPass(m_device, m_renderPass, nullptr);
-
-        for (auto imageView : m_swapChainImageViews)
-        {
-            vkDestroyImageView(m_device, imageView, nullptr);
-        }
-
-        vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
         vkDestroyDevice(m_device, nullptr);
 
         if (EnableValidationLayers)
@@ -433,9 +445,8 @@ namespace NarcEngine
         vkDestroyInstance(m_instance, nullptr);
 
         glfwDestroyWindow(m_window);
-        glfwTerminate();
 
-        std::cin.get();
+        glfwTerminate();
     }
 
     void Engine::CreateInstance()
@@ -718,6 +729,25 @@ namespace NarcEngine
         }
     }
 
+    void Engine::RecreateSwapChain()
+    {
+        int width = 0;
+        int height = 0;
+        glfwGetFramebufferSize(m_window, &width, &height);
+        while (width == 0 || height == 0)
+        {
+            glfwGetFramebufferSize(m_window, &width, &height);
+            glfwWaitEvents();
+        }
+        vkDeviceWaitIdle(m_device);
+
+        CleanupSwapChain();
+
+        CreateSwapChain();
+        CreateImageViews();
+        CreateFramebuffers();
+    }
+
     void Engine::CreateGraphicsPipeline()
     {
         auto vertShaderCode = ReadFile("shaders/vert.spv");
@@ -892,6 +922,20 @@ namespace NarcEngine
         }
     }
 
+    void Engine::CreateVertexBuffer()
+    {
+        VkBufferCreateInfo bufferInfo{};
+        bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        bufferInfo.size = sizeof(Vertices[0]) * Vertices.size();
+        bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+        if (vkCreateBuffer(m_device, &bufferInfo, nullptr, &m_vertexBuffer) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create vertex buffer!");
+        }
+    }
+
     void Engine::CreateCommandBuffer()
     {
         m_commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
@@ -935,10 +979,21 @@ namespace NarcEngine
     void Engine::DrawFrame()
     {
         vkWaitForFences(m_device, 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
-        vkResetFences(m_device, 1, &m_inFlightFences[m_currentFrame]);
 
         uint32_t imageIndex;
-        vkAcquireNextImageKHR(m_device, m_swapChain, UINT64_MAX, m_imageAvailableSemaphores[m_currentFrame], VK_NULL_HANDLE, &imageIndex);
+        VkResult result = vkAcquireNextImageKHR(m_device, m_swapChain, UINT64_MAX, m_imageAvailableSemaphores[m_currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+        if (result == VK_ERROR_OUT_OF_DATE_KHR) //OUT DUE TO WINDOW RESIZE FOR EXAMPLE
+        {
+            RecreateSwapChain();
+            return;
+        }
+        else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+        {
+            throw std::runtime_error("failed to acquire swap chain image!");
+        }
+
+        vkResetFences(m_device, 1, &m_inFlightFences[m_currentFrame]);
 
         vkResetCommandBuffer(m_commandBuffers[m_currentFrame], 0);
         RecordCommandBuffer(m_commandBuffers[m_currentFrame], imageIndex);
@@ -982,7 +1037,17 @@ namespace NarcEngine
         presentInfo.pImageIndices = &imageIndex;
         presentInfo.pResults = nullptr;
 
-        vkQueuePresentKHR(m_presentQueue, &presentInfo);
+        result = vkQueuePresentKHR(m_presentQueue, &presentInfo);
+
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebufferResized)
+        {
+            m_framebufferResized = false; //after vkQueuePresentKHR to ensure that the semaphores are in a consistent state
+            RecreateSwapChain();
+        }
+        else if (result != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to present swap chain image!");
+        }
 
         m_currentFrame = (m_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
@@ -1002,6 +1067,13 @@ namespace NarcEngine
 
         return VK_FALSE;
     }
+
+    void Engine::FramebufferResizeCallback(GLFWwindow* window, int width, int height)
+    {
+        auto app = reinterpret_cast<Engine*>(glfwGetWindowUserPointer(window));
+        app->m_framebufferResized = true;
+    }
+
 
     std::vector<char> Engine::ReadFile(const std::string& filename)
     {
