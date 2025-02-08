@@ -1,0 +1,31 @@
+name: Restrict PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  restrict-prs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Verify allow only release to be merged on main
+        id: verify
+        run: |
+          BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+          HEAD_BRANCH="${{ github.event.pull_request.head.ref }}"
+
+          BASE_PATTERN="^main$"
+          HEAD_PATTERN="^release/.*$"
+
+          if [[ ! "$BASE_BRANCH" = $BASE_PATTERN ]]; then
+            if [[ ! "$HEAD_BRANCH" =~ $HEAD_PATTERN ]]; then
+              echo "Error: Base branch name '$BASE_BRANCH' does not match pattern '$BASE_PATTERN'."
+              exit 1
+            fi
+          fi
+
+      - name: Success message
+        run: echo "Branch names are valid. Proceed with the PR."
