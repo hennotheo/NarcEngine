@@ -13,6 +13,11 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v2
 
+      - name: Display pull request information
+        run: |
+          echo "Base branch: ${{ github.event.pull_request.base.ref }}"
+          echo "Head branch: ${{ github.event.pull_request.head.ref }}"
+
       - name: Verify allow only release to be merged on main
         id: verify
         run: |
