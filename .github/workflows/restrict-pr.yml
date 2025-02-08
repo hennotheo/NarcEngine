@@ -1,4 +1,4 @@
-name: Restrict PR
+name: Restrict PRs
 
 on:
   pull_request:
@@ -17,13 +17,12 @@ jobs:
           BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
           HEAD_BRANCH="${{ github.event.pull_request.head.ref }}"
 
-          BASE_PATTERN="main"
+          BASE_PATTERN="^main$"
           HEAD_PATTERN="^release/.*$"
 
-          if [[ ! "$BASE_BRANCH" = $BASE_PATTERN ]]; then
-              echo "Try Merging on '$BASE_BRANCH' : checking permissions."
+          if [[ "$BASE_BRANCH" =~ $BASE_PATTERN ]]; then
             if [[ ! "$HEAD_BRANCH" =~ $HEAD_PATTERN ]]; then
-              echo "Error: You can't merge '$HEAD_BRANCH' into '$BASE_BRANCH' -> does not match pattern '$HEAD_BRANCH'."
+              echo "Error: You can't merge '$HEAD_BRANCH' into '$BASE_BRANCH' -> does not match pattern '$HEAD_PATTERN'."
               exit 1
             fi
           fi
