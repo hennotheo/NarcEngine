@@ -62,12 +62,13 @@ namespace NarcEngine
 		VkPipelineLayout m_pipelineLayout;
 		VkPipeline m_graphicsPipeline;
 		VkCommandPool m_commandPool;
-		VkCommandBuffer m_commandBuffer;
+		std::vector<VkCommandBuffer> m_commandBuffers;
+		uint32_t m_currentFrame = 0;
 
 		//Sync objects -> Waiting them to make operation... cf doc vulkan
-		VkSemaphore m_imageAvailableSemaphore;
-		VkSemaphore m_renderFinishedSemaphore;
-		VkFence m_inFlightFence;
+		std::vector<VkSemaphore> m_imageAvailableSemaphores;
+		std::vector<VkSemaphore> m_renderFinishedSemaphores;
+		std::vector<VkFence> m_inFlightFences;
 
 	private:
 		void InitWindow();
