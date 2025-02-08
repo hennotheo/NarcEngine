@@ -11,24 +11,20 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v2
 
-      - name: Verify branch names
+      - name: Verify allow only release to be merged on main
         id: verify
         run: |
           BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
           HEAD_BRANCH="${{ github.event.pull_request.head.ref }}"
 
-          # Replace these with your desired branch name patterns
           BASE_PATTERN="^main$"
           HEAD_PATTERN="^release/.*$"
 
-          if [[ ! "$BASE_BRANCH" =~ $BASE_PATTERN ]]; then
-            echo "Error: Base branch name '$BASE_BRANCH' does not match pattern '$BASE_PATTERN'."
-            exit 1
-          fi
-
-          if [[ ! "$HEAD_BRANCH" =~ $HEAD_PATTERN ]]; then
-            echo "Error: Head branch name '$HEAD_BRANCH' does not match pattern '$HEAD_PATTERN'."
-            exit 1
+          if [[ ! "$BASE_BRANCH" = $BASE_PATTERN ]]; then
+            if [[ ! "$HEAD_BRANCH" =~ $HEAD_PATTERN ]]; then
+              echo "Error: Base branch name '$BASE_BRANCH' does not match pattern '$BASE_PATTERN'."
+              exit 1
+            fi
           fi
 
       - name: Success message
