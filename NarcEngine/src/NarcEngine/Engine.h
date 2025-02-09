@@ -106,6 +106,8 @@ namespace NarcEngine
 
         VkBuffer m_vertexBuffer;
         VkDeviceMemory m_vertexBufferMemory;
+        VkBuffer m_indexBuffer;
+        VkDeviceMemory m_indexBufferMemory;
 
         bool m_framebufferResized = false;
 
@@ -129,6 +131,7 @@ namespace NarcEngine
         void CreateFramebuffers();
         void CreateCommandPool();
         void CreateVertexBuffer();
+        void CreateIndexBuffer();
         void CreateCommandBuffer();
         void CreateSyncObjects();
 
