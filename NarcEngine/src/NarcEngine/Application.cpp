@@ -12,8 +12,9 @@ NarcEngine::Application::~Application()
 
 void NarcEngine::Application::Run()
 {
-	Engine engine;
+    Engine engine;
 
-	engine.Run();
-	std::cin.get();
+    engine.Run();
+
+    std::cin.get();
 }

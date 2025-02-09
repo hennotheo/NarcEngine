@@ -89,7 +89,6 @@ namespace NarcEngine
         std::vector<VkImage> m_swapChainImages;
         VkFormat m_swapChainImageFormat;
         VkExtent2D m_swapChainExtent;
-        VkBuffer m_vertexBuffer;
         std::vector<VkImageView> m_swapChainImageViews;
         std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
@@ -104,6 +103,9 @@ namespace NarcEngine
         std::vector<VkSemaphore> m_imageAvailableSemaphores;
         std::vector<VkSemaphore> m_renderFinishedSemaphores;
         std::vector<VkFence> m_inFlightFences;
+
+        VkBuffer m_vertexBuffer;
+        VkDeviceMemory m_vertexBufferMemory;
 
         bool m_framebufferResized = false;
 
@@ -144,6 +146,7 @@ namespace NarcEngine
         VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
         VkShaderModule CreateShaderModule(const std::vector<char>& code);
         void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+        uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
         static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
             VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
