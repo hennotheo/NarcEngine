@@ -1,11 +1,10 @@
 #include "include/Engine.h"
 
 #include "include/Vertex.h"
+#include "include/window/Window.h"
 
 namespace NarcEngine
 {
-    const uint32_t WIDTH = 800;
-    const uint32_t HEIGHT = 600;
     const int MAX_FRAMES_IN_FLIGHT = 2;
 
     const std::vector<const char*> ValidationLayers =
@@ -77,10 +76,7 @@ namespace NarcEngine
                 indices.GraphicsFamily = i;
             }
 
-            VkBool32 presentSupport = false;
-            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, m_surface, &presentSupport);
-
-            if (presentSupport)
+            if (m_window.IsPhysicalDeviceSupported(device, i))
             {
                 indices.PresentFamily = i;
             }
@@ -92,33 +88,6 @@ namespace NarcEngine
         }
 
         return indices;
-    }
-
-    SwapChainSupportDetails Engine::QuerySwapChainSupport(VkPhysicalDevice device)
-    {
-        SwapChainSupportDetails details;
-
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_surface, &details.Capabilities);
-
-        uint32_t formatCount;
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, nullptr);
-
-        if (formatCount != 0)
-        {
-            details.Formats.resize(formatCount);
-            vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, details.Formats.data());
-        }
-
-        uint32_t presentModeCount;
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &presentModeCount, nullptr);
-
-        if (presentModeCount != 0)
-        {
-            details.PresentModes.resize(presentModeCount);
-            vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &presentModeCount, details.PresentModes.data());
-        }
-
-        return details;
     }
 
     VkSurfaceFormatKHR Engine::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
@@ -156,7 +125,7 @@ namespace NarcEngine
         else
         {
             int width, height;
-            glfwGetFramebufferSize(m_window, &width, &height);
+            m_window.GetFramebufferSize(&width, &height);
 
             VkExtent2D actualExtent =
             {
@@ -307,7 +276,7 @@ namespace NarcEngine
         }
 
         bool swapChainAdequate = false;
-        SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device);
+        SwapChainSupportDetails swapChainSupport = m_window.QuerySwapChainSupport(device);
         swapChainAdequate = !swapChainSupport.Formats.empty() && !swapChainSupport.PresentModes.empty();
         if (!swapChainAdequate)
         {
@@ -383,29 +352,18 @@ namespace NarcEngine
 
     void Engine::Run()
     {
-        InitWindow();
+        m_window.Init();
         InitVulkan();
         MainLoop();
         CleanUp();
-    }
-
-    void Engine::InitWindow()
-    {
-        glfwInit();
-
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
-        m_window = glfwCreateWindow(WIDTH, HEIGHT, "Narcoleptic Engine", nullptr, nullptr);
-        glfwSetWindowUserPointer(m_window, this);
-        glfwSetFramebufferSizeCallback(m_window, FramebufferResizeCallback); //call static function because GLFW does know how to call a member function
     }
 
     void Engine::InitVulkan()
     {
         CreateInstance();
         SetupDebugMessenger();
-        CreateSurface();
+        m_window.InitSurface(m_instance);
+        // CreateSurface();
         PickPhysicalDevice();
         CreateLogicalDevice();
         CreateSwapChain();
@@ -422,9 +380,9 @@ namespace NarcEngine
 
     void Engine::MainLoop()
     {
-        while (!glfwWindowShouldClose(m_window))
+        while (!m_window.ShouldClose())
         {
-            glfwPollEvents();
+            m_window.Update();
             DrawFrame();
         }
 
@@ -455,7 +413,7 @@ namespace NarcEngine
 
         vkDestroyBuffer(m_device, m_vertexBuffer, nullptr);
         vkFreeMemory(m_device, m_vertexBufferMemory, nullptr);
-        
+
         vkDestroyPipeline(m_device, m_graphicsPipeline, nullptr);
         vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
         vkDestroyRenderPass(m_device, m_renderPass, nullptr);
@@ -476,12 +434,10 @@ namespace NarcEngine
             DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
         }
 
-        vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+        m_window.CleanSurface(m_instance);
         vkDestroyInstance(m_instance, nullptr);
 
-        glfwDestroyWindow(m_window);
-
-        glfwTerminate();
+        m_window.Clean();
     }
 
     void Engine::CreateInstance()
@@ -539,14 +495,6 @@ namespace NarcEngine
         if (CreateDebugUtilsMessengerEXT(m_instance, &createInfo, nullptr, &m_debugMessenger) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to set up debug messenger!");
-        }
-    }
-
-    void Engine::CreateSurface()
-    {
-        if (glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create window surface!");
         }
     }
 
@@ -631,7 +579,7 @@ namespace NarcEngine
 
     void Engine::CreateSwapChain()
     {
-        SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(m_physicalDevice);
+        SwapChainSupportDetails swapChainSupport = m_window.QuerySwapChainSupport(m_physicalDevice);
         VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.Formats);
         VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.PresentModes);
         VkExtent2D extent = ChooseSwapExtent(swapChainSupport.Capabilities);
@@ -645,7 +593,7 @@ namespace NarcEngine
 
         VkSwapchainCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = m_surface;
+        createInfo.surface = m_window.GetSurface();
         createInfo.minImageCount = imageCount;
         createInfo.imageFormat = surfaceFormat.format;
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -768,12 +716,8 @@ namespace NarcEngine
     {
         int width = 0;
         int height = 0;
-        glfwGetFramebufferSize(m_window, &width, &height);
-        while (width == 0 || height == 0)
-        {
-            glfwGetFramebufferSize(m_window, &width, &height);
-            glfwWaitEvents();
-        }
+        m_window.GetValidFramebufferSize(&width, &height);
+
         vkDeviceWaitIdle(m_device);
 
         CleanupSwapChain();
@@ -1100,9 +1044,9 @@ namespace NarcEngine
 
         result = vkQueuePresentKHR(m_presentQueue, &presentInfo);
 
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebufferResized)
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window.IsFramebufferResized())
         {
-            m_framebufferResized = false; //after vkQueuePresentKHR to ensure that the semaphores are in a consistent state
+            m_window.SetFramebufferResized(false); //after vkQueuePresentKHR to ensure that the semaphores are in a consistent state
             RecreateSwapChain();
         }
         else if (result != VK_SUCCESS)
@@ -1191,12 +1135,6 @@ namespace NarcEngine
         }
 
         return VK_FALSE;
-    }
-
-    void Engine::FramebufferResizeCallback(GLFWwindow* window, int width, int height)
-    {
-        auto app = reinterpret_cast<Engine*>(glfwGetWindowUserPointer(window));
-        app->m_framebufferResized = true;
     }
 
     std::vector<char> Engine::ReadFile(const std::string& filename)
