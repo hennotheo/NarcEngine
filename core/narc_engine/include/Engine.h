@@ -2,7 +2,9 @@
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
+
+#include "QueueFamilyIndices.h"
+#include "SwapChainSupportDetails.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -19,56 +21,6 @@
 
 namespace NarcEngine
 {
-    struct Vertex
-    {
-        glm::vec2 Pos;
-        glm::vec3 Color;
-
-        static VkVertexInputBindingDescription GetBindingDescription()
-        {
-            VkVertexInputBindingDescription bindingDescription{};
-            bindingDescription.binding = 0;
-            bindingDescription.stride = sizeof(Vertex);
-            bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX; //VERTEX or INSTANCE
-
-            return bindingDescription;
-        }
-
-        static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions()//Fill attribute in vertx shader
-        {
-            std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
-            attributeDescriptions[0].binding = 0;
-            attributeDescriptions[0].location = 0;
-            attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;//VEC2
-            attributeDescriptions[0].offset = offsetof(Vertex, Pos);
-
-            attributeDescriptions[1].binding = 0;
-            attributeDescriptions[1].location = 1;
-            attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-            attributeDescriptions[1].offset = offsetof(Vertex, Color);
-
-            return attributeDescriptions;
-        }
-    };
-
-    struct QueueFamilyIndices
-    {
-        std::optional<uint32_t> GraphicsFamily;
-        std::optional<uint32_t> PresentFamily;
-
-        bool IsComplete()
-        {
-            return GraphicsFamily.has_value() && PresentFamily.has_value();
-        }
-    };
-
-    struct SwapChainSupportDetails
-    {
-        VkSurfaceCapabilitiesKHR Capabilities;
-        std::vector<VkSurfaceFormatKHR> Formats;
-        std::vector<VkPresentModeKHR> PresentModes;
-    };
-
     class Engine
     {
     public:
@@ -127,8 +79,8 @@ namespace NarcEngine
         void RecreateSwapChain();
         void CreateImageViews();
         void CreateRenderPass();
-        void CreateGraphicsPipeline();
         void CreateFramebuffers();
+        void CreateGraphicsPipeline();
         void CreateCommandPool();
         void CreateVertexBuffer();
         void CreateIndexBuffer();

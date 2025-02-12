@@ -1,5 +1,7 @@
 #include "include/Engine.h"
 
+#include "include/Vertex.h"
+
 namespace NarcEngine
 {
     const uint32_t WIDTH = 800;
