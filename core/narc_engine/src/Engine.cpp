@@ -1,5 +1,6 @@
 #include "include/Engine.h"
 
+#include "include/Core.h"
 #include "include/Vertex.h"
 #include "include/window/Window.h"
 
@@ -27,12 +28,6 @@ namespace NarcEngine
     const std::vector<uint16_t> Indices = {
         0, 1, 2, 2, 3, 0
     };
-
-#ifdef NDEBUG
-	const bool EnableValidationLayers = false;
-#else
-    const bool EnableValidationLayers = true;
-#endif
 
     VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const
                                           VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const
@@ -342,10 +337,9 @@ namespace NarcEngine
 
         std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-        if (EnableValidationLayers)
-        {
+#ifdef ENABLE_VALIDATION_LAYERS
             extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-        }
+#endif
 
         return extensions;
     }
@@ -429,10 +423,9 @@ namespace NarcEngine
 
         vkDestroyDevice(m_device, nullptr);
 
-        if (EnableValidationLayers)
-        {
-            DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
-        }
+#ifdef ENABLE_VALIDATION_LAYERS
+        DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
+#endif
 
         m_window.CleanSurface(m_instance);
         vkDestroyInstance(m_instance, nullptr);
@@ -442,10 +435,12 @@ namespace NarcEngine
 
     void Engine::CreateInstance()
     {
-        if (EnableValidationLayers && !CheckValidationLayerSupport())
+#ifdef ENABLE_VALIDATION_LAYERS
+        if (!CheckValidationLayerSupport())
         {
             throw std::runtime_error("Validation layers requested, but not available!");
         }
+#endif
 
         VkApplicationInfo appInfo{};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -464,19 +459,16 @@ namespace NarcEngine
         createInfo.ppEnabledExtensionNames = extensions.data();
 
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-        if (EnableValidationLayers)
-        {
-            createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
-            createInfo.ppEnabledLayerNames = ValidationLayers.data();
+#ifdef ENABLE_VALIDATION_LAYERS
+        createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
+        createInfo.ppEnabledLayerNames = ValidationLayers.data();
 
-            PopulateDebugMessengerCreateInfo(debugCreateInfo);
-            createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
-        }
-        else
-        {
-            createInfo.enabledLayerCount = 0;
-            createInfo.pNext = nullptr;
-        }
+        PopulateDebugMessengerCreateInfo(debugCreateInfo);
+        createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
+#else
+        createInfo.enabledLayerCount = 0;
+        createInfo.pNext = nullptr;
+#endif
 
         if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
         {
@@ -486,8 +478,9 @@ namespace NarcEngine
 
     void Engine::SetupDebugMessenger()
     {
-        if (!EnableValidationLayers)
+#ifndef ENABLE_VALIDATION_LAYERS
             return;
+#endif
 
         VkDebugUtilsMessengerCreateInfoEXT createInfo;
         PopulateDebugMessengerCreateInfo(createInfo);
@@ -558,15 +551,12 @@ namespace NarcEngine
         createInfo.enabledExtensionCount = static_cast<uint32_t>(DeviceExtensions.size());
         createInfo.ppEnabledExtensionNames = DeviceExtensions.data();
 
-        if (EnableValidationLayers)
-        {
-            createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
-            createInfo.ppEnabledLayerNames = ValidationLayers.data();
-        }
-        else
-        {
-            createInfo.enabledLayerCount = 0;
-        }
+#ifdef ENABLE_VALIDATION_LAYERS
+        createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
+        createInfo.ppEnabledLayerNames = ValidationLayers.data();
+#else
+        createInfo.enabledLayerCount = 0;
+#endif
 
         if (vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device) != VK_SUCCESS)
         {

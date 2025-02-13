@@ -18,6 +18,7 @@ int main(int argc, char** argv)
 	{
 		std::cerr << e.what() << std::endl;
 		std::cin.get();
+		
 		delete engine;
 		return EXIT_FAILURE;
 	}
