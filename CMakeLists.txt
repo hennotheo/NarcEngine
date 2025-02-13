@@ -17,5 +17,5 @@ project (NarcEngine VERSION 0.1)
 
 add_compile_definitions(NARC_ENGINE_PLATFORM_WINDOWS)
 
-add_subdirectory (NarcEngine)
-add_subdirectory (Sandbox)
+add_subdirectory (core/narc_engine)
+add_subdirectory (sandbox)

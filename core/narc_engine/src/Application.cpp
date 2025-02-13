@@ -1,6 +1,6 @@
-#include "Application.h"
-
-#include "Engine.h"
+#include "include/Application.h"
+#include "include/Engine.h"
+#include "include/window/Window.h"
 
 NarcEngine::Application::Application()
 {

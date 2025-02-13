@@ -2,7 +2,11 @@
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
+
+#include "window/Window.h"
+
+#include "QueueFamilyIndices.h"
+#include "SwapChainSupportDetails.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -17,70 +21,21 @@
 #include <array>
 #include <fstream>
 
+
 namespace NarcEngine
 {
-    struct Vertex
-    {
-        glm::vec2 Pos;
-        glm::vec3 Color;
-
-        static VkVertexInputBindingDescription GetBindingDescription()
-        {
-            VkVertexInputBindingDescription bindingDescription{};
-            bindingDescription.binding = 0;
-            bindingDescription.stride = sizeof(Vertex);
-            bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX; //VERTEX or INSTANCE
-
-            return bindingDescription;
-        }
-
-        static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions()//Fill attribute in vertx shader
-        {
-            std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
-            attributeDescriptions[0].binding = 0;
-            attributeDescriptions[0].location = 0;
-            attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;//VEC2
-            attributeDescriptions[0].offset = offsetof(Vertex, Pos);
-
-            attributeDescriptions[1].binding = 0;
-            attributeDescriptions[1].location = 1;
-            attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-            attributeDescriptions[1].offset = offsetof(Vertex, Color);
-
-            return attributeDescriptions;
-        }
-    };
-
-    struct QueueFamilyIndices
-    {
-        std::optional<uint32_t> GraphicsFamily;
-        std::optional<uint32_t> PresentFamily;
-
-        bool IsComplete()
-        {
-            return GraphicsFamily.has_value() && PresentFamily.has_value();
-        }
-    };
-
-    struct SwapChainSupportDetails
-    {
-        VkSurfaceCapabilitiesKHR Capabilities;
-        std::vector<VkSurfaceFormatKHR> Formats;
-        std::vector<VkPresentModeKHR> PresentModes;
-    };
-
     class Engine
     {
     public:
         void Run();
 
     private:
-        GLFWwindow* m_window;
+        Window m_window;
+        
         VkInstance m_instance;
         VkDebugUtilsMessengerEXT m_debugMessenger;
         VkDevice m_device;
         VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
-        VkSurfaceKHR m_surface;
 
         VkQueue m_presentQueue;
         VkQueue m_graphicsQueue;
@@ -109,26 +64,24 @@ namespace NarcEngine
         VkBuffer m_indexBuffer;
         VkDeviceMemory m_indexBufferMemory;
 
-        bool m_framebufferResized = false;
-
     private:
-        void InitWindow();
         void InitVulkan();
         void MainLoop();
         void CleanupSwapChain();
         void CleanUp();
 
+        // void InitWindow();
         void CreateInstance();
         void SetupDebugMessenger();
-        void CreateSurface();
+        // void CreateSurface();
         void PickPhysicalDevice();
         void CreateLogicalDevice();
         void CreateSwapChain();
         void RecreateSwapChain();
         void CreateImageViews();
         void CreateRenderPass();
-        void CreateGraphicsPipeline();
         void CreateFramebuffers();
+        void CreateGraphicsPipeline();
         void CreateCommandPool();
         void CreateVertexBuffer();
         void CreateIndexBuffer();
@@ -145,7 +98,7 @@ namespace NarcEngine
         std::vector<const char*> GetRequiredExtensions();
         void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
         QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
-        SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
+        // SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
         VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
         VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
         VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
@@ -159,6 +112,5 @@ namespace NarcEngine
             const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
             void* pUserData);
         static std::vector<char> ReadFile(const std::string& filename);
-        static void FramebufferResizeCallback(GLFWwindow* window, int width, int height);
     };
 }

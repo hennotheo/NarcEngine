@@ -81,16 +81,16 @@ variable_watch(GLFW_LIB_LIST)
 
 # Gather list of header and source files for compilation
 file(GLOB_RECURSE CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
+file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 
 link_directories("vendors/glfw/lib-vc2022")
 link_directories(${VULKAN_PATH}/Lib)
 
 add_compile_definitions(NARC_ENGINE_BUILD_DLL)
 
-add_library(${NARC_ENGINE} SHARED src/NarcEngine.h ${CPP_FILES} ${HPP_FILES})# ${CPP_FILES} ${HPP_FILES})
+add_library(${NARC_ENGINE} SHARED include/NarcEngine.h ${CPP_FILES} ${HPP_FILES})# ${CPP_FILES} ${HPP_FILES})
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(AFTER ${VULKAN_PATH}/Include)
 include_directories("vendors/glm")
 include_directories("vendors/glfw/include")
