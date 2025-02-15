@@ -1,6 +1,7 @@
 #include "include/EngineDebugLogger.h"
 
 #include <iostream>
+#include <set>
 
 #include "include/Core.h"
 
@@ -8,13 +9,15 @@
 #include <vector>
 
 namespace NarcEngine
-{    
+{
+    const std::vector<const char*> ValidationLayers =
+    {
+        "VK_LAYER_KHRONOS_validation"
+    };
+
     void EngineDebugLogger::Init(VkInstance& instance)
     {
-#ifndef ENABLE_VALIDATION_LAYERS
-        return;
-#endif
-
+#ifdef ENABLE_VALIDATION_LAYERS
         VkDebugUtilsMessengerCreateInfoEXT createInfo;
         PopulateDebugMessengerCreateInfo(createInfo);
 
@@ -22,6 +25,7 @@ namespace NarcEngine
         {
             throw std::runtime_error("Failed to set up debug messenger!");
         }
+#endif
     }
 
     void EngineDebugLogger::LinkToInstance(VkInstanceCreateInfo& createInfo, VkDebugUtilsMessengerCreateInfoEXT& debugCreateInfo)
@@ -38,11 +42,80 @@ namespace NarcEngine
 #endif
     }
 
+    std::vector<const char*> EngineDebugLogger::GetRequiredExtensions()
+    {
+        uint32_t glfwExtensionCount = 0;
+        const char** glfwExtensions;
+        glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+        std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+#ifdef ENABLE_VALIDATION_LAYERS
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
+
+        return extensions;
+    }
+
+    void EngineDebugLogger::LinkToDevice(VkDeviceCreateInfo& createInfo)
+    {
+#ifdef ENABLE_VALIDATION_LAYERS
+        createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
+        createInfo.ppEnabledLayerNames = ValidationLayers.data();
+#else
+        createInfo.enabledLayerCount = 0;
+#endif
+    }
+
     void EngineDebugLogger::Clean(VkInstance& instance)
     {
 #ifdef ENABLE_VALIDATION_LAYERS
         DestroyDebugUtilsMessengerEXT(instance, m_debugMessenger, nullptr);
 #endif
+    }
+
+    bool EngineDebugLogger::CheckValidationLayerSupport()
+    {
+        uint32_t layerCount;
+        vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+        std::vector<VkLayerProperties> availableLayers(layerCount);
+        vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+        for (const auto& layerName : ValidationLayers)
+        {
+            bool layerFound = false;
+
+            for (const auto& layerProperties : availableLayers)
+            {
+                if (strcmp(layerName, layerProperties.layerName) == 0)
+                {
+                    layerFound = true;
+                    break;
+                }
+            }
+
+            if (!layerFound)
+                return false;
+        }
+
+        return true;
+    }
+
+    bool EngineDebugLogger::CheckDeviceExtensionSupport(VkPhysicalDevice& device, const std::vector<const char*>& deviceExtensions)
+    {
+        uint32_t extensionCount;
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+        std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+        std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+        for (const auto& extension : availableExtensions)
+        {
+            requiredExtensions.erase(extension.extensionName);
+        }
+
+        return requiredExtensions.empty();
     }
 
     void EngineDebugLogger::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)

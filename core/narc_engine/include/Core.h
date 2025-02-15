@@ -19,11 +19,6 @@
 #else
 
 #define ENABLE_VALIDATION_LAYERS
-const std::vector<const char*> ValidationLayers =
-{
-    "VK_LAYER_KHRONOS_validation"
-};
-
 
 // const bool EnableValidationLayers = true;
 #endif

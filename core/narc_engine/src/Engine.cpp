@@ -14,7 +14,7 @@ namespace NarcEngine
     {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
-
+    
     const std::vector<Vertex> Vertices = {
         {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
         {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
@@ -195,23 +195,6 @@ namespace NarcEngine
         throw std::runtime_error("failed to find suitable memory type!");
     }
 
-    bool Engine::CheckDeviceExtensionSupport(VkPhysicalDevice device)
-    {
-        uint32_t extensionCount;
-        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
-
-        std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
-
-        std::set<std::string> requiredExtensions(DeviceExtensions.begin(), DeviceExtensions.end());
-        for (const auto& extension : availableExtensions)
-        {
-            requiredExtensions.erase(extension.extensionName);
-        }
-
-        return requiredExtensions.empty();
-    }
-
     int Engine::RateDeviceSuitability(VkPhysicalDevice device)
     {
         VkPhysicalDeviceProperties deviceProperties;
@@ -236,7 +219,7 @@ namespace NarcEngine
             return 0;
         }
 
-        bool extensionsSupported = CheckDeviceExtensionSupport(device);
+        bool extensionsSupported = m_debugLogger.CheckDeviceExtensionSupport(device, DeviceExtensions);
         if (!extensionsSupported)
         {
             return 0;
@@ -263,48 +246,6 @@ namespace NarcEngine
         }
 
         return score;
-    }
-
-    bool Engine::CheckValidationLayerSupport()
-    {
-        uint32_t layerCount;
-        vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-        std::vector<VkLayerProperties> availableLayers(layerCount);
-        vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
-
-        for (const auto& layerName : ValidationLayers)
-        {
-            bool layerFound = false;
-
-            for (const auto& layerProperties : availableLayers)
-            {
-                if (strcmp(layerName, layerProperties.layerName) == 0)
-                {
-                    layerFound = true;
-                    break;
-                }
-            }
-
-            if (!layerFound)
-                return false;
-        }
-
-        return true;
-    }
-
-    std::vector<const char*> Engine::GetRequiredExtensions()
-    {
-        uint32_t glfwExtensionCount = 0;
-        const char** glfwExtensions;
-        glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-        std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
-
-#ifdef ENABLE_VALIDATION_LAYERS
-        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-#endif
-
-        return extensions;
     }
 
     void Engine::Run()
@@ -396,7 +337,7 @@ namespace NarcEngine
     void Engine::CreateInstance()
     {
 #ifdef ENABLE_VALIDATION_LAYERS
-        if (!CheckValidationLayerSupport())
+        if (!m_debugLogger.CheckValidationLayerSupport())
         {
             throw std::runtime_error("Validation layers requested, but not available!");
         }
@@ -414,7 +355,7 @@ namespace NarcEngine
         createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         createInfo.pApplicationInfo = &appInfo;
 
-        auto extensions = GetRequiredExtensions();
+        auto extensions = m_debugLogger.GetRequiredExtensions();
         createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
         createInfo.ppEnabledExtensionNames = extensions.data();
 
@@ -487,12 +428,7 @@ namespace NarcEngine
         createInfo.enabledExtensionCount = static_cast<uint32_t>(DeviceExtensions.size());
         createInfo.ppEnabledExtensionNames = DeviceExtensions.data();
 
-#ifdef ENABLE_VALIDATION_LAYERS
-        createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
-        createInfo.ppEnabledLayerNames = ValidationLayers.data();
-#else
-        createInfo.enabledLayerCount = 0;
-#endif
+        m_debugLogger.LinkToDevice(createInfo);
 
         if (vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device) != VK_SUCCESS)
         {

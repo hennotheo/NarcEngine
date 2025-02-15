@@ -95,10 +95,10 @@ namespace NarcEngine
 
         void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
         void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
-        bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
+        // bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
         int RateDeviceSuitability(VkPhysicalDevice device);
-        bool CheckValidationLayerSupport();
-        std::vector<const char*> GetRequiredExtensions();
+        // bool CheckValidationLayerSupport();
+        // std::vector<const char*> GetRequiredExtensions();
         // void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
         QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
         // SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);

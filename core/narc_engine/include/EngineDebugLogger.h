@@ -12,9 +12,13 @@ namespace NarcEngine
         void Init(VkInstance& instance);
 
         void LinkToInstance(VkInstanceCreateInfo& createInfo, VkDebugUtilsMessengerCreateInfoEXT& debugCreateInfo);
+        std::vector<const char*> GetRequiredExtensions();
+        void LinkToDevice(VkDeviceCreateInfo& createInfo);
 
         void Clean(VkInstance& instance);
 
+        bool CheckValidationLayerSupport();
+        bool CheckDeviceExtensionSupport(VkPhysicalDevice& device, const std::vector<const char*>& deviceExtensions);
         void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
     private:
