@@ -1,5 +1,7 @@
 #include "include/Engine.h"
 
+#include <map>
+#include <set>
 #include <string>
 
 #include "include/Core.h"
@@ -241,13 +243,7 @@ namespace NarcEngine
     void Engine::CleanUp()
     {
         m_swapChain.CleanSwapChain();
-        // CleanupSwapChain();
 
-        // vkDestroyBuffer(m_device, m_indexBuffer, nullptr);
-        // vkFreeMemory(m_device, m_indexBufferMemory, nullptr);
-
-        // vkDestroyBuffer(m_device, m_vertexBuffer, nullptr);
-        // vkFreeMemory(m_device, m_vertexBufferMemory, nullptr);
         m_indexBuffer.Release();
         m_vertexBuffer.Release();
 

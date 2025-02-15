@@ -11,8 +11,6 @@ namespace NarcEngine
     class SwapChain
     {
     public:
-        // const VkFormat& GetSwapChainImageFormat() const { return m_swapChainImageFormat; }
-        // const VkFramebuffer& GetSwapChainFramebuffer(uint32_t index) const { return m_swapChainFramebuffers[index]; }
         const VkExtent2D& GetSwapChainExtent() const { return m_swapChainExtent; }
         const VkRenderPass& GetRenderPass() const { return m_renderPass; }
         const VkSwapchainKHR& GetSwapChain() const { return m_swapChain; }
