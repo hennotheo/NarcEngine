@@ -84,15 +84,9 @@ namespace NarcEngine
         {
             throw std::runtime_error("Failed to begin recording command buffer!");
         }
-
+        
+        VkRenderPassBeginInfo renderPassInfo = m_swapChain.GetRenderPassBeginInfos(imageIndex);
         VkExtent2D swapChainExtent = m_swapChain.GetSwapChainExtent();
-
-        VkRenderPassBeginInfo renderPassInfo{};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = m_renderPass;
-        renderPassInfo.framebuffer = m_swapChain.GetSwapChainFramebuffer(imageIndex);
-        renderPassInfo.renderArea.offset = {0, 0};
-        renderPassInfo.renderArea.extent = swapChainExtent;
 
         VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
         renderPassInfo.clearValueCount = 1;
@@ -210,23 +204,22 @@ namespace NarcEngine
     void Engine::Run()
     {
         s_instance = this;
-        m_window.Init();
-        InitVulkan();
+        Init();
         MainLoop();
         CleanUp();
     }
 
-    void Engine::InitVulkan()
+    void Engine::Init()
     {
+        m_window.Init();
         CreateInstance();
         m_debugLogger.Init(m_instance); //SetupDebugMessenger();
         m_window.InitSurface(m_instance); // CreateSurface();
         PickPhysicalDevice();
         CreateLogicalDevice();
-        m_swapChain.Create(); // CreateSwapChain(); // CreateImageViews();
-        CreateRenderPass();
+        m_swapChain.Create(); // CreateSwapChain(); // CreateImageViews(); //CreateRenderPass();
         CreateGraphicsPipeline();
-        m_swapChain.CreateFramebuffers(m_renderPass); // CreateFramebuffers();
+        m_swapChain.CreateFramebuffers(); // CreateFramebuffers();
         CreateCommandPool();
         m_vertexBuffer.Create(Vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
         m_indexBuffer.Create(Indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
@@ -247,7 +240,7 @@ namespace NarcEngine
 
     void Engine::CleanUp()
     {
-        m_swapChain.Clean();
+        m_swapChain.CleanSwapChain();
         // CleanupSwapChain();
 
         // vkDestroyBuffer(m_device, m_indexBuffer, nullptr);
@@ -260,7 +253,7 @@ namespace NarcEngine
 
         vkDestroyPipeline(m_device, m_graphicsPipeline, nullptr);
         vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
-        vkDestroyRenderPass(m_device, m_renderPass, nullptr);
+        m_swapChain.CleanRenderPass();
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
         {
@@ -386,52 +379,6 @@ namespace NarcEngine
         vkGetDeviceQueue(m_device, indices.PresentFamily.value(), 0, &m_presentQueue);
     }
 
-    void Engine::CreateRenderPass()
-    {
-        VkAttachmentDescription colorAttachment{};
-        colorAttachment.format = m_swapChain.GetSwapChainImageFormat();
-        colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-        //Qu'est-ce que l'on fait avec la data
-        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        //on fait rien avec le stencil buffer donc -> dont care
-        colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-        VkAttachmentReference colorAttachmentRef{};
-        colorAttachmentRef.attachment = 0;
-        colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-        VkSubpassDescription subpass{};
-        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        subpass.colorAttachmentCount = 1;
-        subpass.pColorAttachments = &colorAttachmentRef;
-
-        VkSubpassDependency dependency{};
-        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-        dependency.dstSubpass = 0;
-        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.srcAccessMask = 0;
-        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-        VkRenderPassCreateInfo renderPassInfo{};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        renderPassInfo.attachmentCount = 1;
-        renderPassInfo.pAttachments = &colorAttachment;
-        renderPassInfo.subpassCount = 1;
-        renderPassInfo.pSubpasses = &subpass;
-        renderPassInfo.dependencyCount = 1;
-        renderPassInfo.pDependencies = &dependency;
-
-        if (vkCreateRenderPass(m_device, &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create render pass!");
-        }
-    }
-
     void Engine::CreateGraphicsPipeline()
     {
         auto vertShaderCode = ReadFile("shaders/vert.spv");
@@ -550,7 +497,7 @@ namespace NarcEngine
         pipelineInfo.pColorBlendState = &colorBlending;
         pipelineInfo.pDynamicState = &dynamicState;
         pipelineInfo.layout = m_pipelineLayout;
-        pipelineInfo.renderPass = m_renderPass;
+        pipelineInfo.renderPass = m_swapChain.GetRenderPass();
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
         pipelineInfo.basePipelineIndex = -1; // Optional
@@ -659,7 +606,7 @@ namespace NarcEngine
         vkWaitForFences(m_device, 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
 
         uint32_t imageIndex;
-        VkResult result = m_swapChain.AcquireNextImage(m_imageAvailableSemaphores[m_currentFrame], m_renderPass, &imageIndex);
+        VkResult result = m_swapChain.AcquireNextImage(m_imageAvailableSemaphores[m_currentFrame], &imageIndex);
 
         vkResetFences(m_device, 1, &m_inFlightFences[m_currentFrame]);
 
@@ -706,11 +653,11 @@ namespace NarcEngine
         presentInfo.pResults = nullptr;
 
         result = vkQueuePresentKHR(m_presentQueue, &presentInfo);
-
+        
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window.IsFramebufferResized())
         {
             m_window.SetFramebufferResized(false); //after vkQueuePresentKHR to ensure that the semaphores are in a consistent state
-            m_swapChain.ReCreate(m_renderPass);
+            m_swapChain.ReCreate();
         }
         else if (result != VK_SUCCESS)
         {

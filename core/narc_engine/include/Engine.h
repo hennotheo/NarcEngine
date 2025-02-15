@@ -64,7 +64,7 @@ namespace NarcEngine
         // std::vector<VkImageView> m_swapChainImageViews;
         // std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
-        VkRenderPass m_renderPass;
+        // VkRenderPass m_renderPass;
         VkPipelineLayout m_pipelineLayout;
         VkPipeline m_graphicsPipeline;
         VkCommandPool m_commandPool;
@@ -90,7 +90,7 @@ namespace NarcEngine
         // Engine(const Engine&) = delete;
         // Engine& operator=(const Engine&) = delete;
 
-        void InitVulkan();
+        void Init();
         void MainLoop();
         // void CleanupSwapChain();
         void CleanUp();
@@ -104,7 +104,7 @@ namespace NarcEngine
         // void CreateSwapChain();
         // void RecreateSwapChain();
         // void CreateImageViews();
-        void CreateRenderPass();
+        // void CreateRenderPass();
         // void CreateFramebuffers();
         void CreateGraphicsPipeline();
         void CreateCommandPool();
