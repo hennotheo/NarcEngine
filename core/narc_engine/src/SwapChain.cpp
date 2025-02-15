@@ -137,7 +137,7 @@ namespace narc_engine
         createInfo.imageArrayLayers = 1;
         createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-        QueueFamilyIndices indices = Engine::getInstance()->find_queue_families(m_physicalDevice);
+        QueueFamilyIndices indices = Engine::getInstance()->findQueueFamilies(m_physicalDevice);
         uint32_t queueFamilyIndices[] = {indices.GraphicsFamily.value(), indices.PresentFamily.value()};
 
         if (indices.GraphicsFamily != indices.PresentFamily)

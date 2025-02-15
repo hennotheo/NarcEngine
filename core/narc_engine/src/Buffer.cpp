@@ -28,7 +28,7 @@ namespace narc_engine
 
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_buffer, m_bufferMemory);
 
-        Engine::getInstance()->CopyBuffer(stagingBuffer, m_buffer, bufferSize);
+        Engine::getInstance()->copyBuffer(stagingBuffer, m_buffer, bufferSize);
         vkDestroyBuffer(m_linkedDevice, stagingBuffer, nullptr);
         vkFreeMemory(m_linkedDevice, stagingBufferMemory, nullptr);
     }
