@@ -4,20 +4,21 @@
 
 #include <iostream>
 
-extern NarcEngine::Application* NarcEngine::CreateApplication();
+extern narc_engine::Application* narc_engine::createApplication();
 
 int main(int argc, char** argv)
 {
-	auto engine = NarcEngine::CreateApplication();
+	auto engine = narc_engine::createApplication();
 
 	try
 	{
-		engine->Run();
+		engine->run();
 	}
 	catch (const std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
 		std::cin.get();
+		
 		delete engine;
 		return EXIT_FAILURE;
 	}
