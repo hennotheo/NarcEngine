@@ -2,7 +2,7 @@
 
 #include "Core.h"
 
-namespace NarcEngine
+namespace narc_engine
 {
 	class NARC_ENGINE_API Application
 	{
@@ -10,8 +10,8 @@ namespace NarcEngine
 		Application();
 		virtual ~Application();
 
-		void Run();
+		void run();
 	};
 
-	Application* CreateApplication();
+	Application* createApplication();
 }

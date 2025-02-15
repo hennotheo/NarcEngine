@@ -5,14 +5,14 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-namespace NarcEngine
+namespace narc_engine
 {
     struct Vertex
     {
         glm::vec2 Pos;
         glm::vec3 Color;
 
-        static VkVertexInputBindingDescription GetBindingDescription()
+        static VkVertexInputBindingDescription getBindingDescription()
         {
             VkVertexInputBindingDescription bindingDescription{};
             bindingDescription.binding = 0;
@@ -22,7 +22,7 @@ namespace NarcEngine
             return bindingDescription;
         }
 
-        static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions() //Fill attribute in vertx shader
+        static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() //Fill attribute in vertx shader
         {
             std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
             attributeDescriptions[0].binding = 0;

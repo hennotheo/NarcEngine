@@ -6,24 +6,24 @@
 
 #include "window/Window.h"
 
-namespace NarcEngine
+namespace narc_engine
 {
     class SwapChain
     {
     public:
-        const VkExtent2D& GetSwapChainExtent() const { return m_swapChainExtent; }
-        const VkRenderPass& GetRenderPass() const { return m_renderPass; }
-        const VkSwapchainKHR& GetSwapChain() const { return m_swapChain; }
+        const VkExtent2D& getSwapChainExtent() const { return m_swapChainExtent; }
+        const VkRenderPass& getRenderPass() const { return m_renderPass; }
+        const VkSwapchainKHR& getSwapChain() const { return m_swapChain; }
 
-        void Create();
-        void CreateFramebuffers();
+        void create();
+        void createFramebuffers();
         
-        VkRenderPassBeginInfo GetRenderPassBeginInfos(uint32_t imageIndex) const;
-        VkResult AcquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex);
-        void ReCreate();
+        VkRenderPassBeginInfo getRenderPassBeginInfos(uint32_t imageIndex) const;
+        VkResult acquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex);
+        void reCreate();
         
-        void CleanSwapChain();
-        void CleanRenderPass();
+        void cleanSwapChain();
+        void cleanRenderPass();
 
     private:
         VkSwapchainKHR m_swapChain;
@@ -39,11 +39,11 @@ namespace NarcEngine
         VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
         Window m_window;
 
-        void CreateSwapChain();
-        void CreateRenderPass();
-        void CreateImageViews();
-        VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-        VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-        VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+        void createSwapChain();
+        void createRenderPass();
+        void createImageViews();
+        VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+        VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
     };
 }

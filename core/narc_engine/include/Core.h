@@ -14,11 +14,8 @@
 
 #ifdef NDEBUG
 
-// const bool EnableValidationLayers = false;
-
 #else
 
 #define ENABLE_VALIDATION_LAYERS
 
-// const bool EnableValidationLayers = true;
 #endif

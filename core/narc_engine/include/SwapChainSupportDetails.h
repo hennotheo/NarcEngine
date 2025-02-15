@@ -5,7 +5,7 @@
 
 #include <vector>
 
-namespace NarcEngine
+namespace narc_engine
 {
     struct SwapChainSupportDetails
     {

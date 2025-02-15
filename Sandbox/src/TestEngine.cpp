@@ -1,6 +1,6 @@
 #include <NarcEngine.h>
 
-class Sandbox : public NarcEngine::Application
+class Sandbox : public narc_engine::Application
 {
 public:
 	Sandbox()
@@ -14,7 +14,7 @@ public:
 	}
 };
 
-NarcEngine::Application* NarcEngine::CreateApplication()
+narc_engine::Application* narc_engine::createApplication()
 {
 	return new Sandbox();
 }

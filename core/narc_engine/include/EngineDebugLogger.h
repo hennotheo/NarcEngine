@@ -4,34 +4,34 @@
 #include <vector>
 #include <GLFW/glfw3.h>
 
-namespace NarcEngine
+namespace narc_engine
 {
     class EngineDebugLogger
     {
     public:
-        void Init(VkInstance& instance);
+        void init(VkInstance& instance);
 
-        void LinkToInstance(VkInstanceCreateInfo& createInfo, VkDebugUtilsMessengerCreateInfoEXT& debugCreateInfo);
-        std::vector<const char*> GetRequiredExtensions();
-        void LinkToDevice(VkDeviceCreateInfo& createInfo);
+        void linkToInstance(VkInstanceCreateInfo& createInfo, VkDebugUtilsMessengerCreateInfoEXT& debugCreateInfo);
+        std::vector<const char*> getRequiredExtensions();
+        void linkToDevice(VkDeviceCreateInfo& createInfo);
 
-        void Clean(VkInstance& instance);
+        void clean(VkInstance& instance);
 
-        bool CheckValidationLayerSupport();
-        bool CheckDeviceExtensionSupport(VkPhysicalDevice& device, const std::vector<const char*>& deviceExtensions);
-        void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+        bool checkValidationLayerSupport();
+        bool checkDeviceExtensionSupport(VkPhysicalDevice& device, const std::vector<const char*>& deviceExtensions);
+        void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
     private:
         VkDebugUtilsMessengerEXT m_debugMessenger;
 
 
-        static VkBool32 DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+        static VkBool32 debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                       VkDebugUtilsMessageTypeFlagsEXT messageType,
                                       const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                                       void* pUserData);
     };
 
-    inline void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator)
+    inline void destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator)
     {
         auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
 
@@ -41,7 +41,7 @@ namespace NarcEngine
         }
     }
 
-    inline VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const
+    inline VkResult createDebugUtilsMessengerEXT(VkInstance instance, const
                                                  VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const
                                                  VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT*
                                                  pDebugMessenger)

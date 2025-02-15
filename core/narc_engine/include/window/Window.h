@@ -4,30 +4,30 @@
 
 #include "include/SwapChainSupportDetails.h"
 
-namespace NarcEngine
+namespace narc_engine
 {
     class Window
     {
     public:
-        void Init();
-        void InitSurface(VkInstance instance);
+        void init();
+        void initSurface(VkInstance instance);
 
-        void Update();
+        void update();
 
-        void CleanSurface(VkInstance m_instance);
-        void Clean();
+        void cleanSurface(VkInstance m_instance);
+        void clean();
 
-        SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device) const;
-        void GetValidFramebufferSize(int* width, int* height) const;
-        void GetFramebufferSize(int* width, int* height) const;
-        VkBool32 IsPhysicalDeviceSupported(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex);
+        SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) const;
+        void getValidFramebufferSize(int* width, int* height) const;
+        void getFramebufferSize(int* width, int* height) const;
+        VkBool32 isPhysicalDeviceSupported(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex);
 
         //TODO : MANAGE THIS DIFFERENTLY
-        inline void SetFramebufferResized(bool value) { m_framebufferResized = value; }
+        inline void setFramebufferResized(bool value) { m_framebufferResized = value; }
 
-        inline bool IsFramebufferResized() const { return m_framebufferResized; }
-        inline bool ShouldClose() const { return m_shouldClose; }
-        inline VkSurfaceKHR GetSurface() const { return m_surface; }
+        inline bool isFramebufferResized() const { return m_framebufferResized; }
+        inline bool shouldClose() const { return m_shouldClose; }
+        inline VkSurfaceKHR getSurface() const { return m_surface; }
 
     private:
         GLFWwindow* m_window;
@@ -38,6 +38,6 @@ namespace NarcEngine
         bool m_shouldClose = false;
 
     private:
-        static void FramebufferResizeCallback(GLFWwindow* window, int width, int height);
+        static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
     };
 }

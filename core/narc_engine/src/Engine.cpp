@@ -8,27 +8,27 @@
 #include "include/Vertex.h"
 #include "include/window/Window.h"
 
-namespace NarcEngine
+namespace narc_engine
 {
-    const int MAX_FRAMES_IN_FLIGHT = 2;
+    const int g_maxFramesInFlight = 2;
 
-    const std::vector<const char*> DeviceExtensions =
+    const std::vector<const char*> g_deviceExtensions =
     {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
-    const std::vector<Vertex> Vertices = {
+    const std::vector<Vertex> g_vertices = {
         {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
         {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
         {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
         {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
     };
 
-    const std::vector<uint16_t> Indices = {
+    const std::vector<uint16_t> g_indices = {
         0, 1, 2, 2, 3, 0
     };
 
-    QueueFamilyIndices Engine::FindQueueFamilies(VkPhysicalDevice device)
+    QueueFamilyIndices Engine::findQueueFamilies(VkPhysicalDevice device)
     {
         QueueFamilyIndices indices;
 
@@ -45,12 +45,12 @@ namespace NarcEngine
                 indices.GraphicsFamily = i;
             }
 
-            if (m_window.IsPhysicalDeviceSupported(device, i))
+            if (m_window.isPhysicalDeviceSupported(device, i))
             {
                 indices.PresentFamily = i;
             }
 
-            if (indices.IsComplete())
+            if (indices.isComplete())
                 break;
 
             i++;
@@ -59,7 +59,7 @@ namespace NarcEngine
         return indices;
     }
 
-    VkShaderModule Engine::CreateShaderModule(const std::vector<char>& code)
+    VkShaderModule Engine::createShaderModule(const std::vector<char>& code)
     {
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -75,7 +75,7 @@ namespace NarcEngine
         return shaderModule;
     }
 
-    void Engine::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)
+    void Engine::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)
     {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -87,8 +87,8 @@ namespace NarcEngine
             throw std::runtime_error("Failed to begin recording command buffer!");
         }
         
-        VkRenderPassBeginInfo renderPassInfo = m_swapChain.GetRenderPassBeginInfos(imageIndex);
-        VkExtent2D swapChainExtent = m_swapChain.GetSwapChainExtent();
+        VkRenderPassBeginInfo renderPassInfo = m_swapChain.getRenderPassBeginInfos(imageIndex);
+        VkExtent2D swapChainExtent = m_swapChain.getSwapChainExtent();
 
         VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
         renderPassInfo.clearValueCount = 1;
@@ -112,12 +112,12 @@ namespace NarcEngine
         scissor.extent = swapChainExtent;
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-        VkBuffer vertexBuffers[] = {m_vertexBuffer.GetBuffer()};
+        VkBuffer vertexBuffers[] = {m_vertexBuffer.getBuffer()};
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-        vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer.GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
+        vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer.getBuffer(), 0, VK_INDEX_TYPE_UINT16);
 
-        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(Indices.size()), 1, 0, 0, 0);
+        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(g_indices.size()), 1, 0, 0, 0);
 
         vkCmdEndRenderPass(commandBuffer);
 
@@ -127,7 +127,7 @@ namespace NarcEngine
         }
     }
 
-    uint32_t Engine::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+    uint32_t Engine::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
     {
         VkPhysicalDeviceMemoryProperties memProperties;
         vkGetPhysicalDeviceMemoryProperties(m_physicalDevice, &memProperties);
@@ -143,7 +143,7 @@ namespace NarcEngine
         throw std::runtime_error("failed to find suitable memory type!");
     }
 
-    int Engine::RateDeviceSuitability(VkPhysicalDevice device)
+    int Engine::rateDeviceSuitability(VkPhysicalDevice device)
     {
         VkPhysicalDeviceProperties deviceProperties;
         VkPhysicalDeviceFeatures deviceFeatures;
@@ -167,28 +167,28 @@ namespace NarcEngine
             return 0;
         }
 
-        bool extensionsSupported = m_debugLogger.CheckDeviceExtensionSupport(device, DeviceExtensions);
+        bool extensionsSupported = m_debugLogger.checkDeviceExtensionSupport(device, g_deviceExtensions);
         if (!extensionsSupported)
         {
             return 0;
         }
 
         bool swapChainAdequate = false;
-        SwapChainSupportDetails swapChainSupport = m_window.QuerySwapChainSupport(device);
+        SwapChainSupportDetails swapChainSupport = m_window.querySwapChainSupport(device);
         swapChainAdequate = !swapChainSupport.Formats.empty() && !swapChainSupport.PresentModes.empty();
         if (!swapChainAdequate)
         {
             return 0;
         }
 
-        QueueFamilyIndices indices = FindQueueFamilies(device);
+        QueueFamilyIndices indices = findQueueFamilies(device);
         VkDeviceQueueCreateInfo queueCreateInfo{};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         queueCreateInfo.queueFamilyIndex = indices.GraphicsFamily.value();
         queueCreateInfo.queueCount = 1;
         float queuePriority = 1.0f;
         queueCreateInfo.pQueuePriorities = &queuePriority;
-        if (!indices.IsComplete())
+        if (!indices.isComplete())
         {
             return 0;
         }
@@ -198,60 +198,60 @@ namespace NarcEngine
 
     static Engine* s_instance;
 
-    Engine* Engine::GetInstance()
+    Engine* Engine::getInstance()
     {
         return s_instance;
     }
 
-    void Engine::Run()
+    void Engine::run()
     {
         s_instance = this;
-        Init();
-        MainLoop();
-        CleanUp();
+        init();
+        mainLoop();
+        cleanUp();
     }
 
-    void Engine::Init()
+    void Engine::init()
     {
-        m_window.Init();
-        CreateInstance();
-        m_debugLogger.Init(m_instance); //SetupDebugMessenger();
-        m_window.InitSurface(m_instance); // CreateSurface();
-        PickPhysicalDevice();
-        CreateLogicalDevice();
-        m_swapChain.Create(); // CreateSwapChain(); // CreateImageViews(); //CreateRenderPass();
-        CreateGraphicsPipeline();
-        m_swapChain.CreateFramebuffers(); // CreateFramebuffers();
-        CreateCommandPool();
-        m_vertexBuffer.Create(Vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-        m_indexBuffer.Create(Indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
-        CreateCommandBuffer();
-        CreateSyncObjects();
+        m_window.init();
+        createInstance();
+        m_debugLogger.init(m_instance); //SetupDebugMessenger();
+        m_window.initSurface(m_instance); // CreateSurface();
+        pickPhysicalDevice();
+        createLogicalDevice();
+        m_swapChain.create(); // CreateSwapChain(); // CreateImageViews(); //CreateRenderPass();
+        createGraphicsPipeline();
+        m_swapChain.createFramebuffers(); // CreateFramebuffers();
+        createCommandPool();
+        m_vertexBuffer.create(g_vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+        m_indexBuffer.create(g_indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+        createCommandBuffer();
+        createSyncObjects();
     }
 
-    void Engine::MainLoop()
+    void Engine::mainLoop()
     {
-        while (!m_window.ShouldClose())
+        while (!m_window.shouldClose())
         {
-            m_window.Update();
-            DrawFrame();
+            m_window.update();
+            drawFrame();
         }
 
         vkDeviceWaitIdle(m_device);
     }
 
-    void Engine::CleanUp()
+    void Engine::cleanUp()
     {
-        m_swapChain.CleanSwapChain();
+        m_swapChain.cleanSwapChain();
 
-        m_indexBuffer.Release();
-        m_vertexBuffer.Release();
+        m_indexBuffer.release();
+        m_vertexBuffer.release();
 
         vkDestroyPipeline(m_device, m_graphicsPipeline, nullptr);
         vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
-        m_swapChain.CleanRenderPass();
+        m_swapChain.cleanRenderPass();
 
-        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+        for (size_t i = 0; i < g_maxFramesInFlight; i++)
         {
             vkDestroySemaphore(m_device, m_renderFinishedSemaphores[i], nullptr);
             vkDestroySemaphore(m_device, m_imageAvailableSemaphores[i], nullptr);
@@ -262,18 +262,18 @@ namespace NarcEngine
 
         vkDestroyDevice(m_device, nullptr);
 
-        m_debugLogger.Clean(m_instance);
+        m_debugLogger.clean(m_instance);
 
-        m_window.CleanSurface(m_instance);
+        m_window.cleanSurface(m_instance);
         vkDestroyInstance(m_instance, nullptr);
 
-        m_window.Clean();
+        m_window.clean();
     }
 
-    void Engine::CreateInstance()
+    void Engine::createInstance()
     {
 #ifdef ENABLE_VALIDATION_LAYERS
-        if (!m_debugLogger.CheckValidationLayerSupport())
+        if (!m_debugLogger.checkValidationLayerSupport())
         {
             throw std::runtime_error("Validation layers requested, but not available!");
         }
@@ -291,12 +291,12 @@ namespace NarcEngine
         createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         createInfo.pApplicationInfo = &appInfo;
 
-        auto extensions = m_debugLogger.GetRequiredExtensions();
+        auto extensions = m_debugLogger.getRequiredExtensions();
         createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
         createInfo.ppEnabledExtensionNames = extensions.data();
 
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-        m_debugLogger.LinkToInstance(createInfo, debugCreateInfo);
+        m_debugLogger.linkToInstance(createInfo, debugCreateInfo);
 
         if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
         {
@@ -304,7 +304,7 @@ namespace NarcEngine
         }
     }
 
-    void Engine::PickPhysicalDevice()
+    void Engine::pickPhysicalDevice()
     {
         uint32_t deviceCount = 0;
         vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
@@ -319,7 +319,7 @@ namespace NarcEngine
         std::multimap<int, VkPhysicalDevice> candidates;
         for (const auto& device : devices)
         {
-            int score = RateDeviceSuitability(device);
+            int score = rateDeviceSuitability(device);
             candidates.insert(std::make_pair(score, device));
         }
 
@@ -333,9 +333,9 @@ namespace NarcEngine
         }
     }
 
-    void Engine::CreateLogicalDevice()
+    void Engine::createLogicalDevice()
     {
-        QueueFamilyIndices indices = FindQueueFamilies(m_physicalDevice);
+        QueueFamilyIndices indices = findQueueFamilies(m_physicalDevice);
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
         std::set<uint32_t> uniqueQueueFamilies = {indices.GraphicsFamily.value(), indices.PresentFamily.value()};
@@ -361,10 +361,10 @@ namespace NarcEngine
 
         createInfo.pEnabledFeatures = &deviceFeatures;
 
-        createInfo.enabledExtensionCount = static_cast<uint32_t>(DeviceExtensions.size());
-        createInfo.ppEnabledExtensionNames = DeviceExtensions.data();
+        createInfo.enabledExtensionCount = static_cast<uint32_t>(g_deviceExtensions.size());
+        createInfo.ppEnabledExtensionNames = g_deviceExtensions.data();
 
-        m_debugLogger.LinkToDevice(createInfo);
+        m_debugLogger.linkToDevice(createInfo);
 
         if (vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device) != VK_SUCCESS)
         {
@@ -375,13 +375,13 @@ namespace NarcEngine
         vkGetDeviceQueue(m_device, indices.PresentFamily.value(), 0, &m_presentQueue);
     }
 
-    void Engine::CreateGraphicsPipeline()
+    void Engine::createGraphicsPipeline()
     {
-        auto vertShaderCode = ReadFile("shaders/vert.spv");
-        auto fragShaderCode = ReadFile("shaders/frag.spv");
+        auto vertShaderCode = readFile("shaders/vert.spv");
+        auto fragShaderCode = readFile("shaders/frag.spv");
 
-        VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
-        VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
+        VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
+        VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
 
         VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
         vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -397,8 +397,8 @@ namespace NarcEngine
 
         VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
-        auto bindingDescription = Vertex::GetBindingDescription();
-        auto attributeDescriptions = Vertex::GetAttributeDescriptions();
+        auto bindingDescription = Vertex::getBindingDescription();
+        auto attributeDescriptions = Vertex::getAttributeDescriptions();
 
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -493,7 +493,7 @@ namespace NarcEngine
         pipelineInfo.pColorBlendState = &colorBlending;
         pipelineInfo.pDynamicState = &dynamicState;
         pipelineInfo.layout = m_pipelineLayout;
-        pipelineInfo.renderPass = m_swapChain.GetRenderPass();
+        pipelineInfo.renderPass = m_swapChain.getRenderPass();
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
         pipelineInfo.basePipelineIndex = -1; // Optional
@@ -507,9 +507,9 @@ namespace NarcEngine
         vkDestroyShaderModule(m_device, vertShaderModule, nullptr);
     }
 
-    void Engine::CreateCommandPool()
+    void Engine::createCommandPool()
     {
-        QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(m_physicalDevice);
+        QueueFamilyIndices queueFamilyIndices = findQueueFamilies(m_physicalDevice);
 
         VkCommandPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -522,7 +522,7 @@ namespace NarcEngine
         }
     }
 
-    void Engine::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
+    void Engine::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
     {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -557,9 +557,9 @@ namespace NarcEngine
         vkFreeCommandBuffers(m_device, m_commandPool, 1, &commandBuffer);
     }
 
-    void Engine::CreateCommandBuffer()
+    void Engine::createCommandBuffer()
     {
-        m_commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+        m_commandBuffers.resize(g_maxFramesInFlight);
 
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -573,11 +573,11 @@ namespace NarcEngine
         }
     }
 
-    void Engine::CreateSyncObjects()
+    void Engine::createSyncObjects()
     {
-        m_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-        m_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-        m_inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+        m_imageAvailableSemaphores.resize(g_maxFramesInFlight);
+        m_renderFinishedSemaphores.resize(g_maxFramesInFlight);
+        m_inFlightFences.resize(g_maxFramesInFlight);
 
         VkSemaphoreCreateInfo semaphoreInfo{};
         semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -586,7 +586,7 @@ namespace NarcEngine
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+        for (size_t i = 0; i < g_maxFramesInFlight; i++)
         {
             if (vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]) != VK_SUCCESS ||
                 vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]) != VK_SUCCESS ||
@@ -597,17 +597,17 @@ namespace NarcEngine
         }
     }
 
-    void Engine::DrawFrame()
+    void Engine::drawFrame()
     {
         vkWaitForFences(m_device, 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
 
         uint32_t imageIndex;
-        VkResult result = m_swapChain.AcquireNextImage(m_imageAvailableSemaphores[m_currentFrame], &imageIndex);
+        VkResult result = m_swapChain.acquireNextImage(m_imageAvailableSemaphores[m_currentFrame], &imageIndex);
 
         vkResetFences(m_device, 1, &m_inFlightFences[m_currentFrame]);
 
         vkResetCommandBuffer(m_commandBuffers[m_currentFrame], 0);
-        RecordCommandBuffer(m_commandBuffers[m_currentFrame], imageIndex);
+        recordCommandBuffer(m_commandBuffers[m_currentFrame], imageIndex);
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -641,7 +641,7 @@ namespace NarcEngine
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = signalSemaphores;
 
-        VkSwapchainKHR swapChains[] = {m_swapChain.GetSwapChain()};
+        VkSwapchainKHR swapChains[] = {m_swapChain.getSwapChain()};
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = swapChains;
 
@@ -650,20 +650,20 @@ namespace NarcEngine
 
         result = vkQueuePresentKHR(m_presentQueue, &presentInfo);
         
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window.IsFramebufferResized())
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window.isFramebufferResized())
         {
-            m_window.SetFramebufferResized(false); //after vkQueuePresentKHR to ensure that the semaphores are in a consistent state
-            m_swapChain.ReCreate();
+            m_window.setFramebufferResized(false); //after vkQueuePresentKHR to ensure that the semaphores are in a consistent state
+            m_swapChain.reCreate();
         }
         else if (result != VK_SUCCESS)
         {
             throw std::runtime_error("failed to present swap chain image!");
         }
 
-        m_currentFrame = (m_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+        m_currentFrame = (m_currentFrame + 1) % g_maxFramesInFlight;
     }
 
-    std::vector<char> Engine::ReadFile(const std::string& filename)
+    std::vector<char> Engine::readFile(const std::string& filename)
     {
         std::ifstream file(filename, std::ios::ate | std::ios::binary);
 

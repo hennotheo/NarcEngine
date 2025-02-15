@@ -7,27 +7,27 @@
 #include "include/QueueFamilyIndices.h"
 #include "include/SwapChainSupportDetails.h"
 
-namespace NarcEngine
+namespace narc_engine
 {
-    void SwapChain::Create()
+    void SwapChain::create()
     {
-        Engine* engine = Engine::GetInstance();
-        m_physicalDevice = engine->GetPhysicalDevice();
-        m_device = engine->GetDevice();
-        m_window = engine->GetWindow();
+        Engine* engine = Engine::getInstance();
+        m_physicalDevice = engine->getPhysicalDevice();
+        m_device = engine->getDevice();
+        m_window = engine->getWindow();
         
-        CreateSwapChain();
-        CreateImageViews();
-        CreateRenderPass();
+        createSwapChain();
+        createImageViews();
+        createRenderPass();
     }
 
-    VkResult SwapChain::AcquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex)
+    VkResult SwapChain::acquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex)
     {
         VkResult result = vkAcquireNextImageKHR(m_device, m_swapChain, UINT64_MAX, semaphore , VK_NULL_HANDLE, imageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) //OUT DUE TO WINDOW RESIZE FOR EXAMPLE
         {
-            ReCreate();
+            reCreate();
             return result;
         }
         
@@ -39,7 +39,7 @@ namespace NarcEngine
         return result;
     }
 
-    void SwapChain::CleanSwapChain()
+    void SwapChain::cleanSwapChain()
     {
         for (auto framebuffer : m_swapChainFramebuffers)
         {
@@ -54,27 +54,27 @@ namespace NarcEngine
         vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
     }
 
-    void SwapChain::CleanRenderPass()
+    void SwapChain::cleanRenderPass()
     {
         vkDestroyRenderPass(m_device, m_renderPass, nullptr);
     }
 
-    void SwapChain::ReCreate()
+    void SwapChain::reCreate()
     {
         int width = 0;
         int height = 0;
-        m_window.GetValidFramebufferSize(&width, &height);
+        m_window.getValidFramebufferSize(&width, &height);
 
         vkDeviceWaitIdle(m_device);
 
-        CleanSwapChain();
+        cleanSwapChain();
 
-        CreateSwapChain();
-        CreateImageViews();
-        CreateFramebuffers();
+        createSwapChain();
+        createImageViews();
+        createFramebuffers();
     }
 
-    void SwapChain::CreateFramebuffers()
+    void SwapChain::createFramebuffers()
     {
         m_swapChainFramebuffers.resize(m_swapChainImageViews.size());
 
@@ -101,7 +101,7 @@ namespace NarcEngine
         }
     }
 
-    VkRenderPassBeginInfo SwapChain::GetRenderPassBeginInfos(uint32_t imageIndex) const
+    VkRenderPassBeginInfo SwapChain::getRenderPassBeginInfos(uint32_t imageIndex) const
     {
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -113,12 +113,12 @@ namespace NarcEngine
         return renderPassInfo;
     }
 
-    void SwapChain::CreateSwapChain()
+    void SwapChain::createSwapChain()
     {
-        SwapChainSupportDetails swapChainSupport = m_window.QuerySwapChainSupport(m_physicalDevice);
-        VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.Formats);
-        VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.PresentModes);
-        VkExtent2D extent = ChooseSwapExtent(swapChainSupport.Capabilities);
+        SwapChainSupportDetails swapChainSupport = m_window.querySwapChainSupport(m_physicalDevice);
+        VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.Formats);
+        VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.PresentModes);
+        VkExtent2D extent = chooseSwapExtent(swapChainSupport.Capabilities);
 
         uint32_t imageCount = swapChainSupport.Capabilities.minImageCount + 1; //Au moins une en plus pour eviter des erreurs
 
@@ -129,7 +129,7 @@ namespace NarcEngine
 
         VkSwapchainCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = m_window.GetSurface();
+        createInfo.surface = m_window.getSurface();
         createInfo.minImageCount = imageCount;
         createInfo.imageFormat = surfaceFormat.format;
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -137,7 +137,7 @@ namespace NarcEngine
         createInfo.imageArrayLayers = 1;
         createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-        QueueFamilyIndices indices = Engine::GetInstance()->FindQueueFamilies(m_physicalDevice);
+        QueueFamilyIndices indices = Engine::getInstance()->find_queue_families(m_physicalDevice);
         uint32_t queueFamilyIndices[] = {indices.GraphicsFamily.value(), indices.PresentFamily.value()};
 
         if (indices.GraphicsFamily != indices.PresentFamily)
@@ -172,7 +172,7 @@ namespace NarcEngine
         m_swapChainExtent = extent;
     }
 
-    void SwapChain::CreateRenderPass()
+    void SwapChain::createRenderPass()
     {
         VkAttachmentDescription colorAttachment{};
         colorAttachment.format = m_swapChainImageFormat;
@@ -218,7 +218,7 @@ namespace NarcEngine
         }
     }
 
-    void SwapChain::CreateImageViews()
+    void SwapChain::createImageViews()
     {
         m_swapChainImageViews.resize(m_swapChainImages.size());
 
@@ -248,7 +248,7 @@ namespace NarcEngine
         }
     }
 
-    VkSurfaceFormatKHR SwapChain::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
+    VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
     {
         for (const auto& availableFormat : availableFormats)
         {
@@ -261,7 +261,7 @@ namespace NarcEngine
         return availableFormats[0];
     }
 
-    VkPresentModeKHR SwapChain::ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
+    VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
     {
         for (const auto& availablePresentMode : availablePresentModes)
         {
@@ -274,7 +274,7 @@ namespace NarcEngine
         return VK_PRESENT_MODE_FIFO_KHR;
     }
 
-    VkExtent2D SwapChain::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
+    VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
     {
         if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
         {
@@ -283,7 +283,7 @@ namespace NarcEngine
         else
         {
             int width, height;
-            m_window.GetFramebufferSize(&width, &height);
+            m_window.getFramebufferSize(&width, &height);
 
             VkExtent2D actualExtent =
             {

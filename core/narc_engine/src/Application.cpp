@@ -4,19 +4,19 @@
 
 #include "include/Engine.h"
 
-NarcEngine::Application::Application()
+narc_engine::Application::Application()
 {
 }
 
-NarcEngine::Application::~Application()
+narc_engine::Application::~Application()
 {
 }
 
-void NarcEngine::Application::Run()
+void narc_engine::Application::run()
 {
     Engine engine;
 
-    engine.Run();
+    engine.run();
 
     std::cin.get();
 }

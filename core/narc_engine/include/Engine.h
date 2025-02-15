@@ -14,24 +14,22 @@
 #include <cstdint>
 #include <fstream>
 
-
-
-namespace NarcEngine
+namespace narc_engine
 {
     class Engine
     {
     public:
-        static Engine* GetInstance();
+        static Engine* getInstance();
         
-        const VkDevice& GetDevice() const { return m_device; }
-        const VkPhysicalDevice& GetPhysicalDevice() const { return m_physicalDevice; }
-        const Window& GetWindow() const { return m_window; }
+        const VkDevice& getDevice() const { return m_device; }
+        const VkPhysicalDevice& getPhysicalDevice() const { return m_physicalDevice; }
+        const Window& getWindow() const { return m_window; }
 
-        void Run();
+        void run();
 
-        void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-        uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-        QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
+        void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
     private:
         Window m_window;
@@ -61,23 +59,23 @@ namespace NarcEngine
         Buffer<uint16_t> m_indexBuffer;
 
     private:
-        void Init();
-        void MainLoop();
-        void CleanUp();
+        void init();
+        void mainLoop();
+        void cleanUp();
         
-        void CreateInstance();
-        void PickPhysicalDevice();
-        void CreateLogicalDevice();
-        void CreateGraphicsPipeline();
-        void CreateCommandPool();
-        void CreateCommandBuffer();
-        void CreateSyncObjects();
+        void createInstance();
+        void pickPhysicalDevice();
+        void createLogicalDevice();
+        void createGraphicsPipeline();
+        void createCommandPool();
+        void createCommandBuffer();
+        void createSyncObjects();
 
-        void DrawFrame();
+        void drawFrame();
         
-        int RateDeviceSuitability(VkPhysicalDevice device);
-        VkShaderModule CreateShaderModule(const std::vector<char>& code);
-        void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
-        static std::vector<char> ReadFile(const std::string& filename);
+        int rateDeviceSuitability(VkPhysicalDevice device);
+        VkShaderModule createShaderModule(const std::vector<char>& code);
+        void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+        static std::vector<char> readFile(const std::string& filename);
     };
 }

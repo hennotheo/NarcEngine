@@ -4,17 +4,17 @@
 #include <vector>
 #include <GLFW/glfw3.h>
 
-namespace NarcEngine
+namespace narc_engine
 {
     template <class T>
     class Buffer
     {
     public:
-        VkBuffer GetBuffer() const { return m_buffer; }
+        VkBuffer getBuffer() const { return m_buffer; }
         
-        void Create(const std::vector<T>& input, VkBufferUsageFlagBits usage);
+        void create(const std::vector<T>& input, VkBufferUsageFlagBits usage);
 
-        void Release();
+        void release();
 
     private:
         VkBuffer m_buffer;
@@ -22,6 +22,6 @@ namespace NarcEngine
 
         VkDevice m_linkedDevice;
 
-        void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+        void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
     };
 }
