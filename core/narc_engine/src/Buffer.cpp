@@ -4,15 +4,18 @@
 #include <vector>
 
 #include "include/Engine.h"
-#include "include/Vertex.h"
 
 namespace NarcEngine
 {
-    void Buffer::Create(const std::vector<Vertex>& Vertices)
+    template class Buffer<Vertex>;
+    template class Buffer<uint16_t>;
+    
+    template <typename T>
+    void Buffer<T>::Create(const std::vector<T>& input, VkBufferUsageFlagBits usage)//vertex : VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, index : VK_BUFFER_USAGE_INDEX_BUFFER_BIT 
     {
         m_device = Engine::GetInstance()->GetDevice();
         
-        VkDeviceSize bufferSize = sizeof(Vertices[0]) * Vertices.size();
+        VkDeviceSize bufferSize = sizeof(input[0]) * input.size();
 
         VkBuffer stagingBuffer;
         VkDeviceMemory stagingBufferMemory;
@@ -20,23 +23,25 @@ namespace NarcEngine
 
         void* data;
         vkMapMemory(m_device, stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, Vertices.data(), (size_t)bufferSize);
+        memcpy(data, input.data(), (size_t)bufferSize);
         vkUnmapMemory(m_device, stagingBufferMemory);
 
-        CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_vertexBuffer, m_vertexBufferMemory);
+        CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_vertexBuffer, m_vertexBufferMemory);
 
         Engine::GetInstance()->CopyBuffer(stagingBuffer, m_vertexBuffer, bufferSize);
         vkDestroyBuffer(m_device, stagingBuffer, nullptr);
         vkFreeMemory(m_device, stagingBufferMemory, nullptr);
     }
 
-    void Buffer::Release()
-    {        
+    template <class T>
+    void Buffer<T>::Release()
+    {
         vkDestroyBuffer(m_device, m_vertexBuffer, nullptr);
         vkFreeMemory(m_device, m_vertexBufferMemory, nullptr);
     }
 
-    void Buffer::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+    template <class T>
+    void Buffer<T>::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
     {
         VkBufferCreateInfo bufferInfo{};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;

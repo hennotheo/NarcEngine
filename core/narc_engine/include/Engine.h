@@ -72,9 +72,10 @@ namespace NarcEngine
 
         // VkBuffer m_vertexBuffer;
         // VkDeviceMemory m_vertexBufferMemory;
-        Buffer m_vertexBuffer;
-        VkBuffer m_indexBuffer;
-        VkDeviceMemory m_indexBufferMemory;
+        Buffer<Vertex> m_vertexBuffer;
+        Buffer<uint16_t> m_indexBuffer;
+        // VkBuffer m_indexBuffer;
+        // VkDeviceMemory m_indexBufferMemory;
 
     private:
         // Engine() = default;
@@ -102,13 +103,13 @@ namespace NarcEngine
         void CreateGraphicsPipeline();
         void CreateCommandPool();
         // void CreateVertexBuffer();
-        void CreateIndexBuffer();
+        // void CreateIndexBuffer();
         void CreateCommandBuffer();
         void CreateSyncObjects();
 
         void DrawFrame();
 
-        void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+        // void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
         // bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
         int RateDeviceSuitability(VkPhysicalDevice device);
         // bool CheckValidationLayerSupport();

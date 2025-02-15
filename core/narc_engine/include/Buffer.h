@@ -8,14 +8,15 @@
 
 namespace NarcEngine
 {
+    template <class T>
     class Buffer
     {
     public:
-        void Create(const std::vector<Vertex>& Vertices);
+        VkBuffer GetBuffer() const { return m_vertexBuffer; }
+        
+        void Create(const std::vector<T>& input, VkBufferUsageFlagBits usage);
 
         void Release();
-
-        VkBuffer GetBuffer() const { return m_vertexBuffer; }
 
     private:
         VkBuffer m_vertexBuffer;
