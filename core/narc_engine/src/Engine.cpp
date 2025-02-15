@@ -86,7 +86,7 @@ namespace narc_engine
         {
             throw std::runtime_error("Failed to begin recording command buffer!");
         }
-        
+
         VkRenderPassBeginInfo renderPassInfo = m_swapChain.getRenderPassBeginInfos(imageIndex);
         VkExtent2D swapChainExtent = m_swapChain.getSwapChainExtent();
 
@@ -220,6 +220,7 @@ namespace narc_engine
         pickPhysicalDevice();
         createLogicalDevice();
         m_swapChain.create(); // CreateSwapChain(); // CreateImageViews(); //CreateRenderPass();
+        createDescriptorSetLayout();
         createGraphicsPipeline();
         m_swapChain.createFramebuffers(); // CreateFramebuffers();
         createCommandPool();
@@ -243,6 +244,8 @@ namespace narc_engine
     void Engine::cleanUp()
     {
         m_swapChain.cleanSwapChain();
+
+        vkDestroyDescriptorSetLayout(m_device, m_descriptorSetLayout, nullptr);
 
         m_indexBuffer.release();
         m_vertexBuffer.release();
@@ -375,6 +378,26 @@ namespace narc_engine
         vkGetDeviceQueue(m_device, indices.PresentFamily.value(), 0, &m_presentQueue);
     }
 
+    void Engine::createDescriptorSetLayout()
+    {
+        VkDescriptorSetLayoutBinding uboLayoutBinding{};
+        uboLayoutBinding.binding = 0;
+        uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        uboLayoutBinding.descriptorCount = 1;
+        uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        uboLayoutBinding.pImmutableSamplers = nullptr;
+
+        VkDescriptorSetLayoutCreateInfo layoutInfo{};
+        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount = 1;
+        layoutInfo.pBindings = &uboLayoutBinding;
+
+        if (vkCreateDescriptorSetLayout(m_device, &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create descriptor set layout!");
+        }
+    }
+
     void Engine::createGraphicsPipeline()
     {
         auto vertShaderCode = readFile("shaders/vert.spv");
@@ -465,12 +488,12 @@ namespace narc_engine
         dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
         dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
         dynamicState.pDynamicStates = dynamicStates.data();
-
+        
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.pushConstantRangeCount = 0;
-        pipelineLayoutInfo.setLayoutCount = 0; // Optional
-        pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
+        pipelineLayoutInfo.setLayoutCount = 1; // SET LAYOUTS HERE
+        pipelineLayoutInfo.pSetLayouts = { &m_descriptorSetLayout }; // SET LAYOUTS HERE
         pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
         pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
@@ -649,7 +672,7 @@ namespace narc_engine
         presentInfo.pResults = nullptr;
 
         result = vkQueuePresentKHR(m_presentQueue, &presentInfo);
-        
+
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window.isFramebufferResized())
         {
             m_window.setFramebufferResized(false); //after vkQueuePresentKHR to ensure that the semaphores are in a consistent state

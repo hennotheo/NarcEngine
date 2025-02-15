@@ -16,11 +16,18 @@
 
 namespace narc_engine
 {
+    struct UniformBufferObject
+    {
+        glm::mat4 Model;
+        glm::mat4 View;
+        glm::mat4 Proj;
+    };
+
     class Engine
     {
     public:
         static Engine* getInstance();
-        
+
         const VkDevice& getDevice() const { return m_device; }
         const VkPhysicalDevice& getPhysicalDevice() const { return m_physicalDevice; }
         const Window& getWindow() const { return m_window; }
@@ -43,18 +50,18 @@ namespace narc_engine
         VkQueue m_graphicsQueue;
 
         SwapChain m_swapChain;
-        
+
+        VkDescriptorSetLayout m_descriptorSetLayout;
         VkPipelineLayout m_pipelineLayout;
         VkPipeline m_graphicsPipeline;
         VkCommandPool m_commandPool;
         std::vector<VkCommandBuffer> m_commandBuffers;
         uint32_t m_currentFrame = 0;
-
-        //Sync objects -> Waiting them to make operation... cf doc vulkan
+        
         std::vector<VkSemaphore> m_imageAvailableSemaphores;
         std::vector<VkSemaphore> m_renderFinishedSemaphores;
         std::vector<VkFence> m_inFlightFences;
-        
+
         Buffer<Vertex> m_vertexBuffer;
         Buffer<uint16_t> m_indexBuffer;
 
@@ -62,17 +69,18 @@ namespace narc_engine
         void init();
         void mainLoop();
         void cleanUp();
-        
+
         void createInstance();
         void pickPhysicalDevice();
         void createLogicalDevice();
+        void createDescriptorSetLayout();
         void createGraphicsPipeline();
         void createCommandPool();
         void createCommandBuffer();
         void createSyncObjects();
 
         void drawFrame();
-        
+
         int rateDeviceSuitability(VkPhysicalDevice device);
         VkShaderModule createShaderModule(const std::vector<char>& code);
         void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
