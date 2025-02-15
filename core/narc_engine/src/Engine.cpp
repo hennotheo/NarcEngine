@@ -57,56 +57,6 @@ namespace NarcEngine
         return indices;
     }
 
-    VkSurfaceFormatKHR Engine::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
-    {
-        for (const auto& availableFormat : availableFormats)
-        {
-            if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-            {
-                return availableFormat;
-            }
-        }
-
-        return availableFormats[0];
-    }
-
-    VkPresentModeKHR Engine::ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
-    {
-        for (const auto& availablePresentMode : availablePresentModes)
-        {
-            if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
-            {
-                return availablePresentMode;
-            }
-        }
-
-        return VK_PRESENT_MODE_FIFO_KHR;
-    }
-
-    VkExtent2D Engine::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
-    {
-        if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
-        {
-            return capabilities.currentExtent;
-        }
-        else
-        {
-            int width, height;
-            m_window.GetFramebufferSize(&width, &height);
-
-            VkExtent2D actualExtent =
-            {
-                static_cast<uint32_t>(width),
-                static_cast<uint32_t>(height)
-            };
-
-            actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
-            actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
-
-            return actualExtent;
-        }
-    }
-
     VkShaderModule Engine::CreateShaderModule(const std::vector<char>& code)
     {
         VkShaderModuleCreateInfo createInfo{};
@@ -135,12 +85,14 @@ namespace NarcEngine
             throw std::runtime_error("Failed to begin recording command buffer!");
         }
 
+        VkExtent2D swapChainExtent = m_swapChain.GetSwapChainExtent();
+
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassInfo.renderPass = m_renderPass;
-        renderPassInfo.framebuffer = m_swapChainFramebuffers[imageIndex];
+        renderPassInfo.framebuffer = m_swapChain.GetSwapChainFramebuffer(imageIndex);
         renderPassInfo.renderArea.offset = {0, 0};
-        renderPassInfo.renderArea.extent = m_swapChainExtent;
+        renderPassInfo.renderArea.extent = swapChainExtent;
 
         VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
         renderPassInfo.clearValueCount = 1;
@@ -153,18 +105,18 @@ namespace NarcEngine
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = (float)m_swapChainExtent.width;
-        viewport.height = (float)m_swapChainExtent.height;
+        viewport.width = (float)swapChainExtent.width;
+        viewport.height = (float)swapChainExtent.height;
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
         vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
         VkRect2D scissor{};
         scissor.offset = {0, 0};
-        scissor.extent = m_swapChainExtent;
+        scissor.extent = swapChainExtent;
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-        
-        VkBuffer vertexBuffers[] = { m_vertexBuffer.GetBuffer()};
+
+        VkBuffer vertexBuffers[] = {m_vertexBuffer.GetBuffer()};
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
         vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer.GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
@@ -249,6 +201,7 @@ namespace NarcEngine
     }
 
     static Engine* s_instance;
+
     Engine* Engine::GetInstance()
     {
         return s_instance;
@@ -270,11 +223,10 @@ namespace NarcEngine
         m_window.InitSurface(m_instance); // CreateSurface();
         PickPhysicalDevice();
         CreateLogicalDevice();
-        CreateSwapChain();
-        CreateImageViews();
+        m_swapChain.Create(); // CreateSwapChain(); // CreateImageViews();
         CreateRenderPass();
         CreateGraphicsPipeline();
-        CreateFramebuffers();
+        m_swapChain.CreateFramebuffers(m_renderPass); // CreateFramebuffers();
         CreateCommandPool();
         m_vertexBuffer.Create(Vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
         m_indexBuffer.Create(Indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
@@ -293,24 +245,10 @@ namespace NarcEngine
         vkDeviceWaitIdle(m_device);
     }
 
-    void Engine::CleanupSwapChain()
-    {
-        for (auto framebuffer : m_swapChainFramebuffers)
-        {
-            vkDestroyFramebuffer(m_device, framebuffer, nullptr);
-        }
-
-        for (auto imageView : m_swapChainImageViews)
-        {
-            vkDestroyImageView(m_device, imageView, nullptr);
-        }
-
-        vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
-    }
-
     void Engine::CleanUp()
     {
-        CleanupSwapChain();
+        m_swapChain.Clean();
+        // CleanupSwapChain();
 
         // vkDestroyBuffer(m_device, m_indexBuffer, nullptr);
         // vkFreeMemory(m_device, m_indexBufferMemory, nullptr);
@@ -448,99 +386,10 @@ namespace NarcEngine
         vkGetDeviceQueue(m_device, indices.PresentFamily.value(), 0, &m_presentQueue);
     }
 
-    void Engine::CreateSwapChain()
-    {
-        SwapChainSupportDetails swapChainSupport = m_window.QuerySwapChainSupport(m_physicalDevice);
-        VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.Formats);
-        VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.PresentModes);
-        VkExtent2D extent = ChooseSwapExtent(swapChainSupport.Capabilities);
-
-        uint32_t imageCount = swapChainSupport.Capabilities.minImageCount + 1; //Au moins une en plus pour eviter des erreurs
-
-        if (swapChainSupport.Capabilities.maxImageCount > 0 && imageCount > swapChainSupport.Capabilities.maxImageCount)
-        {
-            imageCount = swapChainSupport.Capabilities.maxImageCount;
-        }
-
-        VkSwapchainCreateInfoKHR createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = m_window.GetSurface();
-        createInfo.minImageCount = imageCount;
-        createInfo.imageFormat = surfaceFormat.format;
-        createInfo.imageColorSpace = surfaceFormat.colorSpace;
-        createInfo.imageExtent = extent;
-        createInfo.imageArrayLayers = 1;
-        createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-        QueueFamilyIndices indices = FindQueueFamilies(m_physicalDevice);
-        uint32_t queueFamilyIndices[] = {indices.GraphicsFamily.value(), indices.PresentFamily.value()};
-
-        if (indices.GraphicsFamily != indices.PresentFamily)
-        {
-            createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT; //Multiple queue family without explicit ownership
-            createInfo.queueFamilyIndexCount = 2;
-            createInfo.pQueueFamilyIndices = queueFamilyIndices;
-        }
-        else
-        {
-            createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE; //Best perf : one queue family ownership
-            createInfo.queueFamilyIndexCount = 0; // Optional
-            createInfo.pQueueFamilyIndices = nullptr; // Optional
-        }
-
-        createInfo.preTransform = swapChainSupport.Capabilities.currentTransform;
-        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-        createInfo.presentMode = presentMode;
-        createInfo.clipped = VK_TRUE;
-        createInfo.oldSwapchain = VK_NULL_HANDLE;
-
-        if (vkCreateSwapchainKHR(m_device, &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create swap chain!");
-        }
-
-        vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, nullptr);
-        m_swapChainImages.resize(imageCount);
-        vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, m_swapChainImages.data());
-
-        m_swapChainImageFormat = surfaceFormat.format;
-        m_swapChainExtent = extent;
-    }
-
-    void Engine::CreateImageViews()
-    {
-        m_swapChainImageViews.resize(m_swapChainImages.size());
-
-        for (size_t i = 0; i < m_swapChainImages.size(); i++)
-        {
-            VkImageViewCreateInfo createInfo{};
-            createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-            createInfo.image = m_swapChainImages[i];
-            createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-            createInfo.format = m_swapChainImageFormat;
-
-            createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-            createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-            createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-            createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-            createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            createInfo.subresourceRange.baseMipLevel = 0;
-            createInfo.subresourceRange.levelCount = 1;
-            createInfo.subresourceRange.baseArrayLayer = 0;
-            createInfo.subresourceRange.layerCount = 1;
-
-            if (vkCreateImageView(m_device, &createInfo, nullptr, &m_swapChainImageViews[i]) != VK_SUCCESS)
-            {
-                throw std::runtime_error("failed to create image views!");
-            }
-        }
-    }
-
     void Engine::CreateRenderPass()
     {
         VkAttachmentDescription colorAttachment{};
-        colorAttachment.format = m_swapChainImageFormat;
+        colorAttachment.format = m_swapChain.GetSwapChainImageFormat();
         colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
         //Qu'est-ce que l'on fait avec la data
         colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -581,21 +430,6 @@ namespace NarcEngine
         {
             throw std::runtime_error("failed to create render pass!");
         }
-    }
-
-    void Engine::RecreateSwapChain()
-    {
-        int width = 0;
-        int height = 0;
-        m_window.GetValidFramebufferSize(&width, &height);
-
-        vkDeviceWaitIdle(m_device);
-
-        CleanupSwapChain();
-
-        CreateSwapChain();
-        CreateImageViews();
-        CreateFramebuffers();
     }
 
     void Engine::CreateGraphicsPipeline()
@@ -730,33 +564,6 @@ namespace NarcEngine
         vkDestroyShaderModule(m_device, vertShaderModule, nullptr);
     }
 
-    void Engine::CreateFramebuffers()
-    {
-        m_swapChainFramebuffers.resize(m_swapChainImageViews.size());
-
-        for (size_t i = 0; i < m_swapChainImageViews.size(); i++)
-        {
-            VkImageView attachments[] =
-            {
-                m_swapChainImageViews[i]
-            };
-
-            VkFramebufferCreateInfo framebufferInfo{};
-            framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferInfo.renderPass = m_renderPass;
-            framebufferInfo.attachmentCount = 1;
-            framebufferInfo.pAttachments = attachments;
-            framebufferInfo.width = m_swapChainExtent.width;
-            framebufferInfo.height = m_swapChainExtent.height;
-            framebufferInfo.layers = 1;
-
-            if (vkCreateFramebuffer(m_device, &framebufferInfo, nullptr, &m_swapChainFramebuffers[i]) != VK_SUCCESS)
-            {
-                throw std::runtime_error("failed to create framebuffer!");
-            }
-        }
-    }
-
     void Engine::CreateCommandPool()
     {
         QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(m_physicalDevice);
@@ -852,17 +659,7 @@ namespace NarcEngine
         vkWaitForFences(m_device, 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
 
         uint32_t imageIndex;
-        VkResult result = vkAcquireNextImageKHR(m_device, m_swapChain, UINT64_MAX, m_imageAvailableSemaphores[m_currentFrame], VK_NULL_HANDLE, &imageIndex);
-
-        if (result == VK_ERROR_OUT_OF_DATE_KHR) //OUT DUE TO WINDOW RESIZE FOR EXAMPLE
-        {
-            RecreateSwapChain();
-            return;
-        }
-        else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
-        {
-            throw std::runtime_error("failed to acquire swap chain image!");
-        }
+        VkResult result = m_swapChain.AcquireNextImage(m_imageAvailableSemaphores[m_currentFrame], m_renderPass, &imageIndex);
 
         vkResetFences(m_device, 1, &m_inFlightFences[m_currentFrame]);
 
@@ -901,7 +698,7 @@ namespace NarcEngine
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = signalSemaphores;
 
-        VkSwapchainKHR swapChains[] = {m_swapChain};
+        VkSwapchainKHR swapChains[] = {m_swapChain.GetSwapChain()};
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = swapChains;
 
@@ -913,7 +710,7 @@ namespace NarcEngine
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window.IsFramebufferResized())
         {
             m_window.SetFramebufferResized(false); //after vkQueuePresentKHR to ensure that the semaphores are in a consistent state
-            RecreateSwapChain();
+            m_swapChain.ReCreate(m_renderPass);
         }
         else if (result != VK_SUCCESS)
         {

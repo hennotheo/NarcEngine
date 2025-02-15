@@ -23,6 +23,8 @@
 
 #include "Buffer.h"
 #include "EngineDebugLogger.h"
+#include "SwapChain.h"
+#include "Vertex.h"
 
 
 namespace NarcEngine
@@ -33,11 +35,14 @@ namespace NarcEngine
         static Engine* GetInstance();
         
         const VkDevice& GetDevice() const { return m_device; }
+        const VkPhysicalDevice& GetPhysicalDevice() const { return m_physicalDevice; }
+        const Window& GetWindow() const { return m_window; }
 
         void Run();
 
         void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
         uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+        QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 
     private:
         Window m_window;
@@ -51,12 +56,13 @@ namespace NarcEngine
         VkQueue m_presentQueue;
         VkQueue m_graphicsQueue;
 
-        VkSwapchainKHR m_swapChain;
-        std::vector<VkImage> m_swapChainImages;
-        VkFormat m_swapChainImageFormat;
-        VkExtent2D m_swapChainExtent;
-        std::vector<VkImageView> m_swapChainImageViews;
-        std::vector<VkFramebuffer> m_swapChainFramebuffers;
+        SwapChain m_swapChain;
+        // VkSwapchainKHR m_swapChain;
+        // std::vector<VkImage> m_swapChainImages;
+        // VkFormat m_swapChainImageFormat;
+        // VkExtent2D m_swapChainExtent;
+        // std::vector<VkImageView> m_swapChainImageViews;
+        // std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
         VkRenderPass m_renderPass;
         VkPipelineLayout m_pipelineLayout;
@@ -86,7 +92,7 @@ namespace NarcEngine
 
         void InitVulkan();
         void MainLoop();
-        void CleanupSwapChain();
+        // void CleanupSwapChain();
         void CleanUp();
 
         // void InitWindow();
@@ -95,11 +101,11 @@ namespace NarcEngine
         // void CreateSurface();
         void PickPhysicalDevice();
         void CreateLogicalDevice();
-        void CreateSwapChain();
-        void RecreateSwapChain();
-        void CreateImageViews();
+        // void CreateSwapChain();
+        // void RecreateSwapChain();
+        // void CreateImageViews();
         void CreateRenderPass();
-        void CreateFramebuffers();
+        // void CreateFramebuffers();
         void CreateGraphicsPipeline();
         void CreateCommandPool();
         // void CreateVertexBuffer();
@@ -115,11 +121,10 @@ namespace NarcEngine
         // bool CheckValidationLayerSupport();
         // std::vector<const char*> GetRequiredExtensions();
         // void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
-        QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
         // SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
-        VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-        VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-        VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+        // VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+        // VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+        // VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
         VkShaderModule CreateShaderModule(const std::vector<char>& code);
         void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 

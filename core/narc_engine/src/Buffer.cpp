@@ -13,7 +13,7 @@ namespace NarcEngine
     template <typename T>
     void Buffer<T>::Create(const std::vector<T>& input, VkBufferUsageFlagBits usage)//vertex : VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, index : VK_BUFFER_USAGE_INDEX_BUFFER_BIT 
     {
-        m_device = Engine::GetInstance()->GetDevice();
+        m_linkedDevice = Engine::GetInstance()->GetDevice();
         
         VkDeviceSize bufferSize = sizeof(input[0]) * input.size();
 
@@ -22,22 +22,22 @@ namespace NarcEngine
         CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
         void* data;
-        vkMapMemory(m_device, stagingBufferMemory, 0, bufferSize, 0, &data);
+        vkMapMemory(m_linkedDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
         memcpy(data, input.data(), (size_t)bufferSize);
-        vkUnmapMemory(m_device, stagingBufferMemory);
+        vkUnmapMemory(m_linkedDevice, stagingBufferMemory);
 
-        CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_vertexBuffer, m_vertexBufferMemory);
+        CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_buffer, m_bufferMemory);
 
-        Engine::GetInstance()->CopyBuffer(stagingBuffer, m_vertexBuffer, bufferSize);
-        vkDestroyBuffer(m_device, stagingBuffer, nullptr);
-        vkFreeMemory(m_device, stagingBufferMemory, nullptr);
+        Engine::GetInstance()->CopyBuffer(stagingBuffer, m_buffer, bufferSize);
+        vkDestroyBuffer(m_linkedDevice, stagingBuffer, nullptr);
+        vkFreeMemory(m_linkedDevice, stagingBufferMemory, nullptr);
     }
 
     template <class T>
     void Buffer<T>::Release()
     {
-        vkDestroyBuffer(m_device, m_vertexBuffer, nullptr);
-        vkFreeMemory(m_device, m_vertexBufferMemory, nullptr);
+        vkDestroyBuffer(m_linkedDevice, m_buffer, nullptr);
+        vkFreeMemory(m_linkedDevice, m_bufferMemory, nullptr);
     }
 
     template <class T>
@@ -49,24 +49,24 @@ namespace NarcEngine
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (vkCreateBuffer(m_device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+        if (vkCreateBuffer(m_linkedDevice, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create buffer!");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetBufferMemoryRequirements(m_device, buffer, &memRequirements);
+        vkGetBufferMemoryRequirements(m_linkedDevice, buffer, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
         allocInfo.memoryTypeIndex = Engine::GetInstance()->FindMemoryType(memRequirements.memoryTypeBits, properties);
 
-        if (vkAllocateMemory(m_device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
+        if (vkAllocateMemory(m_linkedDevice, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to allocate buffer memory!");
         }
 
-        vkBindBufferMemory(m_device, buffer, bufferMemory, 0);
+        vkBindBufferMemory(m_linkedDevice, buffer, bufferMemory, 0);
     }
 }
