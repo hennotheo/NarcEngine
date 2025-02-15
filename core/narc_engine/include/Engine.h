@@ -21,6 +21,8 @@
 #include <array>
 #include <fstream>
 
+#include "EngineDebugLogger.h"
+
 
 namespace NarcEngine
 {
@@ -31,9 +33,10 @@ namespace NarcEngine
 
     private:
         Window m_window;
-        
+        EngineDebugLogger m_debugLogger;
+
         VkInstance m_instance;
-        VkDebugUtilsMessengerEXT m_debugMessenger;
+        // VkDebugUtilsMessengerEXT m_debugMessenger;
         VkDevice m_device;
         VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
 
@@ -72,7 +75,7 @@ namespace NarcEngine
 
         // void InitWindow();
         void CreateInstance();
-        void SetupDebugMessenger();
+        //void SetupDebugMessenger();
         // void CreateSurface();
         void PickPhysicalDevice();
         void CreateLogicalDevice();
@@ -96,7 +99,7 @@ namespace NarcEngine
         int RateDeviceSuitability(VkPhysicalDevice device);
         bool CheckValidationLayerSupport();
         std::vector<const char*> GetRequiredExtensions();
-        void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+        // void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
         QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
         // SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
         VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
@@ -106,11 +109,11 @@ namespace NarcEngine
         void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
         uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
-        static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
-            VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-            VkDebugUtilsMessageTypeFlagsEXT messageType,
-            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-            void* pUserData);
+        // static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
+        //     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+        //     VkDebugUtilsMessageTypeFlagsEXT messageType,
+        //     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+        //     void* pUserData);
         static std::vector<char> ReadFile(const std::string& filename);
     };
 }

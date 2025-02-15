@@ -1,5 +1,7 @@
 #include "include/Engine.h"
 
+#include <string>
+
 #include "include/Core.h"
 #include "include/Vertex.h"
 #include "include/window/Window.h"
@@ -7,11 +9,6 @@
 namespace NarcEngine
 {
     const int MAX_FRAMES_IN_FLIGHT = 2;
-
-    const std::vector<const char*> ValidationLayers =
-    {
-        "VK_LAYER_KHRONOS_validation"
-    };
 
     const std::vector<const char*> DeviceExtensions =
     {
@@ -28,31 +25,6 @@ namespace NarcEngine
     const std::vector<uint16_t> Indices = {
         0, 1, 2, 2, 3, 0
     };
-
-    VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const
-                                          VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const
-                                          VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT*
-                                          pDebugMessenger)
-    {
-        auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-
-        if (func != nullptr)
-        {
-            return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-        }
-
-        return VK_ERROR_EXTENSION_NOT_PRESENT;
-    }
-
-    void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator)
-    {
-        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-
-        if (func != nullptr)
-        {
-            func(instance, debugMessenger, pAllocator);
-        }
-    }
 
     QueueFamilyIndices Engine::FindQueueFamilies(VkPhysicalDevice device)
     {
@@ -293,15 +265,6 @@ namespace NarcEngine
         return score;
     }
 
-    void Engine::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
-    {
-        createInfo = {};
-        createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-        createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-        createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-        createInfo.pfnUserCallback = DebugCallback;
-    }
-
     bool Engine::CheckValidationLayerSupport()
     {
         uint32_t layerCount;
@@ -338,7 +301,7 @@ namespace NarcEngine
         std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
 #ifdef ENABLE_VALIDATION_LAYERS
-            extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
 
         return extensions;
@@ -355,9 +318,8 @@ namespace NarcEngine
     void Engine::InitVulkan()
     {
         CreateInstance();
-        SetupDebugMessenger();
-        m_window.InitSurface(m_instance);
-        // CreateSurface();
+        m_debugLogger.Init(m_instance); //SetupDebugMessenger();
+        m_window.InitSurface(m_instance); // CreateSurface();
         PickPhysicalDevice();
         CreateLogicalDevice();
         CreateSwapChain();
@@ -423,9 +385,7 @@ namespace NarcEngine
 
         vkDestroyDevice(m_device, nullptr);
 
-#ifdef ENABLE_VALIDATION_LAYERS
-        DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
-#endif
+        m_debugLogger.Clean(m_instance);
 
         m_window.CleanSurface(m_instance);
         vkDestroyInstance(m_instance, nullptr);
@@ -459,35 +419,11 @@ namespace NarcEngine
         createInfo.ppEnabledExtensionNames = extensions.data();
 
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-#ifdef ENABLE_VALIDATION_LAYERS
-        createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
-        createInfo.ppEnabledLayerNames = ValidationLayers.data();
-
-        PopulateDebugMessengerCreateInfo(debugCreateInfo);
-        createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
-#else
-        createInfo.enabledLayerCount = 0;
-        createInfo.pNext = nullptr;
-#endif
+        m_debugLogger.LinkToInstance(createInfo, debugCreateInfo);
 
         if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create instance!");
-        }
-    }
-
-    void Engine::SetupDebugMessenger()
-    {
-#ifndef ENABLE_VALIDATION_LAYERS
-            return;
-#endif
-
-        VkDebugUtilsMessengerCreateInfoEXT createInfo;
-        PopulateDebugMessengerCreateInfo(createInfo);
-
-        if (CreateDebugUtilsMessengerEXT(m_instance, &createInfo, nullptr, &m_debugMessenger) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to set up debug messenger!");
         }
     }
 
@@ -1109,22 +1045,6 @@ namespace NarcEngine
         }
 
         vkBindBufferMemory(m_device, buffer, bufferMemory, 0);
-    }
-
-    VKAPI_ATTR VkBool32 VKAPI_CALL Engine::DebugCallback(
-        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT messageType,
-        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-        void* pUserData)
-    {
-        std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
-
-        if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
-        {
-            //Display
-        }
-
-        return VK_FALSE;
     }
 
     std::vector<char> Engine::ReadFile(const std::string& filename)
