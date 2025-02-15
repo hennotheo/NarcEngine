@@ -21,6 +21,7 @@
 #include <array>
 #include <fstream>
 
+#include "Buffer.h"
 #include "EngineDebugLogger.h"
 
 
@@ -29,7 +30,14 @@ namespace NarcEngine
     class Engine
     {
     public:
+        static Engine* GetInstance();
+        
+        const VkDevice& GetDevice() const { return m_device; }
+
         void Run();
+
+        void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+        uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
     private:
         Window m_window;
@@ -62,12 +70,19 @@ namespace NarcEngine
         std::vector<VkSemaphore> m_renderFinishedSemaphores;
         std::vector<VkFence> m_inFlightFences;
 
-        VkBuffer m_vertexBuffer;
-        VkDeviceMemory m_vertexBufferMemory;
+        // VkBuffer m_vertexBuffer;
+        // VkDeviceMemory m_vertexBufferMemory;
+        Buffer m_vertexBuffer;
         VkBuffer m_indexBuffer;
         VkDeviceMemory m_indexBufferMemory;
 
     private:
+        // Engine() = default;
+        // ~Engine() = default;
+
+        // Engine(const Engine&) = delete;
+        // Engine& operator=(const Engine&) = delete;
+
         void InitVulkan();
         void MainLoop();
         void CleanupSwapChain();
@@ -86,14 +101,13 @@ namespace NarcEngine
         void CreateFramebuffers();
         void CreateGraphicsPipeline();
         void CreateCommandPool();
-        void CreateVertexBuffer();
+        // void CreateVertexBuffer();
         void CreateIndexBuffer();
         void CreateCommandBuffer();
         void CreateSyncObjects();
 
         void DrawFrame();
 
-        void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
         void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
         // bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
         int RateDeviceSuitability(VkPhysicalDevice device);
@@ -107,7 +121,6 @@ namespace NarcEngine
         VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
         VkShaderModule CreateShaderModule(const std::vector<char>& code);
         void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
-        uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
         // static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
         //     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
