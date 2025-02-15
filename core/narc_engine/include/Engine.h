@@ -5,14 +5,18 @@
 
 #include "window/Window.h"
 #include "QueueFamilyIndices.h"
-#include "Buffer.h"
 #include "EngineDebugLogger.h"
 #include "SwapChain.h"
 #include "Vertex.h"
 
+#include "buffers/StaggingBuffer.h"
+
 #include <vector>
 #include <cstdint>
 #include <fstream>
+
+#include "buffers/UniformBuffer.h"
+
 
 namespace narc_engine
 {
@@ -62,15 +66,18 @@ namespace narc_engine
         std::vector<VkSemaphore> m_renderFinishedSemaphores;
         std::vector<VkFence> m_inFlightFences;
 
-        Buffer<Vertex> m_vertexBuffer;
-        Buffer<uint16_t> m_indexBuffer;
+        StaggingBuffer<Vertex> m_vertexBuffer;
+        StaggingBuffer<uint16_t> m_indexBuffer;
 
+        std::vector<UniformBuffer> m_uniformBuffers;
+        
     private:
         void init();
         void mainLoop();
         void cleanUp();
 
         void createInstance();
+        void createUniformBuffers();
         void pickPhysicalDevice();
         void createLogicalDevice();
         void createDescriptorSetLayout();

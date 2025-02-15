@@ -307,6 +307,18 @@ namespace narc_engine
         }
     }
 
+    void Engine::createUniformBuffers()
+    {
+        VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+
+        m_uniformBuffers.resize(g_maxFramesInFlight);
+
+        for (size_t i = 0; i < g_maxFramesInFlight; i++)
+        {
+            m_uniformBuffers[i].create(bufferSize);
+        }
+    }
+
     void Engine::pickPhysicalDevice()
     {
         uint32_t deviceCount = 0;
@@ -488,12 +500,12 @@ namespace narc_engine
         dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
         dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
         dynamicState.pDynamicStates = dynamicStates.data();
-        
+
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.pushConstantRangeCount = 0;
         pipelineLayoutInfo.setLayoutCount = 1; // SET LAYOUTS HERE
-        pipelineLayoutInfo.pSetLayouts = { &m_descriptorSetLayout }; // SET LAYOUTS HERE
+        pipelineLayoutInfo.pSetLayouts = {&m_descriptorSetLayout}; // SET LAYOUTS HERE
         pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
         pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
