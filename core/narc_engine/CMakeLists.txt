@@ -1,5 +1,3 @@
-message(STATUS "Building NarcEngine")
-
 #----------------------
 #----- GET VULKAN -----
 #----------------------
@@ -49,6 +47,8 @@ else()
     endif()
 endif()
 
+set(VULKAN_GLSLC_PATH "${VULKAN_PATH}/Bin/glslc.exe" CACHE INTERNAL "Vulkan GLSL Compiler Path")
+
 #----------------
 #----- MAIN -----
 #----------------
@@ -83,39 +83,3 @@ target_precompile_headers(${NARC_ENGINE} PRIVATE "include/pch.h")
 add_custom_command(TARGET ${NARC_ENGINE} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${NARC_ENGINE}> ${SANDBOX_BIN_DIR}/$<TARGET_FILE_NAME:${NARC_ENGINE}>
 )
-
-#--------------------
-#--- Shader FILES ---
-#--------------------
-
-set(VULKAN_GLSLC_PATH ${VULKAN_PATH}/Bin/glslc.exe)
-set(SHADER_PATH ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
-
-file(GLOB VERTEX_SHADER_FILES "shaders/*.vert")
-file(GLOB FRAGMENT_SHADER_FILES "shaders/*.frag")
-
-set(SHADER_COMMANDS "")
-
-foreach(VERTEX_SHADER_FILE ${VERTEX_SHADER_FILES})
-    get_filename_component(VERTEX_SHADER_FILENAME ${VERTEX_SHADER_FILE} NAME)
-    string(REGEX REPLACE ".vert" "" VERTEX_SHADER_FILENAME_NO_EXTENSION ${VERTEX_SHADER_FILENAME})
-    list(APPEND SHADER_COMMANDS "\n${VULKAN_GLSLC_PATH} ${VERTEX_SHADER_FILENAME_NO_EXTENSION}.vert -o ${VERTEX_SHADER_FILENAME_NO_EXTENSION}_vert.spv")
-endforeach()
-
-foreach(FRAGMENT_SHADER_FILE ${FRAGMENT_SHADER_FILES})
-    get_filename_component(FRAGMENT_SHADER_FILENAME ${FRAGMENT_SHADER_FILE} NAME)
-    string(REGEX REPLACE ".frag" "" FRAGMENT_SHADER_FILENAME_NO_EXTENSION ${FRAGMENT_SHADER_FILENAME})
-    list(APPEND SHADER_COMMANDS "\n${VULKAN_GLSLC_PATH} ${FRAGMENT_SHADER_FILENAME_NO_EXTENSION}.frag -o ${FRAGMENT_SHADER_FILENAME_NO_EXTENSION}_frag.spv")
-endforeach()
-
-file(WRITE ${SHADER_PATH}/compile_shaders.bat ${SHADER_COMMANDS})
-
-add_custom_target(
-    CompileShaders ALL
-    WORKING_DIRECTORY ${SHADER_PATH}
-    COMMENT "Compiling Shaders..."
-    COMMAND ${SHADER_PATH}/compile_shaders.bat
-)
-
-file(GLOB SHADER_FILES "shaders/*.spv")
-file(COPY ${SHADER_FILES} DESTINATION ${SANDBOX_BIN_DIR}/shaders/)
