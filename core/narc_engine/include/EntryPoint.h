@@ -2,8 +2,6 @@
 
 #ifdef NARC_ENGINE_PLATFORM_WINDOWS
 
-#include <iostream>
-
 extern narc_engine::Application* narc_engine::createApplication();
 
 int main(int argc, char** argv)

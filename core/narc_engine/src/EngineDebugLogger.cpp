@@ -1,13 +1,5 @@
 #include "include/EngineDebugLogger.h"
 
-#include <iostream>
-#include <set>
-
-#include "include/Core.h"
-
-#include <stdexcept>
-#include <vector>
-
 namespace narc_engine
 {
     const std::vector<const char*> g_validationLayers =
@@ -42,11 +34,11 @@ namespace narc_engine
 #endif
     }
 
-    std::vector<const char*> EngineDebugLogger::getRequiredExtensions()
+    std::vector<const char*> EngineDebugLogger::getRequiredExtensions(Window& window)
     {
         uint32_t glfwExtensionCount = 0;
         const char** glfwExtensions;
-        glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+        glfwExtensions = window.getRequiredInstanceExtensions(&glfwExtensionCount);
 
         std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 

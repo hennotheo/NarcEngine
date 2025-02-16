@@ -1,10 +1,7 @@
 #pragma once
 
-#define GLFW_INCLUDE_VULKAN
-#include <vector>
-#include <GLFW/glfw3.h>
-
-#include "window/Window.h"
+#include <vulkan/vulkan.h>
+#include "include/window/Window.h"
 
 namespace narc_engine
 {
@@ -37,7 +34,7 @@ namespace narc_engine
 
         VkDevice m_device;
         VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
-        Window m_window;
+        const Window* m_window;
 
         void createSwapChain();
         void createRenderPass();

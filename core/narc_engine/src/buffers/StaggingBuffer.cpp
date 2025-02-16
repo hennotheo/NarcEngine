@@ -1,5 +1,6 @@
 #include "include/buffers/StaggingBuffer.h"
 
+#include "include/Vertex.h"
 #include "include/Engine.h"
 
 namespace narc_engine

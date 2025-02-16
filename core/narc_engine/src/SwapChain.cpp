@@ -1,11 +1,6 @@
 #include "include/SwapChain.h"
 
-#include <algorithm>
-#include <stdexcept>
-
 #include "include/Engine.h"
-#include "include/QueueFamilyIndices.h"
-#include "include/SwapChainSupportDetails.h"
 
 namespace narc_engine
 {
@@ -15,7 +10,7 @@ namespace narc_engine
         m_physicalDevice = engine->getPhysicalDevice();
         m_device = engine->getDevice();
         m_window = engine->getWindow();
-        
+
         createSwapChain();
         createImageViews();
         createRenderPass();
@@ -23,14 +18,14 @@ namespace narc_engine
 
     VkResult SwapChain::acquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex)
     {
-        VkResult result = vkAcquireNextImageKHR(m_device, m_swapChain, UINT64_MAX, semaphore , VK_NULL_HANDLE, imageIndex);
+        VkResult result = vkAcquireNextImageKHR(m_device, m_swapChain, UINT64_MAX, semaphore, VK_NULL_HANDLE, imageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) //OUT DUE TO WINDOW RESIZE FOR EXAMPLE
         {
             reCreate();
             return result;
         }
-        
+
         if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
         {
             throw std::runtime_error("failed to acquire swap chain image!");
@@ -63,7 +58,7 @@ namespace narc_engine
     {
         int width = 0;
         int height = 0;
-        m_window.getValidFramebufferSize(&width, &height);
+        m_window->getValidFramebufferSize(&width, &height);
 
         vkDeviceWaitIdle(m_device);
 
@@ -115,7 +110,7 @@ namespace narc_engine
 
     void SwapChain::createSwapChain()
     {
-        SwapChainSupportDetails swapChainSupport = m_window.querySwapChainSupport(m_physicalDevice);
+        SwapChainSupportDetails swapChainSupport = m_window->querySwapChainSupport(m_physicalDevice);
         VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.Formats);
         VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.PresentModes);
         VkExtent2D extent = chooseSwapExtent(swapChainSupport.Capabilities);
@@ -129,7 +124,7 @@ namespace narc_engine
 
         VkSwapchainCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = m_window.getSurface();
+        createInfo.surface = m_window->getSurface();
         createInfo.minImageCount = imageCount;
         createInfo.imageFormat = surfaceFormat.format;
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -280,21 +275,19 @@ namespace narc_engine
         {
             return capabilities.currentExtent;
         }
-        else
+
+        int width, height;
+        m_window->getFramebufferSize(&width, &height);
+
+        VkExtent2D actualExtent =
         {
-            int width, height;
-            m_window.getFramebufferSize(&width, &height);
+            static_cast<uint32_t>(width),
+            static_cast<uint32_t>(height)
+        };
 
-            VkExtent2D actualExtent =
-            {
-                static_cast<uint32_t>(width),
-                static_cast<uint32_t>(height)
-            };
+        actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+        actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
 
-            actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
-            actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
-
-            return actualExtent;
-        }
+        return actualExtent;
     }
 }

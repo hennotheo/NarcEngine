@@ -1,7 +1,5 @@
 #include "include/window/Window.h"
 
-#include <stdexcept>
-
 namespace narc_engine
 {
     const uint32_t g_width = 800;
@@ -42,6 +40,11 @@ namespace narc_engine
     {
         glfwDestroyWindow(m_window);
         glfwTerminate();
+    }
+
+    const char** Window::getRequiredInstanceExtensions(uint32_t* glfwExtensionCount) const
+    {
+        return glfwGetRequiredInstanceExtensions(glfwExtensionCount);
     }
 
     SwapChainSupportDetails Window::querySwapChainSupport(VkPhysicalDevice device) const
@@ -86,7 +89,7 @@ namespace narc_engine
         glfwGetFramebufferSize(m_window, width, height);
     }
 
-    VkBool32 Window::isPhysicalDeviceSupported(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex)
+    VkBool32 Window::isPhysicalDeviceSupported(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) const
     {
         VkBool32 supported = false;
         vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_surface, &supported);
