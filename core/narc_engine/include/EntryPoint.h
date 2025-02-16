@@ -2,7 +2,7 @@
 
 #ifdef NARC_ENGINE_PLATFORM_WINDOWS
 
-#include <iostream>
+#include "pch.h"
 
 extern narc_engine::Application* narc_engine::createApplication();
 

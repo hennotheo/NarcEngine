@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 
 #if NARC_ENGINE_BUILD_DLL
 

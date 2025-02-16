@@ -98,6 +98,8 @@ include_directories("vendors/glfw/include")
 target_link_libraries( ${NARC_ENGINE} PRIVATE ${VULKAN_LIB_LIST} )
 target_link_libraries( ${NARC_ENGINE} PRIVATE ${GLFW_LIB_LIST} )
 
+target_precompile_headers(${NARC_ENGINE} PRIVATE "include/pch.h")
+
 #-----------------------------
 #----- POST BUILD MOVING -----
 #-----------------------------
