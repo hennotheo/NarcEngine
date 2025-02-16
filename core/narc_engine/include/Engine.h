@@ -4,12 +4,12 @@
 
 #include "Vertex.h"
 #include "QueueFamilyIndices.h"
-#include "buffers/StaggingBuffer.h"
 #include "buffers/UniformBuffer.h"
 
 #include "window/Window.h"
 #include "EngineDebugLogger.h"
 #include "SwapChain.h"
+#include "buffers/GraphicsBuffer.h"
 
 namespace narc_engine
 {
@@ -54,10 +54,14 @@ namespace narc_engine
         std::vector<VkSemaphore> m_renderFinishedSemaphores;
         std::vector<VkFence> m_inFlightFences;
 
-        StaggingBuffer<Vertex> m_vertexBuffer;
-        StaggingBuffer<uint16_t> m_indexBuffer;
-
+        GraphicsBuffer<Vertex> m_vertexBuffer;
+        GraphicsBuffer<uint16_t> m_indexBuffer;
         std::vector<UniformBuffer> m_uniformBuffers;
+
+        VkImage m_textureImage;
+        VkDeviceMemory m_textureImageMemory;
+        VkImageView m_textureImageView;
+        VkSampler m_textureSampler;
         
     private:
         void init();
@@ -70,10 +74,19 @@ namespace narc_engine
         void createDescriptorSetLayout();
         void createGraphicsPipeline();
         void createCommandPool();
+        VkCommandBuffer beginSingleTimeCommands();
+        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+        void createTextureImage();
+        void createTextureSampler();
+        void createImageTextureView();
+        void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
+                         VkDeviceMemory& imageMemory);
+        void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+        void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
         void createUniformBuffers();
         void createDescriptorPool();
         void createDescriptorSets();
-        void createCommandBuffer();
+        void createCommandBuffers();
         void createSyncObjects();
 
         void drawFrame();

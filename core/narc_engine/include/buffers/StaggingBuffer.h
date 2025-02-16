@@ -4,10 +4,13 @@
 
 namespace narc_engine
 {
-    template <class T>
     class StaggingBuffer : public Buffer
     {
     public:        
-        void create(const std::vector<T>& input, VkBufferUsageFlagBits usage);
+        void create(VkDeviceSize bufferSize);
+        void input(const void* input);
+
+    private:
+        VkDeviceSize m_bufferSize;
     };
 }
