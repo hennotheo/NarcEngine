@@ -15,6 +15,7 @@ namespace narc_engine
         void create();
         void createFramebuffers();
         
+        VkImageView createImageView(VkImage image, VkFormat format);
         VkRenderPassBeginInfo getRenderPassBeginInfos(uint32_t imageIndex) const;
         VkResult acquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex);
         void reCreate();
@@ -38,6 +39,7 @@ namespace narc_engine
 
         void createSwapChain();
         void createRenderPass();
+        void createTextureImageView();
         void createImageViews();
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
         VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);

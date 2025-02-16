@@ -60,6 +60,8 @@ namespace narc_engine
 
         VkImage m_textureImage;
         VkDeviceMemory m_textureImageMemory;
+        VkImageView m_textureImageView;
+        VkSampler m_textureSampler;
         
     private:
         void init();
@@ -75,6 +77,8 @@ namespace narc_engine
         VkCommandBuffer beginSingleTimeCommands();
         void endSingleTimeCommands(VkCommandBuffer commandBuffer);
         void createTextureImage();
+        void createTextureSampler();
+        void createImageTextureView();
         void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
                          VkDeviceMemory& imageMemory);
         void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);

@@ -153,6 +153,9 @@ namespace narc_engine
         vkGetPhysicalDeviceProperties(device, &deviceProperties);
         vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
+        VkPhysicalDeviceFeatures supportedFeatures;
+        vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+
         int score = 0;
 
         //Performance advantage
@@ -163,6 +166,7 @@ namespace narc_engine
 
         //Max possible size of texture affect graphics quality
         score += deviceProperties.limits.maxImageDimension2D;
+        score += supportedFeatures.samplerAnisotropy ? 1000 : 0;
 
         //Application can't function without geometry shaders
         if (!deviceFeatures.geometryShader)
@@ -228,6 +232,8 @@ namespace narc_engine
         m_swapChain.createFramebuffers(); // CreateFramebuffers();
         createCommandPool();
         createTextureImage();
+        createImageTextureView();
+        createTextureSampler();
         m_vertexBuffer.create(g_vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
         m_indexBuffer.create(g_indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
         createUniformBuffers();
@@ -251,6 +257,9 @@ namespace narc_engine
     void Engine::cleanUp()
     {
         m_swapChain.cleanSwapChain();
+
+        vkDestroySampler(m_device, m_textureSampler, nullptr);
+        vkDestroyImageView(m_device, m_textureImageView, nullptr);
 
         vkDestroyImage(m_device, m_textureImage, nullptr);
         vkFreeMemory(m_device, m_textureImageMemory, nullptr);
@@ -438,6 +447,7 @@ namespace narc_engine
         }
 
         VkPhysicalDeviceFeatures deviceFeatures{};
+        deviceFeatures.samplerAnisotropy = VK_TRUE;
 
         VkDeviceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -688,6 +698,41 @@ namespace narc_engine
         transitionImageLayout(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
         staggingBuffer.release();
+    }
+
+    void Engine::createTextureSampler()
+    {
+        VkSamplerCreateInfo samplerInfo{};
+        samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+        samplerInfo.magFilter = VK_FILTER_LINEAR;
+        samplerInfo.minFilter = VK_FILTER_LINEAR;
+        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+
+        VkPhysicalDeviceProperties properties{};
+        vkGetPhysicalDeviceProperties(m_physicalDevice, &properties);
+        samplerInfo.anisotropyEnable = VK_TRUE;
+        samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
+        
+        samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+        samplerInfo.unnormalizedCoordinates = VK_FALSE;
+        samplerInfo.compareEnable = VK_FALSE;
+        samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        samplerInfo.mipLodBias = 0.0f;
+        samplerInfo.minLod = 0.0f;
+        samplerInfo.maxLod = 0.0f;
+
+        if (vkCreateSampler(m_device, &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create texture sampler!");
+        }
+    }
+
+    void Engine::createImageTextureView()
+    {
+        m_textureImageView = m_swapChain.createImageView(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB);
     }
 
     void Engine::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
