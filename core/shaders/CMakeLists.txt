@@ -25,5 +25,5 @@ add_custom_target(
     COMMAND ${SHADER_PATH}/compile_shaders.bat
 )
 
-file(GLOB SHADER_FILES "/*.spv")
+file(GLOB SHADER_FILES "*.spv")
 file(COPY ${SHADER_FILES} DESTINATION ${SANDBOX_BIN_DIR}/shaders/)

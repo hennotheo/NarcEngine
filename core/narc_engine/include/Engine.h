@@ -4,12 +4,12 @@
 
 #include "Vertex.h"
 #include "QueueFamilyIndices.h"
-#include "buffers/StaggingBuffer.h"
 #include "buffers/UniformBuffer.h"
 
 #include "window/Window.h"
 #include "EngineDebugLogger.h"
 #include "SwapChain.h"
+#include "buffers/GraphicsBuffer.h"
 
 namespace narc_engine
 {
@@ -54,8 +54,8 @@ namespace narc_engine
         std::vector<VkSemaphore> m_renderFinishedSemaphores;
         std::vector<VkFence> m_inFlightFences;
 
-        StaggingBuffer<Vertex> m_vertexBuffer;
-        StaggingBuffer<uint16_t> m_indexBuffer;
+        GraphicsBuffer<Vertex> m_vertexBuffer;
+        GraphicsBuffer<uint16_t> m_indexBuffer;
 
         std::vector<UniformBuffer> m_uniformBuffers;
         
