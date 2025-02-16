@@ -47,6 +47,8 @@ namespace narc_engine
         SwapChain m_swapChain;
 
         VkDescriptorSetLayout m_descriptorSetLayout;
+        VkDescriptorPool m_descriptorPool;
+        std::vector<VkDescriptorSet> m_descriptorSets;
         VkPipelineLayout m_pipelineLayout;
         VkPipeline m_graphicsPipeline;
         VkCommandPool m_commandPool;
@@ -68,12 +70,14 @@ namespace narc_engine
         void cleanUp();
 
         void createInstance();
-        void createUniformBuffers();
         void pickPhysicalDevice();
         void createLogicalDevice();
         void createDescriptorSetLayout();
         void createGraphicsPipeline();
         void createCommandPool();
+        void createUniformBuffers();
+        void createDescriptorPool();
+        void createDescriptorSets();
         void createCommandBuffer();
         void createSyncObjects();
 
