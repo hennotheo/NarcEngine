@@ -253,12 +253,18 @@ namespace narc_engine
     {
         m_swapChain.cleanSwapChain();
 
+
+        for (UniformBuffer& buffer : m_uniformBuffers)
+        {
+            buffer.release();
+        }
+
         vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
         vkDestroyDescriptorSetLayout(m_device, m_descriptorSetLayout, nullptr);
-
+        
         m_indexBuffer.release();
         m_vertexBuffer.release();
-
+        
         vkDestroyPipeline(m_device, m_graphicsPipeline, nullptr);
         vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
         m_swapChain.cleanRenderPass();
