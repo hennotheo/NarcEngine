@@ -56,8 +56,10 @@ namespace narc_engine
 
         GraphicsBuffer<Vertex> m_vertexBuffer;
         GraphicsBuffer<uint16_t> m_indexBuffer;
-
         std::vector<UniformBuffer> m_uniformBuffers;
+
+        VkImage m_textureImage;
+        VkDeviceMemory m_textureImageMemory;
         
     private:
         void init();
@@ -70,10 +72,17 @@ namespace narc_engine
         void createDescriptorSetLayout();
         void createGraphicsPipeline();
         void createCommandPool();
+        VkCommandBuffer beginSingleTimeCommands();
+        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+        void createTextureImage();
+        void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
+                         VkDeviceMemory& imageMemory);
+        void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+        void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
         void createUniformBuffers();
         void createDescriptorPool();
         void createDescriptorSets();
-        void createCommandBuffer();
+        void createCommandBuffers();
         void createSyncObjects();
 
         void drawFrame();
