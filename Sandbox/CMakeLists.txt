@@ -17,10 +17,3 @@ add_executable(${SANDBOX} src/TestEngine.cpp)
 include_directories(${CMAKE_SOURCE_DIR}/core/narc_engine/include/)
 
 target_link_libraries(${SANDBOX} PRIVATE ${NARC_ENGINE_LIB_LIST})
-
-set_target_properties(${SANDBOX}
-    PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-)
