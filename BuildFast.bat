@@ -5,4 +5,4 @@ if not exist cmake (
 cd cmake
 cmake ..
 
-cmake --build .
+cmake --build . --config Debug

@@ -36,5 +36,5 @@ cmake/
 *.app
 
 #Shaders
-NarcEngine/shaders/compile-shaders.bat
 *.spv
+core/shaders/compile_shaders.bat
