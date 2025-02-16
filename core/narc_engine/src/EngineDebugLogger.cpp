@@ -1,13 +1,5 @@
 #include "include/EngineDebugLogger.h"
 
-#include <iostream>
-#include <set>
-
-#include "include/Core.h"
-
-#include <stdexcept>
-#include <vector>
-
 namespace narc_engine
 {
     const std::vector<const char*> g_validationLayers =

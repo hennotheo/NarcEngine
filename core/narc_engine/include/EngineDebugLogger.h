@@ -1,7 +1,6 @@
 #pragma once
 
 #define GLFW_INCLUDE_VULKAN
-#include <vector>
 #include <GLFW/glfw3.h>
 
 namespace narc_engine

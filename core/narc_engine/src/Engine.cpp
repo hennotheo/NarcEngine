@@ -3,11 +3,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <chrono>
-#include <map>
-#include <set>
-#include <string>
-
 #include "include/Core.h"
 #include "include/Vertex.h"
 #include "include/window/Window.h"

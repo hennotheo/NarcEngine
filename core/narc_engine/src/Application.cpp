@@ -1,7 +1,5 @@
 #include "include/Application.h"
 
-#include <iostream>
-
 #include "include/Engine.h"
 
 narc_engine::Application::Application()

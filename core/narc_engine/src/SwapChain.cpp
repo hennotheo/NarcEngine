@@ -1,8 +1,5 @@
 #include "include/SwapChain.h"
 
-#include <algorithm>
-#include <stdexcept>
-
 #include "include/Engine.h"
 #include "include/QueueFamilyIndices.h"
 #include "include/SwapChainSupportDetails.h"

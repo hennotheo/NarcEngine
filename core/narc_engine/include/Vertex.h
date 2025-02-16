@@ -1,8 +1,6 @@
 #pragma once
 
-#define GLFW_INCLUDE_VULKAN
-#include <array>
-#include <GLFW/glfw3.h>
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include <glm/glm.hpp>
 
 namespace narc_engine

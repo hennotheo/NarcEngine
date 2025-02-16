@@ -1,8 +1,5 @@
 #include "include/buffers/UniformBuffer.h"
 
-#include <cstring>
-#include <stdexcept>
-
 #include "include/UniformBufferObject.h"
 
 namespace narc_engine

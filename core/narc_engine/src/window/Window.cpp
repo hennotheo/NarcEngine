@@ -1,7 +1,5 @@
 #include "include/window/Window.h"
 
-#include <stdexcept>
-
 namespace narc_engine
 {
     const uint32_t g_width = 800;

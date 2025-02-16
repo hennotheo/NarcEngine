@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Core.h"
-
 namespace narc_engine
 {
 	class NARC_ENGINE_API Application

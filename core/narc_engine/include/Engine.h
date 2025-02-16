@@ -12,10 +12,6 @@
 #include "buffers/StaggingBuffer.h"
 #include "buffers/UniformBuffer.h"
 
-#include <vector>
-#include <cstdint>
-#include <fstream>
-
 namespace narc_engine
 {
     class Engine
