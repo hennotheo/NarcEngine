@@ -1,6 +1,7 @@
 #pragma once
 
-#include "window/Window.h"
+#include <vulkan/vulkan.h>
+#include "include/window/Window.h"
 
 namespace narc_engine
 {
@@ -33,7 +34,7 @@ namespace narc_engine
 
         VkDevice m_device;
         VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
-        Window m_window;
+        const Window* m_window;
 
         void createSwapChain();
         void createRenderPass();

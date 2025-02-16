@@ -34,11 +34,11 @@ namespace narc_engine
 #endif
     }
 
-    std::vector<const char*> EngineDebugLogger::getRequiredExtensions()
+    std::vector<const char*> EngineDebugLogger::getRequiredExtensions(Window& window)
     {
         uint32_t glfwExtensionCount = 0;
         const char** glfwExtensions;
-        glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+        glfwExtensions = window.getRequiredInstanceExtensions(&glfwExtensionCount);
 
         std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 

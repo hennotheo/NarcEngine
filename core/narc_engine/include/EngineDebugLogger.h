@@ -1,7 +1,8 @@
 #pragma once
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <vulkan/vulkan.h>
+
+#include "window/Window.h"
 
 namespace narc_engine
 {
@@ -11,7 +12,7 @@ namespace narc_engine
         void init(VkInstance& instance);
 
         void linkToInstance(VkInstanceCreateInfo& createInfo, VkDebugUtilsMessengerCreateInfoEXT& debugCreateInfo);
-        std::vector<const char*> getRequiredExtensions();
+        std::vector<const char*> getRequiredExtensions(Window& window);
         void linkToDevice(VkDeviceCreateInfo& createInfo);
 
         void clean(VkInstance& instance);

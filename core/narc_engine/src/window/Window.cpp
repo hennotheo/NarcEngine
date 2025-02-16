@@ -42,6 +42,11 @@ namespace narc_engine
         glfwTerminate();
     }
 
+    const char** Window::getRequiredInstanceExtensions(uint32_t* glfwExtensionCount) const
+    {
+        return glfwGetRequiredInstanceExtensions(glfwExtensionCount);
+    }
+
     SwapChainSupportDetails Window::querySwapChainSupport(VkPhysicalDevice device) const
     {
         SwapChainSupportDetails details;
@@ -84,7 +89,7 @@ namespace narc_engine
         glfwGetFramebufferSize(m_window, width, height);
     }
 
-    VkBool32 Window::isPhysicalDeviceSupported(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex)
+    VkBool32 Window::isPhysicalDeviceSupported(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) const
     {
         VkBool32 supported = false;
         vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_surface, &supported);

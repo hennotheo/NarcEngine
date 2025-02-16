@@ -1,16 +1,15 @@
 #pragma once
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <vulkan/vulkan.h>
 
-#include "window/Window.h"
-#include "QueueFamilyIndices.h"
-#include "EngineDebugLogger.h"
-#include "SwapChain.h"
 #include "Vertex.h"
-
+#include "QueueFamilyIndices.h"
 #include "buffers/StaggingBuffer.h"
 #include "buffers/UniformBuffer.h"
+
+#include "window/Window.h"
+#include "EngineDebugLogger.h"
+#include "SwapChain.h"
 
 namespace narc_engine
 {
@@ -21,7 +20,7 @@ namespace narc_engine
 
         const VkDevice& getDevice() const { return m_device; }
         const VkPhysicalDevice& getPhysicalDevice() const { return m_physicalDevice; }
-        const Window& getWindow() const { return m_window; }
+        const Window* getWindow() const { return &m_window; }
 
         void run();
 
