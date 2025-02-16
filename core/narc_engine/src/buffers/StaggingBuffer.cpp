@@ -10,7 +10,7 @@ namespace narc_engine
     template <class T>
     void StaggingBuffer<T>::create(const std::vector<T>& input, VkBufferUsageFlagBits usage)//vertex : VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, index : VK_BUFFER_USAGE_INDEX_BUFFER_BIT 
     {
-        this->m_linkedDevice = Engine::getInstance()->getDevice();
+        this->init();
         
         VkDeviceSize bufferSize = sizeof(input[0]) * input.size();
 

@@ -1,5 +1,9 @@
 #include "include/Engine.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#include <chrono>
 #include <map>
 #include <set>
 #include <string>
@@ -226,6 +230,7 @@ namespace narc_engine
         createCommandPool();
         m_vertexBuffer.create(g_vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
         m_indexBuffer.create(g_indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+        createUniformBuffers();
         createCommandBuffer();
         createSyncObjects();
     }
@@ -639,11 +644,13 @@ namespace narc_engine
         uint32_t imageIndex;
         VkResult result = m_swapChain.acquireNextImage(m_imageAvailableSemaphores[m_currentFrame], &imageIndex);
 
+        updateUniformBuffer(m_currentFrame);
+        
         vkResetFences(m_device, 1, &m_inFlightFences[m_currentFrame]);
 
         vkResetCommandBuffer(m_commandBuffers[m_currentFrame], 0);
         recordCommandBuffer(m_commandBuffers[m_currentFrame], imageIndex);
-
+        
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
@@ -696,6 +703,22 @@ namespace narc_engine
         }
 
         m_currentFrame = (m_currentFrame + 1) % g_maxFramesInFlight;
+    }
+
+    void Engine::updateUniformBuffer(uint32_t currentImage)
+    {
+        static auto startTime = std::chrono::high_resolution_clock::now();
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+        UniformBufferObject ubo{};
+        ubo.Model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.View = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.Proj = glm::perspective(glm::radians(45.0f), m_swapChain.getSwapChainExtent().width / (float) m_swapChain.getSwapChainExtent().height, 0.1f, 10.0f);
+        ubo.Proj[1][1] *= -1;
+        
+        m_uniformBuffers[currentImage].setData(ubo);
     }
 
     std::vector<char> Engine::readFile(const std::string& filename)

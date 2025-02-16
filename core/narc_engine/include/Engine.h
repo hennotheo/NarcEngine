@@ -10,23 +10,14 @@
 #include "Vertex.h"
 
 #include "buffers/StaggingBuffer.h"
+#include "buffers/UniformBuffer.h"
 
 #include <vector>
 #include <cstdint>
 #include <fstream>
 
-#include "buffers/UniformBuffer.h"
-
-
 namespace narc_engine
 {
-    struct UniformBufferObject
-    {
-        glm::mat4 Model;
-        glm::mat4 View;
-        glm::mat4 Proj;
-    };
-
     class Engine
     {
     public:
@@ -87,6 +78,7 @@ namespace narc_engine
         void createSyncObjects();
 
         void drawFrame();
+        void updateUniformBuffer(uint32_t currentImage);
 
         int rateDeviceSuitability(VkPhysicalDevice device);
         VkShaderModule createShaderModule(const std::vector<char>& code);

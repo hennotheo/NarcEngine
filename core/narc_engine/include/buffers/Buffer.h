@@ -18,6 +18,7 @@ namespace narc_engine
 
         VkDevice m_linkedDevice;
 
+        void init();
         void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
     };
 }

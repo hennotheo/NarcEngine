@@ -12,7 +12,12 @@ namespace narc_engine
         vkDestroyBuffer(m_linkedDevice, m_buffer, nullptr);
         vkFreeMemory(m_linkedDevice, m_bufferMemory, nullptr);
     }
-    
+
+    void Buffer::init()
+    {
+        m_linkedDevice = Engine::getInstance()->getDevice();
+    }
+
     void Buffer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
     {
         VkBufferCreateInfo bufferInfo{};
