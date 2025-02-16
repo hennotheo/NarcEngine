@@ -23,6 +23,7 @@ add_custom_target(
     CompileShaders ALL
     COMMENT "Compiling Shaders..."
     COMMAND ${SHADER_PATH}/compile_shaders.bat
+    SOURCES ${VERTEX_SHADER_FILES} ${FRAGMENT_SHADER_FILES}
 )
 
 file(GLOB SHADER_FILES "*.spv")
