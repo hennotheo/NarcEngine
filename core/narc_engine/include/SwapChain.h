@@ -39,7 +39,6 @@ namespace narc_engine
 
         void createSwapChain();
         void createRenderPass();
-        void createTextureImageView();
         void createImageViews();
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
         VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);

@@ -1,13 +1,12 @@
 #include "include/Engine.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <vendors/stb/stb_image.h>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "include/data/Image.h"
 #include "include/Vertex.h"
 #include "include/buffers/StaggingBuffer.h"
+#include "include/io/FileReader.h"
 #include "include/window/Window.h"
 
 namespace narc_engine
@@ -515,8 +514,8 @@ namespace narc_engine
 
     void Engine::createGraphicsPipeline()
     {
-        auto vertShaderCode = readFile("shaders/shader_vert.spv");
-        auto fragShaderCode = readFile("shaders/shader_frag.spv");
+        auto vertShaderCode = FileReader::readFile("shaders/shader_vert.spv");
+        auto fragShaderCode = FileReader::readFile("shaders/shader_frag.spv");
 
         VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
         VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -697,26 +696,20 @@ namespace narc_engine
 
     void Engine::createTextureImage()
     {
-        int texWidth, texHeight, texChannels;
-        stbi_uc* pixels = stbi_load("textures/logo.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-        VkDeviceSize imageSize = texWidth * texHeight * 4;
-
-        if (!pixels)
-        {
-            throw std::runtime_error("failed to load texture image!");
-        }
+        Image image = FileReader::readImage("textures/logo.png");
+        VkDeviceSize imageSize = image.getWidth() * image.getHeight() * 4;
 
         StaggingBuffer staggingBuffer;
         staggingBuffer.create(imageSize);
-        staggingBuffer.input(pixels);
+        staggingBuffer.input(image.getData());
 
-        stbi_image_free(pixels);
+        // stbi_image_free(pixels);
 
-        createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+        createImage(image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                     m_textureImage, m_textureImageMemory);
 
         transitionImageLayout(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-        copyBufferToImage(staggingBuffer.getBuffer(), m_textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
+        copyBufferToImage(staggingBuffer.getBuffer(), m_textureImage, static_cast<uint32_t>(image.getWidth()), static_cast<uint32_t>(image.getHeight()));
         transitionImageLayout(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
         staggingBuffer.release();
@@ -757,14 +750,14 @@ namespace narc_engine
         m_textureImageView = m_swapChain.createImageView(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB);
     }
 
-    void Engine::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
+    void Engine::createImage(const Image& imageData, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
                              VkDeviceMemory& imageMemory)
     {
         VkImageCreateInfo imageInfo{};
         imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
         imageInfo.imageType = VK_IMAGE_TYPE_2D;
-        imageInfo.extent.width = width;
-        imageInfo.extent.height = height;
+        imageInfo.extent.width = imageData.getWidth();
+        imageInfo.extent.height = imageData.getHeight();
         imageInfo.extent.depth = 1;
         imageInfo.mipLevels = 1;
         imageInfo.arrayLayers = 1;
@@ -1014,25 +1007,5 @@ namespace narc_engine
         ubo.Proj[1][1] *= -1;
 
         m_uniformBuffers[currentImage].setData(ubo);
-    }
-
-    std::vector<char> Engine::readFile(const std::string& filename)
-    {
-        std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
-        if (!file.is_open())
-        {
-            throw std::runtime_error("Failed to open file!");
-        }
-
-        size_t fileSize = (size_t)file.tellg();
-        std::vector<char> buffer(fileSize);
-
-        file.seekg(0);
-        file.read(buffer.data(), fileSize);
-
-        file.close();
-
-        return buffer;
     }
 }

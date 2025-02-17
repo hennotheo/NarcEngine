@@ -10,6 +10,7 @@
 #include "EngineDebugLogger.h"
 #include "SwapChain.h"
 #include "buffers/GraphicsBuffer.h"
+#include "data/Image.h"
 
 namespace narc_engine
 {
@@ -79,8 +80,8 @@ namespace narc_engine
         void createTextureImage();
         void createTextureSampler();
         void createImageTextureView();
-        void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
-                         VkDeviceMemory& imageMemory);
+        void createImage(const Image& imageData, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
+                         VkImage& image, VkDeviceMemory& imageMemory);
         void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
         void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
         void createUniformBuffers();
@@ -95,6 +96,5 @@ namespace narc_engine
         int rateDeviceSuitability(VkPhysicalDevice device);
         VkShaderModule createShaderModule(const std::vector<char>& code);
         void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
-        static std::vector<char> readFile(const std::string& filename);
     };
 }
