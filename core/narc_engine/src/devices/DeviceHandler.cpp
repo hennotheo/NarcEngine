@@ -72,6 +72,30 @@ namespace narc_engine
         vkDeviceWaitIdle(m_device);
     }
 
+    void DeviceHandler::createSwapChain(VkSwapchainCreateInfoKHR& createInfo, VkSwapchainKHR* swapchain) const
+    {
+        QueueFamilyIndices indices = findQueueFamilies(m_physicalDevice);
+        uint32_t queueFamilyIndices[] = {indices.GraphicsFamily.value(), indices.PresentFamily.value()};
+
+        if (indices.GraphicsFamily != indices.PresentFamily)
+        {
+            createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT; //Multiple queue family without explicit ownership
+            createInfo.queueFamilyIndexCount = 2;
+            createInfo.pQueueFamilyIndices = queueFamilyIndices;
+        }
+        else
+        {
+            createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE; //Best perf : one queue family ownership
+            createInfo.queueFamilyIndexCount = 0; // Optional
+            createInfo.pQueueFamilyIndices = nullptr; // Optional
+        }
+        
+        if (vkCreateSwapchainKHR(m_device, &createInfo, nullptr, swapchain) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create swap chain!");
+        }
+    }
+
     void DeviceHandler::pickPhysicalDevice()
     {
         uint32_t deviceCount = 0;

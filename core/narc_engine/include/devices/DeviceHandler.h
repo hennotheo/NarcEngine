@@ -22,7 +22,7 @@ namespace narc_engine
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
         void createCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateInfo poolInfo) const;
         void waitIdle() const;
-        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) const;
+        void createSwapChain(VkSwapchainCreateInfoKHR& createInfo, VkSwapchainKHR* swapchain) const;
 
     private:
         VkDevice m_device;
@@ -34,6 +34,7 @@ namespace narc_engine
         const Window* m_window = nullptr;
 
         void pickPhysicalDevice();
+        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) const;
         void createLogicalDevice(const EngineDebugLogger& debugLogger, VkQueue* graphicsQueue, VkQueue* presentQueue);
         int rateDeviceSuitability(VkPhysicalDevice device);
         bool checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice, const std::vector<const char*>& deviceExtensions);
