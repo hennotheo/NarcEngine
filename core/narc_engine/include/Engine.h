@@ -2,40 +2,36 @@
 
 #include <vulkan/vulkan.h>
 
-#include "Vertex.h"
-#include "QueueFamilyIndices.h"
-#include "buffers/UniformBuffer.h"
-
 #include "window/Window.h"
 #include "EngineDebugLogger.h"
+#include "DeviceHandler.h"
 #include "SwapChain.h"
+#include "buffers/UniformBuffer.h"
 #include "buffers/GraphicsBuffer.h"
-#include "data/Image.h"
 
 namespace narc_engine
 {
+    struct Vertex;
+    struct Image;
+    
     class Engine
     {
     public:
         static Engine* getInstance();
 
-        const VkDevice& getDevice() const { return m_device; }
-        const VkPhysicalDevice& getPhysicalDevice() const { return m_physicalDevice; }
+        const DeviceHandler* getDevice() const { return &m_deviceHandler; }
         const Window* getWindow() const { return &m_window; }
 
         void run();
 
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
     private:
         Window m_window;
         EngineDebugLogger m_debugLogger;
 
-        VkInstance m_instance;
-        VkDevice m_device;
-        VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
+        VkInstance m_vulkanInstance;
+        DeviceHandler m_deviceHandler;
 
         VkQueue m_presentQueue;
         VkQueue m_graphicsQueue;
@@ -50,7 +46,7 @@ namespace narc_engine
         VkCommandPool m_commandPool;
         std::vector<VkCommandBuffer> m_commandBuffers;
         uint32_t m_currentFrame = 0;
-        
+
         std::vector<VkSemaphore> m_imageAvailableSemaphores;
         std::vector<VkSemaphore> m_renderFinishedSemaphores;
         std::vector<VkFence> m_inFlightFences;
@@ -63,15 +59,13 @@ namespace narc_engine
         VkDeviceMemory m_textureImageMemory;
         VkImageView m_textureImageView;
         VkSampler m_textureSampler;
-        
+
     private:
         void init();
         void mainLoop();
         void cleanUp();
 
-        void createInstance();
-        void pickPhysicalDevice();
-        void createLogicalDevice();
+        void createVulkanInstance();
         void createDescriptorSetLayout();
         void createGraphicsPipeline();
         void createCommandPool();
@@ -92,9 +86,6 @@ namespace narc_engine
 
         void drawFrame();
         void updateUniformBuffer(uint32_t currentImage);
-
-        int rateDeviceSuitability(VkPhysicalDevice device);
-        VkShaderModule createShaderModule(const std::vector<char>& code);
         void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
     };
 }

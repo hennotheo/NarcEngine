@@ -1,10 +1,12 @@
 #pragma once
 
 #include <vulkan/vulkan.h>
-#include "include/window/Window.h"
 
 namespace narc_engine
 {
+    class DeviceHandler;
+    class Window;
+
     class SwapChain
     {
     public:
@@ -14,12 +16,12 @@ namespace narc_engine
 
         void create();
         void createFramebuffers();
-        
+
         VkImageView createImageView(VkImage image, VkFormat format);
         VkRenderPassBeginInfo getRenderPassBeginInfos(uint32_t imageIndex) const;
         VkResult acquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex);
         void reCreate();
-        
+
         void cleanSwapChain();
         void cleanRenderPass();
 
@@ -33,9 +35,8 @@ namespace narc_engine
 
         VkRenderPass m_renderPass;
 
-        VkDevice m_device;
-        VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
-        const Window* m_window;
+        const DeviceHandler* m_deviceHandler = nullptr;
+        const Window* m_window = nullptr;
 
         void createSwapChain();
         void createRenderPass();

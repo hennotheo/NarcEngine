@@ -3,8 +3,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "include/data/Vertex.h"
 #include "include/data/Image.h"
-#include "include/Vertex.h"
 #include "include/buffers/StaggingBuffer.h"
 #include "include/io/FileReader.h"
 #include "include/window/Window.h"
@@ -12,11 +12,6 @@
 namespace narc_engine
 {
     const int g_maxFramesInFlight = 2;
-
-    const std::vector<const char*> g_deviceExtensions =
-    {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME
-    };
 
     const std::vector<Vertex> g_vertices = {
         {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
@@ -28,53 +23,6 @@ namespace narc_engine
     const std::vector<uint16_t> g_indices = {
         0, 1, 2, 2, 3, 0
     };
-
-    QueueFamilyIndices Engine::findQueueFamilies(VkPhysicalDevice device)
-    {
-        QueueFamilyIndices indices;
-
-        uint32_t queueFamilyCount = 0;
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
-
-        int i = 0;
-        for (const auto& queueFamily : queueFamilies)
-        {
-            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-            {
-                indices.GraphicsFamily = i;
-            }
-
-            if (m_window.isPhysicalDeviceSupported(device, i))
-            {
-                indices.PresentFamily = i;
-            }
-
-            if (indices.isComplete())
-                break;
-
-            i++;
-        }
-
-        return indices;
-    }
-
-    VkShaderModule Engine::createShaderModule(const std::vector<char>& code)
-    {
-        VkShaderModuleCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-        createInfo.codeSize = code.size();
-        createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
-
-        VkShaderModule shaderModule;
-        if (vkCreateShaderModule(m_device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create shader module!");
-        }
-
-        return shaderModule;
-    }
 
     void Engine::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)
     {
@@ -129,79 +77,6 @@ namespace narc_engine
         }
     }
 
-    uint32_t Engine::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
-    {
-        VkPhysicalDeviceMemoryProperties memProperties;
-        vkGetPhysicalDeviceMemoryProperties(m_physicalDevice, &memProperties);
-
-        for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
-        {
-            if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
-            {
-                return i;
-            }
-        }
-
-        throw std::runtime_error("failed to find suitable memory type!");
-    }
-
-    int Engine::rateDeviceSuitability(VkPhysicalDevice device)
-    {
-        VkPhysicalDeviceProperties deviceProperties;
-        VkPhysicalDeviceFeatures deviceFeatures;
-        vkGetPhysicalDeviceProperties(device, &deviceProperties);
-        vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
-
-        VkPhysicalDeviceFeatures supportedFeatures;
-        vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
-
-        int score = 0;
-
-        //Performance advantage
-        if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
-        {
-            score += 1000;
-        }
-
-        //Max possible size of texture affect graphics quality
-        score += deviceProperties.limits.maxImageDimension2D;
-        score += supportedFeatures.samplerAnisotropy ? 1000 : 0;
-
-        //Application can't function without geometry shaders
-        if (!deviceFeatures.geometryShader)
-        {
-            return 0;
-        }
-
-        bool extensionsSupported = m_debugLogger.checkDeviceExtensionSupport(device, g_deviceExtensions);
-        if (!extensionsSupported)
-        {
-            return 0;
-        }
-
-        bool swapChainAdequate = false;
-        SwapChainSupportDetails swapChainSupport = m_window.querySwapChainSupport(device);
-        swapChainAdequate = !swapChainSupport.Formats.empty() && !swapChainSupport.PresentModes.empty();
-        if (!swapChainAdequate)
-        {
-            return 0;
-        }
-
-        QueueFamilyIndices indices = findQueueFamilies(device);
-        VkDeviceQueueCreateInfo queueCreateInfo{};
-        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        queueCreateInfo.queueFamilyIndex = indices.GraphicsFamily.value();
-        queueCreateInfo.queueCount = 1;
-        float queuePriority = 1.0f;
-        queueCreateInfo.pQueuePriorities = &queuePriority;
-        if (!indices.isComplete())
-        {
-            return 0;
-        }
-
-        return score;
-    }
-
     static Engine* s_instance;
 
     Engine* Engine::getInstance()
@@ -220,11 +95,12 @@ namespace narc_engine
     void Engine::init()
     {
         m_window.init();
-        createInstance();
-        m_debugLogger.init(m_instance); //SetupDebugMessenger();
-        m_window.initSurface(m_instance); // CreateSurface();
-        pickPhysicalDevice();
-        createLogicalDevice();
+        createVulkanInstance();
+        m_debugLogger.init(m_vulkanInstance); //SetupDebugMessenger();
+        m_window.initSurface(m_vulkanInstance); // CreateSurface();
+        // pickPhysicalDevice();
+        // createLogicalDevice();
+        m_deviceHandler.create(&m_window, m_vulkanInstance, m_debugLogger, &m_graphicsQueue, &m_presentQueue);
         m_swapChain.create(); // CreateSwapChain(); // CreateImageViews(); //CreateRenderPass();
         createDescriptorSetLayout();
         createGraphicsPipeline();
@@ -250,54 +126,55 @@ namespace narc_engine
             drawFrame();
         }
 
-        vkDeviceWaitIdle(m_device);
+        m_deviceHandler.waitIdle();
     }
 
     void Engine::cleanUp()
     {
         m_swapChain.cleanSwapChain();
 
-        vkDestroySampler(m_device, m_textureSampler, nullptr);
-        vkDestroyImageView(m_device, m_textureImageView, nullptr);
+        const VkDevice& device = m_deviceHandler.getDevice();
+        vkDestroySampler(device, m_textureSampler, nullptr);
+        vkDestroyImageView(device, m_textureImageView, nullptr);
 
-        vkDestroyImage(m_device, m_textureImage, nullptr);
-        vkFreeMemory(m_device, m_textureImageMemory, nullptr);
+        vkDestroyImage(device, m_textureImage, nullptr);
+        vkFreeMemory(device, m_textureImageMemory, nullptr);
 
         for (UniformBuffer& buffer : m_uniformBuffers)
         {
             buffer.release();
         }
 
-        vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
-        vkDestroyDescriptorSetLayout(m_device, m_descriptorSetLayout, nullptr);
+        vkDestroyDescriptorPool(device, m_descriptorPool, nullptr);
+        vkDestroyDescriptorSetLayout(device, m_descriptorSetLayout, nullptr);
 
         m_indexBuffer.release();
         m_vertexBuffer.release();
 
-        vkDestroyPipeline(m_device, m_graphicsPipeline, nullptr);
-        vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
+        vkDestroyPipeline(device, m_graphicsPipeline, nullptr);
+        vkDestroyPipelineLayout(device, m_pipelineLayout, nullptr);
         m_swapChain.cleanRenderPass();
 
         for (size_t i = 0; i < g_maxFramesInFlight; i++)
         {
-            vkDestroySemaphore(m_device, m_renderFinishedSemaphores[i], nullptr);
-            vkDestroySemaphore(m_device, m_imageAvailableSemaphores[i], nullptr);
-            vkDestroyFence(m_device, m_inFlightFences[i], nullptr);
+            vkDestroySemaphore(device, m_renderFinishedSemaphores[i], nullptr);
+            vkDestroySemaphore(device, m_imageAvailableSemaphores[i], nullptr);
+            vkDestroyFence(device, m_inFlightFences[i], nullptr);
         }
 
-        vkDestroyCommandPool(m_device, m_commandPool, nullptr);
+        vkDestroyCommandPool(device, m_commandPool, nullptr);
 
-        vkDestroyDevice(m_device, nullptr);
+        vkDestroyDevice(device, nullptr);
 
-        m_debugLogger.clean(m_instance);
+        m_debugLogger.clean(m_vulkanInstance);
 
-        m_window.cleanSurface(m_instance);
-        vkDestroyInstance(m_instance, nullptr);
+        m_window.cleanSurface(m_vulkanInstance);
+        vkDestroyInstance(m_vulkanInstance, nullptr);
 
         m_window.clean();
     }
 
-    void Engine::createInstance()
+    void Engine::createVulkanInstance()
     {
 #ifdef ENABLE_VALIDATION_LAYERS
         if (!m_debugLogger.checkValidationLayerSupport())
@@ -325,7 +202,7 @@ namespace narc_engine
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
         m_debugLogger.linkToInstance(createInfo, debugCreateInfo);
 
-        if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
+        if (vkCreateInstance(&createInfo, nullptr, &m_vulkanInstance) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create instance!");
         }
@@ -357,7 +234,7 @@ namespace narc_engine
         poolInfo.pPoolSizes = poolSizes.data();
         poolInfo.maxSets = static_cast<uint32_t>(g_maxFramesInFlight);
 
-        if (vkCreateDescriptorPool(m_device, &poolInfo, nullptr, &m_descriptorPool) != VK_SUCCESS)
+        if (vkCreateDescriptorPool(m_deviceHandler.getDevice(), &poolInfo, nullptr, &m_descriptorPool) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create descriptor pool!");
         }
@@ -373,7 +250,7 @@ namespace narc_engine
         allocInfo.pSetLayouts = layouts.data();
 
         m_descriptorSets.resize(g_maxFramesInFlight);
-        if (vkAllocateDescriptorSets(m_device, &allocInfo, m_descriptorSets.data()) != VK_SUCCESS)
+        if (vkAllocateDescriptorSets(m_deviceHandler.getDevice(), &allocInfo, m_descriptorSets.data()) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to allocate descriptor sets!");
         }
@@ -408,80 +285,8 @@ namespace narc_engine
             descriptorWrites[1].descriptorCount = 1;
             descriptorWrites[1].pImageInfo = &imageInfo;
 
-            vkUpdateDescriptorSets(m_device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+            vkUpdateDescriptorSets(m_deviceHandler.getDevice(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
         }
-    }
-
-    void Engine::pickPhysicalDevice()
-    {
-        uint32_t deviceCount = 0;
-        vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
-        std::vector<VkPhysicalDevice> devices(deviceCount);
-        vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices.data());
-
-        if (deviceCount == 0)
-        {
-            throw std::runtime_error("Failed to find GPUs with Vulkan Support!");
-        }
-
-        std::multimap<int, VkPhysicalDevice> candidates;
-        for (const auto& device : devices)
-        {
-            int score = rateDeviceSuitability(device);
-            candidates.insert(std::make_pair(score, device));
-        }
-
-        if (candidates.rbegin()->first > 0)
-        {
-            m_physicalDevice = candidates.rbegin()->second;
-        }
-        else
-        {
-            throw std::runtime_error("Failed to find a suitable GPU!");
-        }
-    }
-
-    void Engine::createLogicalDevice()
-    {
-        QueueFamilyIndices indices = findQueueFamilies(m_physicalDevice);
-
-        std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-        std::set<uint32_t> uniqueQueueFamilies = {indices.GraphicsFamily.value(), indices.PresentFamily.value()};
-
-        float queuePriority = 1.0f;
-        for (uint32_t queueFamily : uniqueQueueFamilies)
-        {
-            VkDeviceQueueCreateInfo queueCreateInfo{};
-            queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-            queueCreateInfo.queueFamilyIndex = queueFamily;
-            queueCreateInfo.queueCount = 1;
-            queueCreateInfo.pQueuePriorities = &queuePriority;
-            queueCreateInfos.push_back(queueCreateInfo);
-        }
-
-        VkPhysicalDeviceFeatures deviceFeatures{};
-        deviceFeatures.samplerAnisotropy = VK_TRUE;
-
-        VkDeviceCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-
-        createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-        createInfo.pQueueCreateInfos = queueCreateInfos.data();
-
-        createInfo.pEnabledFeatures = &deviceFeatures;
-
-        createInfo.enabledExtensionCount = static_cast<uint32_t>(g_deviceExtensions.size());
-        createInfo.ppEnabledExtensionNames = g_deviceExtensions.data();
-
-        m_debugLogger.linkToDevice(createInfo);
-
-        if (vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create logical device!");
-        }
-
-        vkGetDeviceQueue(m_device, indices.GraphicsFamily.value(), 0, &m_graphicsQueue);
-        vkGetDeviceQueue(m_device, indices.PresentFamily.value(), 0, &m_presentQueue);
     }
 
     void Engine::createDescriptorSetLayout()
@@ -506,7 +311,7 @@ namespace narc_engine
         layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
         layoutInfo.pBindings = bindings.data();
 
-        if (vkCreateDescriptorSetLayout(m_device, &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS)
+        if (vkCreateDescriptorSetLayout(m_deviceHandler.getDevice(), &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create descriptor set layout!");
         }
@@ -517,8 +322,8 @@ namespace narc_engine
         auto vertShaderCode = FileReader::readFile("shaders/shader_vert.spv");
         auto fragShaderCode = FileReader::readFile("shaders/shader_frag.spv");
 
-        VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
-        VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
+        VkShaderModule vertShaderModule = m_deviceHandler.createShaderModule(vertShaderCode);
+        VkShaderModule fragShaderModule = m_deviceHandler.createShaderModule(fragShaderCode);
 
         VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
         vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -611,7 +416,7 @@ namespace narc_engine
         pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
         pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-        if (vkCreatePipelineLayout(m_device, &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
+        if (vkCreatePipelineLayout(m_deviceHandler.getDevice(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create pipeline layout!");
         }
@@ -635,28 +440,22 @@ namespace narc_engine
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
         pipelineInfo.basePipelineIndex = -1; // Optional
 
-        if (vkCreateGraphicsPipelines(m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS)
+        if (vkCreateGraphicsPipelines(m_deviceHandler.getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create graphics pipeline!");
         }
 
-        vkDestroyShaderModule(m_device, fragShaderModule, nullptr);
-        vkDestroyShaderModule(m_device, vertShaderModule, nullptr);
+        m_deviceHandler.destroyShaderModule(fragShaderModule);
+        m_deviceHandler.destroyShaderModule(vertShaderModule);
     }
 
     void Engine::createCommandPool()
     {
-        QueueFamilyIndices queueFamilyIndices = findQueueFamilies(m_physicalDevice);
-
         VkCommandPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-        poolInfo.queueFamilyIndex = queueFamilyIndices.GraphicsFamily.value();
 
-        if (vkCreateCommandPool(m_device, &poolInfo, nullptr, &m_commandPool) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create command pool!");
-        }
+        m_deviceHandler.createCommandPool(&m_commandPool, poolInfo);
     }
 
     VkCommandBuffer Engine::beginSingleTimeCommands()
@@ -668,7 +467,7 @@ namespace narc_engine
         allocInfo.commandBufferCount = 1;
 
         VkCommandBuffer commandBuffer;
-        vkAllocateCommandBuffers(m_device, &allocInfo, &commandBuffer);
+        vkAllocateCommandBuffers(m_deviceHandler.getDevice(), &allocInfo, &commandBuffer);
 
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -687,11 +486,11 @@ namespace narc_engine
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &commandBuffer;
-
+        
         vkQueueSubmit(m_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
         vkQueueWaitIdle(m_graphicsQueue);
 
-        vkFreeCommandBuffers(m_device, m_commandPool, 1, &commandBuffer);
+        vkFreeCommandBuffers(m_deviceHandler.getDevice(), m_commandPool, 1, &commandBuffer);
     }
 
     void Engine::createTextureImage()
@@ -725,8 +524,7 @@ namespace narc_engine
         samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 
-        VkPhysicalDeviceProperties properties{};
-        vkGetPhysicalDeviceProperties(m_physicalDevice, &properties);
+        VkPhysicalDeviceProperties properties = m_deviceHandler.getPhysicalDeviceProperties();
         samplerInfo.anisotropyEnable = VK_TRUE;
         samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
 
@@ -739,7 +537,7 @@ namespace narc_engine
         samplerInfo.minLod = 0.0f;
         samplerInfo.maxLod = 0.0f;
 
-        if (vkCreateSampler(m_device, &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
+        if (vkCreateSampler(m_deviceHandler.getDevice(), &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create texture sampler!");
         }
@@ -769,25 +567,25 @@ namespace narc_engine
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageInfo.flags = 0; // Optional
 
-        if (vkCreateImage(m_device, &imageInfo, nullptr, &image) != VK_SUCCESS)
+        if (vkCreateImage(m_deviceHandler.getDevice(), &imageInfo, nullptr, &image) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create image!");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetImageMemoryRequirements(m_device, image, &memRequirements);
+        vkGetImageMemoryRequirements(m_deviceHandler.getDevice(), image, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+        allocInfo.memoryTypeIndex = m_deviceHandler.findMemoryType(memRequirements.memoryTypeBits, properties);
 
-        if (vkAllocateMemory(m_device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
+        if (vkAllocateMemory(m_deviceHandler.getDevice(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to allocate image memory!");
         }
 
-        vkBindImageMemory(m_device, image, imageMemory, 0);
+        vkBindImageMemory(m_deviceHandler.getDevice(), image, imageMemory, 0);
     }
 
     void Engine::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
@@ -895,7 +693,7 @@ namespace narc_engine
         allocInfo.commandPool = m_commandPool;
         allocInfo.commandBufferCount = (uint32_t)m_commandBuffers.size();
 
-        if (vkAllocateCommandBuffers(m_device, &allocInfo, m_commandBuffers.data()) != VK_SUCCESS)
+        if (vkAllocateCommandBuffers(m_deviceHandler.getDevice(), &allocInfo, m_commandBuffers.data()) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to allocate command buffers!");
         }
@@ -916,9 +714,9 @@ namespace narc_engine
 
         for (size_t i = 0; i < g_maxFramesInFlight; i++)
         {
-            if (vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]) != VK_SUCCESS ||
-                vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]) != VK_SUCCESS ||
-                vkCreateFence(m_device, &fenceInfo, nullptr, &m_inFlightFences[i]) != VK_SUCCESS)
+            if (vkCreateSemaphore(m_deviceHandler.getDevice(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]) != VK_SUCCESS ||
+                vkCreateSemaphore(m_deviceHandler.getDevice(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]) != VK_SUCCESS ||
+                vkCreateFence(m_deviceHandler.getDevice(), &fenceInfo, nullptr, &m_inFlightFences[i]) != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to create semaphores!");
             }
@@ -927,14 +725,14 @@ namespace narc_engine
 
     void Engine::drawFrame()
     {
-        vkWaitForFences(m_device, 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
+        vkWaitForFences(m_deviceHandler.getDevice(), 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
 
         uint32_t imageIndex;
         VkResult result = m_swapChain.acquireNextImage(m_imageAvailableSemaphores[m_currentFrame], &imageIndex);
 
         updateUniformBuffer(m_currentFrame);
 
-        vkResetFences(m_device, 1, &m_inFlightFences[m_currentFrame]);
+        vkResetFences(m_deviceHandler.getDevice(), 1, &m_inFlightFences[m_currentFrame]);
 
         vkResetCommandBuffer(m_commandBuffers[m_currentFrame], 0);
         recordCommandBuffer(m_commandBuffers[m_currentFrame], imageIndex);

@@ -1,14 +1,14 @@
 #include "include/SwapChain.h"
 
 #include "include/Engine.h"
+#include "include/DeviceHandler.h"
 
 namespace narc_engine
 {
     void SwapChain::create()
     {
         Engine* engine = Engine::getInstance();
-        m_physicalDevice = engine->getPhysicalDevice();
-        m_device = engine->getDevice();
+        m_deviceHandler = engine->getDevice();
         m_window = engine->getWindow();
 
         createSwapChain();
@@ -18,7 +18,7 @@ namespace narc_engine
 
     VkResult SwapChain::acquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex)
     {
-        VkResult result = vkAcquireNextImageKHR(m_device, m_swapChain, UINT64_MAX, semaphore, VK_NULL_HANDLE, imageIndex);
+        VkResult result = vkAcquireNextImageKHR(m_deviceHandler->getDevice(), m_swapChain, UINT64_MAX, semaphore, VK_NULL_HANDLE, imageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) //OUT DUE TO WINDOW RESIZE FOR EXAMPLE
         {
@@ -38,20 +38,20 @@ namespace narc_engine
     {
         for (auto framebuffer : m_swapChainFramebuffers)
         {
-            vkDestroyFramebuffer(m_device, framebuffer, nullptr);
+            vkDestroyFramebuffer(m_deviceHandler->getDevice(), framebuffer, nullptr);
         }
 
         for (auto imageView : m_swapChainImageViews)
         {
-            vkDestroyImageView(m_device, imageView, nullptr);
+            vkDestroyImageView(m_deviceHandler->getDevice(), imageView, nullptr);
         }
 
-        vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
+        vkDestroySwapchainKHR(m_deviceHandler->getDevice(), m_swapChain, nullptr);
     }
 
     void SwapChain::cleanRenderPass()
     {
-        vkDestroyRenderPass(m_device, m_renderPass, nullptr);
+        vkDestroyRenderPass(m_deviceHandler->getDevice(), m_renderPass, nullptr);
     }
 
     void SwapChain::reCreate()
@@ -60,7 +60,7 @@ namespace narc_engine
         int height = 0;
         m_window->getValidFramebufferSize(&width, &height);
 
-        vkDeviceWaitIdle(m_device);
+        vkDeviceWaitIdle(m_deviceHandler->getDevice());
 
         cleanSwapChain();
 
@@ -89,7 +89,7 @@ namespace narc_engine
             framebufferInfo.height = m_swapChainExtent.height;
             framebufferInfo.layers = 1;
 
-            if (vkCreateFramebuffer(m_device, &framebufferInfo, nullptr, &m_swapChainFramebuffers[i]) != VK_SUCCESS)
+            if (vkCreateFramebuffer(m_deviceHandler->getDevice(), &framebufferInfo, nullptr, &m_swapChainFramebuffers[i]) != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to create framebuffer!");
             }
@@ -110,7 +110,7 @@ namespace narc_engine
 
     void SwapChain::createSwapChain()
     {
-        SwapChainSupportDetails swapChainSupport = m_window->querySwapChainSupport(m_physicalDevice);
+        SwapChainSupportDetails swapChainSupport = m_window->querySwapChainSupport(m_deviceHandler->getPhysicalDevice());
         VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.Formats);
         VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.PresentModes);
         VkExtent2D extent = chooseSwapExtent(swapChainSupport.Capabilities);
@@ -132,7 +132,8 @@ namespace narc_engine
         createInfo.imageArrayLayers = 1;
         createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-        QueueFamilyIndices indices = Engine::getInstance()->findQueueFamilies(m_physicalDevice);
+        
+        QueueFamilyIndices indices = m_deviceHandler->findQueueFamilies(m_deviceHandler->getPhysicalDevice());
         uint32_t queueFamilyIndices[] = {indices.GraphicsFamily.value(), indices.PresentFamily.value()};
 
         if (indices.GraphicsFamily != indices.PresentFamily)
@@ -154,14 +155,14 @@ namespace narc_engine
         createInfo.clipped = VK_TRUE;
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-        if (vkCreateSwapchainKHR(m_device, &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
+        if (vkCreateSwapchainKHR(m_deviceHandler->getDevice(), &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create swap chain!");
         }
 
-        vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, nullptr);
+        vkGetSwapchainImagesKHR(m_deviceHandler->getDevice(), m_swapChain, &imageCount, nullptr);
         m_swapChainImages.resize(imageCount);
-        vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, m_swapChainImages.data());
+        vkGetSwapchainImagesKHR(m_deviceHandler->getDevice(), m_swapChain, &imageCount, m_swapChainImages.data());
 
         m_swapChainImageFormat = surfaceFormat.format;
         m_swapChainExtent = extent;
@@ -207,7 +208,7 @@ namespace narc_engine
         renderPassInfo.dependencyCount = 1;
         renderPassInfo.pDependencies = &dependency;
 
-        if (vkCreateRenderPass(m_device, &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS)
+        if (vkCreateRenderPass(m_deviceHandler->getDevice(), &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create render pass!");
         }
@@ -237,7 +238,7 @@ namespace narc_engine
         viewInfo.subresourceRange.layerCount = 1;
 
         VkImageView imageView;
-        if (vkCreateImageView(m_device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
+        if (vkCreateImageView(m_deviceHandler->getDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create texture image view!");
         }

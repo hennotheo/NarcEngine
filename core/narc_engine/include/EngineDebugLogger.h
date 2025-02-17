@@ -13,12 +13,11 @@ namespace narc_engine
 
         void linkToInstance(VkInstanceCreateInfo& createInfo, VkDebugUtilsMessengerCreateInfoEXT& debugCreateInfo);
         std::vector<const char*> getRequiredExtensions(Window& window);
-        void linkToDevice(VkDeviceCreateInfo& createInfo);
+        void linkToDevice(VkDeviceCreateInfo& createInfo) const;
 
         void clean(VkInstance& instance);
 
         bool checkValidationLayerSupport();
-        bool checkDeviceExtensionSupport(VkPhysicalDevice& device, const std::vector<const char*>& deviceExtensions);
         void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
     private:

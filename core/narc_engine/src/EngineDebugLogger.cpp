@@ -49,7 +49,7 @@ namespace narc_engine
         return extensions;
     }
 
-    void EngineDebugLogger::linkToDevice(VkDeviceCreateInfo& createInfo)
+    void EngineDebugLogger::linkToDevice(VkDeviceCreateInfo& createInfo) const
     {
 #ifdef ENABLE_VALIDATION_LAYERS
         createInfo.enabledLayerCount = static_cast<uint32_t>(g_validationLayers.size());
@@ -91,23 +91,6 @@ namespace narc_engine
         }
 
         return true;
-    }
-
-    bool EngineDebugLogger::checkDeviceExtensionSupport(VkPhysicalDevice& device, const std::vector<const char*>& deviceExtensions)
-    {
-        uint32_t extensionCount;
-        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
-
-        std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
-
-        std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
-        for (const auto& extension : availableExtensions)
-        {
-            requiredExtensions.erase(extension.extensionName);
-        }
-
-        return requiredExtensions.empty();
     }
 
     void EngineDebugLogger::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)

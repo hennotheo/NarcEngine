@@ -15,8 +15,8 @@ namespace narc_engine
     void StaggingBuffer::input(const void* input)
     {
         void* data;
-        vkMapMemory(this->m_linkedDevice, this->m_bufferMemory, 0, m_bufferSize, 0, &data);
+        vkMapMemory(this->m_linkedDevice->getDevice(), this->m_bufferMemory, 0, m_bufferSize, 0, &data);
         memcpy(data, input, (size_t)m_bufferSize);
-        vkUnmapMemory(this->m_linkedDevice, this->m_bufferMemory);
+        vkUnmapMemory(this->m_linkedDevice->getDevice(), this->m_bufferMemory);
     }
 }
