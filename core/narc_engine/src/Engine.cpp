@@ -96,10 +96,8 @@ namespace narc_engine
     {
         m_window.init();
         createVulkanInstance();
-        m_debugLogger.init(m_vulkanInstance); //SetupDebugMessenger();
-        m_window.initSurface(m_vulkanInstance); // CreateSurface();
-        // pickPhysicalDevice();
-        // createLogicalDevice();
+        m_debugLogger.init(m_vulkanInstance);
+        m_window.initSurface(m_vulkanInstance);
         m_deviceHandler.create(&m_window, m_vulkanInstance, m_debugLogger, &m_graphicsQueue, &m_presentQueue);
         m_swapChain.create(); // CreateSwapChain(); // CreateImageViews(); //CreateRenderPass();
         createDescriptorSetLayout();

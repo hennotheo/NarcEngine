@@ -15,6 +15,4 @@ void narc_engine::Application::run()
     Engine engine;
 
     engine.run();
-
-    std::cin.get();
 }

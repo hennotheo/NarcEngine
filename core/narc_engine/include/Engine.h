@@ -4,7 +4,7 @@
 
 #include "window/Window.h"
 #include "EngineDebugLogger.h"
-#include "DeviceHandler.h"
+#include "devices/DeviceHandler.h"
 #include "SwapChain.h"
 #include "buffers/UniformBuffer.h"
 #include "buffers/GraphicsBuffer.h"

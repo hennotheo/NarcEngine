@@ -2,7 +2,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "QueueFamilyIndices.h"
-#include "EngineDebugLogger.h"
+#include "include/EngineDebugLogger.h"
 
 namespace narc_engine
 {
