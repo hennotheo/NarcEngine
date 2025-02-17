@@ -60,7 +60,7 @@ namespace narc_engine
         int height = 0;
         m_window->getValidFramebufferSize(&width, &height);
 
-        m_deviceHandler->waitIdle();
+        m_deviceHandler->waitDeviceIdle();
 
         cleanSwapChain();
 

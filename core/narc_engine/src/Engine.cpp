@@ -44,7 +44,6 @@ namespace narc_engine
         renderPassInfo.pClearValues = &clearColor;
 
         vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
 
         VkViewport viewport{};
@@ -98,12 +97,12 @@ namespace narc_engine
         createVulkanInstance();
         m_debugLogger.init(m_vulkanInstance);
         m_window.initSurface(m_vulkanInstance);
-        m_deviceHandler.create(&m_window, m_vulkanInstance, m_debugLogger, &m_graphicsQueue, &m_presentQueue);
+        m_deviceHandler.create(&m_window, m_vulkanInstance, m_debugLogger);
         m_swapChain.create(); // CreateSwapChain(); // CreateImageViews(); //CreateRenderPass();
         createDescriptorSetLayout();
         createGraphicsPipeline();
         m_swapChain.createFramebuffers(); // CreateFramebuffers();
-        createCommandPool();
+        m_commandPool.create(&m_deviceHandler);
         createTextureImage();
         createImageTextureView();
         createTextureSampler();
@@ -112,7 +111,7 @@ namespace narc_engine
         createUniformBuffers();
         createDescriptorPool();
         createDescriptorSets();
-        createCommandBuffers();
+        m_commandPool.createCommandBuffers(g_maxFramesInFlight);
         createSyncObjects();
     }
 
@@ -124,14 +123,15 @@ namespace narc_engine
             drawFrame();
         }
 
-        m_deviceHandler.waitIdle();
+        m_deviceHandler.waitDeviceIdle();
     }
 
     void Engine::cleanUp()
     {
+        const VkDevice& device = m_deviceHandler.getDevice();
+
         m_swapChain.cleanSwapChain();
 
-        const VkDevice& device = m_deviceHandler.getDevice();
         vkDestroySampler(device, m_textureSampler, nullptr);
         vkDestroyImageView(device, m_textureImageView, nullptr);
 
@@ -160,10 +160,8 @@ namespace narc_engine
             vkDestroyFence(device, m_inFlightFences[i], nullptr);
         }
 
-        vkDestroyCommandPool(device, m_commandPool, nullptr);
-
-        vkDestroyDevice(device, nullptr);
-
+        m_commandPool.release();
+        m_deviceHandler.release();
         m_debugLogger.clean(m_vulkanInstance);
 
         m_window.cleanSurface(m_vulkanInstance);
@@ -447,50 +445,6 @@ namespace narc_engine
         m_deviceHandler.destroyShaderModule(vertShaderModule);
     }
 
-    void Engine::createCommandPool()
-    {
-        VkCommandPoolCreateInfo poolInfo{};
-        poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-        poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-
-        m_deviceHandler.createCommandPool(&m_commandPool, poolInfo);
-    }
-
-    VkCommandBuffer Engine::beginSingleTimeCommands()
-    {
-        VkCommandBufferAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandPool = m_commandPool;
-        allocInfo.commandBufferCount = 1;
-
-        VkCommandBuffer commandBuffer;
-        vkAllocateCommandBuffers(m_deviceHandler.getDevice(), &allocInfo, &commandBuffer);
-
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-        vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-        return commandBuffer;
-    }
-
-    void Engine::endSingleTimeCommands(VkCommandBuffer commandBuffer)
-    {
-        vkEndCommandBuffer(commandBuffer);
-
-        VkSubmitInfo submitInfo{};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffer;
-        
-        vkQueueSubmit(m_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(m_graphicsQueue);
-
-        vkFreeCommandBuffers(m_deviceHandler.getDevice(), m_commandPool, 1, &commandBuffer);
-    }
-
     void Engine::createTextureImage()
     {
         Image image = FileReader::readImage("textures/logo.png");
@@ -588,7 +542,7 @@ namespace narc_engine
 
     void Engine::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
     {
-        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+        VkCommandBuffer commandBuffer = m_commandPool.beginSingleTimeCommands();
 
         VkImageMemoryBarrier barrier{};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -632,12 +586,12 @@ namespace narc_engine
             commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier
         );
 
-        endSingleTimeCommands(commandBuffer);
+        m_commandPool.endSingleTimeCommands(commandBuffer);
     }
 
     void Engine::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
     {
-        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+        VkCommandBuffer commandBuffer = m_commandPool.beginSingleTimeCommands();
 
         VkBufferImageCopy region{};
         region.bufferOffset = 0;
@@ -665,12 +619,12 @@ namespace narc_engine
             &region
         );
 
-        endSingleTimeCommands(commandBuffer);
+        m_commandPool.endSingleTimeCommands(commandBuffer);
     }
 
     void Engine::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
     {
-        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+        VkCommandBuffer commandBuffer = m_commandPool.beginSingleTimeCommands();
 
         VkBufferCopy copyRegion{};
         copyRegion.srcOffset = 0; // Optional
@@ -678,23 +632,7 @@ namespace narc_engine
         copyRegion.size = size;
         vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
-        endSingleTimeCommands(commandBuffer);
-    }
-
-    void Engine::createCommandBuffers()
-    {
-        m_commandBuffers.resize(g_maxFramesInFlight);
-
-        VkCommandBufferAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandPool = m_commandPool;
-        allocInfo.commandBufferCount = (uint32_t)m_commandBuffers.size();
-
-        if (vkAllocateCommandBuffers(m_deviceHandler.getDevice(), &allocInfo, m_commandBuffers.data()) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to allocate command buffers!");
-        }
+        m_commandPool.endSingleTimeCommands(commandBuffer);
     }
 
     void Engine::createSyncObjects()
@@ -732,8 +670,9 @@ namespace narc_engine
 
         vkResetFences(m_deviceHandler.getDevice(), 1, &m_inFlightFences[m_currentFrame]);
 
-        vkResetCommandBuffer(m_commandBuffers[m_currentFrame], 0);
-        recordCommandBuffer(m_commandBuffers[m_currentFrame], imageIndex);
+        VkCommandBuffer buffer = m_commandPool.getCommandBuffer(m_currentFrame);
+        vkResetCommandBuffer(buffer, 0);
+        recordCommandBuffer(buffer, imageIndex);
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -750,13 +689,14 @@ namespace narc_engine
         submitInfo.pWaitSemaphores = waitSemaphores;
         submitInfo.pWaitDstStageMask = waitStages;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &m_commandBuffers[m_currentFrame];
+        submitInfo.pCommandBuffers = &buffer;
 
         VkSemaphore signalSemaphores[] = {m_renderFinishedSemaphores[m_currentFrame]};
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
 
-        if (vkQueueSubmit(m_graphicsQueue, 1, &submitInfo, m_inFlightFences[m_currentFrame]) != VK_SUCCESS)
+
+        if (m_deviceHandler.submitGraphicsQueue(1, &submitInfo, m_inFlightFences[m_currentFrame]) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to submit draw command buffer!");
         }
@@ -774,7 +714,7 @@ namespace narc_engine
         presentInfo.pImageIndices = &imageIndex;
         presentInfo.pResults = nullptr;
 
-        result = vkQueuePresentKHR(m_presentQueue, &presentInfo);
+        result = m_deviceHandler.presentKHR(&presentInfo);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window.isFramebufferResized())
         {

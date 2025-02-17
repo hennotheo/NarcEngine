@@ -7,13 +7,13 @@ namespace narc_engine
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
-    void DeviceHandler::create(const Window* window, const VkInstance& instance, const EngineDebugLogger& debugLogger, VkQueue* graphicsQueue, VkQueue* presentQueue)
+    void DeviceHandler::create(const Window* window, const VkInstance& instance, const EngineDebugLogger& debugLogger)
     {
         m_vulkanInstance = instance;
         m_window = window;
 
         pickPhysicalDevice();
-        createLogicalDevice(debugLogger, graphicsQueue, presentQueue);
+        createLogicalDevice(debugLogger);
 
         vkGetPhysicalDeviceProperties(m_physicalDevice, &m_physicalDeviceProperties);
     }
@@ -67,9 +67,24 @@ namespace narc_engine
         }
     }
 
-    void DeviceHandler::waitIdle() const
+    VkResult DeviceHandler::waitDeviceIdle() const
     {
-        vkDeviceWaitIdle(m_device);
+        return vkDeviceWaitIdle(m_device);
+    }
+
+    VkResult DeviceHandler::submitGraphicsQueue(uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const
+    {
+        return vkQueueSubmit(m_graphicsQueue, submitCount, submitInfo, fence);
+    }
+
+    VkResult DeviceHandler::presentKHR(const VkPresentInfoKHR* presentInfo) const
+    {
+        return vkQueuePresentKHR(m_presentQueue, presentInfo);
+    }
+
+    void DeviceHandler::waitGraphicsQueueIdle() const
+    {
+        vkQueueWaitIdle(m_graphicsQueue);
     }
 
     void DeviceHandler::createSwapChain(VkSwapchainCreateInfoKHR& createInfo, VkSwapchainKHR* swapchain) const
@@ -94,6 +109,11 @@ namespace narc_engine
         {
             throw std::runtime_error("failed to create swap chain!");
         }
+    }
+
+    void DeviceHandler::release()
+    {
+        vkDestroyDevice(m_device, nullptr);
     }
 
     void DeviceHandler::pickPhysicalDevice()
@@ -125,7 +145,7 @@ namespace narc_engine
         }
     }
 
-    void DeviceHandler::createLogicalDevice(const EngineDebugLogger& debugLogger, VkQueue* graphicsQueue, VkQueue* presentQueue)
+    void DeviceHandler::createLogicalDevice(const EngineDebugLogger& debugLogger)
     {
         QueueFamilyIndices indices = findQueueFamilies(m_physicalDevice);
 
@@ -164,8 +184,8 @@ namespace narc_engine
             throw std::runtime_error("failed to create logical device!");
         }
 
-        vkGetDeviceQueue(m_device, indices.GraphicsFamily.value(), 0, graphicsQueue);
-        vkGetDeviceQueue(m_device, indices.PresentFamily.value(), 0, presentQueue);
+        vkGetDeviceQueue(m_device, indices.GraphicsFamily.value(), 0, &m_graphicsQueue);
+        vkGetDeviceQueue(m_device, indices.PresentFamily.value(), 0, &m_presentQueue);
     }
 
     int DeviceHandler::rateDeviceSuitability(VkPhysicalDevice device)

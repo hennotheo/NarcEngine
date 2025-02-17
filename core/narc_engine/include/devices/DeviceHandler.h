@@ -15,18 +15,27 @@ namespace narc_engine
         const inline VkPhysicalDevice& getPhysicalDevice() const { return m_physicalDevice; }
         const inline VkPhysicalDeviceProperties& getPhysicalDeviceProperties() const { return m_physicalDeviceProperties; }
 
-        void create(const Window* window, const VkInstance& instance, const EngineDebugLogger& debugLogger, VkQueue* graphicsQueue, VkQueue* presentQueue);
+        void create(const Window* window, const VkInstance& instance, const EngineDebugLogger& debugLogger);
 
-        VkShaderModule createShaderModule(const std::vector<char>& code) const;
-        void destroyShaderModule(VkShaderModule shaderModule) const;
-        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
-        void createCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateInfo poolInfo) const;
-        void waitIdle() const;
         void createSwapChain(VkSwapchainCreateInfoKHR& createInfo, VkSwapchainKHR* swapchain) const;
+        void createCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateInfo poolInfo) const;
+        VkShaderModule createShaderModule(const std::vector<char>& code) const;
+        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
+        void destroyShaderModule(VkShaderModule shaderModule) const;
+
+        VkResult waitDeviceIdle() const;
+        VkResult submitGraphicsQueue(uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const;
+        VkResult presentKHR(const VkPresentInfoKHR* presentInfo) const;
+        void waitGraphicsQueueIdle() const;
+
+        void release();
 
     private:
         VkDevice m_device;
         VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
+
+        VkQueue m_presentQueue;
+        VkQueue m_graphicsQueue;
 
         VkPhysicalDeviceProperties m_physicalDeviceProperties{};
 
@@ -35,7 +44,7 @@ namespace narc_engine
 
         void pickPhysicalDevice();
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) const;
-        void createLogicalDevice(const EngineDebugLogger& debugLogger, VkQueue* graphicsQueue, VkQueue* presentQueue);
+        void createLogicalDevice(const EngineDebugLogger& debugLogger);
         int rateDeviceSuitability(VkPhysicalDevice device);
         bool checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice, const std::vector<const char*>& deviceExtensions);
     };

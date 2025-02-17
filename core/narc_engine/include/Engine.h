@@ -2,6 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include "CommandPoolHandler.h"
 #include "window/Window.h"
 #include "EngineDebugLogger.h"
 #include "devices/DeviceHandler.h"
@@ -33,9 +34,6 @@ namespace narc_engine
         VkInstance m_vulkanInstance;
         DeviceHandler m_deviceHandler;
 
-        VkQueue m_presentQueue;
-        VkQueue m_graphicsQueue;
-
         SwapChain m_swapChain;
 
         VkDescriptorSetLayout m_descriptorSetLayout;
@@ -43,8 +41,9 @@ namespace narc_engine
         std::vector<VkDescriptorSet> m_descriptorSets;
         VkPipelineLayout m_pipelineLayout;
         VkPipeline m_graphicsPipeline;
-        VkCommandPool m_commandPool;
-        std::vector<VkCommandBuffer> m_commandBuffers;
+        CommandPoolHandler m_commandPool;
+        // VkCommandPool m_commandPool;
+        // std::vector<VkCommandBuffer> m_commandBuffers
         uint32_t m_currentFrame = 0;
 
         std::vector<VkSemaphore> m_imageAvailableSemaphores;
@@ -68,9 +67,7 @@ namespace narc_engine
         void createVulkanInstance();
         void createDescriptorSetLayout();
         void createGraphicsPipeline();
-        void createCommandPool();
-        VkCommandBuffer beginSingleTimeCommands();
-        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+        
         void createTextureImage();
         void createTextureSampler();
         void createImageTextureView();
@@ -81,7 +78,7 @@ namespace narc_engine
         void createUniformBuffers();
         void createDescriptorPool();
         void createDescriptorSets();
-        void createCommandBuffers();
+        // void createCommandBuffers();
         void createSyncObjects();
 
         void drawFrame();
