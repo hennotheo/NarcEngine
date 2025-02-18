@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include "CommandPoolHandler.h"
+#include "CommandPool.h"
 #include "window/Window.h"
 #include "EngineDebugLogger.h"
 #include "devices/DeviceHandler.h"
@@ -41,7 +41,7 @@ namespace narc_engine
         std::vector<VkDescriptorSet> m_descriptorSets;
         VkPipelineLayout m_pipelineLayout;
         VkPipeline m_graphicsPipeline;
-        CommandPoolHandler m_commandPool;
+        CommandPool m_commandPool;
         // VkCommandPool m_commandPool;
         // std::vector<VkCommandBuffer> m_commandBuffers
         uint32_t m_currentFrame = 0;

@@ -1,6 +1,7 @@
 x64/
 .vs/
 cmake/
+.idea/
 
 # Prerequisites
 *.d

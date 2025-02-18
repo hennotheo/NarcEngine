@@ -6,7 +6,7 @@
 
 namespace narc_engine
 {
-    class CommandPoolHandler
+    class CommandPool
     {
     public:
         CommandBuffer* getCommandBuffer(uint32_t index) { return &m_commandBuffers[index]; }

@@ -1,7 +1,9 @@
 #pragma once
 
-class DescriptorPool
-{
-public:
-    
-};
+namespace narc_engine {
+    class DescriptorPool {
+    public:
+
+    private:
+    };
+}

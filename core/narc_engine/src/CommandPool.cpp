@@ -1,10 +1,10 @@
-﻿#include "include/CommandPoolHandler.h"
+﻿#include "include/CommandPool.h"
 
 #include "include/devices/DeviceHandler.h"
 
 namespace narc_engine
 {
-    void CommandPoolHandler::create(const DeviceHandler* deviceHandler)
+    void CommandPool::create(const DeviceHandler* deviceHandler)
     {
         m_deviceHandler = deviceHandler;
 
@@ -15,12 +15,12 @@ namespace narc_engine
         m_deviceHandler->createCommandPool(&m_commandPool, poolInfo);
     }
 
-    void CommandPoolHandler::release()
+    void CommandPool::release()
     {
         vkDestroyCommandPool(m_deviceHandler->getDevice(), m_commandPool, nullptr);
     }
 
-    void CommandPoolHandler::createCommandBuffers(uint32_t commandBufferCount)
+    void CommandPool::createCommandBuffers(uint32_t commandBufferCount)
     {
         if (!m_commandBuffers.empty())
         {
@@ -38,7 +38,7 @@ namespace narc_engine
         CommandBuffer::allocateBuffers(m_deviceHandler, &allocInfo, m_commandBuffers);
     }
 
-    CommandBuffer CommandPoolHandler::beginSingleTimeCommands()
+    CommandBuffer CommandPool::beginSingleTimeCommands()
     {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -57,7 +57,7 @@ namespace narc_engine
         return commandBuffer;
     }
 
-    void CommandPoolHandler::endSingleTimeCommands(CommandBuffer commandBuffer)
+    void CommandPool::endSingleTimeCommands(CommandBuffer commandBuffer)
     {
         commandBuffer.end();
 
