@@ -24,17 +24,14 @@ namespace narc_engine
         0, 1, 2, 2, 3, 0
     };
 
-    void Engine::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)
+    void Engine::recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex)
     {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.flags = 0; // Optional
         beginInfo.pInheritanceInfo = nullptr; // Optional
 
-        if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to begin recording command buffer!");
-        }
+        commandBuffer->begin(beginInfo);
 
         VkRenderPassBeginInfo renderPassInfo = m_swapChain.getRenderPassBeginInfos(imageIndex);
         VkExtent2D swapChainExtent = m_swapChain.getSwapChainExtent();
@@ -43,8 +40,8 @@ namespace narc_engine
         renderPassInfo.clearValueCount = 1;
         renderPassInfo.pClearValues = &clearColor;
 
-        vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
+        commandBuffer->cmdBeginRenderPass(&renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        commandBuffer->cmdBindBindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
 
         VkViewport viewport{};
         viewport.x = 0.0f;
@@ -53,24 +50,24 @@ namespace narc_engine
         viewport.height = (float)swapChainExtent.height;
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
-        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+        commandBuffer->cmdSetViewport(&viewport, 0, 1);
 
         VkRect2D scissor{};
         scissor.offset = {0, 0};
         scissor.extent = swapChainExtent;
-        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+        commandBuffer->cmdSetScissor(&scissor, 0, 1);
 
         VkBuffer vertexBuffers[] = {m_vertexBuffer.getBuffer()};
         VkDeviceSize offsets[] = {0};
-        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-        vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer.getBuffer(), 0, VK_INDEX_TYPE_UINT16);
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, &m_descriptorSets[m_currentFrame], 0, nullptr);
+        commandBuffer->cmdBindVertexBuffers(0, 1, vertexBuffers, offsets);
+        commandBuffer->cmdBindIndexBuffer(m_indexBuffer.getBuffer(), 0, VK_INDEX_TYPE_UINT16);
+        commandBuffer->cmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, &m_descriptorSets[m_currentFrame], 0, nullptr);
 
-        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(g_indices.size()), 1, 0, 0, 0);
+        commandBuffer->cmdDrawIndexed(static_cast<uint32_t>(g_indices.size()), 1, 0, 0, 0);
 
-        vkCmdEndRenderPass(commandBuffer);
+        commandBuffer->cmdEndRenderPass();
 
-        if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
+        if (commandBuffer->end() != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to record command buffer!");
         }
@@ -542,7 +539,7 @@ namespace narc_engine
 
     void Engine::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
     {
-        VkCommandBuffer commandBuffer = m_commandPool.beginSingleTimeCommands();
+        CommandBuffer commandBuffer = m_commandPool.beginSingleTimeCommands();
 
         VkImageMemoryBarrier barrier{};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -582,16 +579,14 @@ namespace narc_engine
             throw std::invalid_argument("unsupported layout transition!");
         }
 
-        vkCmdPipelineBarrier(
-            commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier
-        );
+        commandBuffer.cmdPipelineBarrier(sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
         m_commandPool.endSingleTimeCommands(commandBuffer);
     }
 
     void Engine::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
     {
-        VkCommandBuffer commandBuffer = m_commandPool.beginSingleTimeCommands();
+        CommandBuffer commandBuffer = m_commandPool.beginSingleTimeCommands();
 
         VkBufferImageCopy region{};
         region.bufferOffset = 0;
@@ -610,6 +605,7 @@ namespace narc_engine
             1
         };
 
+        commandBuffer.cmdCopyBufferImage()
         vkCmdCopyBufferToImage(
             commandBuffer,
             buffer,
@@ -624,7 +620,7 @@ namespace narc_engine
 
     void Engine::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
     {
-        VkCommandBuffer commandBuffer = m_commandPool.beginSingleTimeCommands();
+        CommandBuffer commandBuffer = m_commandPool.beginSingleTimeCommands();
 
         VkBufferCopy copyRegion{};
         copyRegion.srcOffset = 0; // Optional
@@ -670,8 +666,8 @@ namespace narc_engine
 
         vkResetFences(m_deviceHandler.getDevice(), 1, &m_inFlightFences[m_currentFrame]);
 
-        VkCommandBuffer buffer = m_commandPool.getCommandBuffer(m_currentFrame);
-        vkResetCommandBuffer(buffer, 0);
+        CommandBuffer* buffer = m_commandPool.getCommandBuffer(m_currentFrame);
+        buffer->reset(0);
         recordCommandBuffer(buffer, imageIndex);
 
         VkSubmitInfo submitInfo{};
@@ -689,12 +685,11 @@ namespace narc_engine
         submitInfo.pWaitSemaphores = waitSemaphores;
         submitInfo.pWaitDstStageMask = waitStages;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &buffer;
+        submitInfo.pCommandBuffers = buffer->getVkCommandBuffer();
 
         VkSemaphore signalSemaphores[] = {m_renderFinishedSemaphores[m_currentFrame]};
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
-
 
         if (m_deviceHandler.submitGraphicsQueue(1, &submitInfo, m_inFlightFences[m_currentFrame]) != VK_SUCCESS)
         {
@@ -703,7 +698,6 @@ namespace narc_engine
 
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = signalSemaphores;
 

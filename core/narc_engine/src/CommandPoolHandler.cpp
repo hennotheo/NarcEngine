@@ -22,52 +22,58 @@ namespace narc_engine
 
     void CommandPoolHandler::createCommandBuffers(uint32_t commandBufferCount)
     {
+        if (!m_commandBuffers.empty())
+        {
+            throw std::runtime_error("Command buffers have already been created!");
+        }
+
         m_commandBuffers.resize(commandBufferCount);
 
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandPool = m_commandPool;
-        allocInfo.commandBufferCount = (uint32_t)m_commandBuffers.size();
-
-        if (vkAllocateCommandBuffers(m_deviceHandler->getDevice(), &allocInfo, m_commandBuffers.data()) != VK_SUCCESS)
+        allocInfo.commandBufferCount = commandBufferCount;
+        
+        for (uint32_t i = 0; i < commandBufferCount; ++i)
         {
-            throw std::runtime_error("failed to allocate command buffers!");
+            CommandBuffer commandBuffer;
+            commandBuffer.allocate(m_deviceHandler, &allocInfo);
+            m_commandBuffers.push_back(commandBuffer);
         }
     }
 
-    VkCommandBuffer CommandPoolHandler::beginSingleTimeCommands()
+    CommandBuffer CommandPoolHandler::beginSingleTimeCommands()
     {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandPool = m_commandPool;
         allocInfo.commandBufferCount = 1;
-
-        VkCommandBuffer commandBuffer;
-        vkAllocateCommandBuffers(m_deviceHandler->getDevice(), &allocInfo, &commandBuffer);
-
+        
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-        vkBeginCommandBuffer(commandBuffer, &beginInfo);
+        
+        CommandBuffer commandBuffer;
+        commandBuffer.allocate(m_deviceHandler, &allocInfo);
+        commandBuffer.begin(beginInfo);
 
         return commandBuffer;
     }
 
-    void CommandPoolHandler::endSingleTimeCommands(VkCommandBuffer commandBuffer)
+    void CommandPoolHandler::endSingleTimeCommands(CommandBuffer commandBuffer)
     {
-        vkEndCommandBuffer(commandBuffer);
+        commandBuffer.end();
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffer;
+        submitInfo.pCommandBuffers = commandBuffer.getVkCommandBuffer();
 
-        m_deviceHandler->submitGraphicsQueue(1,&submitInfo, VK_NULL_HANDLE);
+        m_deviceHandler->submitGraphicsQueue(1, &submitInfo, VK_NULL_HANDLE);
         m_deviceHandler->waitGraphicsQueueIdle();
 
-        vkFreeCommandBuffers(m_deviceHandler->getDevice(), m_commandPool, 1, &commandBuffer);
+        commandBuffer.release(m_deviceHandler, m_commandPool);
     }
 }

@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <vulkan/vulkan_core.h>
 
+#include "CommandBuffer.h"
 #include "devices/DeviceHandler.h"
 
 namespace narc_engine
@@ -8,20 +9,20 @@ namespace narc_engine
     class CommandPoolHandler
     {
     public:
-        VkCommandBuffer getCommandBuffer(uint32_t index) const { return m_commandBuffers[index]; }
+        CommandBuffer* getCommandBuffer(uint32_t index) { return &m_commandBuffers[index]; }
 
         void create(const DeviceHandler* deviceHandler);
         void createCommandBuffers(uint32_t commandBufferCount);
 
-        VkCommandBuffer beginSingleTimeCommands();
-        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+        CommandBuffer beginSingleTimeCommands();
+        void endSingleTimeCommands(CommandBuffer commandBuffer);
 
         void release();
 
     private:
         VkCommandPool m_commandPool;
 
-        std::vector<VkCommandBuffer> m_commandBuffers;
+        std::vector<CommandBuffer> m_commandBuffers;
 
         const DeviceHandler* m_deviceHandler;
     };

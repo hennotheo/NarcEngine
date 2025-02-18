@@ -83,6 +83,6 @@ namespace narc_engine
 
         void drawFrame();
         void updateUniformBuffer(uint32_t currentImage);
-        void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+        void recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex);
     };
 }
