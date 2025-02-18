@@ -34,13 +34,8 @@ namespace narc_engine
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandPool = m_commandPool;
         allocInfo.commandBufferCount = commandBufferCount;
-        
-        for (uint32_t i = 0; i < commandBufferCount; ++i)
-        {
-            CommandBuffer commandBuffer;
-            commandBuffer.allocate(m_deviceHandler, &allocInfo);
-            m_commandBuffers.push_back(commandBuffer);
-        }
+
+        CommandBuffer::allocateBuffers(m_deviceHandler, &allocInfo, m_commandBuffers);
     }
 
     CommandBuffer CommandPoolHandler::beginSingleTimeCommands()

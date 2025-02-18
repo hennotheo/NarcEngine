@@ -64,7 +64,6 @@ namespace narc_engine
         commandBuffer->cmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, &m_descriptorSets[m_currentFrame], 0, nullptr);
 
         commandBuffer->cmdDrawIndexed(static_cast<uint32_t>(g_indices.size()), 1, 0, 0, 0);
-
         commandBuffer->cmdEndRenderPass();
 
         if (commandBuffer->end() != VK_SUCCESS)
@@ -605,15 +604,7 @@ namespace narc_engine
             1
         };
 
-        commandBuffer.cmdCopyBufferImage()
-        vkCmdCopyBufferToImage(
-            commandBuffer,
-            buffer,
-            image,
-            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            1,
-            &region
-        );
+        commandBuffer.cmdCopyBufferImage(buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
         m_commandPool.endSingleTimeCommands(commandBuffer);
     }
@@ -626,7 +617,7 @@ namespace narc_engine
         copyRegion.srcOffset = 0; // Optional
         copyRegion.dstOffset = 0; // Optional
         copyRegion.size = size;
-        vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+        commandBuffer.cmdCopyBuffer(srcBuffer, dstBuffer, 1, &copyRegion);
 
         m_commandPool.endSingleTimeCommands(commandBuffer);
     }

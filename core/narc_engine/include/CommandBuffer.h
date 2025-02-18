@@ -26,8 +26,11 @@ namespace narc_engine
 
         void cmdPipelineBarrier(VkPipelineStageFlags sourceStage, VkPipelineStageFlags destinationStage, VkDependencyFlags dependencyFlags, uint32_t memoryBarrierCount, const VkMemoryBarrier* memoryBarriers, uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* bufferMemoryBarriers, uint32_t imageMemoryBarrierCount, const VkImageMemoryBarrier* imageMemoryBarriers) const;
         void cmdCopyBufferImage(VkBuffer srcBuffer, VkImage dstImage, VkImageLayout dstImageLayout, uint32_t regionCount, const VkBufferImageCopy* regions) const;
-        
+        void cmdCopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, uint32_t regionCount, const VkBufferCopy* copyRegion) const;
+
+        static void allocateBuffers(const DeviceHandler* deviceHandler, const VkCommandBufferAllocateInfo* allocInfo, std::vector<CommandBuffer>& commandBuffers);
     private:
         VkCommandBuffer m_commandBuffer;
+        bool m_allocated = false;
     };
 }

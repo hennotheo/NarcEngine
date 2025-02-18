@@ -12,7 +12,10 @@ namespace narc_engine
 
     void CommandBuffer::reset(VkCommandBufferResetFlags flags) const
     {
-        vkResetCommandBuffer(m_commandBuffer, flags);
+        if (vkResetCommandBuffer(m_commandBuffer, flags) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to reset command buffer!");
+        }
     }
 
     void CommandBuffer::begin(VkCommandBufferBeginInfo beginInfo) const
@@ -40,7 +43,7 @@ namespace narc_engine
 
     void CommandBuffer::cmdBindBindPipeline(VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline) const
     {
-        vkCmdBindPipeline(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+        vkCmdBindPipeline(m_commandBuffer, pipelineBindPoint, pipeline);
     }
 
     void CommandBuffer::cmdSetViewport(const VkViewport* viewport, uint32_t firstViewport, uint32_t viewportCount) const
@@ -85,19 +88,45 @@ namespace narc_engine
                                            const VkImageMemoryBarrier* imageMemoryBarriers) const
     {
         vkCmdPipelineBarrier(
-            m_commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier
+            m_commandBuffer,
+            sourceStage, destinationStage, dependencyFlags,
+            memoryBarrierCount, memoryBarriers, bufferMemoryBarrierCount, bufferMemoryBarriers,
+            imageMemoryBarrierCount, imageMemoryBarriers
         );
     }
 
     void CommandBuffer::cmdCopyBufferImage(VkBuffer srcBuffer, VkImage dstImage, VkImageLayout dstImageLayout, uint32_t regionCount, const VkBufferImageCopy* regions) const
     {
-        vkCmdCopyBufferToImage(
-            m_commandBuffer,
-            srcBuffer,
-            dstImage,
-            dstImageLayout,
-            regionCount,
-            regions
+        vkCmdCopyBufferToImage(m_commandBuffer,
+                               srcBuffer, dstImage, dstImageLayout, regionCount, regions
         );
+    }
+
+    void CommandBuffer::cmdCopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, uint32_t regionCount, const VkBufferCopy* copyRegion) const
+    {
+        vkCmdCopyBuffer(m_commandBuffer, srcBuffer, dstBuffer, regionCount, copyRegion);
+    }
+
+    void CommandBuffer::allocateBuffers(const DeviceHandler* deviceHandler, const VkCommandBufferAllocateInfo* allocInfo, std::vector<CommandBuffer>& commandBuffers)
+    {
+        for (auto& commandBuffer : commandBuffers)
+        {
+            if (commandBuffer.m_allocated)
+            {
+                throw std::runtime_error("Trying to allocate an already allocated command buffer!");
+            }
+        }
+        
+        std::vector<VkCommandBuffer> vkCommandBuffers(commandBuffers.size());
+        if (vkAllocateCommandBuffers(deviceHandler->getDevice(), allocInfo, vkCommandBuffers.data()) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to allocate command buffers!");
+        }
+
+        for (size_t i = 0; i < commandBuffers.size(); ++i)
+        {
+            commandBuffers[i].m_commandBuffer = vkCommandBuffers[i];
+            commandBuffers[i].m_allocated = true;
+        }
     }
 }
