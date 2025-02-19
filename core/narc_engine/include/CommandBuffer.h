@@ -1,4 +1,5 @@
 #pragma once
+#include "Pipeline.h"
 #include "buffers/Buffer.h"
 
 namespace narc_engine
@@ -15,12 +16,13 @@ namespace narc_engine
         void release(const DeviceHandler* deviceHandler, const VkCommandPool& commandPool) const;
 
         void cmdBeginRenderPass(const VkRenderPassBeginInfo* renderPassInfo, VkSubpassContents contents) const;
-        void cmdBindBindPipeline(VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline) const;
+        void cmdBindPipeline(VkPipelineBindPoint pipelineBindPoint, const Pipeline* pipeline) const;
         void cmdSetViewport(const VkViewport* viewport, uint32_t firstViewport, uint32_t viewportCount) const;
         void cmdSetScissor(const VkRect2D* scissor, uint32_t firstScissor, uint32_t scissorCount) const;
         void cmdBindVertexBuffers(uint32_t firstBinding, uint32_t bindingCount, const VkBuffer* buffers, const VkDeviceSize* offsets) const;
         void cmdBindIndexBuffer(VkBuffer buffer, VkDeviceSize offset, VkIndexType indexType) const;
-        void cmdBindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet, uint32_t descriptorSetCount, const VkDescriptorSet* descriptorSets, uint32_t dynamicOffsetCount, const uint32_t* dynamicOffsets) const;
+        void cmdBindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, const Pipeline* pipeline, uint32_t firstSet, uint32_t descriptorSetCount, const VkDescriptorSet* descriptorSets, uint32_t dynamicOffsetCount, const uint32_t*
+                                   dynamicOffsets) const;
         void cmdDrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance) const;
         void cmdEndRenderPass() const;
 

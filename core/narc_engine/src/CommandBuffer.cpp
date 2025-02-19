@@ -1,7 +1,8 @@
 #include "include/CommandBuffer.h"
 
-namespace narc_engine
-{
+#include "include/Pipeline.h"
+
+namespace narc_engine {
     void CommandBuffer::allocate(const DeviceHandler* deviceHandler, const VkCommandBufferAllocateInfo* allocInfo)
     {
         if (vkAllocateCommandBuffers(deviceHandler->getDevice(), allocInfo, &m_commandBuffer) != VK_SUCCESS)
@@ -41,9 +42,9 @@ namespace narc_engine
         vkCmdBeginRenderPass(m_commandBuffer, renderPassInfo, contents);
     }
 
-    void CommandBuffer::cmdBindBindPipeline(VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline) const
+    void CommandBuffer::cmdBindPipeline(VkPipelineBindPoint pipelineBindPoint, const Pipeline* pipeline) const
     {
-        vkCmdBindPipeline(m_commandBuffer, pipelineBindPoint, pipeline);
+        vkCmdBindPipeline(m_commandBuffer, pipelineBindPoint, pipeline->m_pipeline);
     }
 
     void CommandBuffer::cmdSetViewport(const VkViewport* viewport, uint32_t firstViewport, uint32_t viewportCount) const
@@ -66,10 +67,10 @@ namespace narc_engine
         vkCmdBindIndexBuffer(m_commandBuffer, buffer, offset, indexType);
     }
 
-    void CommandBuffer::cmdBindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet, uint32_t descriptorSetCount, const VkDescriptorSet* descriptorSets,
+    void CommandBuffer::cmdBindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, const Pipeline* pipeline, uint32_t firstSet, uint32_t descriptorSetCount, const VkDescriptorSet* descriptorSets,
                                               uint32_t dynamicOffsetCount, const uint32_t* dynamicOffsets) const
     {
-        vkCmdBindDescriptorSets(m_commandBuffer, pipelineBindPoint, layout, firstSet, descriptorSetCount, descriptorSets, dynamicOffsetCount, dynamicOffsets);
+        vkCmdBindDescriptorSets(m_commandBuffer, pipelineBindPoint, pipeline->m_pipelineLayout, firstSet, descriptorSetCount, descriptorSets, dynamicOffsetCount, dynamicOffsets);
     }
 
     void CommandBuffer::cmdDrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance) const
@@ -109,14 +110,14 @@ namespace narc_engine
 
     void CommandBuffer::allocateBuffers(const DeviceHandler* deviceHandler, const VkCommandBufferAllocateInfo* allocInfo, std::vector<CommandBuffer>& commandBuffers)
     {
-        for (auto& commandBuffer : commandBuffers)
+        for (auto& commandBuffer: commandBuffers)
         {
             if (commandBuffer.m_allocated)
             {
                 throw std::runtime_error("Trying to allocate an already allocated command buffer!");
             }
         }
-        
+
         std::vector<VkCommandBuffer> vkCommandBuffers(commandBuffers.size());
         if (vkAllocateCommandBuffers(deviceHandler->getDevice(), allocInfo, vkCommandBuffers.data()) != VK_SUCCESS)
         {

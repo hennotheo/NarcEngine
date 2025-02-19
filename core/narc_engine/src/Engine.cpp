@@ -9,9 +9,8 @@
 #include "include/io/FileReader.h"
 #include "include/window/Window.h"
 
-namespace narc_engine
-{
-    const int g_maxFramesInFlight = 2;
+namespace narc_engine {
+    const uint32_t g_maxFramesInFlight = 2;
 
     const std::vector<Vertex> g_vertices = {
         {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
@@ -41,13 +40,13 @@ namespace narc_engine
         renderPassInfo.pClearValues = &clearColor;
 
         commandBuffer->cmdBeginRenderPass(&renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-        commandBuffer->cmdBindBindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
+        commandBuffer->cmdBindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, &m_graphicsPipeline);
 
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = (float)swapChainExtent.width;
-        viewport.height = (float)swapChainExtent.height;
+        viewport.width = (float) swapChainExtent.width;
+        viewport.height = (float) swapChainExtent.height;
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
         commandBuffer->cmdSetViewport(&viewport, 0, 1);
@@ -61,7 +60,7 @@ namespace narc_engine
         VkDeviceSize offsets[] = {0};
         commandBuffer->cmdBindVertexBuffers(0, 1, vertexBuffers, offsets);
         commandBuffer->cmdBindIndexBuffer(m_indexBuffer.getBuffer(), 0, VK_INDEX_TYPE_UINT16);
-        commandBuffer->cmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, &m_descriptorSets[m_currentFrame], 0, nullptr);
+        commandBuffer->cmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, &m_graphicsPipeline, 0, 1, &m_descriptorSets[m_currentFrame], 0, nullptr);
 
         commandBuffer->cmdDrawIndexed(static_cast<uint32_t>(g_indices.size()), 1, 0, 0, 0);
         commandBuffer->cmdEndRenderPass();
@@ -96,7 +95,7 @@ namespace narc_engine
         m_deviceHandler.create(&m_window, m_vulkanInstance, m_debugLogger);
         m_swapChain.create(); // CreateSwapChain(); // CreateImageViews(); //CreateRenderPass();
         createDescriptorSetLayout();
-        createGraphicsPipeline();
+        m_graphicsPipeline.create(&m_swapChain, &m_descriptorSetLayout);
         m_swapChain.createFramebuffers(); // CreateFramebuffers();
         m_commandPool.create(&m_deviceHandler);
         createTextureImage();
@@ -134,19 +133,18 @@ namespace narc_engine
         vkDestroyImage(device, m_textureImage, nullptr);
         vkFreeMemory(device, m_textureImageMemory, nullptr);
 
-        for (UniformBuffer& buffer : m_uniformBuffers)
+        for (UniformBuffer& buffer: m_uniformBuffers)
         {
             buffer.release();
         }
 
-        vkDestroyDescriptorPool(device, m_descriptorPool, nullptr);
+        m_descriptorPool.release();
         vkDestroyDescriptorSetLayout(device, m_descriptorSetLayout, nullptr);
 
         m_indexBuffer.release();
         m_vertexBuffer.release();
 
-        vkDestroyPipeline(device, m_graphicsPipeline, nullptr);
-        vkDestroyPipelineLayout(device, m_pipelineLayout, nullptr);
+        m_graphicsPipeline.release();
         m_swapChain.cleanRenderPass();
 
         for (size_t i = 0; i < g_maxFramesInFlight; i++)
@@ -214,22 +212,13 @@ namespace narc_engine
 
     void Engine::createDescriptorPool()
     {
-        std::array<VkDescriptorPoolSize, 2> poolSizes{};
-        poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        poolSizes[0].descriptorCount = static_cast<uint32_t>(g_maxFramesInFlight);
-        poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        poolSizes[1].descriptorCount = static_cast<uint32_t>(g_maxFramesInFlight);
+        uint32_t descriptionCount = g_maxFramesInFlight;
+        DescriptorPoolBuilder builder;
+        builder.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, descriptionCount);
+        builder.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descriptionCount);
+        builder.setMaxSet(descriptionCount);
 
-        VkDescriptorPoolCreateInfo poolInfo{};
-        poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-        poolInfo.poolSizeCount = 1;
-        poolInfo.pPoolSizes = poolSizes.data();
-        poolInfo.maxSets = static_cast<uint32_t>(g_maxFramesInFlight);
-
-        if (vkCreateDescriptorPool(m_deviceHandler.getDevice(), &poolInfo, nullptr, &m_descriptorPool) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create descriptor pool!");
-        }
+        m_descriptorPool.create(&builder);
     }
 
     void Engine::createDescriptorSets()
@@ -237,15 +226,11 @@ namespace narc_engine
         std::vector<VkDescriptorSetLayout> layouts(g_maxFramesInFlight, m_descriptorSetLayout);
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        allocInfo.descriptorPool = m_descriptorPool;
-        allocInfo.descriptorSetCount = static_cast<uint32_t>(g_maxFramesInFlight);
+        allocInfo.descriptorSetCount = g_maxFramesInFlight;
         allocInfo.pSetLayouts = layouts.data();
 
         m_descriptorSets.resize(g_maxFramesInFlight);
-        if (vkAllocateDescriptorSets(m_deviceHandler.getDevice(), &allocInfo, m_descriptorSets.data()) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to allocate descriptor sets!");
-        }
+        m_descriptorPool.allocateDescriptorSets(&allocInfo, m_descriptorSets.data());
 
         for (size_t i = 0; i < g_maxFramesInFlight; i++)
         {
@@ -307,138 +292,6 @@ namespace narc_engine
         {
             throw std::runtime_error("failed to create descriptor set layout!");
         }
-    }
-
-    void Engine::createGraphicsPipeline()
-    {
-        auto vertShaderCode = FileReader::readFile("shaders/shader_vert.spv");
-        auto fragShaderCode = FileReader::readFile("shaders/shader_frag.spv");
-
-        VkShaderModule vertShaderModule = m_deviceHandler.createShaderModule(vertShaderCode);
-        VkShaderModule fragShaderModule = m_deviceHandler.createShaderModule(fragShaderCode);
-
-        VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-        vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-        vertShaderStageInfo.module = vertShaderModule;
-        vertShaderStageInfo.pName = "main";
-
-        VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-        fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-        fragShaderStageInfo.module = fragShaderModule;
-        fragShaderStageInfo.pName = "main";
-
-        VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
-
-        auto bindingDescription = Vertex::getBindingDescription();
-        auto attributeDescriptions = Vertex::getAttributeDescriptions();
-
-        VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-        vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputInfo.vertexBindingDescriptionCount = 1;
-        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-        vertexInputInfo.pVertexBindingDescriptions = &bindingDescription; // Optional
-        vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data(); // Optional
-
-        VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-        inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-        inputAssembly.primitiveRestartEnable = VK_FALSE;
-
-        VkPipelineViewportStateCreateInfo viewportState{};
-        viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-        viewportState.viewportCount = 1;
-        viewportState.scissorCount = 1;
-        //viewportState.pViewports = &viewport;
-        //viewportState.pScissors = &scissor;
-
-        VkPipelineRasterizationStateCreateInfo rasterizer{};
-        rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-        rasterizer.depthClampEnable = VK_FALSE;
-        rasterizer.rasterizerDiscardEnable = VK_FALSE;
-        rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-        rasterizer.lineWidth = 1.0f;
-        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-        rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-        rasterizer.depthBiasEnable = VK_FALSE;
-        rasterizer.depthBiasConstantFactor = 0.0f; // Optional
-        rasterizer.depthBiasClamp = 0.0f; // Optional
-        rasterizer.depthBiasSlopeFactor = 0.0f; // Optional
-
-        VkPipelineMultisampleStateCreateInfo multisampling{};
-        multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-        multisampling.sampleShadingEnable = VK_FALSE;
-        multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-        multisampling.minSampleShading = 1.0f; // Optional
-        multisampling.pSampleMask = nullptr; // Optional
-        multisampling.alphaToCoverageEnable = VK_FALSE; // Optional
-        multisampling.alphaToOneEnable = VK_FALSE; // Optional
-
-        VkPipelineColorBlendAttachmentState colorBlendAttachment{};
-        colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-        colorBlendAttachment.blendEnable = VK_FALSE;
-
-        VkPipelineColorBlendStateCreateInfo colorBlending{};
-        colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-        colorBlending.logicOpEnable = VK_FALSE;
-        colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
-        colorBlending.attachmentCount = 1;
-        colorBlending.pAttachments = &colorBlendAttachment;
-        colorBlending.blendConstants[0] = 0.0f; // Optional
-        colorBlending.blendConstants[1] = 0.0f; // Optional
-        colorBlending.blendConstants[2] = 0.0f; // Optional
-        colorBlending.blendConstants[3] = 0.0f; // Optional
-
-        std::vector<VkDynamicState> dynamicStates = {
-            VK_DYNAMIC_STATE_VIEWPORT,
-            VK_DYNAMIC_STATE_SCISSOR
-        };
-
-        VkPipelineDynamicStateCreateInfo dynamicState{};
-        dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-        dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
-        dynamicState.pDynamicStates = dynamicStates.data();
-
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.pushConstantRangeCount = 0;
-        pipelineLayoutInfo.setLayoutCount = 1; // SET LAYOUTS HERE
-        pipelineLayoutInfo.pSetLayouts = {&m_descriptorSetLayout}; // SET LAYOUTS HERE
-        pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
-        pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
-
-        if (vkCreatePipelineLayout(m_deviceHandler.getDevice(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create pipeline layout!");
-        }
-
-        VkGraphicsPipelineCreateInfo pipelineInfo{};
-        pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-        pipelineInfo.stageCount = 2;
-        pipelineInfo.pStages = shaderStages;
-
-        pipelineInfo.pVertexInputState = &vertexInputInfo;
-        pipelineInfo.pInputAssemblyState = &inputAssembly;
-        pipelineInfo.pViewportState = &viewportState;
-        pipelineInfo.pRasterizationState = &rasterizer;
-        pipelineInfo.pMultisampleState = &multisampling;
-        pipelineInfo.pDepthStencilState = nullptr; // Optional
-        pipelineInfo.pColorBlendState = &colorBlending;
-        pipelineInfo.pDynamicState = &dynamicState;
-        pipelineInfo.layout = m_pipelineLayout;
-        pipelineInfo.renderPass = m_swapChain.getRenderPass();
-        pipelineInfo.subpass = 0;
-        pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
-        pipelineInfo.basePipelineIndex = -1; // Optional
-
-        if (vkCreateGraphicsPipelines(m_deviceHandler.getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to create graphics pipeline!");
-        }
-
-        m_deviceHandler.destroyShaderModule(fragShaderModule);
-        m_deviceHandler.destroyShaderModule(vertShaderModule);
     }
 
     void Engine::createTextureImage()
@@ -564,16 +417,14 @@ namespace narc_engine
 
             sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
             destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-        }
-        else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+        } else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
         {
             barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
             barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
             sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
             destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-        }
-        else
+        } else
         {
             throw std::invalid_argument("unsupported layout transition!");
         }
@@ -705,8 +556,7 @@ namespace narc_engine
         {
             m_window.setFramebufferResized(false); //after vkQueuePresentKHR to ensure that the semaphores are in a consistent state
             m_swapChain.reCreate();
-        }
-        else if (result != VK_SUCCESS)
+        } else if (result != VK_SUCCESS)
         {
             throw std::runtime_error("failed to present swap chain image!");
         }
@@ -724,7 +574,7 @@ namespace narc_engine
         UniformBufferObject ubo{};
         ubo.Model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.View = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.Proj = glm::perspective(glm::radians(45.0f), m_swapChain.getSwapChainExtent().width / (float)m_swapChain.getSwapChainExtent().height, 0.1f, 10.0f);
+        ubo.Proj = glm::perspective(glm::radians(45.0f), m_swapChain.getSwapChainExtent().width / (float) m_swapChain.getSwapChainExtent().height, 0.1f, 10.0f);
         ubo.Proj[1][1] *= -1;
 
         m_uniformBuffers[currentImage].setData(ubo);

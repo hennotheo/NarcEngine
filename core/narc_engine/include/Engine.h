@@ -3,18 +3,19 @@
 #include <vulkan/vulkan.h>
 
 #include "CommandPool.h"
+#include "DescriptorPool.h"
 #include "window/Window.h"
 #include "EngineDebugLogger.h"
+#include "Pipeline.h"
 #include "devices/DeviceHandler.h"
 #include "SwapChain.h"
 #include "buffers/UniformBuffer.h"
 #include "buffers/GraphicsBuffer.h"
 
-namespace narc_engine
-{
+namespace narc_engine {
     struct Vertex;
     struct Image;
-    
+
     class Engine
     {
     public:
@@ -37,10 +38,11 @@ namespace narc_engine
         SwapChain m_swapChain;
 
         VkDescriptorSetLayout m_descriptorSetLayout;
-        VkDescriptorPool m_descriptorPool;
+        DescriptorPool m_descriptorPool;
         std::vector<VkDescriptorSet> m_descriptorSets;
-        VkPipelineLayout m_pipelineLayout;
-        VkPipeline m_graphicsPipeline;
+
+        // VkPipeline m_graphicsPipeline;
+        Pipeline m_graphicsPipeline;
         CommandPool m_commandPool;
         // VkCommandPool m_commandPool;
         // std::vector<VkCommandBuffer> m_commandBuffers
@@ -61,28 +63,43 @@ namespace narc_engine
 
     private:
         void init();
+
         void mainLoop();
+
         void cleanUp();
 
         void createVulkanInstance();
+
         void createDescriptorSetLayout();
+
         void createGraphicsPipeline();
-        
+
         void createTextureImage();
+
         void createTextureSampler();
+
         void createImageTextureView();
+
         void createImage(const Image& imageData, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
                          VkImage& image, VkDeviceMemory& imageMemory);
+
         void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+
         void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+
         void createUniformBuffers();
+
         void createDescriptorPool();
+
         void createDescriptorSets();
+
         // void createCommandBuffers();
         void createSyncObjects();
 
         void drawFrame();
+
         void updateUniformBuffer(uint32_t currentImage);
+
         void recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex);
     };
 }
