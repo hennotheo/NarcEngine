@@ -1,17 +1,19 @@
 ﻿#pragma once
 
-namespace narc_engine
-{
+namespace narc_io {
     struct Image;
-    
-    class FileReader
+
+    NarcIO_API class FileReader
     {
     public:
         FileReader() = delete;
+
         ~FileReader() = delete;
 
         static std::vector<char> readFile(const std::string& filename);
+
         static Image readImage(const std::string& filename);
+
         static void releaseImage(void* imageData);
     };
 }

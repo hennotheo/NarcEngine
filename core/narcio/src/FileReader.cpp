@@ -1,12 +1,11 @@
-﻿#include "include/io/FileReader.h"
+﻿#include "include/FileReader.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <vendors/stb/stb_image.h>
+#include <stb_image.h>
 
 #include "include/data/Image.h"
 
-namespace narc_engine
-{    
+namespace narc_io {
     std::vector<char> FileReader::readFile(const std::string& filename)
     {
         std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -16,7 +15,7 @@ namespace narc_engine
             throw std::runtime_error("Failed to open file!");
         }
 
-        size_t fileSize = (size_t)file.tellg();
+        size_t fileSize = (size_t) file.tellg();
         std::vector<char> buffer(fileSize);
 
         file.seekg(0);
@@ -30,15 +29,15 @@ namespace narc_engine
     Image FileReader::readImage(const std::string& filename)
     {
         int texWidth, texHeight, texChannels;
-        stbi_uc* pixels = stbi_load("textures/logo.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+        stbi_uc* pixels = stbi_load(filename.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 
         if (!pixels)
         {
             throw std::runtime_error("failed to load texture image!");
         }
-        
+
         Image image(texWidth, texHeight, texChannels, pixels);
-        
+
         return image;
     }
 

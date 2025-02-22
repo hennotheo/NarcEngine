@@ -3,10 +3,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "../../narcio/include/FileReader.h"
 #include "include/data/Vertex.h"
-#include "include/data/Image.h"
 #include "include/buffers/StaggingBuffer.h"
-#include "include/io/FileReader.h"
 #include "include/window/Window.h"
 
 namespace narc_engine {
@@ -296,7 +295,7 @@ namespace narc_engine {
 
     void Engine::createTextureImage()
     {
-        Image image = FileReader::readImage("textures/logo.png");
+        narc_io::Image image = narc_io::FileReader::readImage("textures/logo.png");
         VkDeviceSize imageSize = image.getWidth() * image.getHeight() * 4;
 
         StaggingBuffer staggingBuffer;

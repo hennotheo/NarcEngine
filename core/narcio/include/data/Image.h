@@ -1,10 +1,7 @@
-﻿#pragma once
+#pragma once
 
-#include "include/io/FileReader.h"
-
-namespace narc_engine
-{
-    struct Image
+namespace narc_io {
+    NarcIO_API struct Image final
     {
         friend class FileReader;
 
