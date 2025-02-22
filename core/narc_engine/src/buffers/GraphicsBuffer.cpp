@@ -1,8 +1,8 @@
-#include "include/buffers/GraphicsBuffer.h"
+#include "buffers/GraphicsBuffer.h"
 
-#include "include/Engine.h"
-#include "include/data/Vertex.h"
-#include "include/buffers/StaggingBuffer.h"
+#include "Engine.h"
+#include "data/Vertex.h"
+#include "buffers/StaggingBuffer.h"
 
 namespace narc_engine
 {

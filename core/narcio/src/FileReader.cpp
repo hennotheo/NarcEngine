@@ -1,9 +1,9 @@
-﻿#include "include/FileReader.h"
+﻿#include "FileReader.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#include "include/data/Image.h"
+#include "data/Image.h"
 
 namespace narc_io {
     std::vector<char> FileReader::readFile(const std::string& filename)

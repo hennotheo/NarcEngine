@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Core.h"
-
 #include <iostream>
 #include <algorithm>
 #include <stdexcept>
@@ -14,3 +12,5 @@
 #include <fstream>
 #include <optional>
 #include <array>
+
+#include "Core.h"

@@ -1,11 +1,11 @@
 #pragma once
 
-#if NarcIO_BUILD_DLL
+#if NARC_IO_BUILD_DLL
 
-#define NarcIO_API __declspec(dllexport)
+#define NARC_IO_API __declspec(dllexport)
 
 #else
 
-#define NarcIO_API __declspec(dllimport)
+#define NARC_IO_API __declspec(dllimport)
 
 #endif

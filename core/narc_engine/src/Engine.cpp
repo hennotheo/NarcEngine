@@ -1,12 +1,11 @@
-#include "include/Engine.h"
+#include "Engine.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "../../narcio/include/FileReader.h"
-#include "include/data/Vertex.h"
-#include "include/buffers/StaggingBuffer.h"
-#include "include/window/Window.h"
+#include "data/Vertex.h"
+#include "buffers/StaggingBuffer.h"
+#include "window/Window.h"
 
 namespace narc_engine {
     const uint32_t g_maxFramesInFlight = 2;
@@ -348,7 +347,7 @@ namespace narc_engine {
         m_textureImageView = m_swapChain.createImageView(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB);
     }
 
-    void Engine::createImage(const Image& imageData, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
+    void Engine::createImage(const narc_io::Image& imageData, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
                              VkDeviceMemory& imageMemory)
     {
         VkImageCreateInfo imageInfo{};

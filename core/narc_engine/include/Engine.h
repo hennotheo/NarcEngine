@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vulkan/vulkan.h>
+#include <NarcIO.h>
 
 #include "CommandPool.h"
 #include "DescriptorPool.h"
@@ -80,7 +81,8 @@ namespace narc_engine {
 
         void createImageTextureView();
 
-        void createImage(const Image& imageData, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
+        void createImage(const narc_io::Image& imageData, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags
+                         properties,
                          VkImage& image, VkDeviceMemory& imageMemory);
 
         void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);

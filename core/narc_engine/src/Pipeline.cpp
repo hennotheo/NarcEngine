@@ -1,16 +1,15 @@
-#include "include/Pipeline.h"
+#include "Pipeline.h"
 
-#include "include/Engine.h"
-#include "include/data/Vertex.h"
-#include "include/io/FileReader.h"
+#include "Engine.h"
+#include "data/Vertex.h"
 
 namespace narc_engine {
     void Pipeline::create(const SwapChain* swapChain, const VkDescriptorSetLayout* m_descriptorSetLayout)
     {
         m_deviceHandler = Engine::getInstance()->getDevice();
 
-        auto vertShaderCode = FileReader::readFile("shaders/shader_vert.spv");
-        auto fragShaderCode = FileReader::readFile("shaders/shader_frag.spv");
+        auto vertShaderCode = narc_io::FileReader::readFile("shaders/shader_vert.spv");
+        auto fragShaderCode = narc_io::FileReader::readFile("shaders/shader_frag.spv");
 
         VkShaderModule vertShaderModule = m_deviceHandler->createShaderModule(vertShaderCode);
         VkShaderModule fragShaderModule = m_deviceHandler->createShaderModule(fragShaderCode);

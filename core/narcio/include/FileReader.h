@@ -3,7 +3,7 @@
 namespace narc_io {
     struct Image;
 
-    NarcIO_API class FileReader
+    NARC_IO_API class FileReader
     {
     public:
         FileReader() = delete;

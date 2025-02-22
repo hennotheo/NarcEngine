@@ -1,6 +1,6 @@
-#include "include/CommandBuffer.h"
+#include "CommandBuffer.h"
 
-#include "include/Pipeline.h"
+#include "Pipeline.h"
 
 namespace narc_engine {
     void CommandBuffer::allocate(const DeviceHandler* deviceHandler, const VkCommandBufferAllocateInfo* allocInfo)

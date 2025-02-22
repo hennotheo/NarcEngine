@@ -1,4 +1,6 @@
 #pragma once
 
-#include "include/data/Image.h"
+#include "Core.h"
+
+#include "data/Image.h"
 #include "FileReader.h"
