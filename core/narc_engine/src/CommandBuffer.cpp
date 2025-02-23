@@ -1,7 +1,5 @@
 #include "CommandBuffer.h"
 
-#include "../include/renderer/Pipeline.h"
-
 namespace narc_engine {
     void CommandBuffer::allocate(const DeviceHandler* deviceHandler, const VkCommandBufferAllocateInfo* allocInfo)
     {
@@ -42,9 +40,9 @@ namespace narc_engine {
         vkCmdBeginRenderPass(m_commandBuffer, renderPassInfo, contents);
     }
 
-    void CommandBuffer::cmdBindPipeline(VkPipelineBindPoint pipelineBindPoint, const Pipeline* pipeline) const
+    void CommandBuffer::cmdBindPipeline(VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline) const
     {
-        vkCmdBindPipeline(m_commandBuffer, pipelineBindPoint, pipeline->m_pipeline);
+        vkCmdBindPipeline(m_commandBuffer, pipelineBindPoint, pipeline);
     }
 
     void CommandBuffer::cmdSetViewport(const VkViewport* viewport, uint32_t firstViewport, uint32_t viewportCount) const
@@ -67,10 +65,10 @@ namespace narc_engine {
         vkCmdBindIndexBuffer(m_commandBuffer, buffer, offset, indexType);
     }
 
-    void CommandBuffer::cmdBindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, const Pipeline* pipeline, uint32_t firstSet, uint32_t descriptorSetCount, const VkDescriptorSet* descriptorSets,
+    void CommandBuffer::cmdBindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet, uint32_t descriptorSetCount, const VkDescriptorSet* descriptorSets,
                                               uint32_t dynamicOffsetCount, const uint32_t* dynamicOffsets) const
     {
-        vkCmdBindDescriptorSets(m_commandBuffer, pipelineBindPoint, pipeline->m_pipelineLayout, firstSet, descriptorSetCount, descriptorSets, dynamicOffsetCount, dynamicOffsets);
+        vkCmdBindDescriptorSets(m_commandBuffer, pipelineBindPoint, layout, firstSet, descriptorSetCount, descriptorSets, dynamicOffsetCount, dynamicOffsets);
     }
 
     void CommandBuffer::cmdDrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance) const

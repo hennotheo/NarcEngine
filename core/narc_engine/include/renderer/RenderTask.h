@@ -1,6 +1,7 @@
 #pragma once
 #include "CommandBuffer.h"
 #include "DescriptorPool.h"
+#include "SwapChain.h"
 #include "buffers/GraphicsBuffer.h"
 #include "buffers/UniformBuffer.h"
 #include "data/Vertex.h"
@@ -19,7 +20,8 @@ namespace narc_engine
 
         void release();
     private:
-        Pipeline m_graphicsPipeline;
+        VkPipeline m_pipeline;
+        VkPipelineLayout m_pipelineLayout;
 
         GraphicsBuffer<Vertex> m_vertexBuffer;
         GraphicsBuffer<uint16_t> m_indexBuffer;
@@ -28,5 +30,7 @@ namespace narc_engine
         std::vector<VkDescriptorSet> m_descriptorSets;
 
         VkDevice m_device;
+
+        void createGraphicsPipeline(const SwapChain* swapChain, const VkDescriptorSetLayout* m_descriptorSetLayout);
     };
 } // narc_engine

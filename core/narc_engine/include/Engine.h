@@ -7,7 +7,6 @@
 #include "renderer/DescriptorPool.h"
 #include "core/Window.h"
 #include "core/EngineDebugLogger.h"
-#include "renderer/Pipeline.h"
 #include "core/DeviceHandler.h"
 #include "renderer/EngineRenderer.h"
 #include "buffers/UniformBuffer.h"
