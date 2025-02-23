@@ -1,6 +1,6 @@
 #pragma once
 
-#if NARC_IO_BUILD_DLL
+#ifdef NARC_IO_BUILD_DLL
 
 #define NARC_IO_API __declspec(dllexport)
 

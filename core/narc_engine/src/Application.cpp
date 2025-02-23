@@ -12,7 +12,18 @@ narc_engine::Application::~Application()
 
 void narc_engine::Application::run()
 {
-    Engine engine;
+    Engine* engine = new Engine();
 
-    engine.run();
+    while (!engine->shouldClose())
+    {
+        //PRE-UPDATE ENGINE LOGIC
+        engine->pollEvents();
+
+        //UPDATE ENGINE LOGIC
+
+        //RENDER ENGINE
+        engine->render();
+    }
+
+    delete engine;
 }

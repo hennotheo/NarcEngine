@@ -71,21 +71,9 @@ namespace narc_engine {
 
     static Engine* s_instance;
 
-    Engine* Engine::getInstance()
-    {
-        return s_instance;
-    }
-
-    void Engine::run()
+    Engine::Engine()
     {
         s_instance = this;
-        init();
-        mainLoop();
-        cleanUp();
-    }
-
-    void Engine::init()
-    {
         m_window.init();
         createVulkanInstance();
         m_debugLogger.init(m_vulkanInstance);
@@ -108,18 +96,7 @@ namespace narc_engine {
         createSyncObjects();
     }
 
-    void Engine::mainLoop()
-    {
-        while (!m_window.shouldClose())
-        {
-            m_window.update();
-            drawFrame();
-        }
-
-        m_deviceHandler.waitDeviceIdle();
-    }
-
-    void Engine::cleanUp()
+    Engine::~Engine()
     {
         const VkDevice& device = m_deviceHandler.getDevice();
 
@@ -160,6 +137,22 @@ namespace narc_engine {
         vkDestroyInstance(m_vulkanInstance, nullptr);
 
         m_window.clean();
+    }
+
+    Engine* Engine::getInstance()
+    {
+        return s_instance;
+    }
+
+    void Engine::mainLoop()
+    {
+        while (!m_window.shouldClose())
+        {
+            m_window.update();
+            drawFrame();
+        }
+
+        //m_deviceHandler.waitDeviceIdle();
     }
 
     void Engine::createVulkanInstance()

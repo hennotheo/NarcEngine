@@ -20,12 +20,17 @@ namespace narc_engine {
     class Engine
     {
     public:
+        Engine();
+        ~Engine();
+
         static Engine* getInstance();
 
         const DeviceHandler* getDevice() const { return &m_deviceHandler; }
         const Window* getWindow() const { return &m_window; }
 
-        void run();
+        void pollEvents() { m_window.update(); }
+        bool shouldClose() const { return m_window.shouldClose(); }
+        void render() { drawFrame(); }
 
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
@@ -63,11 +68,7 @@ namespace narc_engine {
         VkSampler m_textureSampler;
 
     private:
-        void init();
-
         void mainLoop();
-
-        void cleanUp();
 
         void createVulkanInstance();
 

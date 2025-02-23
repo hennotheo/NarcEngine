@@ -1,7 +1,7 @@
 call BuildFast.bat
 
 cd cmake
-cd Sandbox
+cd bin
 cd Debug
 
 start Sandbox.exe

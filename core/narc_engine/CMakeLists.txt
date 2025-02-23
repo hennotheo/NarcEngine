@@ -80,10 +80,6 @@ add_dependencies(${NARC_ENGINE} ${NARC_IO})
 
 target_link_libraries(${NARC_ENGINE} PRIVATE ${VULKAN_LIB_LIST})
 target_link_libraries(${NARC_ENGINE} PRIVATE ${GLFW_LIB_LIST})
-target_link_libraries(${NARC_ENGINE} PRIVATE ${NARC_IO})
+target_link_libraries(${NARC_ENGINE} PUBLIC ${NARC_IO})
 
 target_precompile_headers(${NARC_ENGINE} PRIVATE "include/pch.h")
-
-add_custom_command(TARGET ${NARC_ENGINE} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${NARC_ENGINE}> ${SANDBOX_BIN_DIR}/$<TARGET_FILE_NAME:${NARC_ENGINE}>
-)

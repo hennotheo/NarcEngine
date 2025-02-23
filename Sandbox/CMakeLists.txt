@@ -12,8 +12,8 @@ file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 
 link_directories(${CMAKE_BINARY_DIR}/NarcEngine/${CMAKE_BUILD_TYPE})
 
-add_executable(${SANDBOX} src/TestEngine.cpp)
+add_executable(Sandbox src/TestEngine.cpp)
 
 include_directories(${CMAKE_SOURCE_DIR}/core/narc_engine/include/)
 
-target_link_libraries(${SANDBOX} PRIVATE ${NARC_ENGINE_LIB_LIST})
+target_link_libraries(Sandbox PRIVATE ${NARC_ENGINE_LIB_LIST})
