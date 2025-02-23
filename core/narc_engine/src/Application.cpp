@@ -25,5 +25,7 @@ void narc_engine::Application::run()
         engine->render();
     }
 
+    engine->getDevice()->waitDeviceIdle();
+
     delete engine;
 }

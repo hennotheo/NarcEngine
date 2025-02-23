@@ -1,6 +1,6 @@
 ﻿#include "CommandPool.h"
 
-#include "devices/DeviceHandler.h"
+#include "core/DeviceHandler.h"
 
 namespace narc_engine
 {

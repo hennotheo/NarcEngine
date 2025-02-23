@@ -1,8 +1,8 @@
 #pragma once
 #include <vulkan/vulkan_core.h>
 
+#include "core/DeviceHandler.h"
 #include "SwapChain.h"
-#include "devices/DeviceHandler.h"
 
 namespace narc_engine {
     class Pipeline

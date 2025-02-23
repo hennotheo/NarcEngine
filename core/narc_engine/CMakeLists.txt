@@ -63,7 +63,7 @@ variable_watch(GLFW_LIB_LIST)
 file(GLOB_RECURSE CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 
-link_directories("vendors/glfw/lib-vc2022")
+link_directories("vendors/glfw/lib-mingw")
 link_directories(${VULKAN_PATH}/Lib)
 
 add_compile_definitions(NARC_ENGINE_BUILD_DLL)

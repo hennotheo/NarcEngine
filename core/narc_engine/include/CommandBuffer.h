@@ -1,5 +1,5 @@
 #pragma once
-#include "Pipeline.h"
+#include "renderer/Pipeline.h"
 #include "buffers/Buffer.h"
 
 namespace narc_engine

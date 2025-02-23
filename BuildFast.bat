@@ -3,6 +3,6 @@ if not exist cmake (
 )
 
 cd cmake
-cmake ..
 
+cmake -DCMAKE_BUILD_TYPE=Debug ..
 cmake --build . --config Debug

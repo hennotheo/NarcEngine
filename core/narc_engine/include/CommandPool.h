@@ -2,7 +2,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "CommandBuffer.h"
-#include "devices/DeviceHandler.h"
+#include "core/DeviceHandler.h"
 
 namespace narc_engine
 {

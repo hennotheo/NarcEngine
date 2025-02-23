@@ -3,7 +3,7 @@
 #include <vulkan/vulkan.h>
 
 #include "DescriptorPoolBuilder.h"
-#include "devices/DeviceHandler.h"
+#include "core/DeviceHandler.h"
 
 namespace narc_engine {
     class DescriptorPool
