@@ -27,7 +27,7 @@ namespace narc_engine
     {
         Engine* engine = new Engine();
         const Mesh* mesh = new Mesh(g_vertices, g_indices);
-        engine->getRenderer()->bindMesh(mesh);
+        Engine::binder()->bindMesh(mesh);
 
         while (!engine->shouldClose())
         {

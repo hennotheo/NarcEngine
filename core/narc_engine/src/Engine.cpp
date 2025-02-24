@@ -20,14 +20,13 @@ namespace narc_engine {
         m_deviceHandler.create(&m_window, m_vulkanInstance, m_debugLogger);
         m_commandPool.create(&m_deviceHandler);
         m_renderer.create();
+
+        m_engineBinder = std::make_unique<EngineBinder>(this);
     }
 
     Engine::~Engine()
     {
         m_renderer.release();
-        // m_swapChain.cleanSwapChain();
-
-
 
         m_commandPool.release();
         m_deviceHandler.release();
@@ -44,9 +43,9 @@ namespace narc_engine {
         return s_instance;
     }
 
-    EngineRenderer* Engine::getRenderer()
+    EngineBinder* Engine::binder()
     {
-        return &m_renderer;
+        return s_instance->m_engineBinder.get();
     }
 
     void Engine::createVulkanInstance()
