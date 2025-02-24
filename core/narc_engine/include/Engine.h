@@ -4,18 +4,12 @@
 #include <NarcIO.h>
 
 #include "CommandPool.h"
-#include "renderer/DescriptorPool.h"
 #include "core/Window.h"
 #include "core/EngineDebugLogger.h"
 #include "core/DeviceHandler.h"
 #include "renderer/EngineRenderer.h"
-#include "buffers/UniformBuffer.h"
-#include "buffers/GraphicsBuffer.h"
 
 namespace narc_engine {
-    struct Vertex;
-    struct Image;
-
     class Engine
     {
     public:
@@ -23,6 +17,7 @@ namespace narc_engine {
         ~Engine();
 
         static Engine* getInstance();
+        EngineRenderer* getRenderer();
 
         const DeviceHandler* getDevice() const { return &m_deviceHandler; }
         Window* getWindow() { return &m_window; }

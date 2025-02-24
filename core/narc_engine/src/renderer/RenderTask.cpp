@@ -4,41 +4,28 @@
 
 namespace narc_engine
 {
-    const std::vector<Vertex> g_vertices = {
-        {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-        {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-        {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
-    };
-
-    const std::vector<uint16_t> g_indices = {
-        0, 1, 2, 2, 3, 0
-    };
-
     void RenderTask::create(const SwapChain* swapChain, const VkDescriptorSetLayout* m_descriptorSetLayout)
     {
         m_device = Engine::getInstance()->getDevice()->getDevice();
 
         createGraphicsPipeline(swapChain, m_descriptorSetLayout);
-
-        m_vertexBuffer = std::make_unique<GraphicsBuffer<Vertex>>();
-        m_vertexBuffer->create(g_vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-        m_indexBuffer = std::make_unique<GraphicsBuffer<uint16_t>>();
-        m_indexBuffer->create(g_indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
     }
 
     void RenderTask::recordTask(const CommandBuffer* commandBuffer, uint32_t currentFrame)
     {
         commandBuffer->cmdBindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
 
-        VkBuffer vertexBuffers[] = {m_vertexBuffer->getBuffer()};
-        VkDeviceSize offsets[] = {0};
-        commandBuffer->cmdBindVertexBuffers(0, 1, vertexBuffers, offsets);
-        commandBuffer->cmdBindIndexBuffer(m_indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT16);
-        commandBuffer->cmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1,
-                                             &m_descriptorSets[currentFrame], 0, nullptr);
+        for (auto mesh : m_meshes)
+        {
+            VkBuffer vertexBuffers[] = {mesh->getVertexBuffer()->getBuffer()};
+            VkDeviceSize offsets[] = {0};
+            commandBuffer->cmdBindVertexBuffers(0, 1, vertexBuffers, offsets);
+            commandBuffer->cmdBindIndexBuffer(mesh->getIndexBuffer()->getBuffer(), 0, VK_INDEX_TYPE_UINT16);
+            commandBuffer->cmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1,
+                                                 &m_descriptorSets[currentFrame], 0, nullptr);
 
-        commandBuffer->cmdDrawIndexed(static_cast<uint32_t>(g_indices.size()), 1, 0, 0, 0);
+            commandBuffer->cmdDrawIndexed(mesh->getIndexCount(), 1, 0, 0, 0);
+        }
     }
 
     void RenderTask::createDescriptorSets(uint32_t maxFrameInFlight, VkDescriptorSetLayout descriptorSetLayout,
@@ -91,9 +78,6 @@ namespace narc_engine
 
     void RenderTask::release()
     {
-        m_indexBuffer->release();
-        m_vertexBuffer->release();
-
         vkDestroyPipeline(m_device, m_pipeline, nullptr);
         vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
     }

@@ -2,12 +2,11 @@
 
 #include "CommandBuffer.h"
 #include "DescriptorPool.h"
-#include "buffers/GraphicsBuffer.h"
 #include "buffers/UniformBuffer.h"
-#include "data/Image.h"
 #include "data/Vertex.h"
 #include "renderer/SwapChain.h"
 #include "renderer/RenderTask.h"
+#include "data/Mesh.h"
 
 namespace narc_engine
 {
@@ -18,6 +17,9 @@ namespace narc_engine
 
         void drawFrame();
         void updateUniformBuffer(uint32_t currentImage);
+
+        void bindMesh(const Mesh* mesh) { m_renderTask.bindMesh(mesh); }
+        void unbindMesh(const Mesh* mesh) { m_renderTask.unbindMesh(mesh); }
 
         void release();
 

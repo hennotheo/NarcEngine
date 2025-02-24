@@ -44,6 +44,11 @@ namespace narc_engine {
         return s_instance;
     }
 
+    EngineRenderer* Engine::getRenderer()
+    {
+        return &m_renderer;
+    }
+
     void Engine::createVulkanInstance()
     {
 #ifdef ENABLE_VALIDATION_LAYERS

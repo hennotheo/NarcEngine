@@ -2,8 +2,8 @@
 #include "CommandBuffer.h"
 #include "DescriptorPool.h"
 #include "SwapChain.h"
-#include "buffers/GraphicsBuffer.h"
 #include "buffers/UniformBuffer.h"
+#include "data/Mesh.h"
 #include "data/Vertex.h"
 
 namespace narc_engine
@@ -17,6 +17,8 @@ namespace narc_engine
         void createDescriptorSets(uint32_t maxFrameInFlight, VkDescriptorSetLayout descriptorSetLayout,
                                   const UniformBuffer* uniformBuffers, VkImageView
                                   textureImageView, VkSampler textureSampler, const DescriptorPool* descriptorPool);
+        void bindMesh(const Mesh* mesh) { m_meshes.push_back(mesh); }
+        void unbindMesh(const Mesh* mesh) { m_meshes.erase(std::remove(m_meshes.begin(), m_meshes.end(), mesh), m_meshes.end()); }
 
         void release();
 
@@ -24,9 +26,7 @@ namespace narc_engine
         VkPipeline m_pipeline;
         VkPipelineLayout m_pipelineLayout;
 
-        std::unique_ptr<GraphicsBuffer<Vertex>> m_vertexBuffer;
-        std::unique_ptr<GraphicsBuffer<uint16_t>> m_indexBuffer;
-
+        std::vector<const Mesh*> m_meshes;
         std::vector<VkDescriptorSet> m_descriptorSets;
 
         VkDevice m_device;
