@@ -8,6 +8,9 @@ namespace narc_engine
     class Buffer
     {
     public:
+        Buffer();
+        virtual ~Buffer() = default;
+
         VkBuffer getBuffer() const { return m_buffer; }
 
         virtual void release();
@@ -18,7 +21,6 @@ namespace narc_engine
 
         const DeviceHandler* m_linkedDevice;
 
-        void init();
         void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
     };
 }

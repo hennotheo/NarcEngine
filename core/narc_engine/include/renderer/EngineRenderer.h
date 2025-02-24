@@ -25,6 +25,7 @@ namespace narc_engine
         SwapChain m_swapChain;
         RenderTask m_renderTask;
 
+        DescriptorPool m_descriptorPool;
         VkDescriptorSetLayout m_descriptorSetLayout;
         std::vector<UniformBuffer> m_uniformBuffers;
         uint32_t m_currentFrame = 0;
@@ -40,7 +41,7 @@ namespace narc_engine
 
         VkDevice m_device;
 
-        void createDescriptorPool();
+        void createDescriptorPool(uint32_t maxFrameInFlight);
         void createDescriptorSetLayout();
         void recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex);
         void createSyncObjects();

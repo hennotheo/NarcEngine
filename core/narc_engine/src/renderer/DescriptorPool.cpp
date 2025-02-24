@@ -13,7 +13,7 @@ namespace narc_engine {
         }
     }
 
-    void DescriptorPool::allocateDescriptorSets(VkDescriptorSetAllocateInfo* allocInfo, VkDescriptorSet* descriptorSets)
+    void DescriptorPool::allocateDescriptorSets(VkDescriptorSetAllocateInfo* allocInfo, VkDescriptorSet* descriptorSets) const
     {
         allocInfo->descriptorPool = m_descriptorPool;
 

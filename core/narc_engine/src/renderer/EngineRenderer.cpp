@@ -4,7 +4,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "Engine.h"
-#include "buffers/StaggingBuffer.h"
+#include "buffers/StagingBuffer.h"
 
 namespace narc_engine
 {
@@ -25,8 +25,8 @@ namespace narc_engine
         createImageTextureView();
         createTextureSampler();
         createUniformBuffers();
-        m_renderTask.createDescriptorPool(g_maxFramesInFlight);
-        m_renderTask.createDescriptorSets(g_maxFramesInFlight, m_descriptorSetLayout, m_uniformBuffers.data(), m_textureImageView, m_textureSampler);
+        createDescriptorPool(g_maxFramesInFlight);
+        m_renderTask.createDescriptorSets(g_maxFramesInFlight, m_descriptorSetLayout, m_uniformBuffers.data(), m_textureImageView, m_textureSampler, &m_descriptorPool);
 
         createSyncObjects();
     }
@@ -46,9 +46,11 @@ namespace narc_engine
             buffer.release();
         }
 
+        m_descriptorPool.release();
+        vkDestroyDescriptorSetLayout(m_device, m_descriptorSetLayout, nullptr);
+
         m_renderTask.release();
 
-        vkDestroyDescriptorSetLayout(m_device, m_descriptorSetLayout, nullptr);
         m_swapChain.cleanRenderPass();
 
         for (size_t i = 0; i < g_maxFramesInFlight; i++)
@@ -174,6 +176,17 @@ namespace narc_engine
         }
     }
 
+    void EngineRenderer::createDescriptorPool(uint32_t maxFrameInFlight)
+    {
+        uint32_t descriptionCount = maxFrameInFlight;
+        DescriptorPoolBuilder builder;
+        builder.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, descriptionCount);
+        builder.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descriptionCount);
+        builder.setMaxSet(descriptionCount);
+
+        m_descriptorPool.create(&builder);
+    }
+
     void EngineRenderer::recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex)
     {
         VkCommandBufferBeginInfo beginInfo{};
@@ -256,7 +269,7 @@ namespace narc_engine
         narc_io::Image image = narc_io::FileReader::readImage("textures/logo.png");
         VkDeviceSize imageSize = image.getWidth() * image.getHeight() * 4;
 
-        StaggingBuffer staggingBuffer;
+        StagingBuffer staggingBuffer;
         staggingBuffer.create(imageSize);
         staggingBuffer.input(image.getData());
 

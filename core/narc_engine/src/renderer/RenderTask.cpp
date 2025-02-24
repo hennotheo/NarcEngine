@@ -21,18 +21,20 @@ namespace narc_engine
 
         createGraphicsPipeline(swapChain, m_descriptorSetLayout);
 
-        m_vertexBuffer.create(g_vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-        m_indexBuffer.create(g_indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+        m_vertexBuffer = std::make_unique<GraphicsBuffer<Vertex>>();
+        m_vertexBuffer->create(g_vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+        m_indexBuffer = std::make_unique<GraphicsBuffer<uint16_t>>();
+        m_indexBuffer->create(g_indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
     }
 
     void RenderTask::recordTask(const CommandBuffer* commandBuffer, uint32_t currentFrame)
     {
         commandBuffer->cmdBindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
 
-        VkBuffer vertexBuffers[] = {m_vertexBuffer.getBuffer()};
+        VkBuffer vertexBuffers[] = {m_vertexBuffer->getBuffer()};
         VkDeviceSize offsets[] = {0};
         commandBuffer->cmdBindVertexBuffers(0, 1, vertexBuffers, offsets);
-        commandBuffer->cmdBindIndexBuffer(m_indexBuffer.getBuffer(), 0, VK_INDEX_TYPE_UINT16);
+        commandBuffer->cmdBindIndexBuffer(m_indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT16);
         commandBuffer->cmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1,
                                              &m_descriptorSets[currentFrame], 0, nullptr);
 
@@ -41,7 +43,7 @@ namespace narc_engine
 
     void RenderTask::createDescriptorSets(uint32_t maxFrameInFlight, VkDescriptorSetLayout descriptorSetLayout,
                                           const UniformBuffer* uniformBuffers, VkImageView textureImageView,
-                                          VkSampler textureSampler)
+                                          VkSampler textureSampler, const DescriptorPool* descriptorPool)
     {
         std::vector<VkDescriptorSetLayout> layouts(maxFrameInFlight, descriptorSetLayout);
         VkDescriptorSetAllocateInfo allocInfo{};
@@ -50,7 +52,7 @@ namespace narc_engine
         allocInfo.pSetLayouts = layouts.data();
 
         m_descriptorSets.resize(maxFrameInFlight);
-        m_descriptorPool.allocateDescriptorSets(&allocInfo, m_descriptorSets.data());
+        descriptorPool->allocateDescriptorSets(&allocInfo, m_descriptorSets.data());
 
         for (size_t i = 0; i < maxFrameInFlight; i++)
         {
@@ -87,23 +89,10 @@ namespace narc_engine
         }
     }
 
-    void RenderTask::createDescriptorPool(uint32_t maxFrameInFlight)
-    {
-        uint32_t descriptionCount = maxFrameInFlight;
-        DescriptorPoolBuilder builder;
-        builder.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, descriptionCount);
-        builder.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descriptionCount);
-        builder.setMaxSet(descriptionCount);
-
-        m_descriptorPool.create(&builder);
-    }
-
     void RenderTask::release()
     {
-        m_descriptorPool.release();
-
-        m_indexBuffer.release();
-        m_vertexBuffer.release();
+        m_indexBuffer->release();
+        m_vertexBuffer->release();
 
         vkDestroyPipeline(m_device, m_pipeline, nullptr);
         vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);

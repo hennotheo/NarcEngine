@@ -4,9 +4,11 @@
 
 namespace narc_engine
 {
-    class StaggingBuffer : public Buffer
+    class StagingBuffer final : public Buffer
     {
-    public:        
+    public:
+        StagingBuffer() : Buffer(){}
+
         void create(VkDeviceSize bufferSize);
         void input(const void* input);
 

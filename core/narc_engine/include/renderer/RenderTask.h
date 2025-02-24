@@ -14,19 +14,19 @@ namespace narc_engine
         void create(const SwapChain* swapChain, const VkDescriptorSetLayout* m_descriptorSetLayout);
 
         void recordTask(const CommandBuffer* commandBuffer, uint32_t currentFrame);
-        void createDescriptorSets(uint32_t maxFrameInFlight, VkDescriptorSetLayout descriptorSetLayout, const UniformBuffer* uniformBuffers, VkImageView
-                                  textureImageView, VkSampler textureSampler);
-        void createDescriptorPool(uint32_t maxFrameInFlight);
+        void createDescriptorSets(uint32_t maxFrameInFlight, VkDescriptorSetLayout descriptorSetLayout,
+                                  const UniformBuffer* uniformBuffers, VkImageView
+                                  textureImageView, VkSampler textureSampler, const DescriptorPool* descriptorPool);
 
         void release();
+
     private:
         VkPipeline m_pipeline;
         VkPipelineLayout m_pipelineLayout;
 
-        GraphicsBuffer<Vertex> m_vertexBuffer;
-        GraphicsBuffer<uint16_t> m_indexBuffer;
+        std::unique_ptr<GraphicsBuffer<Vertex>> m_vertexBuffer;
+        std::unique_ptr<GraphicsBuffer<uint16_t>> m_indexBuffer;
 
-        DescriptorPool m_descriptorPool;
         std::vector<VkDescriptorSet> m_descriptorSets;
 
         VkDevice m_device;

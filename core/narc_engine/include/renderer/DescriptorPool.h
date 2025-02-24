@@ -11,7 +11,7 @@ namespace narc_engine {
     public:
         void create(DescriptorPoolBuilder* builder);
 
-        void allocateDescriptorSets(VkDescriptorSetAllocateInfo* allocInfo, VkDescriptorSet* descriptorSets);
+        void allocateDescriptorSets(VkDescriptorSetAllocateInfo* allocInfo, VkDescriptorSet* descriptorSets) const;
 
         void release();
 

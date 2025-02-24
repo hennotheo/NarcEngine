@@ -4,7 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "data/Vertex.h"
-#include "buffers/StaggingBuffer.h"
+#include "buffers/StagingBuffer.h"
 #include "core/Window.h"
 
 namespace narc_engine {

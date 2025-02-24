@@ -4,18 +4,23 @@
 
 namespace narc_engine
 {
+    Buffer::Buffer()
+    {
+        m_linkedDevice = Engine::getInstance()->getDevice();
+        if (!m_linkedDevice)
+        {
+            throw std::runtime_error("Failed to get linked device from Engine instance.");
+        }
+    }
+
     void Buffer::release()
     {
         vkDestroyBuffer(m_linkedDevice->getDevice(), m_buffer, nullptr);
         vkFreeMemory(m_linkedDevice->getDevice(), m_bufferMemory, nullptr);
     }
 
-    void Buffer::init()
-    {
-        m_linkedDevice = Engine::getInstance()->getDevice();
-    }
-
-    void Buffer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+    void Buffer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
+                              VkBuffer& buffer, VkDeviceMemory& bufferMemory)
     {
         VkBufferCreateInfo bufferInfo{};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
