@@ -5,7 +5,7 @@ namespace narc_engine
     class Engine;
     class Mesh;
 
-    class EngineBinder
+    class NARC_ENGINE_API EngineBinder
     {
     public:
         EngineBinder(Engine* engine) : m_engine(engine)

@@ -1,9 +1,9 @@
 #pragma once
 
 #define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <glfw/include/glfw3.h>
 
-#include "../renderer/SwapChainSupportDetails.h"
+#include "renderer/SwapChainSupportDetails.h"
 
 namespace narc_engine
 {

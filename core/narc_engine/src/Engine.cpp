@@ -7,17 +7,20 @@
 #include "buffers/StagingBuffer.h"
 #include "core/Window.h"
 
-namespace narc_engine {
+namespace narc_engine
+{
     static Engine* s_instance;
 
     Engine::Engine()
     {
+        m_window = std::make_unique<Window>();
+
         s_instance = this;
-        m_window.init();
+        m_window->init();
         createVulkanInstance();
         m_debugLogger.init(m_vulkanInstance);
-        m_window.initSurface(m_vulkanInstance);
-        m_deviceHandler.create(&m_window, m_vulkanInstance, m_debugLogger);
+        m_window->initSurface(m_vulkanInstance);
+        m_deviceHandler.create(m_window.get(), m_vulkanInstance, m_debugLogger);
         m_commandPool.create(&m_deviceHandler);
         m_renderer.create();
 
@@ -32,10 +35,10 @@ namespace narc_engine {
         m_deviceHandler.release();
         m_debugLogger.clean(m_vulkanInstance);
 
-        m_window.cleanSurface(m_vulkanInstance);
+        m_window->cleanSurface(m_vulkanInstance);
         vkDestroyInstance(m_vulkanInstance, nullptr);
 
-        m_window.clean();
+        m_window->clean();
     }
 
     Engine* Engine::getInstance()
@@ -48,14 +51,29 @@ namespace narc_engine {
         return s_instance->m_engineBinder.get();
     }
 
+    void Engine::pollEvents()
+    {
+        m_window->update();
+    }
+
+    bool Engine::shouldClose() const
+    {
+        return m_window->shouldClose();
+    }
+
+    void Engine::render()
+    {
+        m_renderer.drawFrame();
+    }
+
+    void Engine::waitDeviceIdle() const
+    {
+        m_deviceHandler.waitDeviceIdle();
+    }
+
     void Engine::createVulkanInstance()
     {
-#ifdef ENABLE_VALIDATION_LAYERS
-        if (!m_debugLogger.checkValidationLayerSupport())
-        {
-            throw std::runtime_error("Validation layers requested, but not available!");
-        }
-#endif
+        m_debugLogger.checkValidationLayerSupport();
 
         VkApplicationInfo appInfo{};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -69,7 +87,7 @@ namespace narc_engine {
         createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         createInfo.pApplicationInfo = &appInfo;
 
-        auto extensions = m_debugLogger.getRequiredExtensions(m_window);
+        auto extensions = m_debugLogger.getRequiredExtensions(m_window.get());
         createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
         createInfo.ppEnabledExtensionNames = extensions.data();
 
@@ -110,14 +128,17 @@ namespace narc_engine {
 
             sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
             destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-        } else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+        }
+        else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout ==
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
         {
             barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
             barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
             sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
             destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-        } else
+        }
+        else
         {
             throw std::invalid_argument("unsupported layout transition!");
         }
@@ -166,7 +187,8 @@ namespace narc_engine {
         m_commandPool.endSingleTimeCommands(commandBuffer);
     }
 
-    void Engine::createImage(const narc_io::Image& imageData, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
+    void Engine::createImage(const narc_io::Image& imageData, VkFormat format, VkImageTiling tiling,
+                             VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
                              VkDeviceMemory& imageMemory) const
     {
         VkImageCreateInfo imageInfo{};

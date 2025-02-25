@@ -1,10 +1,8 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
 #include <NarcIO.h>
 
 #include "CommandPool.h"
-#include "core/Window.h"
 #include "core/EngineDebugLogger.h"
 #include "core/DeviceHandler.h"
 #include "core/EngineBinder.h"
@@ -12,7 +10,7 @@
 
 namespace narc_engine
 {
-    class Engine
+    class NARC_ENGINE_API Engine
     {
         friend class EngineBinder;
     public:
@@ -23,12 +21,13 @@ namespace narc_engine
         static EngineBinder* binder();
 
         const DeviceHandler* getDevice() const { return &m_deviceHandler; }
-        Window* getWindow() { return &m_window; }
+        Window* getWindow() { return m_window.get(); }
         CommandPool* getCommandPool() { return &m_commandPool; }
 
-        void pollEvents() { m_window.update(); }
-        bool shouldClose() const { return m_window.shouldClose(); }
-        void render() { m_renderer.drawFrame(); }
+        void pollEvents();
+        bool shouldClose() const;
+        void render();
+        void waitDeviceIdle() const;
 
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
@@ -39,7 +38,7 @@ namespace narc_engine
                          VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) const;
 
     private:
-        Window m_window;
+        std::unique_ptr<Window> m_window;
         EngineDebugLogger m_debugLogger;
         VkInstance m_vulkanInstance;
         DeviceHandler m_deviceHandler;

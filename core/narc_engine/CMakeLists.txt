@@ -53,11 +53,16 @@ set(VULKAN_GLSLC_PATH "${VULKAN_PATH}/Bin/glslc.exe" CACHE INTERNAL "Vulkan GLSL
 #----- MAIN -----
 #----------------
 
-set(NARC_ENGINE "NarcEngine")
+set(NARC_ENGINE "NarcEngine" CACHE STRING "" FORCE)
+set(NARC_ENGINE_INCLUDE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        "${VULKAN_PATH}/Include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vendors"
+        "${NARC_IO_INCLUDE}"
+        CACHE STRING "" FORCE)
+
 set(VULKAN_LIB_LIST "vulkan-1")
 set(GLFW_LIB_LIST "glfw3")
-
-variable_watch(GLFW_LIB_LIST)
 
 # Gather list of header and source files for compilation
 file(GLOB_RECURSE CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
@@ -70,11 +75,7 @@ add_compile_definitions(NARC_ENGINE_BUILD_DLL)
 
 add_library(${NARC_ENGINE} SHARED include/NarcEngine.h ${CPP_FILES} ${HPP_FILES}) # ${CPP_FILES} ${HPP_FILES})
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-include_directories(AFTER ${VULKAN_PATH}/Include)
-include_directories("vendors/glm")
-include_directories("vendors/glfw/include")
-include_directories(${NARC_IO_INCLUDE})
+include_directories(${NARC_ENGINE_INCLUDE})
 
 add_dependencies(${NARC_ENGINE} ${NARC_IO})
 

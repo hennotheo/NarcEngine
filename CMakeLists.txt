@@ -19,5 +19,5 @@ add_compile_definitions(NARC_ENGINE_PLATFORM_WINDOWS)
 
 add_subdirectory(core/narcio)
 add_subdirectory(core/narc_engine)
-add_subdirectory(sandbox)
+add_subdirectory(application)
 add_subdirectory(core/shaders)

@@ -1,10 +1,12 @@
+//
+// Created by theoh on 24/02/2025.
+//
+
 #include "Application.h"
 
-#include "Engine.h"
-
-namespace narc_engine
+namespace narc
 {
-    const std::vector<Vertex> g_vertices = {
+    const std::vector<narc_engine::Vertex> g_vertices = {
         {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
         {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
         {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
@@ -17,32 +19,32 @@ namespace narc_engine
 
     Application::Application()
     {
+        m_engine = new narc_engine::Engine();
     }
 
     Application::~Application()
     {
+        delete m_engine;
     }
 
     void Application::run()
     {
-        Engine* engine = new Engine();
-        const Mesh* mesh = new Mesh(g_vertices, g_indices);
-        Engine::binder()->bindMesh(mesh);
+        const narc_engine::Mesh* mesh = new narc_engine::Mesh(g_vertices, g_indices);
+        narc_engine::Engine::binder()->bindMesh(mesh);
 
-        while (!engine->shouldClose())
+        while (!m_engine->shouldClose())
         {
             //PRE-UPDATE ENGINE LOGIC
-            engine->pollEvents();
+            m_engine->pollEvents();
 
             //UPDATE ENGINE LOGIC
 
             //RENDER ENGINE
-            engine->render();
+            m_engine->render();
         }
 
-        engine->getDevice()->waitDeviceIdle();
+        m_engine->waitDeviceIdle();
 
         delete mesh;
-        delete engine;
     }
 }
