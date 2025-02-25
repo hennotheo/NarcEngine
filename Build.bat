@@ -1,3 +1,0 @@
-call BuildFast.bat
-
-pause
