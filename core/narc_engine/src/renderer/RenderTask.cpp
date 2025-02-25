@@ -1,6 +1,7 @@
 #include "renderer/RenderTask.h"
 
 #include "Engine.h"
+#include "buffers/GraphicsBuffer.h"
 
 namespace narc_engine
 {
