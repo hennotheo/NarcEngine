@@ -7,6 +7,10 @@ namespace narc_engine
     class GraphicsBuffer : public Buffer
     {
     public:
+        GraphicsBuffer(): Buffer()
+        {
+        }
+
         void create(const std::vector<T>& input, VkBufferUsageFlagBits usage);
     };
 }

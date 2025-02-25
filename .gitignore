@@ -1,6 +1,9 @@
 x64/
 .vs/
 cmake/
+cmake-build-debug-visual-studio/
+cmake-build-visual-studio/
+.idea/
 
 # Prerequisites
 *.d

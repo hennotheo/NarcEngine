@@ -1,3 +1,4 @@
+set(COMPILE_SHADER_COMMAND "CompileShaders" CACHE STRING "" FORCE)
 set(SHADER_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
 file(GLOB VERTEX_SHADER_FILES "*.vert")
@@ -26,7 +27,7 @@ endforeach()
 file(WRITE ${SHADER_PATH}/compile_shaders.bat ${SHADER_COMMANDS})
 
 add_custom_target(
-    CompileShaders ALL
+    ${COMPILE_SHADER_COMMAND} ALL
     COMMENT "Compiling Shaders..."
     COMMAND ${SHADER_PATH}/compile_shaders.bat
     SOURCES ${VERTEX_SHADER_FILES} ${FRAGMENT_SHADER_FILES}
@@ -34,7 +35,7 @@ add_custom_target(
 
 foreach(SHADER_COMPILED_FILE ${SHADER_COMPILED_FILES})
     add_custom_command(
-        TARGET CompileShaders POST_BUILD
+        TARGET ${COMPILE_SHADER_COMMAND} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
                 ${SHADER_PATH}/${SHADER_COMPILED_FILE}
                 ${SANDBOX_BIN_DIR}/shaders/${SHADER_COMPILED_FILE}

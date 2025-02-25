@@ -1,0 +1,29 @@
+#pragma once
+
+namespace narc_engine
+{
+    struct Vertex;
+
+    template <typename T>
+    class GraphicsBuffer;
+
+    typedef GraphicsBuffer<Vertex> VertexBuffer;
+    typedef GraphicsBuffer<uint16_t> IndexBuffer;
+
+    class NARC_ENGINE_API Mesh
+    {
+    public:
+        Mesh(const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices);
+        ~Mesh();
+
+        const VertexBuffer* getVertexBuffer() const { return m_vertexBuffer.get(); }
+        const IndexBuffer* getIndexBuffer() const { return m_indexBuffer.get(); }
+        uint32_t getIndexCount() const { return m_indexCount; }
+
+    private:
+        std::unique_ptr<VertexBuffer> m_vertexBuffer;
+        std::unique_ptr<IndexBuffer> m_indexBuffer;
+
+        uint32_t m_indexCount;
+    };
+}

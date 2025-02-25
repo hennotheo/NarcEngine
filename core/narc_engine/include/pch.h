@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Core.h"
-
 #include <iostream>
 #include <algorithm>
 #include <stdexcept>
@@ -9,8 +7,11 @@
 #include <map>
 #include <set>
 #include <string>
+#include <string.h>
 #include <vector>
 #include <cstdint>
 #include <fstream>
 #include <optional>
 #include <array>
+
+#include "Core.h"

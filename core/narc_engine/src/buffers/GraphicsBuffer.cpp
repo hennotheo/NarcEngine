@@ -1,8 +1,8 @@
-#include "include/buffers/GraphicsBuffer.h"
+#include "buffers/GraphicsBuffer.h"
 
-#include "include/Engine.h"
-#include "include/Vertex.h"
-#include "include/buffers/StaggingBuffer.h"
+#include "Engine.h"
+#include "data/Vertex.h"
+#include "buffers/StagingBuffer.h"
 
 namespace narc_engine
 {
@@ -12,11 +12,9 @@ namespace narc_engine
     template <typename T>
     void GraphicsBuffer<T>::create(const std::vector<T>& input, VkBufferUsageFlagBits usage)//vertex : VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, index : VK_BUFFER_USAGE_INDEX_BUFFER_BIT 
     {
-        this->init();
-        
         VkDeviceSize bufferSize = sizeof(input[0]) * input.size();
 
-        StaggingBuffer stagingBuffer;
+        StagingBuffer stagingBuffer;
         stagingBuffer.create(bufferSize);
         stagingBuffer.input(input.data());
 
