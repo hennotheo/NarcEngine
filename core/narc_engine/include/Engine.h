@@ -6,28 +6,29 @@
 #include "core/EngineDebugLogger.h"
 #include "core/DeviceHandler.h"
 #include "core/EngineBinder.h"
+#include "interfaces/IEngine.h"
 #include "renderer/EngineRenderer.h"
 
 namespace narc_engine
 {
-    class NARC_ENGINE_API Engine
+    class Engine final : public IEngine
     {
-        friend class EngineBinder;
+        friend EngineBinder;
     public:
         Engine();
-        ~Engine();
+        ~Engine() override;
 
         static Engine* getInstance();
-        static EngineBinder* binder();
+
+        void pollEvents() override;
+        bool shouldClose() const override;
+        void render() override;
+        void waitDeviceIdle() const override;
+        EngineBinder* binder() const override;
 
         const DeviceHandler* getDevice() const { return &m_deviceHandler; }
         Window* getWindow() { return m_window.get(); }
         CommandPool* getCommandPool() { return &m_commandPool; }
-
-        void pollEvents();
-        bool shouldClose() const;
-        void render();
-        void waitDeviceIdle() const;
 
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 

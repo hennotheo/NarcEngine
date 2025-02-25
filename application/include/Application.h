@@ -13,6 +13,6 @@ namespace narc
         void run();
 
     private:
-        narc_engine::Engine* m_engine;
+        narc_engine::IEngine* m_engine;
     };
 }

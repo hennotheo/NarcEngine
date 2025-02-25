@@ -19,7 +19,7 @@ namespace narc
 
     Application::Application()
     {
-        m_engine = new narc_engine::Engine();
+        m_engine = narc_engine::createEngine();
     }
 
     Application::~Application()
@@ -30,7 +30,7 @@ namespace narc
     void Application::run()
     {
         const narc_engine::Mesh* mesh = new narc_engine::Mesh(g_vertices, g_indices);
-        narc_engine::Engine::binder()->bindMesh(mesh);
+        narc_engine::getEngine()->binder()->bindMesh(mesh);
 
         while (!m_engine->shouldClose())
         {

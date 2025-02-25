@@ -2,13 +2,13 @@
 
 namespace narc_engine
 {
-    class Engine;
+    class IEngine;
     class Mesh;
 
     class NARC_ENGINE_API EngineBinder
     {
     public:
-        EngineBinder(Engine* engine) : m_engine(engine)
+        EngineBinder(IEngine* engine) : m_engine(engine)
         {
         }
 
@@ -16,6 +16,6 @@ namespace narc_engine
         void unbindMesh(const Mesh* mesh);
 
     private:
-        Engine* m_engine;
+        IEngine* m_engine;
     };
 } // narc_engine

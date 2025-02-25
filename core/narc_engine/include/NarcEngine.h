@@ -1,8 +1,11 @@
 #pragma once
 
 #include "pch.h"
+#include "Core.h"
 
 #include "data/Mesh.h"
 #include "data/Vertex.h"
 
-#include "Engine.h"
+#include "core/EngineBinder.h"
+
+#include "interfaces/IEngine.h"

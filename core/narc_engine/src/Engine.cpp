@@ -11,6 +11,22 @@ namespace narc_engine
 {
     static Engine* s_instance;
 
+    IEngine* getEngine()
+    {
+#ifdef NARC_ENGINE_PLATFORM_WINDOWS
+        return Engine::getInstance();
+#endif
+        return nullptr;
+    }
+
+    IEngine* createEngine()
+    {
+#ifdef NARC_ENGINE_PLATFORM_WINDOWS
+        return new Engine();
+#endif
+        throw std::runtime_error("Engine not implemented for this platform!");
+    }
+
     Engine::Engine()
     {
         m_window = std::make_unique<Window>();
@@ -46,9 +62,9 @@ namespace narc_engine
         return s_instance;
     }
 
-    EngineBinder* Engine::binder()
+    EngineBinder* Engine::binder() const
     {
-        return s_instance->m_engineBinder.get();
+        return m_engineBinder.get();
     }
 
     void Engine::pollEvents()
