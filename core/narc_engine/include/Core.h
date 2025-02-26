@@ -13,10 +13,10 @@
 #endif
 
 
-#ifdef NDEBUG
-
-#else
+#ifdef NARC_BUILD_DEBUG
 
 #define ENABLE_VALIDATION_LAYERS
+
+#else
 
 #endif
