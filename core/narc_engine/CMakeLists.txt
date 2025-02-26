@@ -49,9 +49,9 @@ endif ()
 
 set(VULKAN_GLSLC_PATH "${VULKAN_PATH}/Bin/glslc.exe" CACHE INTERNAL "Vulkan GLSL Compiler Path")
 
-#----------------
-#----- GLFW -----
-#----------------
+#------------------------
+#----- Dependencies -----
+#------------------------
 
 include(ExternalProject)
 ExternalProject_Add(
@@ -59,8 +59,17 @@ ExternalProject_Add(
         GIT_REPOSITORY
         GIT_REPOSITORY https://github.com/glfw/glfw.git
         GIT_TAG 3.4
-        PREFIX         ${CMAKE_CURRENT_SOURCE_DIR}/vendors/glfw
-        CMAKE_ARGS     -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+        PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/vendors/glfw
+        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+)
+
+ExternalProject_Add(
+        glm
+        GIT_REPOSITORY
+        GIT_REPOSITORY https://github.com/g-truc/glm.git
+        GIT_TAG 1.0.1
+        PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/vendors/glm
+        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
 )
 
 #----------------
@@ -71,7 +80,7 @@ set(NARC_ENGINE "NarcEngine" CACHE STRING "" FORCE)
 set(NARC_ENGINE_INCLUDE
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
         "${VULKAN_PATH}/Include"
-        "${CMAKE_CURRENT_SOURCE_DIR}/vendors"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vendors/glm/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/vendors/glfw/include"
         "${NARC_IO_INCLUDE}"
         CACHE STRING "" FORCE)
@@ -92,7 +101,7 @@ add_library(${NARC_ENGINE} SHARED include/NarcEngine.h ${CPP_FILES} ${HPP_FILES}
 
 include_directories(${NARC_ENGINE_INCLUDE})
 
-add_dependencies(${NARC_ENGINE} ${NARC_IO} glfw)
+add_dependencies(${NARC_ENGINE} ${NARC_IO} glfw glm)
 
 target_link_libraries(${NARC_ENGINE} PRIVATE ${VULKAN_LIB_LIST})
 target_link_libraries(${NARC_ENGINE} PRIVATE ${GLFW_LIB_LIST})

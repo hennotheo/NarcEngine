@@ -10,6 +10,7 @@ cmake-build-visual-studio/
 
 # Auto installed libraries
 **/vendors/glfw/
+**/vendors/glm/
 
 # Prerequisites
 *.d
