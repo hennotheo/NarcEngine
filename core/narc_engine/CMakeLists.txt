@@ -84,3 +84,22 @@ target_link_libraries(${NARC_ENGINE} PRIVATE ${GLFW_LIB_LIST})
 target_link_libraries(${NARC_ENGINE} PUBLIC ${NARC_IO})
 
 target_precompile_headers(${NARC_ENGINE} PRIVATE "include/pch.h")
+
+#install
+#file(GLOB VULKAN_DLLS
+#        "${VULKAN_PATH}/Bin/*.dll"
+#)
+
+#install(FILES
+#        "${VULKAN_PATH}/Bin/VkLayer_khronos_validation.dll"
+#        DESTINATION /)
+
+#file(GLOB VULKAN_LIBS
+#        "${VULKAN_PATH}/Lib/*.lib"
+#)
+#
+#install(FILES ${VULKAN_LIBS} DESTINATION bin)
+#
+#file(GLOB VULKAN_HEADERS
+#        "${VULKAN_PATH}/Include/vulkan/*.h"
+#)
