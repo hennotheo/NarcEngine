@@ -7,5 +7,6 @@
 #include <functional>
 #include <iostream>
 #include <stdexcept>
+#include <ctime>
 
 #include "Core.h"

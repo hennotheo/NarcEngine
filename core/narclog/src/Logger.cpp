@@ -23,7 +23,30 @@ namespace narclog
             return;
 #endif
 
-        std::cout << colorForLevel(level) << message << CONSOLE_TEXT_COLOR_DEFAULT << std::endl;
+        const std::string date = currentDateTime();
+        std::cout << CONSOLE_MESSAGE_WITH_DATE_FORMATER(colorForLevel(level), prefixForLevel(level), message, date)
+            << std::endl;
+    }
+
+    std::string Logger::currentDateTime()
+    {
+        std::time_t now = std::time(nullptr);
+        char buf[100];
+        std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+        return buf;
+    }
+
+    std::string Logger::prefixForLevel(LogLevel level)
+    {
+        switch (level)
+        {
+        case FATAL: return CONSOLE_MESSAGE_PREFIX_FATAL;
+        case ERROR: return CONSOLE_MESSAGE_PREFIX_ERROR;
+        case WARNING: return CONSOLE_MESSAGE_PREFIX_WARNING;
+        case INFO: return CONSOLE_MESSAGE_PREFIX_INFO;
+        case DEBUG: return CONSOLE_MESSAGE_PREFIX_DEBUG;
+        default: return "UNKNOWN";
+        }
     }
 
     std::string Logger::colorForLevel(LogLevel level)

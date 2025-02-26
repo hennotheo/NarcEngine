@@ -17,6 +17,8 @@ namespace narclog
         void log(LogLevel level, const char* message);
 
     private:
+        static std::string currentDateTime();
+        static std::string prefixForLevel(LogLevel level);
         static std::string colorForLevel(LogLevel level);
     };
 }
