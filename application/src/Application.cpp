@@ -4,6 +4,8 @@
 
 #include "Application.h"
 
+#include <../../narclog/include/NarcLog.h>
+
 namespace narc
 {
     const std::vector<narc_engine::Vertex> g_vertices = {
@@ -19,12 +21,14 @@ namespace narc
 
     Application::Application()
     {
+        narclog::createLogger();
         m_engine = narc_engine::createEngine();
     }
 
     Application::~Application()
     {
         delete m_engine;
+        narclog::destroyLogger();
     }
 
     void Application::run()
