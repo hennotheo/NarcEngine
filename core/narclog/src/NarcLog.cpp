@@ -5,6 +5,16 @@
 
 #include "Logger.h"
 
+#ifdef NARC_ENGINE_PLATFORM_WINDOWS
+
+#include "platform/windows/WindowsLogger.h"
+#define CREATE_LOGGER new WindowsLogger
+
+#else
+#error Unsupported platform.
+
+#endif
+
 namespace narclog
 {
     Logger* g_logger = nullptr;
@@ -16,7 +26,7 @@ namespace narclog
             throw std::runtime_error("Logger already created.");
         }
 
-        g_logger = new Logger();
+        g_logger = CREATE_LOGGER();
     }
 
     void destroyLogger()

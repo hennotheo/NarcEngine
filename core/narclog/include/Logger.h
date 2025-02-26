@@ -12,8 +12,11 @@ namespace narclog
     {
     public:
         Logger();
-        ~Logger();
+        virtual ~Logger();
 
         void log(LogLevel level, const char* message);
+
+    private:
+        static std::string colorForLevel(LogLevel level);
     };
 }
