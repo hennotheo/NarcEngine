@@ -9,7 +9,7 @@ cmake-build-visual-studio/
 .idea/
 
 # Auto installed libraries
-
+**/vendors/glfw/
 
 # Prerequisites
 *.d
