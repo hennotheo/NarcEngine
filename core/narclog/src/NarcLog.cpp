@@ -1,25 +1,13 @@
 //
 // Created by theoh on 26/02/2025.
 //
+#include "NarcLog.h"
 
-#include "NarcLogger.h"
+#include "Logger.h"
 
 namespace narclog
 {
-    NarcLogger* g_logger = nullptr;
-
-    NarcLogger::NarcLogger()
-    {
-    }
-
-    NarcLogger::~NarcLogger()
-    {
-    }
-
-    void NarcLogger::log(const char* message)
-    {
-        std::cout << message << std::endl;
-    }
+    Logger* g_logger = nullptr;
 
     void createLogger()
     {
@@ -28,7 +16,7 @@ namespace narclog
             throw std::runtime_error("Logger already created.");
         }
 
-        g_logger = new NarcLogger();
+        g_logger = new Logger();
     }
 
     void destroyLogger()
@@ -40,5 +28,10 @@ namespace narclog
 
         delete g_logger;
         g_logger = nullptr;
+    }
+
+    void log(LogLevel level, const char* message)
+    {
+        g_logger->log(level, message);
     }
 } // narclog

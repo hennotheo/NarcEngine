@@ -4,7 +4,7 @@
 
 #include "Application.h"
 
-#include <../../narclog/include/NarcLog.h>
+#include <NarcLog.h>
 
 namespace narc
 {
@@ -35,6 +35,10 @@ namespace narc
     {
         const narc_engine::Mesh* mesh = new narc_engine::Mesh(g_vertices, g_indices);
         narc_engine::getEngine()->binder()->bindMesh(mesh);
+
+        narclog::log(INFO, "Application is running.");
+        narclog::log(DEBUG, "Debug message.");
+        narclog::log(FATAL, "FATAL ERROR.");
 
         while (!m_engine->shouldClose())
         {
