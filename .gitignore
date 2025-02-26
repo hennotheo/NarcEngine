@@ -1,9 +1,15 @@
 x64/
 .vs/
+
+# CMake
+build/
 cmake/
 cmake-build-debug-visual-studio/
 cmake-build-visual-studio/
 .idea/
+
+# Auto installed libraries
+
 
 # Prerequisites
 *.d

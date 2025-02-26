@@ -38,6 +38,6 @@ foreach(SHADER_COMPILED_FILE ${SHADER_COMPILED_FILES})
         TARGET ${COMPILE_SHADER_COMMAND} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
                 ${SHADER_PATH}/${SHADER_COMPILED_FILE}
-                ${SANDBOX_BIN_DIR}/shaders/${SHADER_COMPILED_FILE}
+                ${ENGINE_BIN_DIR}/shaders/${SHADER_COMPILED_FILE}
     )
 endforeach()

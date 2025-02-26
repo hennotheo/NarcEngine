@@ -50,6 +50,20 @@ endif ()
 set(VULKAN_GLSLC_PATH "${VULKAN_PATH}/Bin/glslc.exe" CACHE INTERNAL "Vulkan GLSL Compiler Path")
 
 #----------------
+#----- GLFW -----
+#----------------
+
+include(ExternalProject)
+ExternalProject_Add(
+        glfw
+        GIT_REPOSITORY
+        GIT_REPOSITORY https://github.com/glfw/glfw.git
+        GIT_TAG 3.4
+        PREFIX         ${CMAKE_CURRENT_SOURCE_DIR}/vendors/glfw
+        CMAKE_ARGS     -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+)
+
+#----------------
 #----- MAIN -----
 #----------------
 
@@ -58,6 +72,7 @@ set(NARC_ENGINE_INCLUDE
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
         "${VULKAN_PATH}/Include"
         "${CMAKE_CURRENT_SOURCE_DIR}/vendors"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vendors/glfw/include"
         "${NARC_IO_INCLUDE}"
         CACHE STRING "" FORCE)
 
@@ -68,7 +83,7 @@ set(GLFW_LIB_LIST "glfw3")
 file(GLOB_RECURSE CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 
-link_directories("vendors/glfw/lib-mingw")
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/vendors/glfw/lib)
 link_directories(${VULKAN_PATH}/Lib)
 
 add_compile_definitions(NARC_ENGINE_BUILD_DLL)
@@ -77,29 +92,10 @@ add_library(${NARC_ENGINE} SHARED include/NarcEngine.h ${CPP_FILES} ${HPP_FILES}
 
 include_directories(${NARC_ENGINE_INCLUDE})
 
-add_dependencies(${NARC_ENGINE} ${NARC_IO})
+add_dependencies(${NARC_ENGINE} ${NARC_IO} glfw)
 
 target_link_libraries(${NARC_ENGINE} PRIVATE ${VULKAN_LIB_LIST})
 target_link_libraries(${NARC_ENGINE} PRIVATE ${GLFW_LIB_LIST})
 target_link_libraries(${NARC_ENGINE} PUBLIC ${NARC_IO})
 
 target_precompile_headers(${NARC_ENGINE} PRIVATE "include/pch.h")
-
-#install
-#file(GLOB VULKAN_DLLS
-#        "${VULKAN_PATH}/Bin/*.dll"
-#)
-
-#install(FILES
-#        "${VULKAN_PATH}/Bin/VkLayer_khronos_validation.dll"
-#        DESTINATION /)
-
-#file(GLOB VULKAN_LIBS
-#        "${VULKAN_PATH}/Lib/*.lib"
-#)
-#
-#install(FILES ${VULKAN_LIBS} DESTINATION bin)
-#
-#file(GLOB VULKAN_HEADERS
-#        "${VULKAN_PATH}/Include/vulkan/*.h"
-#)
