@@ -1,5 +1,7 @@
 #include "core/Window.h"
 
+#include <NarcLog.h>
+
 namespace narc_engine
 {
     const uint32_t g_width = 800;
@@ -21,7 +23,7 @@ namespace narc_engine
     {
         if (glfwCreateWindowSurface(instance, m_window, nullptr, &m_surface) != VK_SUCCESS)
         {
-            throw std::runtime_error("Failed to create window surface!");
+            NARCLOG_FATAL("Failed to create window surface!");
         }
     }
 

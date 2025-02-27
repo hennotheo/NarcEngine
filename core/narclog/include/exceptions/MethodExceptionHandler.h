@@ -6,7 +6,7 @@
 
 #include <NarcLog.h>
 
-#define NARC_EXECUTE_HANDLED(handlerName, method) NARCLOG_HANDLED_METHOD_NAME(handlerName).execute([] { method; })
+#define NARC_EXECUTE_HANDLED(handlerName, method, ...) NARCLOG_HANDLED_METHOD_NAME(handlerName).execute([__VA_ARGS__] { method; })
 
 namespace narclog
 {

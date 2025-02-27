@@ -1,5 +1,6 @@
 #include "core/EngineDebugLogger.h"
 
+#include <NarcLog.h>
 
 namespace narc_engine
 {
@@ -10,30 +11,30 @@ namespace narc_engine
 
     void EngineDebugLogger::init(VkInstance& instance)
     {
-#ifdef ENABLE_VALIDATION_LAYERS
+        #ifdef ENABLE_VALIDATION_LAYERS
         VkDebugUtilsMessengerCreateInfoEXT createInfo;
         populateDebugMessengerCreateInfo(createInfo);
 
         if (createDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &m_debugMessenger) != VK_SUCCESS)
         {
-            throw std::runtime_error("Failed to set up debug messenger!");
+            NARCLOG_FATAL("Failed to set up debug messenger!");
         }
-#endif
+        #endif
     }
 
     void EngineDebugLogger::linkToInstance(VkInstanceCreateInfo& createInfo,
                                            VkDebugUtilsMessengerCreateInfoEXT& debugCreateInfo)
     {
-#ifdef ENABLE_VALIDATION_LAYERS
+        #ifdef ENABLE_VALIDATION_LAYERS
         createInfo.enabledLayerCount = static_cast<uint32_t>(g_validationLayers.size());
         createInfo.ppEnabledLayerNames = g_validationLayers.data();
 
         populateDebugMessengerCreateInfo(debugCreateInfo);
         createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
-#else
+        #else
         createInfo.enabledLayerCount = 0;
         createInfo.pNext = nullptr;
-#endif
+        #endif
     }
 
     std::vector<const char*> EngineDebugLogger::getRequiredExtensions(const Window* window)
@@ -44,33 +45,33 @@ namespace narc_engine
 
         std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-#ifdef ENABLE_VALIDATION_LAYERS
+        #ifdef ENABLE_VALIDATION_LAYERS
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-#endif
+        #endif
 
         return extensions;
     }
 
     void EngineDebugLogger::linkToDevice(VkDeviceCreateInfo& createInfo) const
     {
-#ifdef ENABLE_VALIDATION_LAYERS
+        #ifdef ENABLE_VALIDATION_LAYERS
         createInfo.enabledLayerCount = static_cast<uint32_t>(g_validationLayers.size());
         createInfo.ppEnabledLayerNames = g_validationLayers.data();
-#else
+        #else
         createInfo.enabledLayerCount = 0;
-#endif
+        #endif
     }
 
     void EngineDebugLogger::clean(VkInstance& instance)
     {
-#ifdef ENABLE_VALIDATION_LAYERS
+        #ifdef ENABLE_VALIDATION_LAYERS
         destroyDebugUtilsMessengerEXT(instance, m_debugMessenger, nullptr);
-#endif
+        #endif
     }
 
     void EngineDebugLogger::checkValidationLayerSupport()
     {
-#ifdef ENABLE_VALIDATION_LAYERS
+        #ifdef ENABLE_VALIDATION_LAYERS
 
         uint32_t layerCount;
         vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -91,10 +92,10 @@ namespace narc_engine
             }
 
             if (!layerFound)
-                throw std::runtime_error("Validation layers requested, but not available!");
+                NARCLOG_WARNING("Validation layers requested, but not available!");
         }
 
-#endif
+        #endif
     }
 
     void EngineDebugLogger::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
@@ -114,11 +115,18 @@ namespace narc_engine
         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
         void* pUserData)
     {
-        std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
-
-        if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+        if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
         {
-            //Display
+            NARCLOG_PREPARE_HANDLER(NarcEngineCore);
+            NARC_EXECUTE_HANDLED(NarcEngineCore, NARCLOG_ERROR(pCallbackData->pMessage), pCallbackData);
+        }
+        else if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+        {
+            NARCLOG_WARNING(pCallbackData->pMessage);
+        }
+        else
+        {
+            NARCLOG_DEBUG(pCallbackData->pMessage);
         }
 
         return VK_FALSE;

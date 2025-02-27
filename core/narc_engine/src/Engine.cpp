@@ -1,5 +1,6 @@
 #include "Engine.h"
 
+#include <NarcLog.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -24,7 +25,7 @@ namespace narc_engine
 #ifdef NARC_ENGINE_PLATFORM_WINDOWS
         return new Engine();
 #endif
-        throw std::runtime_error("Engine not implemented for this platform!");
+        NARCLOG_FATAL("Engine not implemented for this platform!");
     }
 
     Engine::Engine()
@@ -112,7 +113,7 @@ namespace narc_engine
 
         if (vkCreateInstance(&createInfo, nullptr, &m_vulkanInstance) != VK_SUCCESS)
         {
-            throw std::runtime_error("Failed to create instance!");
+            NARCLOG_FATAL("Failed to create instance!");
         }
     }
 
@@ -156,7 +157,7 @@ namespace narc_engine
         }
         else
         {
-            throw std::invalid_argument("unsupported layout transition!");
+            NARCLOG_FATAL("Unsupported layout transition!");
         }
 
         commandBuffer.cmdPipelineBarrier(sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
@@ -225,7 +226,7 @@ namespace narc_engine
 
         if (vkCreateImage(m_deviceHandler.getDevice(), &imageInfo, nullptr, &image) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create image!");
+            NARCLOG_FATAL("failed to create image!");
         }
 
         VkMemoryRequirements memRequirements;
@@ -238,7 +239,7 @@ namespace narc_engine
 
         if (vkAllocateMemory(m_deviceHandler.getDevice(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to allocate image memory!");
+            NARCLOG_FATAL("failed to allocate image memory!");
         }
 
         vkBindImageMemory(m_deviceHandler.getDevice(), image, imageMemory, 0);

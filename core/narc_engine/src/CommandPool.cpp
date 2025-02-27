@@ -1,5 +1,7 @@
 ﻿#include "CommandPool.h"
 
+#include <NarcLog.h>
+
 #include "core/DeviceHandler.h"
 
 namespace narc_engine
@@ -24,7 +26,7 @@ namespace narc_engine
     {
         if (!m_commandBuffers.empty())
         {
-            throw std::runtime_error("Command buffers have already been created!");
+            NARCLOG_FATAL("Command buffers have already been created!");
         }
 
         m_commandBuffers.resize(commandBufferCount);

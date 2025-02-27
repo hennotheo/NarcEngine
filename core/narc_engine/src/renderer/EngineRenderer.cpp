@@ -1,5 +1,6 @@
 #include "renderer/EngineRenderer.h"
 
+#include <NarcLog.h>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
@@ -100,7 +101,7 @@ namespace narc_engine
         if (Engine::getInstance()->getDevice()->submitGraphicsQueue(1, &submitInfo, m_inFlightFences[m_currentFrame]) !=
             VK_SUCCESS)
         {
-            throw std::runtime_error("failed to submit draw command buffer!");
+            NARCLOG_FATAL("failed to submit draw command buffer!");
         }
 
         VkPresentInfoKHR presentInfo{};
@@ -126,7 +127,7 @@ namespace narc_engine
         }
         else if (result != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to present swap chain image!");
+            NARCLOG_FATAL("failed to present swap chain image!");
         }
 
         m_currentFrame = (m_currentFrame + 1) % g_maxFramesInFlight;
@@ -172,7 +173,7 @@ namespace narc_engine
 
         if (vkCreateDescriptorSetLayout(m_device, &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create descriptor set layout!");
+            NARCLOG_FATAL("failed to create descriptor set layout!");
         }
     }
 
@@ -224,7 +225,7 @@ namespace narc_engine
 
         if (commandBuffer->end() != VK_SUCCESS)
         {
-            throw std::runtime_error("Failed to record command buffer!");
+            NARCLOG_FATAL("Failed to record command buffer!");
         }
     }
 
@@ -247,7 +248,7 @@ namespace narc_engine
                 vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]) != VK_SUCCESS ||
                 vkCreateFence(m_device, &fenceInfo, nullptr, &m_inFlightFences[i]) != VK_SUCCESS)
             {
-                throw std::runtime_error("failed to create semaphores!");
+                NARCLOG_FATAL("failed to create semaphores!");
             }
         }
     }
@@ -317,7 +318,7 @@ namespace narc_engine
 
         if (vkCreateSampler(m_device, &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create texture sampler!");
+            NARCLOG_FATAL("failed to create texture sampler!");
         }
     }
 

@@ -1,5 +1,7 @@
 #include "renderer/RenderTask.h"
 
+#include <NarcLog.h>
+
 #include "Engine.h"
 #include "buffers/GraphicsBuffer.h"
 
@@ -184,7 +186,7 @@ namespace narc_engine
 
         if (vkCreatePipelineLayout(m_device, &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create pipeline layout!");
+            NARCLOG_FATAL("failed to create pipeline layout!");
         }
 
         VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -208,7 +210,7 @@ namespace narc_engine
 
         if (vkCreateGraphicsPipelines(m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) != VK_SUCCESS)
         {
-            throw std::runtime_error("Failed to create graphics pipeline!");
+            NARCLOG_FATAL("Failed to create graphics pipeline!");
         }
 
         Engine::getInstance()->getDevice()->destroyShaderModule(fragShaderModule);

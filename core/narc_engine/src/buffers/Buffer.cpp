@@ -1,5 +1,6 @@
 #include "buffers/Buffer.h"
 
+#include <NarcLog.h>
 #include "Engine.h"
 
 namespace narc_engine
@@ -9,7 +10,7 @@ namespace narc_engine
         m_linkedDevice = Engine::getInstance()->getDevice();
         if (!m_linkedDevice)
         {
-            throw std::runtime_error("Failed to get linked device from Engine instance.");
+            NARCLOG_FATAL("Failed to get linked device from Engine instance.");
         }
     }
 
@@ -30,7 +31,7 @@ namespace narc_engine
 
         if (vkCreateBuffer(m_linkedDevice->getDevice(), &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create buffer!");
+            NARCLOG_FATAL("failed to create buffer!");
         }
 
         VkMemoryRequirements memRequirements;
@@ -43,7 +44,7 @@ namespace narc_engine
 
         if (vkAllocateMemory(m_linkedDevice->getDevice(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to allocate buffer memory!");
+            NARCLOG_FATAL("failed to allocate buffer memory!");
         }
 
         vkBindBufferMemory(m_linkedDevice->getDevice(), buffer, bufferMemory, 0);
