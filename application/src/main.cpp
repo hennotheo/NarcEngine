@@ -10,10 +10,12 @@ narc::Application* g_app = nullptr;
 
 void engineRun()
 {
-    g_app = new narc::Application();
-    g_app->start();
-
     NARCLOG_PREPARE_HANDLER(NarcEngine);
+
+    NARC_EXECUTE_HANDLED(NarcEngine, g_app = new narc::Application());
+    NARC_EXECUTE_HANDLED(NarcEngine, g_app->start());
+
+    NARCLOG_DEBUG("Engine initialized correctly.");
 
     while (!g_app->shouldClose())
     {
@@ -23,7 +25,12 @@ void engineRun()
 
 void engineShutdown()
 {
-    NARCLOG_DEBUG("SHUTTING DOWN ENGINE");
+    if (g_app == nullptr)
+    {
+        return;
+    }
+
+    NARCLOG_DEBUG("Engine is shutting down");
     g_app->stop();
     delete g_app;
 }

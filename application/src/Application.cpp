@@ -45,13 +45,11 @@ namespace narc
     void Application::stop()
     {
         m_engine->waitDeviceIdle();
-
         delete g_mesh;
     }
 
     void Application::appLoopBody()
     {
-        NARCLOG_FATAL("szz");
         //PRE-UPDATE ENGINE LOGIC
         m_engine->pollEvents();
 

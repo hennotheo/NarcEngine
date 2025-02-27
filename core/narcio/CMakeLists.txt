@@ -2,6 +2,7 @@ set(NARC_IO "NarcIO" CACHE STRING "" FORCE)
 set(NARC_IO_INCLUDE
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/vendors"
+        ${NARC_LOG_INCLUDE}
         CACHE STRING "" FORCE)
 
 add_compile_definitions(NARC_IO_BUILD_DLL)
@@ -13,3 +14,7 @@ add_library(${NARC_IO} SHARED include/NarcIO.h ${CPP_FILES} ${HPP_FILES}) # ${CP
 target_precompile_headers(${NARC_IO} PRIVATE "include/pch.h")
 
 target_include_directories(${NARC_IO} PRIVATE ${NARC_IO_INCLUDE})
+
+add_dependencies(${NARC_IO} ${NARC_LOG})
+
+target_link_libraries(${NARC_IO} PUBLIC ${NARC_LOG})

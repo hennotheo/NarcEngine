@@ -83,6 +83,7 @@ set(NARC_ENGINE_INCLUDE
         "${CMAKE_CURRENT_SOURCE_DIR}/vendors/glm/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/vendors/glfw/include"
         "${NARC_IO_INCLUDE}"
+        "${NARC_LOG_INCLUDE}"
         CACHE STRING "" FORCE)
 
 set(VULKAN_LIB_LIST "vulkan-1")
@@ -101,10 +102,10 @@ add_library(${NARC_ENGINE} SHARED include/NarcEngine.h ${CPP_FILES} ${HPP_FILES}
 
 include_directories(${NARC_ENGINE_INCLUDE})
 
-add_dependencies(${NARC_ENGINE} ${NARC_IO} glfw glm)
+add_dependencies(${NARC_ENGINE} ${NARC_IO} ${NARC_LOG} glfw glm)
 
 target_link_libraries(${NARC_ENGINE} PRIVATE ${VULKAN_LIB_LIST})
 target_link_libraries(${NARC_ENGINE} PRIVATE ${GLFW_LIB_LIST})
-target_link_libraries(${NARC_ENGINE} PUBLIC ${NARC_IO})
+target_link_libraries(${NARC_ENGINE} PUBLIC ${NARC_IO} ${NARC_LOG})
 
 target_precompile_headers(${NARC_ENGINE} PRIVATE "include/pch.h")

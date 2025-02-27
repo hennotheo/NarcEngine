@@ -3,19 +3,21 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
+#include <NarcLog.h>
 #include "data/Image.h"
 
-namespace narc_io {
+namespace narc_io
+{
     std::vector<char> FileReader::readFile(const std::string& filename)
     {
         std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
         if (!file.is_open())
         {
-            throw std::runtime_error("Failed to open file!");
+            NARCLOG_FATAL("Failed to open file!");
         }
 
-        size_t fileSize = (size_t) file.tellg();
+        size_t fileSize = (size_t)file.tellg();
         std::vector<char> buffer(fileSize);
 
         file.seekg(0);
@@ -33,7 +35,7 @@ namespace narc_io {
 
         if (!pixels)
         {
-            throw std::runtime_error("failed to load texture image!");
+            NARCLOG_FATAL("Failed to load texture image!");
         }
 
         Image image(texWidth, texHeight, texChannels, pixels);
