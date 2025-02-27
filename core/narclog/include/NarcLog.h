@@ -8,7 +8,10 @@
 #include "exceptions/FatalException.h"
 #include "exceptions/ErrorException.h"
 
-#define NARCLOG_FATAL(message) narclog::ErrorException(message)
+#include "exceptions/MethodExceptionHandler.h"
+#include "exceptions/ExceptionHandlerBuilder.h"
+
+#define NARCLOG_FATAL(message) narclog::FatalException(message)
 #define NARCLOG_ERROR(message) narclog::ErrorException(message)
 #define NARCLOG_WARNING(message) narclog::log(WARNING, message)
 #define NARCLOG_INFO(message) narclog::log(INFO, message)
@@ -18,8 +21,6 @@ namespace narclog
 {
     NARC_LOG_API void createLogger();
     NARC_LOG_API void destroyLogger();
-
-    NARC_LOG_API void executeWithExceptionHandling(const std::function<void()>& function);
 
     NARC_LOG_API void log(LogLevel level, const char* message);
 }

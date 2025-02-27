@@ -4,7 +4,7 @@
 
 #include "Application.h"
 
-#include <functional>
+#include <NarcLog.h>
 
 namespace narc
 {
@@ -51,6 +51,7 @@ namespace narc
 
     void Application::appLoopBody()
     {
+        throw NARCLOG_FATAL("Logic error");
         //PRE-UPDATE ENGINE LOGIC
         m_engine->pollEvents();
 

@@ -6,21 +6,39 @@
 #ifdef NARC_ENGINE_PLATFORM_WINDOWS
 #include "Application.h"
 
+narc::Application* g_app = nullptr;
+
+void engineRun()
+{
+    g_app = new narc::Application();
+    g_app->start();
+
+    narclog::MethodExceptionHandler handler = narclog::ExceptionHandlerBuilder()
+                                              .bind([] { g_app->appLoopBody(); })
+                                              ->handleAllNonFatalExceptionAsFatal()
+                                              ->rethrowFatal()
+                                              ->create();
+
+    while (!g_app->shouldClose())
+    {
+        handler.invoke();
+    }
+}
+
+void engineShutdown()
+{
+    g_app->stop();
+    delete g_app;
+}
+
 int main(int argc, char** argv)
 {
     narclog::createLogger();
-    narc::Application* app = new narc::Application();
-    app->start();
 
-    while (!app->shouldClose())
-    {
-        narclog::executeWithExceptionHandling(std::bind(&narc::Application::appLoopBody, app));
-    }
+    const int result = NARCLOG_EXECUTE_FINALLY_FATAL_SAFE(engineRun(), engineShutdown());
 
-    app->stop();
-    delete app;
     narclog::destroyLogger();
-    return EXIT_SUCCESS;
+    return result;
 }
 
 #endif

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <functional>
 #include <NarcEngine.h>
 
 namespace narc
