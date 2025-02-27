@@ -6,18 +6,23 @@
 
 #include <NarcLog.h>
 
+#define NARC_EXECUTE_HANDLED(handlerName, method) NARCLOG_HANDLED_METHOD_NAME(handlerName).execute([] { method; })
+
 namespace narclog
 {
-    class NARC_LOG_API MethodExceptionHandler final
+    class NARCLOG_API MethodExceptionHandler final
     {
         friend class ExceptionHandlerBuilder;
+
     public:
         ~MethodExceptionHandler();
 
-        int invoke() const;
+        int invoke();
+        int execute(const std::function<void()>& method);
 
     private:
-        explicit MethodExceptionHandler(const std::function<void()>& function, const std::function<void()>& finallyCallback);
+        explicit MethodExceptionHandler(const std::function<void()>& function,
+                                        const std::function<void()>& finallyCallback);
 
         const std::function<void()> m_function;
         const std::function<void()> m_finallyCallback;
@@ -25,8 +30,12 @@ namespace narclog
         bool m_handleAllNonFatalExceptionAsFatal = false;
         bool m_rethrowFatal = false;
 
-        void fatalExceptionHandler(const std::exception& e) const;
+        const char* m_name = nullptr;
+
+        void fatalExceptionHandler(const FatalException& e) const;
         void errorExceptionHandler(const std::exception& e) const;
+        std::string format(const std::exception& e) const;
+        std::string format(const std::exception& e, const std::string& handlerName) const;
 
         void finally() const;
     };

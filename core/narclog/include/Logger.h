@@ -14,7 +14,8 @@ namespace narclog
         Logger();
         virtual ~Logger();
 
-        void log(LogLevel level, const char* message);
+        template <MessageConcept TMsg>
+        void log(LogLevel level, TMsg message);
 
     private:
         static std::string currentDateTime();

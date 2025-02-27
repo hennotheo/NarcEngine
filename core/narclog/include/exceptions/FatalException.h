@@ -8,12 +8,17 @@
 
 namespace narclog
 {
-    class NARC_LOG_API FatalException final : public std::runtime_error
+    class NARCLOG_API FatalException final : public std::runtime_error
     {
+        friend class MethodExceptionHandler;
+
     public:
         explicit FatalException(const std::string& message)
             : runtime_error(message)
         {
         }
+
+    private:
+        const char* m_name = nullptr;
     };
 }

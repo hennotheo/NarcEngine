@@ -44,11 +44,18 @@ namespace narclog
         return this;
     }
 
+    ExceptionHandlerBuilder* ExceptionHandlerBuilder::setName(const char* name)
+    {
+        m_name = name;
+        return this;
+    }
+
     MethodExceptionHandler ExceptionHandlerBuilder::create() const
     {
         MethodExceptionHandler handler(m_function, m_finallyCallback);
         handler.m_handleAllNonFatalExceptionAsFatal = m_handleAllNonFatalExceptionAsFatal;
         handler.m_rethrowFatal = m_rethrowFatal;
+        handler.m_name = m_name == nullptr ? "" : m_name;
         return handler;
     }
 } // narclog

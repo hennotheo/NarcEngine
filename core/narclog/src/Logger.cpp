@@ -4,10 +4,17 @@
 
 #include "Logger.h"
 
-#include "ConsoleStyle.h"
+#include <keywords/ConsoleStyle.h>
 
 namespace narclog
 {
+    template void Logger::log<const char*>(LogLevel, const char*);
+    template void Logger::log<std::string>(LogLevel, std::string);
+    template void Logger::log<std::string&>(LogLevel, std::string&);
+    template void Logger::log<const std::string&>(LogLevel, const std::string&);
+    template void Logger::log<std::string*>(LogLevel, std::string*);
+    template void Logger::log<const std::string*>(LogLevel, const std::string*);
+
     Logger::Logger()
     {
     }
@@ -16,12 +23,13 @@ namespace narclog
     {
     }
 
-    void Logger::log(LogLevel level, const char* message)
+    template <MessageConcept TMsg>
+    void Logger::log(LogLevel level, TMsg message)
     {
-#ifndef NARC_BUILD_DEBUG
+        #ifndef NARC_BUILD_DEBUG
         if (level == DEBUG)
             return;
-#endif
+        #endif
 
         const std::string date = currentDateTime();
         std::cout << CONSOLE_MESSAGE_WITH_DATE_FORMATER(colorForLevel(level), prefixForLevel(level), message, date)

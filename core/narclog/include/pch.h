@@ -10,5 +10,6 @@
 #include <ctime>
 #include <exception>
 #include <string>
+#include <type_traits>
 
 #include "Core.h"

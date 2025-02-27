@@ -4,13 +4,20 @@
 
 #include "exceptions/MethodExceptionHandler.h"
 
+#include "Logger.h"
+
 namespace narclog
 {
-    int MethodExceptionHandler::invoke() const
+    int MethodExceptionHandler::invoke()
+    {
+        return execute(m_function);
+    }
+
+    int MethodExceptionHandler::execute(const std::function<void()>& method)
     {
         try
         {
-            m_function();
+            method();
             finally();
             return EXIT_SUCCESS;
         }
@@ -26,7 +33,7 @@ namespace narclog
         {
             if (m_handleAllNonFatalExceptionAsFatal)
             {
-                fatalExceptionHandler(e);
+                fatalExceptionHandler(static_cast<const FatalException&>(e));
             }
             else
             {
@@ -44,24 +51,44 @@ namespace narclog
     {
     }
 
-    void MethodExceptionHandler::fatalExceptionHandler(const std::exception& e) const
+    void MethodExceptionHandler::fatalExceptionHandler(const FatalException& e) const
     {
-        finally();
-
         if (m_rethrowFatal)
         {
-            throw NARCLOG_FATAL(e.what());
+            finally();
+
+            FatalException newException(e);
+            if (e.m_name == nullptr)
+                newException.m_name = m_name;
+
+            throw newException;
         }
         else
         {
-            log(FATAL, e.what());
+            std::string message = e.m_name == nullptr ? format(e) : format(e, e.m_name);
+
+            log(FATAL, message);
+            finally();
         }
     }
 
     void MethodExceptionHandler::errorExceptionHandler(const std::exception& e) const
     {
         finally();
-        log(ERROR, e.what());
+        log(ERROR, format(e));
+    }
+
+    std::string MethodExceptionHandler::format(const std::exception& e) const
+    {
+        return format(e, m_name);
+    }
+
+    std::string MethodExceptionHandler::format(const std::exception& e, const std::string& handlerName) const
+    {
+        if (m_name == nullptr)
+            return std::string(e.what());
+
+        return std::string("(") + handlerName + ") " + std::string(e.what());
     }
 
     void MethodExceptionHandler::finally() const

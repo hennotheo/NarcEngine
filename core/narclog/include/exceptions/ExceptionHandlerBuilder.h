@@ -4,19 +4,26 @@
 
 #pragma once
 
+#define NARCLOG_HANDLED_METHOD_NAME(handlerName) narclog__method_handler_##handlerName
+
+#define NARCLOG_PREPARE_HANDLER(name) auto NARCLOG_HANDLED_METHOD_NAME(name) = narclog::ExceptionHandlerBuilder() \
+            .handleAllNonFatalExceptionAsFatal() \
+            ->setName(#name) \
+            ->rethrowFatal() \
+            ->create()
 /**
  * \def NARCLOG_EXECUTE_FATAL_SAFE
  * \brief Macro to execute a function safely, handling all non-fatal exceptions as error logs and fatal exceptions.
  * \param function The function to be executed. */
-#define NARCLOG_EXECUTE_FATAL_SAFE(function) narclog::ExceptionHandlerBuilder() \
-            .bind([] { function; }) \
+#define NARCLOG_EXECUTE_FATAL_SAFE(method)  narclog::ExceptionHandlerBuilder() \
+            .bind([] { method; }) \
             ->handleAllNonFatalExceptionAsErrorLog() \
             ->handleFatal() \
             ->create() \
             .invoke();
 
-#define NARCLOG_EXECUTE_FINALLY_FATAL_SAFE(function, finallyCallback) narclog::ExceptionHandlerBuilder() \
-            .bind([] { function; }) \
+#define NARCLOG_EXECUTE_FINALLY_FATAL_SAFE(method, finallyCallback) narclog::ExceptionHandlerBuilder() \
+            .bind([] { method; }) \
             ->bindFinally([] { finallyCallback; }) \
             ->handleAllNonFatalExceptionAsFatal() \
             ->handleFatal() \
@@ -27,7 +34,7 @@ namespace narclog
 {
     class MethodExceptionHandler;
 
-    class NARC_LOG_API ExceptionHandlerBuilder final
+    class NARCLOG_API ExceptionHandlerBuilder final
     {
     public:
         ExceptionHandlerBuilder* bind(const std::function<void()>& function);
@@ -38,6 +45,8 @@ namespace narclog
         ExceptionHandlerBuilder* rethrowFatal();
         ExceptionHandlerBuilder* handleFatal();
 
+        ExceptionHandlerBuilder* setName(const char* name);
+
         [[nodiscard]] MethodExceptionHandler create() const;
 
     private:
@@ -46,5 +55,7 @@ namespace narclog
 
         bool m_handleAllNonFatalExceptionAsFatal = false;
         bool m_rethrowFatal = true;
+
+        const char* m_name = nullptr;
     };
-} // narclog
+}

@@ -40,8 +40,16 @@ namespace narclog
         g_logger = nullptr;
     }
 
-    void log(LogLevel level, const char* message)
+    template <MessageConcept TMsg>
+    void log(LogLevel level, TMsg message)
     {
         g_logger->log(level, message);
     }
+
+    template void log<const char*>(LogLevel, const char*);
+    template void log<std::string>(LogLevel, std::string);
+    template void log<std::string&>(LogLevel, std::string&);
+    template void log<const std::string&>(LogLevel, const std::string&);
+    template void log<std::string*>(LogLevel, std::string*);
+    template void log<const std::string*>(LogLevel, const std::string*);
 } // narclog

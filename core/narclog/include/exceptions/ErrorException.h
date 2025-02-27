@@ -8,7 +8,7 @@
 
 namespace narclog
 {
-    class NARC_LOG_API ErrorException final : public std::runtime_error
+    class NARCLOG_API ErrorException final : public std::runtime_error
     {
     public:
         explicit ErrorException(const std::string& message): runtime_error(message)

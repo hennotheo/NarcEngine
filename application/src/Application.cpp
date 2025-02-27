@@ -51,7 +51,7 @@ namespace narc
 
     void Application::appLoopBody()
     {
-        throw NARCLOG_FATAL("Logic error");
+        NARCLOG_FATAL("szz");
         //PRE-UPDATE ENGINE LOGIC
         m_engine->pollEvents();
 

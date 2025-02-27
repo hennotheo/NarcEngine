@@ -13,20 +13,17 @@ void engineRun()
     g_app = new narc::Application();
     g_app->start();
 
-    narclog::MethodExceptionHandler handler = narclog::ExceptionHandlerBuilder()
-                                              .bind([] { g_app->appLoopBody(); })
-                                              ->handleAllNonFatalExceptionAsFatal()
-                                              ->rethrowFatal()
-                                              ->create();
+    NARCLOG_PREPARE_HANDLER(NarcEngine);
 
     while (!g_app->shouldClose())
     {
-        handler.invoke();
+        NARC_EXECUTE_HANDLED(NarcEngine, g_app->appLoopBody());
     }
 }
 
 void engineShutdown()
 {
+    NARCLOG_DEBUG("SHUTTING DOWN ENGINE");
     g_app->stop();
     delete g_app;
 }
