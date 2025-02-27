@@ -8,5 +8,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <ctime>
+#include <exception>
+#include <string>
 
 #include "Core.h"

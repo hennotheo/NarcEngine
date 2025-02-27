@@ -4,7 +4,7 @@
 
 #include "Application.h"
 
-#include <NarcLog.h>
+#include <functional>
 
 namespace narc
 {
@@ -19,40 +19,44 @@ namespace narc
         0, 1, 2, 2, 3, 0
     };
 
+    const narc_engine::Mesh* g_mesh = nullptr;
+
     Application::Application()
     {
-        narclog::createLogger();
         m_engine = narc_engine::createEngine();
     }
 
     Application::~Application()
     {
         delete m_engine;
-        narclog::destroyLogger();
     }
 
-    void Application::run()
+    bool Application::shouldClose() const
     {
-        const narc_engine::Mesh* mesh = new narc_engine::Mesh(g_vertices, g_indices);
-        narc_engine::getEngine()->binder()->bindMesh(mesh);
+        return m_engine->shouldClose();
+    }
 
-        narclog::log(INFO, "Application is running.");
-        narclog::log(DEBUG, "Debug message.");
-        narclog::log(FATAL, "FATAL ERROR.");
+    void Application::start()
+    {
+        g_mesh = new narc_engine::Mesh(g_vertices, g_indices);
+        narc_engine::getEngine()->binder()->bindMesh(g_mesh);
+    }
 
-        while (!m_engine->shouldClose())
-        {
-            //PRE-UPDATE ENGINE LOGIC
-            m_engine->pollEvents();
-
-            //UPDATE ENGINE LOGIC
-
-            //RENDER ENGINE
-            m_engine->render();
-        }
-
+    void Application::stop()
+    {
         m_engine->waitDeviceIdle();
 
-        delete mesh;
+        delete g_mesh;
+    }
+
+    void Application::appLoopBody()
+    {
+        //PRE-UPDATE ENGINE LOGIC
+        m_engine->pollEvents();
+
+        //UPDATE ENGINE LOGIC
+
+        //RENDER ENGINE
+        m_engine->render();
     }
 }

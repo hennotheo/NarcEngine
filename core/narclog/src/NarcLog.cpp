@@ -40,6 +40,37 @@ namespace narclog
         g_logger = nullptr;
     }
 
+    void executeWithExceptionHandling(const std::function<void()>& function)
+    {
+        try
+        {
+            function();
+        }
+        catch (const std::exception& e)
+        {
+            
+        }
+        // catch (const narclog::FatalException& e)
+        // {
+        //     app->stop();
+        //     NARCLOG_FATAL(e.what());
+        //     std::cin.get();
+        //
+        //     delete app;
+        //     narclog::destroyLogger();
+        //     return EXIT_FAILURE;
+        // }
+        // catch (const std::exception& e)
+        // {
+        //     app->stop();
+        //     std::cin.get();
+        //
+        //     delete app;
+        //     narclog::destroyLogger();
+        //     return EXIT_FAILURE;
+        // }
+    }
+
     void log(LogLevel level, const char* message)
     {
         g_logger->log(level, message);

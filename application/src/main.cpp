@@ -1,28 +1,26 @@
 #include <exception>
 #include <iostream>
+#include <functional>
+#include <NarcLog.h>
 
 #ifdef NARC_ENGINE_PLATFORM_WINDOWS
 #include "Application.h"
 
 int main(int argc, char** argv)
 {
+    narclog::createLogger();
     narc::Application* app = new narc::Application();
+    app->start();
 
-    try
+    while (!app->shouldClose())
     {
-        app->run();
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << e.what() << std::endl;
-        std::cout << "Wait for closing application..." << std::endl;
-        std::cin.get();
-
-        delete app;
-        return EXIT_FAILURE;
+        narclog::executeWithExceptionHandling(std::bind(&narc::Application::appLoopBody, app));
     }
 
+    app->stop();
     delete app;
+    narclog::destroyLogger();
+    return EXIT_SUCCESS;
 }
 
 #endif
