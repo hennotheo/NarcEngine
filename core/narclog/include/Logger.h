@@ -6,6 +6,8 @@
 
 #include <NarcLog.h>
 
+#include "FileLogger.h"
+
 namespace narclog
 {
     class Logger
@@ -18,6 +20,8 @@ namespace narclog
         void log(LogLevel level, TMsg message);
 
     private:
+        FileLogger m_fileLogger;
+
         static std::string currentDateTime();
         static std::string prefixForLevel(LogLevel level);
         static std::string colorForLevel(LogLevel level);

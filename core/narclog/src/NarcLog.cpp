@@ -40,16 +40,25 @@ namespace narclog
         g_logger = nullptr;
     }
 
-    template <MessageConcept TMsg>
+    template <LogConcept TMsg>
     void log(LogLevel level, TMsg message)
     {
-        g_logger->log(level, message);
+        if constexpr (MessageConcept<TMsg>)
+        {
+            g_logger->log(level, message);
+            return;
+        }
+
+        if constexpr (ArithmeticConcept<TMsg>)
+        {
+            g_logger->log(level, std::to_string(message));
+        }
+
+        NARCLOG_FATAL("Message type " + std::string(typeid(message).name()) + " not supported.");
     }
 
     template void log<const char*>(LogLevel, const char*);
-    template void log<std::string>(LogLevel, std::string);
-    template void log<std::string&>(LogLevel, std::string&);
     template void log<const std::string&>(LogLevel, const std::string&);
-    template void log<std::string*>(LogLevel, std::string*);
-    template void log<const std::string*>(LogLevel, const std::string*);
+    template void log<std::string&>(LogLevel, std::string&);
+    template void log<size_t>(LogLevel, size_t);
 } // narclog

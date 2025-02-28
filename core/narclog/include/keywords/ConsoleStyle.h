@@ -22,12 +22,11 @@
 #define CONSOLE_TEXT_REVERSE "\033[7m"
 #define CONSOLE_TEXT_INVISIBLE "\033[8m"
 
-#define CONSOLE_MESSAGE_FORMATER_BODY(prefix, message) "[" << prefix << "] : " << message
-#define CONSOLE_MESSAGE_FORMATER(color, prefix, message) color << CONSOLE_MESSAGE_FORMATER_BODY(prefix, message) << CONSOLE_TEXT_COLOR_DEFAULT
-#define CONSOLE_MESSAGE_WITH_DATE_FORMATER(color, prefix, message, date) color << date << " - " << CONSOLE_MESSAGE_FORMATER_BODY(prefix, message) << CONSOLE_TEXT_COLOR_DEFAULT
-
 #define CONSOLE_MESSAGE_PREFIX_FATAL "FATAL"
 #define CONSOLE_MESSAGE_PREFIX_ERROR "ERROR"
 #define CONSOLE_MESSAGE_PREFIX_WARNING "WARNING"
 #define CONSOLE_MESSAGE_PREFIX_INFO "INFO"
 #define CONSOLE_MESSAGE_PREFIX_DEBUG "DEBUG"
+
+#define LOG_MESSAGE_FORMATER(prefix, message, date) date + " - [" + prefix + "] : " + message
+#define CONSOLE_MESSAGE_FORMATER(color, prefix, message, date) color + LOG_MESSAGE_FORMATER(prefix, message, date) + CONSOLE_TEXT_COLOR_DEFAULT

@@ -23,6 +23,6 @@ namespace narclog
     NARCLOG_API void createLogger();
     NARCLOG_API void destroyLogger();
 
-    template <MessageConcept TMsg>
+    template <LogConcept TMsg>
     NARCLOG_API void log(LogLevel level, TMsg message);
 }
