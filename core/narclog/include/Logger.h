@@ -18,10 +18,11 @@ namespace narclog {
 
         void log(LogLevel level, const std::string& message);
 
+        static std::string currentDateTime(const char* format);
+
     private:
         std::unique_ptr<FileLogger> m_fileLogger;
 
-        static std::string currentDateTime();
         static std::string prefixForLevel(LogLevel level);
         static std::string colorForLevel(LogLevel level);
     };

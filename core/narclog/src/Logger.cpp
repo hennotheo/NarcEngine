@@ -16,7 +16,7 @@ namespace narclog {
 
     Logger::~Logger()
     {
-        m_fileLogger->writeFile();
+        m_fileLogger->writeFile(false);
     }
 
     void Logger::log(LogLevel level, const std::string& message)
@@ -26,20 +26,24 @@ namespace narclog {
             return;
 #endif
 
-        const std::string date = currentDateTime();
+        const std::string date = currentDateTime("%Y-%m-%d %H:%M:%S");
         const std::string prefix = prefixForLevel(level);
         const std::string color = colorForLevel(level);
-        const std::string messageStr = message;
-        std::cout << CONSOLE_MESSAGE_FORMATER(color, prefix, messageStr, date) << std::endl;
+        std::cout << CONSOLE_MESSAGE_FORMATER(color, prefix, message, date) << std::endl;
 
-        m_fileLogger->addLine(LOG_MESSAGE_FORMATER(prefix, messageStr, date));
+        m_fileLogger->addLine(LOG_MESSAGE_FORMATER(prefix, message, date));
+
+        if (level == FATAL)
+        {
+            m_fileLogger->writeFile(true);
+        }
     }
 
-    std::string Logger::currentDateTime()
+    std::string Logger::currentDateTime(const char* format)
     {
         std::time_t now = std::time(nullptr);
         char buf[100];
-        std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+        std::strftime(buf, sizeof(buf), format, std::localtime(&now));
         return buf;
     }
 

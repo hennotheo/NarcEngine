@@ -67,5 +67,7 @@ namespace narclog {
     template void log<std::string>(LogLevel, std::string);
     template void log<std::string&>(LogLevel, std::string&);
     template void log<size_t>(LogLevel, size_t);
+    template void log<uint32_t>(LogLevel, uint32_t);
+    template void log<uint16_t>(LogLevel, uint16_t);
     template void log<bool>(LogLevel, bool);
 } // narclog

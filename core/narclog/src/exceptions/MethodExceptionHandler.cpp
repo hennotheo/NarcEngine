@@ -6,8 +6,7 @@
 
 #include "Logger.h"
 
-namespace narclog
-{
+namespace narclog {
     int MethodExceptionHandler::invoke()
     {
         return execute(m_function);
@@ -45,9 +44,8 @@ namespace narclog
     }
 
     MethodExceptionHandler::MethodExceptionHandler(const std::function<void()>& function,
-                                                   const std::function<void()>& finallyCallback) :
-        m_function(function),
-        m_finallyCallback(finallyCallback)
+                                                   const std::function<void()>& finallyCallback) : m_function(function),
+                                                                                                   m_finallyCallback(finallyCallback)
     {
     }
 
@@ -63,13 +61,11 @@ namespace narclog
 
             throw newException;
         }
-        else
-        {
-            std::string message = e.m_name == nullptr ? format(e) : format(e, e.m_name);
 
-            log(FATAL, message);
-            finally();
-        }
+        std::string message = e.m_name == nullptr ? format(e) : format(e, e.m_name);
+
+        log(FATAL, message);
+        finally();
     }
 
     void MethodExceptionHandler::errorExceptionHandler(const std::exception& e) const

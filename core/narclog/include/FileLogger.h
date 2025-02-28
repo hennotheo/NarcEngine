@@ -12,10 +12,13 @@ namespace narclog {
         ~FileLogger();
 
         void addLine(const std::string& line);
-        void writeFile();
+        void writeFile(bool crashing);
 
     private:
-        std::string m_fileName;
+        std::string m_date;
         std::vector<std::string> m_lines;
+
+        bool m_alwaysWriteLogs = false;
+        bool m_alreadyWritten = false;
     };
 } // narclog
