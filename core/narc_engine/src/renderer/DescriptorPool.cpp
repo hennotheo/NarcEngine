@@ -1,6 +1,7 @@
 #include "renderer/DescriptorPool.h"
 
 #include "Engine.h"
+#include <NarcLog.h>
 
 namespace narc_engine {
     void DescriptorPool::create(DescriptorPoolBuilder* builder)
@@ -9,7 +10,7 @@ namespace narc_engine {
 
         if (vkCreateDescriptorPool(m_deviceHandler->getDevice(), builder->build(), nullptr, &m_descriptorPool) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create descriptor pool!");
+            NARCLOG_FATAL("failed to create descriptor pool!");
         }
     }
 
@@ -19,7 +20,7 @@ namespace narc_engine {
 
         if (vkAllocateDescriptorSets(m_deviceHandler->getDevice(), allocInfo, descriptorSets) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to allocate descriptor sets!");
+            NARCLOG_FATAL("failed to allocate descriptor sets!");
         }
     }
 

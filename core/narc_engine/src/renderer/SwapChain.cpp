@@ -1,5 +1,7 @@
 #include "renderer/SwapChain.h"
 
+#include <NarcLog.h>
+
 #include "Engine.h"
 #include "core/DeviceHandler.h"
 
@@ -28,7 +30,7 @@ namespace narc_engine
 
         if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
         {
-            throw std::runtime_error("failed to acquire swap chain image!");
+            NARCLOG_FATAL("failed to acquire swap chain image!");
         }
 
         return result;
@@ -91,7 +93,7 @@ namespace narc_engine
 
             if (vkCreateFramebuffer(m_deviceHandler->getDevice(), &framebufferInfo, nullptr, &m_swapChainFramebuffers[i]) != VK_SUCCESS)
             {
-                throw std::runtime_error("failed to create framebuffer!");
+                NARCLOG_FATAL("failed to create framebuffer!");
             }
         }
     }
@@ -189,7 +191,7 @@ namespace narc_engine
 
         if (vkCreateRenderPass(m_deviceHandler->getDevice(), &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create render pass!");
+            NARCLOG_FATAL("failed to create render pass!");
         }
     }
 
@@ -219,7 +221,7 @@ namespace narc_engine
         VkImageView imageView;
         if (vkCreateImageView(m_deviceHandler->getDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create texture image view!");
+            NARCLOG_FATAL("failed to create texture image view!");
         }
 
         return imageView;

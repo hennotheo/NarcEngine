@@ -3,6 +3,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
+#include <NarcLog.h>
 #include "data/Image.h"
 
 namespace narc_io {
@@ -12,7 +13,7 @@ namespace narc_io {
 
         if (!file.is_open())
         {
-            throw std::runtime_error("Failed to open file!");
+            NARCLOG_FATAL("Failed to open file!");
         }
 
         size_t fileSize = (size_t) file.tellg();
@@ -33,7 +34,7 @@ namespace narc_io {
 
         if (!pixels)
         {
-            throw std::runtime_error("failed to load texture image!");
+            NARCLOG_FATAL("Failed to load texture image!");
         }
 
         Image image(texWidth, texHeight, texChannels, pixels);

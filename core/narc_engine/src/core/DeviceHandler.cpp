@@ -1,5 +1,7 @@
 ﻿#include "core/DeviceHandler.h"
 
+#include <NarcLog.h>
+
 namespace narc_engine
 {
     const std::vector<const char*> g_deviceExtensions =
@@ -28,7 +30,7 @@ namespace narc_engine
         VkShaderModule shaderModule;
         if (vkCreateShaderModule(m_device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create shader module!");
+            NARCLOG_FATAL("failed to create shader module!");
         }
 
         return shaderModule;
@@ -52,7 +54,7 @@ namespace narc_engine
             }
         }
 
-        throw std::runtime_error("failed to find suitable memory type!");
+        NARCLOG_FATAL("failed to find suitable memory type!");
     }
 
     void DeviceHandler::createCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateInfo poolInfo) const
@@ -63,7 +65,7 @@ namespace narc_engine
 
         if (vkCreateCommandPool(m_device, &poolInfo, nullptr, commandPool) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create command pool!");
+            NARCLOG_FATAL("failed to create command pool!");
         }
     }
 
@@ -107,7 +109,7 @@ namespace narc_engine
         
         if (vkCreateSwapchainKHR(m_device, &createInfo, nullptr, swapchain) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create swap chain!");
+            NARCLOG_FATAL("failed to create swap chain!");
         }
     }
 
@@ -125,7 +127,7 @@ namespace narc_engine
 
         if (deviceCount == 0)
         {
-            throw std::runtime_error("Failed to find GPUs with Vulkan Support!");
+            NARCLOG_FATAL("Failed to find GPUs with Vulkan Support!");
         }
         
         std::multimap<int, VkPhysicalDevice> candidates;
@@ -141,7 +143,7 @@ namespace narc_engine
         }
         else
         {
-            throw std::runtime_error("Failed to find a suitable GPU!");
+            NARCLOG_FATAL("Failed to find a suitable GPU!");
         }
     }
 
@@ -181,7 +183,7 @@ namespace narc_engine
 
         if (vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create logical device!");
+            NARCLOG_FATAL("failed to create logical device!");
         }
 
         vkGetDeviceQueue(m_device, indices.GraphicsFamily.value(), 0, &m_graphicsQueue);

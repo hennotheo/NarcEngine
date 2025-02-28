@@ -10,7 +10,10 @@ namespace narc
         Application();
         virtual ~Application();
 
-        void run();
+        bool shouldClose() const;
+        void start();
+        void appLoopBody();
+        void stop();
 
     private:
         narc_engine::IEngine* m_engine;
