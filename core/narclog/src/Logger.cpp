@@ -6,26 +6,25 @@
 
 #include <keywords/ConsoleStyle.h>
 
-namespace narclog
-{
-    template void Logger::log<const char*>(LogLevel, const char*);
-    template void Logger::log<const std::string&>(LogLevel, const std::string&);
+#include "FileLogger.h"
 
+namespace narclog {
     Logger::Logger()
     {
+        m_fileLogger = std::make_unique<FileLogger>();
     }
 
     Logger::~Logger()
     {
+        m_fileLogger->writeFile();
     }
 
-    template <MessageConcept TMsg>
-    void Logger::log(LogLevel level, TMsg message)
+    void Logger::log(LogLevel level, const std::string& message)
     {
-        #ifndef NARC_BUILD_DEBUG
+#ifndef NARC_BUILD_DEBUG
         if (level == DEBUG)
             return;
-        #endif
+#endif
 
         const std::string date = currentDateTime();
         const std::string prefix = prefixForLevel(level);
@@ -33,7 +32,7 @@ namespace narclog
         const std::string messageStr = message;
         std::cout << CONSOLE_MESSAGE_FORMATER(color, prefix, messageStr, date) << std::endl;
 
-        m_fileLogger.addLine(LOG_MESSAGE_FORMATER(prefix, messageStr, date));
+        m_fileLogger->addLine(LOG_MESSAGE_FORMATER(prefix, messageStr, date));
     }
 
     std::string Logger::currentDateTime()
@@ -48,12 +47,12 @@ namespace narclog
     {
         switch (level)
         {
-        case FATAL: return CONSOLE_MESSAGE_PREFIX_FATAL;
-        case ERROR: return CONSOLE_MESSAGE_PREFIX_ERROR;
-        case WARNING: return CONSOLE_MESSAGE_PREFIX_WARNING;
-        case INFO: return CONSOLE_MESSAGE_PREFIX_INFO;
-        case DEBUG: return CONSOLE_MESSAGE_PREFIX_DEBUG;
-        default: return "UNKNOWN";
+            case FATAL: return CONSOLE_MESSAGE_PREFIX_FATAL;
+            case ERROR: return CONSOLE_MESSAGE_PREFIX_ERROR;
+            case WARNING: return CONSOLE_MESSAGE_PREFIX_WARNING;
+            case INFO: return CONSOLE_MESSAGE_PREFIX_INFO;
+            case DEBUG: return CONSOLE_MESSAGE_PREFIX_DEBUG;
+            default: return "UNKNOWN";
         }
     }
 
@@ -61,12 +60,12 @@ namespace narclog
     {
         switch (level)
         {
-        case FATAL: return CONSOLE_TEXT_COLOR_RED;
-        case ERROR: return CONSOLE_TEXT_COLOR_RED;
-        case WARNING: return CONSOLE_TEXT_COLOR_YELLOW;
-        case INFO: return CONSOLE_TEXT_COLOR_WHITE;
-        case DEBUG: return CONSOLE_TEXT_COLOR_CYAN;
-        default: return CONSOLE_TEXT_COLOR_DEFAULT;
+            case FATAL: return CONSOLE_TEXT_COLOR_RED;
+            case ERROR: return CONSOLE_TEXT_COLOR_RED;
+            case WARNING: return CONSOLE_TEXT_COLOR_YELLOW;
+            case INFO: return CONSOLE_TEXT_COLOR_WHITE;
+            case DEBUG: return CONSOLE_TEXT_COLOR_CYAN;
+            default: return CONSOLE_TEXT_COLOR_DEFAULT;
         }
     }
 } // narclog

@@ -4,8 +4,7 @@
 
 #pragma once
 
-namespace narclog
-{
+namespace narclog {
     class FileLogger final
     {
     public:

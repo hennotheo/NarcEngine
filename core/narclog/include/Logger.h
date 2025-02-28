@@ -4,23 +4,22 @@
 
 #pragma once
 
+#include <memory>
 #include <NarcLog.h>
 
-#include "FileLogger.h"
+namespace narclog {
+    class FileLogger;
 
-namespace narclog
-{
     class Logger
     {
     public:
         Logger();
         virtual ~Logger();
 
-        template <MessageConcept TMsg>
-        void log(LogLevel level, TMsg message);
+        void log(LogLevel level, const std::string& message);
 
     private:
-        FileLogger m_fileLogger;
+        std::unique_ptr<FileLogger> m_fileLogger;
 
         static std::string currentDateTime();
         static std::string prefixForLevel(LogLevel level);

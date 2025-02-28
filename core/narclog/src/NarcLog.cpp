@@ -15,8 +15,7 @@
 
 #endif
 
-namespace narclog
-{
+namespace narclog {
     Logger* g_logger = nullptr;
 
     void createLogger()
@@ -40,9 +39,15 @@ namespace narclog
         g_logger = nullptr;
     }
 
-    template <LogConcept TMsg>
+    template<LogConcept TMsg>
     void log(LogLevel level, TMsg message)
     {
+        if (g_logger == nullptr)
+        {
+            std::cout << "Logger not created : " << message << std::endl;
+            throw std::runtime_error("Logger not created.");
+        }
+
         if constexpr (MessageConcept<TMsg>)
         {
             g_logger->log(level, message);
@@ -59,6 +64,8 @@ namespace narclog
 
     template void log<const char*>(LogLevel, const char*);
     template void log<const std::string&>(LogLevel, const std::string&);
+    template void log<std::string>(LogLevel, std::string);
     template void log<std::string&>(LogLevel, std::string&);
     template void log<size_t>(LogLevel, size_t);
+    template void log<bool>(LogLevel, bool);
 } // narclog

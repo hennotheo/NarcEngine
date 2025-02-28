@@ -12,10 +12,8 @@
 namespace narclog {
     FileLogger::FileLogger()
     {
-        NARCLOG_WARNING("Date non implemented.");
         const std::string date = "";
         m_fileName = "log" + date + ".txt";
-        m_lines = std::vector<std::string>();
     }
 
     FileLogger::~FileLogger()
@@ -24,7 +22,6 @@ namespace narclog {
 
     void FileLogger::addLine(const std::string& line)
     {
-        NARCLOG_DEBUG(m_lines.size());
         m_lines.push_back(line);
     }
 
@@ -36,10 +33,11 @@ namespace narclog {
             NARCLOG_ERROR("Failed to open file: " + m_fileName);
         }
 
-        for (const std::string& line : m_lines)
+        for (const std::string& line: m_lines)
         {
             file << line << std::endl;
         }
+        NARCLOG_DEBUG("WRITING FILE");
 
         file.close();
     }

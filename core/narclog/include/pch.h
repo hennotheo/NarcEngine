@@ -11,5 +11,6 @@
 #include <exception>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 #include "Core.h"
