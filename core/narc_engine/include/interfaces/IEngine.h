@@ -2,8 +2,7 @@
 
 #include <NarcEngine.h>
 
-namespace narc_engine
-{
+namespace narc_engine {
     class NARC_ENGINE_API IEngine
     {
         friend class EngineBinder;
@@ -15,7 +14,7 @@ namespace narc_engine
         virtual void pollEvents() = 0;
         virtual bool shouldClose() const = 0;
         virtual void render() = 0;
-        virtual void waitDeviceIdle() const = 0;
+        virtual void waitDeviceIdle() = 0;
     };
 
     NARC_ENGINE_API IEngine* getEngine();

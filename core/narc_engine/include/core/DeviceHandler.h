@@ -4,8 +4,7 @@
 #include "QueueFamilyIndices.h"
 #include "EngineDebugLogger.h"
 
-namespace narc_engine
-{
+namespace narc_engine {
     class Window;
 
     class DeviceHandler
@@ -23,10 +22,13 @@ namespace narc_engine
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
         void destroyShaderModule(VkShaderModule shaderModule) const;
 
-        VkResult waitDeviceIdle() const;
+        void waitDeviceIdle() const;
         VkResult submitGraphicsQueue(uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const;
         VkResult presentKHR(const VkPresentInfoKHR* presentInfo) const;
         void waitGraphicsQueueIdle() const;
+
+        VkFormat findDepthFormat() const;
+        VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
 
         void release();
 

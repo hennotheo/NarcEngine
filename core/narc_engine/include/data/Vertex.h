@@ -5,11 +5,10 @@
 struct VkVertexInputBindingDescription;
 struct VkVertexInputAttributeDescription;
 
-namespace narc_engine
-{
+namespace narc_engine {
     struct NARC_ENGINE_API Vertex
     {
-        glm::vec2 Pos;
+        glm::vec3 Pos;
         glm::vec3 Color;
         glm::vec2 TexCoord;
 

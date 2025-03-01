@@ -7,8 +7,7 @@
 #include "Engine.h"
 #include "buffers/StagingBuffer.h"
 
-namespace narc_engine
-{
+namespace narc_engine {
     const uint32_t g_maxFramesInFlight = 2;
 
     void EngineRenderer::create()
@@ -18,7 +17,8 @@ namespace narc_engine
         m_swapChain.create();
         createDescriptorSetLayout();
         m_renderTask.create(&m_swapChain, &m_descriptorSetLayout);
-        m_swapChain.createFramebuffers(); // CreateFramebuffers();
+        createDepthResources();
+        m_swapChain.createFramebuffers(m_depthImageView); // CreateFramebuffers();
 
         Engine::getInstance()->getCommandPool()->createCommandBuffers(g_maxFramesInFlight);
 
@@ -200,17 +200,19 @@ namespace narc_engine
         VkRenderPassBeginInfo renderPassInfo = m_swapChain.getRenderPassBeginInfos(imageIndex);
         VkExtent2D swapChainExtent = m_swapChain.getSwapChainExtent();
 
-        VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
-        renderPassInfo.clearValueCount = 1;
-        renderPassInfo.pClearValues = &clearColor;
+        std::array<VkClearValue, 2> clearValues{};
+        clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
+        clearValues[1].depthStencil = {1.0f, 0};
+        renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+        renderPassInfo.pClearValues = clearValues.data();
 
         commandBuffer->cmdBeginRenderPass(&renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = (float)swapChainExtent.width;
-        viewport.height = (float)swapChainExtent.height;
+        viewport.width = (float) swapChainExtent.width;
+        viewport.height = (float) swapChainExtent.height;
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
         commandBuffer->cmdSetViewport(&viewport, 0, 1);
@@ -263,6 +265,20 @@ namespace narc_engine
         {
             m_uniformBuffers[i].create(bufferSize);
         }
+    }
+
+    void EngineRenderer::createDepthResources()
+    {
+        VkFormat depthFormat = Engine::getInstance()->getDevice()->findDepthFormat();
+
+        Engine::getInstance()->createImage(m_swapChain.getSwapChainExtent().width, m_swapChain.getSwapChainExtent().height,
+                                           depthFormat, VK_IMAGE_TILING_OPTIMAL,
+                                           VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_depthImage, m_depthImageMemory);
+        m_depthImageView = m_swapChain.createImageView(m_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+
+        Engine::getInstance()->transitionImageLayout(m_depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED,
+                                                     VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
     }
 
     void EngineRenderer::createTextureImage()
@@ -324,6 +340,6 @@ namespace narc_engine
 
     void EngineRenderer::createImageTextureView()
     {
-        m_textureImageView = m_swapChain.createImageView(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+        m_textureImageView = m_swapChain.createImageView(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
     }
 } // narc_engine

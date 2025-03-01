@@ -2,8 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace narc_engine
-{
+namespace narc_engine {
     class DeviceHandler;
     class Window;
 
@@ -15,9 +14,9 @@ namespace narc_engine
         const VkSwapchainKHR& getSwapChain() const { return m_swapChain; }
 
         void create();
-        void createFramebuffers();
+        void createFramebuffers(const VkImageView& depthImageView);
 
-        VkImageView createImageView(VkImage image, VkFormat format);
+        VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const;
         VkRenderPassBeginInfo getRenderPassBeginInfos(uint32_t imageIndex) const;
         VkResult acquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex);
         void reCreate();
@@ -37,6 +36,7 @@ namespace narc_engine
 
         const DeviceHandler* m_deviceHandler = nullptr;
         const Window* m_window = nullptr;
+        VkImageView m_depthImageView;
 
         void createSwapChain();
         void createRenderPass();

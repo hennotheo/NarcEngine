@@ -9,11 +9,11 @@
 #include "interfaces/IEngine.h"
 #include "renderer/EngineRenderer.h"
 
-namespace narc_engine
-{
+namespace narc_engine {
     class Engine final : public IEngine
     {
         friend EngineBinder;
+
     public:
         Engine();
         ~Engine() override;
@@ -23,7 +23,7 @@ namespace narc_engine
         void pollEvents() override;
         bool shouldClose() const override;
         void render() override;
-        void waitDeviceIdle() const override;
+        void waitDeviceIdle() override;
         EngineBinder* binder() const override;
 
         const DeviceHandler* getDevice() const { return &m_deviceHandler; }
@@ -34,6 +34,9 @@ namespace narc_engine
 
         void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
         void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+        void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
+                         VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
+                         VkDeviceMemory& imageMemory) const;
         void createImage(const narc_io::Image& imageData, VkFormat format, VkImageTiling tiling,
                          VkImageUsageFlags usage,
                          VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) const;
@@ -50,5 +53,6 @@ namespace narc_engine
 
     private:
         void createVulkanInstance();
+        static bool hasStencilComponent(VkFormat format);
     };
 }
