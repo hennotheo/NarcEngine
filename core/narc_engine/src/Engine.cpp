@@ -52,9 +52,9 @@ namespace narc_engine {
         m_debugLogger.clean(m_vulkanInstance);
 
         m_window->cleanSurface(m_vulkanInstance);
-        vkDestroyInstance(m_vulkanInstance, nullptr);
-
         m_window->clean();
+
+        vkDestroyInstance(m_vulkanInstance, nullptr);
     }
 
     Engine* Engine::getInstance()

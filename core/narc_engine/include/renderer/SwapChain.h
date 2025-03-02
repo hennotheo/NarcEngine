@@ -2,6 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include "RenderPass.h"
 #include "renderer/DepthResources.h"
 
 namespace narc_engine {
@@ -12,12 +13,11 @@ namespace narc_engine {
     {
     public:
         const VkExtent2D& getSwapChainExtent() const { return m_swapChainExtent; }
-        const VkRenderPass& getRenderPass() const { return m_renderPass; }
+        const RenderPass* getRenderPass() const { return m_renderPass.get(); }
         const VkSwapchainKHR& getSwapChain() const { return m_swapChain; }
 
         void create();
         void createFramebuffers();
-
 
         VkRenderPassBeginInfo getRenderPassBeginInfos(uint32_t imageIndex) const;
         VkResult acquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex);
@@ -35,13 +35,12 @@ namespace narc_engine {
         std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
         std::unique_ptr<DepthResources> m_depthResources;
-        VkRenderPass m_renderPass;
+        std::unique_ptr<RenderPass> m_renderPass;
 
         const DeviceHandler* m_deviceHandler = nullptr;
         const Window* m_window = nullptr;
 
         void createSwapChain();
-        void createRenderPass();
         void createImageViews();
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
         VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
