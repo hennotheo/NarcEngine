@@ -17,8 +17,7 @@ namespace narc_engine {
         m_swapChain.create();
         createDescriptorSetLayout();
         m_renderTask.create(&m_swapChain, &m_descriptorSetLayout);
-        createDepthResources();
-        m_swapChain.createFramebuffers(m_depthImageView); // CreateFramebuffers();
+        m_swapChain.createFramebuffers(); // CreateFramebuffers();
 
         Engine::getInstance()->getCommandPool()->createCommandBuffers(g_maxFramesInFlight);
 
@@ -38,7 +37,6 @@ namespace narc_engine {
 
         vkDestroySampler(m_device, m_textureSampler, nullptr);
         vkDestroyImageView(m_device, m_textureImageView, nullptr);
-
         vkDestroyImage(m_device, m_textureImage, nullptr);
         vkFreeMemory(m_device, m_textureImageMemory, nullptr);
 
@@ -265,20 +263,6 @@ namespace narc_engine {
         {
             m_uniformBuffers[i].create(bufferSize);
         }
-    }
-
-    void EngineRenderer::createDepthResources()
-    {
-        VkFormat depthFormat = Engine::getInstance()->getDevice()->findDepthFormat();
-
-        Engine::getInstance()->createImage(m_swapChain.getSwapChainExtent().width, m_swapChain.getSwapChainExtent().height,
-                                           depthFormat, VK_IMAGE_TILING_OPTIMAL,
-                                           VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_depthImage, m_depthImageMemory);
-        m_depthImageView = m_swapChain.createImageView(m_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
-
-        Engine::getInstance()->transitionImageLayout(m_depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED,
-                                                     VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
     }
 
     void EngineRenderer::createTextureImage()

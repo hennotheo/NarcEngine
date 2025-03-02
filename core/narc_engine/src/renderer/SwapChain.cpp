@@ -15,6 +15,7 @@ namespace narc_engine {
         createSwapChain();
         createImageViews();
         createRenderPass();
+        createDepthResources();
     }
 
     VkResult SwapChain::acquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex)
@@ -37,6 +38,10 @@ namespace narc_engine {
 
     void SwapChain::cleanSwapChain()
     {
+        vkDestroyImageView(m_deviceHandler->getDevice(), m_depthImageView, nullptr);
+        vkDestroyImage(m_deviceHandler->getDevice(), m_depthImage, nullptr);
+        vkFreeMemory(m_deviceHandler->getDevice(), m_depthImageMemory, nullptr);
+
         for (auto framebuffer: m_swapChainFramebuffers)
         {
             vkDestroyFramebuffer(m_deviceHandler->getDevice(), framebuffer, nullptr);
@@ -67,20 +72,19 @@ namespace narc_engine {
 
         createSwapChain();
         createImageViews();
-        createFramebuffers(m_depthImageView);
+        createDepthResources();
+        createFramebuffers();
     }
 
-    void SwapChain::createFramebuffers(const VkImageView& depthImageView)
+    void SwapChain::createFramebuffers()
     {
-        m_depthImageView = depthImageView;
-
         m_swapChainFramebuffers.resize(m_swapChainImageViews.size());
 
         for (size_t i = 0; i < m_swapChainImageViews.size(); i++)
         {
             std::array<VkImageView, 2> attachments = {
                 m_swapChainImageViews[i],
-                depthImageView
+                m_depthImageView
             };
 
             VkFramebufferCreateInfo framebufferInfo{};
@@ -220,6 +224,20 @@ namespace narc_engine {
         {
             m_swapChainImageViews[i] = createImageView(m_swapChainImages[i], m_swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
         }
+    }
+
+    void SwapChain::createDepthResources()
+    {
+        VkFormat depthFormat = Engine::getInstance()->getDevice()->findDepthFormat();
+
+        Engine::getInstance()->createImage(m_swapChainExtent.width, m_swapChainExtent.height,
+                                           depthFormat, VK_IMAGE_TILING_OPTIMAL,
+                                           VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_depthImage, m_depthImageMemory);
+        m_depthImageView = createImageView(m_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+
+        Engine::getInstance()->transitionImageLayout(m_depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED,
+                                                     VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
     }
 
     VkImageView SwapChain::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const

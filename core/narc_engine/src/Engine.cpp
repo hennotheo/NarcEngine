@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "data/Vertex.h"
+#include "../include/models/Vertex.h"
 #include "buffers/StagingBuffer.h"
 #include "core/Window.h"
 

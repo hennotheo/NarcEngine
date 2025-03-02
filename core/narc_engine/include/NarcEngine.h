@@ -3,8 +3,8 @@
 #include "pch.h"
 #include "Core.h"
 
-#include "data/Mesh.h"
-#include "data/Vertex.h"
+#include "models/Mesh.h"
+#include "models/Vertex.h"
 
 #include "core/EngineBinder.h"
 

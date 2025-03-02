@@ -3,10 +3,10 @@
 #include "CommandBuffer.h"
 #include "DescriptorPool.h"
 #include "buffers/UniformBuffer.h"
-#include "data/Vertex.h"
+#include "models/Vertex.h"
 #include "renderer/SwapChain.h"
 #include "renderer/RenderTask.h"
-#include "data/Mesh.h"
+#include "models/Mesh.h"
 
 namespace narc_engine {
     class EngineRenderer
@@ -40,10 +40,6 @@ namespace narc_engine {
         VkImageView m_textureImageView;
         VkSampler m_textureSampler;
 
-        VkImage m_depthImage;
-        VkDeviceMemory m_depthImageMemory;
-        VkImageView m_depthImageView;
-
         VkDevice m_device;
 
         void createDescriptorPool(uint32_t maxFrameInFlight);
@@ -51,7 +47,6 @@ namespace narc_engine {
         void recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex);
         void createSyncObjects();
         void createUniformBuffers();
-        void createDepthResources();
         void createTextureImage();
         void createTextureSampler();
         void createImageTextureView();

@@ -1,7 +1,7 @@
 //
 // Created by theoh on 25/02/2025.
 //
-#include "data/Vertex.h"
+#include "models/Vertex.h"
 
 #include <vulkan/vulkan_core.h>
 

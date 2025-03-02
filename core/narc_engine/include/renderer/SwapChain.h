@@ -14,7 +14,7 @@ namespace narc_engine {
         const VkSwapchainKHR& getSwapChain() const { return m_swapChain; }
 
         void create();
-        void createFramebuffers(const VkImageView& depthImageView);
+        void createFramebuffers();
 
         VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const;
         VkRenderPassBeginInfo getRenderPassBeginInfos(uint32_t imageIndex) const;
@@ -32,14 +32,18 @@ namespace narc_engine {
         std::vector<VkImageView> m_swapChainImageViews;
         std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
+        VkImage m_depthImage;
+        VkDeviceMemory m_depthImageMemory;
+        VkImageView m_depthImageView;
+
         VkRenderPass m_renderPass;
 
         const DeviceHandler* m_deviceHandler = nullptr;
         const Window* m_window = nullptr;
-        VkImageView m_depthImageView;
 
         void createSwapChain();
         void createRenderPass();
+        void createDepthResources();
         void createImageViews();
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
         VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
