@@ -14,7 +14,7 @@ namespace narc_engine {
         const inline VkPhysicalDevice& getPhysicalDevice() const { return m_physicalDevice; }
         const inline VkPhysicalDeviceProperties& getPhysicalDeviceProperties() const { return m_physicalDeviceProperties; }
 
-        void create(const Window* window, const VkInstance& instance, const EngineDebugLogger& debugLogger);
+        void create(const Window* window, const EngineInstance* instance, const EngineDebugLogger* debugLogger);
 
         void createSwapChain(VkSwapchainCreateInfoKHR& createInfo, VkSwapchainKHR* swapchain) const;
         void createCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateInfo poolInfo) const;
@@ -43,12 +43,12 @@ namespace narc_engine {
 
         VkPhysicalDeviceProperties m_physicalDeviceProperties{};
 
-        VkInstance m_vulkanInstance;
+        const EngineInstance* m_instance = nullptr;
         const Window* m_window = nullptr;
 
         void pickPhysicalDevice();
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) const;
-        void createLogicalDevice(const EngineDebugLogger& debugLogger);
+        void createLogicalDevice(const EngineDebugLogger* debugLogger);
         int rateDeviceSuitability(VkPhysicalDevice device);
         bool checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice, const std::vector<const char*>& deviceExtensions);
     };

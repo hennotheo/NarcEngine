@@ -2,13 +2,16 @@
 
 #include <NarcLog.h>
 
-namespace narc_engine
-{
+#include "core/EngineInstance.h"
+
+namespace narc_engine {
     const uint32_t g_width = 800;
     const uint32_t g_height = 600;
 
-    void Window::init()
+    Window::Window(const EngineInstance* engineInstance)
     {
+        m_engineInstance = engineInstance;
+
         glfwInit();
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -19,12 +22,18 @@ namespace narc_engine
         glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback); //call static function because GLFW does know how to call a member function
     }
 
-    void Window::initSurface(VkInstance instance)
+    void Window::initsurface(const EngineInstance* engineInstance)
     {
-        if (glfwCreateWindowSurface(instance, m_window, nullptr, &m_surface) != VK_SUCCESS)
-        {
-            NARCLOG_FATAL("Failed to create window surface!");
-        }
+        m_engineInstance = engineInstance;
+        m_engineInstance->createGLFWSurface(m_window, &m_surface, nullptr);
+    }
+
+    Window::~Window()
+    {
+        m_engineInstance->destroyGLFWSurface(m_surface, nullptr);
+
+        glfwDestroyWindow(m_window);
+        glfwTerminate();
     }
 
     void Window::update()
@@ -33,18 +42,7 @@ namespace narc_engine
         m_shouldClose = glfwWindowShouldClose(m_window);
     }
 
-    void Window::cleanSurface(VkInstance m_instance)
-    {
-        vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
-    }
-
-    void Window::clean()
-    {
-        glfwDestroyWindow(m_window);
-        glfwTerminate();
-    }
-
-    const char** Window::getRequiredInstanceExtensions(uint32_t* glfwExtensionCount) const
+    const char** Window::getRequiredInstanceExtensions(uint32_t* glfwExtensionCount)
     {
         return glfwGetRequiredInstanceExtensions(glfwExtensionCount);
     }

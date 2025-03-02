@@ -6,6 +6,7 @@
 #include "core/EngineDebugLogger.h"
 #include "core/DeviceHandler.h"
 #include "core/EngineBinder.h"
+#include "core/EngineInstance.h"
 #include "interfaces/IEngine.h"
 #include "renderer/EngineRenderer.h"
 
@@ -42,17 +43,18 @@ namespace narc_engine {
                          VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) const;
 
     private:
+        std::unique_ptr<EngineInstance> m_instance;
         std::unique_ptr<Window> m_window;
-        EngineDebugLogger m_debugLogger;
-        VkInstance m_vulkanInstance;
+        std::unique_ptr<EngineDebugLogger> m_debugLogger;
         DeviceHandler m_deviceHandler;
 
         EngineRenderer m_renderer;
-        std::unique_ptr<EngineBinder> m_engineBinder;
         CommandPool m_commandPool;
 
+        std::unique_ptr<EngineBinder> m_engineBinder;
+
     private:
-        void createVulkanInstance();
+        //void createVulkanInstance();
         static bool hasStencilComponent(VkFormat format);
     };
 }

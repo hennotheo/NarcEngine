@@ -29,14 +29,12 @@ namespace narc_engine {
 
     Engine::Engine()
     {
-        m_window = std::make_unique<Window>();
-
         s_instance = this;
-        m_window->init();
-        createVulkanInstance();
-        m_debugLogger.init(m_vulkanInstance);
-        m_window->initSurface(m_vulkanInstance);
-        m_deviceHandler.create(m_window.get(), m_vulkanInstance, m_debugLogger);
+        m_window = std::make_unique<Window>(nullptr);
+        m_instance = std::make_unique<EngineInstance>();
+        m_window->initsurface(m_instance.get());
+        m_debugLogger = std::make_unique<EngineDebugLogger>(m_instance.get());
+        m_deviceHandler.create(m_window.get(), m_instance.get(), m_debugLogger.get());
         m_commandPool.create(&m_deviceHandler);
         m_renderer.create();
 
@@ -49,12 +47,6 @@ namespace narc_engine {
 
         m_commandPool.release();
         m_deviceHandler.release();
-        m_debugLogger.clean(m_vulkanInstance);
-
-        m_window->cleanSurface(m_vulkanInstance);
-        m_window->clean();
-
-        vkDestroyInstance(m_vulkanInstance, nullptr);
     }
 
     Engine* Engine::getInstance()
@@ -85,35 +77,6 @@ namespace narc_engine {
     void Engine::waitDeviceIdle()
     {
         m_deviceHandler.waitDeviceIdle();
-    }
-
-    void Engine::createVulkanInstance()
-    {
-        m_debugLogger.checkValidationLayerSupport();
-
-        VkApplicationInfo appInfo{};
-        appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = "Narcoleptic Engine";
-        appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.pEngineName = "No Engine";
-        appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.apiVersion = VK_API_VERSION_1_0;
-
-        VkInstanceCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-        createInfo.pApplicationInfo = &appInfo;
-
-        auto extensions = m_debugLogger.getRequiredExtensions(m_window.get());
-        createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-        createInfo.ppEnabledExtensionNames = extensions.data();
-
-        VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-        m_debugLogger.linkToInstance(createInfo, debugCreateInfo);
-
-        if (vkCreateInstance(&createInfo, nullptr, &m_vulkanInstance) != VK_SUCCESS)
-        {
-            NARCLOG_FATAL("Failed to create instance!");
-        }
     }
 
     bool Engine::hasStencilComponent(VkFormat format)

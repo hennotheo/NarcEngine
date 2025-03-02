@@ -2,15 +2,17 @@
 
 #include <NarcLog.h>
 
+#include "core/EngineInstance.h"
+
 namespace narc_engine {
     const std::vector<const char*> g_deviceExtensions =
     {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
-    void DeviceHandler::create(const Window* window, const VkInstance& instance, const EngineDebugLogger& debugLogger)
+    void DeviceHandler::create(const Window* window, const EngineInstance* instance, const EngineDebugLogger* debugLogger)
     {
-        m_vulkanInstance = instance;
+        m_instance = instance;
         m_window = window;
 
         pickPhysicalDevice();
@@ -178,9 +180,9 @@ namespace narc_engine {
     void DeviceHandler::pickPhysicalDevice()
     {
         uint32_t deviceCount = 0;
-        vkEnumeratePhysicalDevices(m_vulkanInstance, &deviceCount, nullptr);
+        m_instance->getAllPhysicalDevices(&deviceCount, nullptr);
         std::vector<VkPhysicalDevice> devices(deviceCount);
-        vkEnumeratePhysicalDevices(m_vulkanInstance, &deviceCount, devices.data());
+        m_instance->getAllPhysicalDevices(&deviceCount, devices.data());
 
         if (deviceCount == 0)
         {
@@ -204,7 +206,7 @@ namespace narc_engine {
         }
     }
 
-    void DeviceHandler::createLogicalDevice(const EngineDebugLogger& debugLogger)
+    void DeviceHandler::createLogicalDevice(const EngineDebugLogger* debugLogger)
     {
         QueueFamilyIndices indices = findQueueFamilies(m_physicalDevice);
 
@@ -236,7 +238,7 @@ namespace narc_engine {
         createInfo.enabledExtensionCount = static_cast<uint32_t>(g_deviceExtensions.size());
         createInfo.ppEnabledExtensionNames = g_deviceExtensions.data();
 
-        debugLogger.linkToDevice(createInfo);
+        debugLogger->linkToDevice(createInfo);
 
         if (vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device) != VK_SUCCESS)
         {
