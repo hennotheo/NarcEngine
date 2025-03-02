@@ -12,7 +12,7 @@ namespace narc_engine {
 
     void EngineRenderer::create()
     {
-        m_device = Engine::getInstance()->getDevice()->getDevice();
+        m_device = Engine::getInstance()->getDevice();
 
         m_swapChain.create();
         createDescriptorSetLayout();
@@ -33,12 +33,14 @@ namespace narc_engine {
 
     void EngineRenderer::release()
     {
+        VkDevice device = m_device->getDevice();
+
         m_swapChain.cleanSwapChain();
 
-        vkDestroySampler(m_device, m_textureSampler, nullptr);
-        vkDestroyImageView(m_device, m_textureImageView, nullptr);
-        vkDestroyImage(m_device, m_textureImage, nullptr);
-        vkFreeMemory(m_device, m_textureImageMemory, nullptr);
+        vkDestroySampler(device, m_textureSampler, nullptr);
+        vkDestroyImageView(device, m_textureImageView, nullptr);
+        vkDestroyImage(device, m_textureImage, nullptr);
+        vkFreeMemory(device, m_textureImageMemory, nullptr);
 
         for (UniformBuffer& buffer: m_uniformBuffers)
         {
@@ -46,7 +48,7 @@ namespace narc_engine {
         }
 
         m_descriptorPool.release();
-        vkDestroyDescriptorSetLayout(m_device, m_descriptorSetLayout, nullptr);
+        vkDestroyDescriptorSetLayout(device, m_descriptorSetLayout, nullptr);
 
         m_renderTask.release();
 
@@ -54,22 +56,22 @@ namespace narc_engine {
 
         for (size_t i = 0; i < g_maxFramesInFlight; i++)
         {
-            vkDestroySemaphore(m_device, m_renderFinishedSemaphores[i], nullptr);
-            vkDestroySemaphore(m_device, m_imageAvailableSemaphores[i], nullptr);
-            vkDestroyFence(m_device, m_inFlightFences[i], nullptr);
+            vkDestroySemaphore(device, m_renderFinishedSemaphores[i], nullptr);
+            vkDestroySemaphore(device, m_imageAvailableSemaphores[i], nullptr);
+            vkDestroyFence(device, m_inFlightFences[i], nullptr);
         }
     }
 
     void EngineRenderer::drawFrame()
     {
-        vkWaitForFences(m_device, 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
+        vkWaitForFences(m_device->getDevice(), 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
 
         uint32_t imageIndex;
         VkResult result = m_swapChain.acquireNextImage(m_imageAvailableSemaphores[m_currentFrame], &imageIndex);
 
         updateUniformBuffer(m_currentFrame);
 
-        vkResetFences(m_device, 1, &m_inFlightFences[m_currentFrame]);
+        vkResetFences(m_device->getDevice(), 1, &m_inFlightFences[m_currentFrame]);
 
         CommandBuffer* buffer = Engine::getInstance()->getCommandPool()->getCommandBuffer(m_currentFrame);
         buffer->reset(0);
@@ -169,7 +171,7 @@ namespace narc_engine {
         layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
         layoutInfo.pBindings = bindings.data();
 
-        if (vkCreateDescriptorSetLayout(m_device, &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS)
+        if (vkCreateDescriptorSetLayout(m_device->getDevice(), &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create descriptor set layout!");
         }
@@ -244,9 +246,9 @@ namespace narc_engine {
 
         for (size_t i = 0; i < g_maxFramesInFlight; i++)
         {
-            if (vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]) != VK_SUCCESS ||
-                vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]) != VK_SUCCESS ||
-                vkCreateFence(m_device, &fenceInfo, nullptr, &m_inFlightFences[i]) != VK_SUCCESS)
+            if (vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]) != VK_SUCCESS ||
+                vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]) != VK_SUCCESS ||
+                vkCreateFence(m_device->getDevice(), &fenceInfo, nullptr, &m_inFlightFences[i]) != VK_SUCCESS)
             {
                 NARCLOG_FATAL("failed to create semaphores!");
             }
@@ -316,7 +318,7 @@ namespace narc_engine {
         samplerInfo.minLod = 0.0f;
         samplerInfo.maxLod = 0.0f;
 
-        if (vkCreateSampler(m_device, &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
+        if (vkCreateSampler(m_device->getDevice(), &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create texture sampler!");
         }
@@ -324,6 +326,6 @@ namespace narc_engine {
 
     void EngineRenderer::createImageTextureView()
     {
-        m_textureImageView = m_swapChain.createImageView(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+        m_textureImageView = m_device->createImageView(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
     }
 } // narc_engine

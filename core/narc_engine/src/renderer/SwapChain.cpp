@@ -4,6 +4,7 @@
 
 #include "Engine.h"
 #include "core/DeviceHandler.h"
+#include "renderer/DepthResources.h"
 
 namespace narc_engine {
     void SwapChain::create()
@@ -15,7 +16,8 @@ namespace narc_engine {
         createSwapChain();
         createImageViews();
         createRenderPass();
-        createDepthResources();
+        m_depthResources = std::make_unique<DepthResources>();
+        m_depthResources->create(m_swapChainExtent.width, m_swapChainExtent.height);
     }
 
     VkResult SwapChain::acquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex)
@@ -38,10 +40,7 @@ namespace narc_engine {
 
     void SwapChain::cleanSwapChain()
     {
-        vkDestroyImageView(m_deviceHandler->getDevice(), m_depthImageView, nullptr);
-        vkDestroyImage(m_deviceHandler->getDevice(), m_depthImage, nullptr);
-        vkFreeMemory(m_deviceHandler->getDevice(), m_depthImageMemory, nullptr);
-
+        m_depthResources->release();
         for (auto framebuffer: m_swapChainFramebuffers)
         {
             vkDestroyFramebuffer(m_deviceHandler->getDevice(), framebuffer, nullptr);
@@ -72,7 +71,7 @@ namespace narc_engine {
 
         createSwapChain();
         createImageViews();
-        createDepthResources();
+        m_depthResources->create(m_swapChainExtent.width, m_swapChainExtent.height);
         createFramebuffers();
     }
 
@@ -84,7 +83,7 @@ namespace narc_engine {
         {
             std::array<VkImageView, 2> attachments = {
                 m_swapChainImageViews[i],
-                m_depthImageView
+                m_depthResources->getImageView()
             };
 
             VkFramebufferCreateInfo framebufferInfo{};
@@ -222,44 +221,8 @@ namespace narc_engine {
 
         for (size_t i = 0; i < m_swapChainImages.size(); i++)
         {
-            m_swapChainImageViews[i] = createImageView(m_swapChainImages[i], m_swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+            m_swapChainImageViews[i] = m_deviceHandler->createImageView(m_swapChainImages[i], m_swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
         }
-    }
-
-    void SwapChain::createDepthResources()
-    {
-        VkFormat depthFormat = Engine::getInstance()->getDevice()->findDepthFormat();
-
-        Engine::getInstance()->createImage(m_swapChainExtent.width, m_swapChainExtent.height,
-                                           depthFormat, VK_IMAGE_TILING_OPTIMAL,
-                                           VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_depthImage, m_depthImageMemory);
-        m_depthImageView = createImageView(m_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
-
-        Engine::getInstance()->transitionImageLayout(m_depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED,
-                                                     VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-    }
-
-    VkImageView SwapChain::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const
-    {
-        VkImageViewCreateInfo viewInfo{};
-        viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        viewInfo.image = image;
-        viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        viewInfo.format = format;
-        viewInfo.subresourceRange.aspectMask = aspectFlags; //VK_IMAGE_ASPECT_COLOR_BIT;
-        viewInfo.subresourceRange.baseMipLevel = 0;
-        viewInfo.subresourceRange.levelCount = 1;
-        viewInfo.subresourceRange.baseArrayLayer = 0;
-        viewInfo.subresourceRange.layerCount = 1;
-
-        VkImageView imageView;
-        if (vkCreateImageView(m_deviceHandler->getDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS)
-        {
-            NARCLOG_FATAL("failed to create texture image view!");
-        }
-
-        return imageView;
     }
 
     VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)

@@ -2,6 +2,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include "renderer/DepthResources.h"
+
 namespace narc_engine {
     class DeviceHandler;
     class Window;
@@ -16,7 +18,7 @@ namespace narc_engine {
         void create();
         void createFramebuffers();
 
-        VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const;
+
         VkRenderPassBeginInfo getRenderPassBeginInfos(uint32_t imageIndex) const;
         VkResult acquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex);
         void reCreate();
@@ -32,10 +34,7 @@ namespace narc_engine {
         std::vector<VkImageView> m_swapChainImageViews;
         std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
-        VkImage m_depthImage;
-        VkDeviceMemory m_depthImageMemory;
-        VkImageView m_depthImageView;
-
+        std::unique_ptr<DepthResources> m_depthResources;
         VkRenderPass m_renderPass;
 
         const DeviceHandler* m_deviceHandler = nullptr;
@@ -43,7 +42,6 @@ namespace narc_engine {
 
         void createSwapChain();
         void createRenderPass();
-        void createDepthResources();
         void createImageViews();
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
         VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);

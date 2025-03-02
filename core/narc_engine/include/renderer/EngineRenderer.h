@@ -40,7 +40,7 @@ namespace narc_engine {
         VkImageView m_textureImageView;
         VkSampler m_textureSampler;
 
-        VkDevice m_device;
+        const DeviceHandler* m_device = nullptr;
 
         void createDescriptorPool(uint32_t maxFrameInFlight);
         void createDescriptorSetLayout();

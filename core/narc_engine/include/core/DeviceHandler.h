@@ -19,16 +19,18 @@ namespace narc_engine {
         void createSwapChain(VkSwapchainCreateInfoKHR& createInfo, VkSwapchainKHR* swapchain) const;
         void createCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateInfo poolInfo) const;
         VkShaderModule createShaderModule(const std::vector<char>& code) const;
-        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
-        void destroyShaderModule(VkShaderModule shaderModule) const;
+        VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const;
 
         void waitDeviceIdle() const;
+        void waitGraphicsQueueIdle() const;
         VkResult submitGraphicsQueue(uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const;
         VkResult presentKHR(const VkPresentInfoKHR* presentInfo) const;
-        void waitGraphicsQueueIdle() const;
 
+        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
         VkFormat findDepthFormat() const;
         VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
+
+        void destroyShaderModule(VkShaderModule shaderModule) const;
 
         void release();
 
