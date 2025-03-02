@@ -8,10 +8,8 @@ namespace narc_engine {
     const uint32_t g_width = 800;
     const uint32_t g_height = 600;
 
-    Window::Window(const EngineInstance* engineInstance)
+    Window::Window()
     {
-        m_engineInstance = engineInstance;
-
         glfwInit();
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -22,18 +20,18 @@ namespace narc_engine {
         glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback); //call static function because GLFW does know how to call a member function
     }
 
-    void Window::initsurface(const EngineInstance* engineInstance)
-    {
-        m_engineInstance = engineInstance;
-        m_engineInstance->createGLFWSurface(m_window, &m_surface, nullptr);
-    }
-
     Window::~Window()
     {
         m_engineInstance->destroyGLFWSurface(m_surface, nullptr);
 
         glfwDestroyWindow(m_window);
         glfwTerminate();
+    }
+
+    void Window::init(const EngineInstance* engineInstance)
+    {
+        m_engineInstance = engineInstance;
+        m_engineInstance->createGLFWSurface(m_window, &m_surface, nullptr);
     }
 
     void Window::update()

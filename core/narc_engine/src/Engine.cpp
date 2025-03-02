@@ -30,23 +30,20 @@ namespace narc_engine {
     Engine::Engine()
     {
         s_instance = this;
-        m_window = std::make_unique<Window>(nullptr);
+        m_window = std::make_unique<Window>();
         m_instance = std::make_unique<EngineInstance>();
-        m_window->initsurface(m_instance.get());
+        m_window->init(m_instance.get());
         m_debugLogger = std::make_unique<EngineDebugLogger>(m_instance.get());
-        m_deviceHandler.create(m_window.get(), m_instance.get(), m_debugLogger.get());
-        m_commandPool.create(&m_deviceHandler);
-        m_renderer.create();
+        m_deviceHandler = std::make_unique<DeviceHandler>(m_window.get(), m_instance.get(), m_debugLogger.get());
+
+        m_commandPool = std::make_unique<CommandPool>(m_deviceHandler.get());
+        m_renderer = std::make_unique<EngineRenderer>();
 
         m_engineBinder = std::make_unique<EngineBinder>(this);
     }
 
     Engine::~Engine()
     {
-        m_renderer.release();
-
-        m_commandPool.release();
-        m_deviceHandler.release();
     }
 
     Engine* Engine::getInstance()
@@ -71,12 +68,12 @@ namespace narc_engine {
 
     void Engine::render()
     {
-        m_renderer.drawFrame();
+        m_renderer->drawFrame();
     }
 
     void Engine::waitDeviceIdle()
     {
-        m_deviceHandler.waitDeviceIdle();
+        m_deviceHandler->waitDeviceIdle();
     }
 
     bool Engine::hasStencilComponent(VkFormat format)
@@ -86,7 +83,7 @@ namespace narc_engine {
 
     void Engine::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
     {
-        CommandBuffer commandBuffer = m_commandPool.beginSingleTimeCommands();
+        CommandBuffer commandBuffer = m_commandPool->beginSingleTimeCommands();
 
         VkImageMemoryBarrier barrier{};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -150,12 +147,12 @@ namespace narc_engine {
 
         commandBuffer.cmdPipelineBarrier(sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
-        m_commandPool.endSingleTimeCommands(commandBuffer);
+        m_commandPool->endSingleTimeCommands(commandBuffer);
     }
 
     void Engine::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
     {
-        CommandBuffer commandBuffer = m_commandPool.beginSingleTimeCommands();
+        CommandBuffer commandBuffer = m_commandPool->beginSingleTimeCommands();
 
         VkBufferImageCopy region{};
         region.bufferOffset = 0;
@@ -176,12 +173,12 @@ namespace narc_engine {
 
         commandBuffer.cmdCopyBufferImage(buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-        m_commandPool.endSingleTimeCommands(commandBuffer);
+        m_commandPool->endSingleTimeCommands(commandBuffer);
     }
 
     void Engine::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
     {
-        CommandBuffer commandBuffer = m_commandPool.beginSingleTimeCommands();
+        CommandBuffer commandBuffer = m_commandPool->beginSingleTimeCommands();
 
         VkBufferCopy copyRegion{};
         copyRegion.srcOffset = 0; // Optional
@@ -189,7 +186,7 @@ namespace narc_engine {
         copyRegion.size = size;
         commandBuffer.cmdCopyBuffer(srcBuffer, dstBuffer, 1, &copyRegion);
 
-        m_commandPool.endSingleTimeCommands(commandBuffer);
+        m_commandPool->endSingleTimeCommands(commandBuffer);
     }
 
     void Engine::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
@@ -212,25 +209,25 @@ namespace narc_engine {
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageInfo.flags = 0; // Optional
 
-        if (vkCreateImage(m_deviceHandler.getDevice(), &imageInfo, nullptr, &image) != VK_SUCCESS)
+        if (vkCreateImage(m_deviceHandler->getDevice(), &imageInfo, nullptr, &image) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create image!");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetImageMemoryRequirements(m_deviceHandler.getDevice(), image, &memRequirements);
+        vkGetImageMemoryRequirements(m_deviceHandler->getDevice(), image, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = m_deviceHandler.findMemoryType(memRequirements.memoryTypeBits, properties);
+        allocInfo.memoryTypeIndex = m_deviceHandler->findMemoryType(memRequirements.memoryTypeBits, properties);
 
-        if (vkAllocateMemory(m_deviceHandler.getDevice(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
+        if (vkAllocateMemory(m_deviceHandler->getDevice(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to allocate image memory!");
         }
 
-        vkBindImageMemory(m_deviceHandler.getDevice(), image, imageMemory, 0);
+        vkBindImageMemory(m_deviceHandler->getDevice(), image, imageMemory, 0);
     }
 
     void Engine::createImage(const narc_io::Image& imageData, VkFormat format, VkImageTiling tiling,

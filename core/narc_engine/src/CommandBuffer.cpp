@@ -11,7 +11,7 @@ namespace narc_engine {
         }
     }
 
-    void CommandBuffer::reset(VkCommandBufferResetFlags flags) const
+    void CommandBuffer::reset(VkCommandBufferResetFlags flags)
     {
         if (vkResetCommandBuffer(m_commandBuffer, flags) != VK_SUCCESS)
         {
@@ -19,7 +19,7 @@ namespace narc_engine {
         }
     }
 
-    void CommandBuffer::begin(VkCommandBufferBeginInfo beginInfo) const
+    void CommandBuffer::begin(VkCommandBufferBeginInfo beginInfo)
     {
         if (vkBeginCommandBuffer(m_commandBuffer, &beginInfo) != VK_SUCCESS)
         {
@@ -27,12 +27,12 @@ namespace narc_engine {
         }
     }
 
-    VkResult CommandBuffer::end() const
+    VkResult CommandBuffer::end()
     {
         return vkEndCommandBuffer(m_commandBuffer);
     }
 
-    void CommandBuffer::release(const DeviceHandler* deviceHandler, const VkCommandPool& commandPool) const
+    void CommandBuffer::release(const DeviceHandler* deviceHandler, const VkCommandPool& commandPool)
     {
         vkFreeCommandBuffers(deviceHandler->getDevice(), commandPool, 1, &m_commandBuffer);
     }

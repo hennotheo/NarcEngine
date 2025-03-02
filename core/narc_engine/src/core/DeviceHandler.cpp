@@ -10,7 +10,7 @@ namespace narc_engine {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
-    void DeviceHandler::create(const Window* window, const EngineInstance* instance, const EngineDebugLogger* debugLogger)
+    DeviceHandler::DeviceHandler(const Window* window, const EngineInstance* instance, const EngineDebugLogger* debugLogger)
     {
         m_instance = instance;
         m_window = window;
@@ -19,6 +19,11 @@ namespace narc_engine {
         createLogicalDevice(debugLogger);
 
         vkGetPhysicalDeviceProperties(m_physicalDevice, &m_physicalDeviceProperties);
+    }
+
+    DeviceHandler::~DeviceHandler()
+    {
+        vkDestroyDevice(m_device, nullptr);
     }
 
     VkShaderModule DeviceHandler::createShaderModule(const std::vector<char>& code) const
@@ -170,11 +175,6 @@ namespace narc_engine {
         {
             NARCLOG_FATAL("failed to create swap chain!");
         }
-    }
-
-    void DeviceHandler::release()
-    {
-        vkDestroyDevice(m_device, nullptr);
     }
 
     void DeviceHandler::pickPhysicalDevice()

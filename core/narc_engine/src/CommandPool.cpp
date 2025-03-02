@@ -4,9 +4,8 @@
 
 #include "core/DeviceHandler.h"
 
-namespace narc_engine
-{
-    void CommandPool::create(const DeviceHandler* deviceHandler)
+namespace narc_engine {
+    CommandPool::CommandPool(const DeviceHandler* deviceHandler)
     {
         m_deviceHandler = deviceHandler;
 
@@ -17,7 +16,7 @@ namespace narc_engine
         m_deviceHandler->createCommandPool(&m_commandPool, poolInfo);
     }
 
-    void CommandPool::release()
+    CommandPool::~CommandPool()
     {
         vkDestroyCommandPool(m_deviceHandler->getDevice(), m_commandPool, nullptr);
     }
@@ -47,11 +46,11 @@ namespace narc_engine
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandPool = m_commandPool;
         allocInfo.commandBufferCount = 1;
-        
+
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-        
+
         CommandBuffer commandBuffer;
         commandBuffer.allocate(m_deviceHandler, &allocInfo);
         commandBuffer.begin(beginInfo);

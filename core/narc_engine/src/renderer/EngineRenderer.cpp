@@ -10,7 +10,7 @@
 namespace narc_engine {
     const uint32_t g_maxFramesInFlight = 2;
 
-    void EngineRenderer::create()
+    EngineRenderer::EngineRenderer()
     {
         m_device = Engine::getInstance()->getDevice();
 
@@ -31,7 +31,7 @@ namespace narc_engine {
         createSyncObjects();
     }
 
-    void EngineRenderer::release()
+    EngineRenderer::~EngineRenderer()
     {
         VkDevice device = m_device->getDevice();
 

@@ -10,11 +10,12 @@ namespace narc_engine {
     class DeviceHandler
     {
     public:
+        DeviceHandler(const Window* window, const EngineInstance* instance, const EngineDebugLogger* debugLogger);
+        ~DeviceHandler();
+
         const inline VkDevice& getDevice() const { return m_device; }
         const inline VkPhysicalDevice& getPhysicalDevice() const { return m_physicalDevice; }
         const inline VkPhysicalDeviceProperties& getPhysicalDeviceProperties() const { return m_physicalDeviceProperties; }
-
-        void create(const Window* window, const EngineInstance* instance, const EngineDebugLogger* debugLogger);
 
         void createSwapChain(VkSwapchainCreateInfoKHR& createInfo, VkSwapchainKHR* swapchain) const;
         void createCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateInfo poolInfo) const;
@@ -31,8 +32,6 @@ namespace narc_engine {
         VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
 
         void destroyShaderModule(VkShaderModule shaderModule) const;
-
-        void release();
 
     private:
         VkDevice m_device;

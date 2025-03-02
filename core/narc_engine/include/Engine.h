@@ -27,9 +27,9 @@ namespace narc_engine {
         void waitDeviceIdle() override;
         EngineBinder* binder() const override;
 
-        const DeviceHandler* getDevice() const { return &m_deviceHandler; }
-        Window* getWindow() { return m_window.get(); }
-        CommandPool* getCommandPool() { return &m_commandPool; }
+        const DeviceHandler* getDevice() const { return m_deviceHandler.get(); }
+        Window* getWindow() const { return m_window.get(); }
+        CommandPool* getCommandPool() const { return m_commandPool.get(); }
 
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
@@ -46,10 +46,10 @@ namespace narc_engine {
         std::unique_ptr<EngineInstance> m_instance;
         std::unique_ptr<Window> m_window;
         std::unique_ptr<EngineDebugLogger> m_debugLogger;
-        DeviceHandler m_deviceHandler;
+        std::unique_ptr<DeviceHandler> m_deviceHandler;
 
-        EngineRenderer m_renderer;
-        CommandPool m_commandPool;
+        std::unique_ptr<CommandPool> m_commandPool;
+        std::unique_ptr<EngineRenderer> m_renderer;
 
         std::unique_ptr<EngineBinder> m_engineBinder;
 

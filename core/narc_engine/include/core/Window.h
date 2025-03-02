@@ -11,9 +11,10 @@ namespace narc_engine {
     class Window
     {
     public:
-        Window(const EngineInstance* engineInstance);
-        void initsurface(const EngineInstance* engineInstance);
+        Window();
         ~Window();
+
+        void init(const EngineInstance* engineInstance);
 
         inline bool isFramebufferResized() const { return m_framebufferResized; }
         inline bool shouldClose() const { return m_shouldClose; }

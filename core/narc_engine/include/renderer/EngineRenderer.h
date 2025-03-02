@@ -12,7 +12,8 @@ namespace narc_engine {
     class EngineRenderer
     {
     public:
-        void create();
+        EngineRenderer();
+        ~EngineRenderer();
 
         void drawFrame();
         void updateUniformBuffer(uint32_t currentImage);
