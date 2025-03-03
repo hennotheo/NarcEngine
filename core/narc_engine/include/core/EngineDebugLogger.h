@@ -4,26 +4,25 @@
 
 #include "Window.h"
 
-namespace narc_engine
-{
+namespace narc_engine {
     class EngineDebugLogger
     {
     public:
-        void init(VkInstance& instance);
+        EngineDebugLogger(const EngineInstance* instance);
+        ~EngineDebugLogger();
 
-        void linkToInstance(VkInstanceCreateInfo& createInfo, VkDebugUtilsMessengerCreateInfoEXT& debugCreateInfo);
-        std::vector<const char*> getRequiredExtensions(const Window* window);
-        void linkToDevice(VkDeviceCreateInfo& createInfo) const;
-
-        void clean(VkInstance& instance);
-
-        void checkValidationLayerSupport();
-        void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+        static void linkToDevice(VkDeviceCreateInfo& createInfo);
+        static void linkToInstance(VkInstanceCreateInfo& createInfo, VkDebugUtilsMessengerCreateInfoEXT& debugCreateInfo);
+        static std::vector<const char*> getRequiredExtensions();
+        static void checkValidationLayerSupport();
 
     private:
         VkDebugUtilsMessengerEXT m_debugMessenger;
 
+        const EngineInstance* m_instance = nullptr;
 
+
+        static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
         static VkBool32 debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                       VkDebugUtilsMessageTypeFlagsEXT messageType,
                                       const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
@@ -32,7 +31,7 @@ namespace narc_engine
 
     inline void destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator)
     {
-        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
 
         if (func != nullptr)
         {
@@ -45,7 +44,7 @@ namespace narc_engine
                                                  VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT*
                                                  pDebugMessenger)
     {
-        auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+        auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
 
         if (func != nullptr)
         {

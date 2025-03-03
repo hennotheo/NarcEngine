@@ -5,8 +5,7 @@
 #include "Engine.h"
 #include "buffers/GraphicsBuffer.h"
 
-namespace narc_engine
-{
+namespace narc_engine {
     void RenderTask::create(const SwapChain* swapChain, const VkDescriptorSetLayout* m_descriptorSetLayout)
     {
         m_device = Engine::getInstance()->getDevice()->getDevice();
@@ -18,7 +17,7 @@ namespace narc_engine
     {
         commandBuffer->cmdBindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
 
-        for (auto mesh : m_meshes)
+        for (auto mesh: m_meshes)
         {
             VkBuffer vertexBuffers[] = {mesh->getVertexBuffer()->getBuffer()};
             VkDeviceSize offsets[] = {0};
@@ -128,6 +127,18 @@ namespace narc_engine
         viewportState.viewportCount = 1;
         viewportState.scissorCount = 1;
 
+        VkPipelineDepthStencilStateCreateInfo depthStencil{}; //How he compares the depth
+        depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+        depthStencil.depthTestEnable = VK_TRUE;
+        depthStencil.depthWriteEnable = VK_TRUE;
+        depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+        depthStencil.depthBoundsTestEnable = VK_FALSE;
+        depthStencil.minDepthBounds = 0.0f; // Optional
+        depthStencil.maxDepthBounds = 1.0f; // Optional
+        depthStencil.stencilTestEnable = VK_FALSE;
+        depthStencil.front = {}; // Optional
+        depthStencil.back = {}; // Optional
+
         VkPipelineRasterizationStateCreateInfo rasterizer{};
         rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
         rasterizer.depthClampEnable = VK_FALSE;
@@ -152,7 +163,7 @@ namespace narc_engine
 
         VkPipelineColorBlendAttachmentState colorBlendAttachment{};
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-            VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+                                              VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
         colorBlendAttachment.blendEnable = VK_FALSE;
 
         VkPipelineColorBlendStateCreateInfo colorBlending{};
@@ -199,11 +210,11 @@ namespace narc_engine
         pipelineInfo.pViewportState = &viewportState;
         pipelineInfo.pRasterizationState = &rasterizer;
         pipelineInfo.pMultisampleState = &multisampling;
-        pipelineInfo.pDepthStencilState = nullptr; // Optional
+        pipelineInfo.pDepthStencilState = &depthStencil; // Optional
         pipelineInfo.pColorBlendState = &colorBlending;
         pipelineInfo.pDynamicState = &dynamicState;
         pipelineInfo.layout = m_pipelineLayout;
-        pipelineInfo.renderPass = swapChain->getRenderPass();
+        pipelineInfo.renderPass = swapChain->getRenderPass()->getRenderPass();
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
         pipelineInfo.basePipelineIndex = -1; // Optional

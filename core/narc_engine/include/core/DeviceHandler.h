@@ -4,31 +4,34 @@
 #include "QueueFamilyIndices.h"
 #include "EngineDebugLogger.h"
 
-namespace narc_engine
-{
+namespace narc_engine {
     class Window;
 
     class DeviceHandler
     {
     public:
+        DeviceHandler(const Window* window, const EngineInstance* instance, const EngineDebugLogger* debugLogger);
+        ~DeviceHandler();
+
         const inline VkDevice& getDevice() const { return m_device; }
         const inline VkPhysicalDevice& getPhysicalDevice() const { return m_physicalDevice; }
         const inline VkPhysicalDeviceProperties& getPhysicalDeviceProperties() const { return m_physicalDeviceProperties; }
 
-        void create(const Window* window, const VkInstance& instance, const EngineDebugLogger& debugLogger);
-
         void createSwapChain(VkSwapchainCreateInfoKHR& createInfo, VkSwapchainKHR* swapchain) const;
         void createCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateInfo poolInfo) const;
         VkShaderModule createShaderModule(const std::vector<char>& code) const;
-        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
-        void destroyShaderModule(VkShaderModule shaderModule) const;
+        VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const;
 
-        VkResult waitDeviceIdle() const;
+        void waitDeviceIdle() const;
+        void waitGraphicsQueueIdle() const;
         VkResult submitGraphicsQueue(uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const;
         VkResult presentKHR(const VkPresentInfoKHR* presentInfo) const;
-        void waitGraphicsQueueIdle() const;
 
-        void release();
+        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
+        VkFormat findDepthFormat() const;
+        VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
+
+        void destroyShaderModule(VkShaderModule shaderModule) const;
 
     private:
         VkDevice m_device;
@@ -39,12 +42,12 @@ namespace narc_engine
 
         VkPhysicalDeviceProperties m_physicalDeviceProperties{};
 
-        VkInstance m_vulkanInstance;
+        const EngineInstance* m_instance = nullptr;
         const Window* m_window = nullptr;
 
         void pickPhysicalDevice();
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) const;
-        void createLogicalDevice(const EngineDebugLogger& debugLogger);
+        void createLogicalDevice(const EngineDebugLogger* debugLogger);
         int rateDeviceSuitability(VkPhysicalDevice device);
         bool checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice, const std::vector<const char*>& deviceExtensions);
     };

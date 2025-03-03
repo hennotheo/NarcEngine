@@ -2,29 +2,36 @@
 
 #include <NarcLog.h>
 
-namespace narc_engine
-{
-    const uint32_t g_width = 800;
-    const uint32_t g_height = 600;
+#include "core/EngineInstance.h"
 
-    void Window::init()
+namespace narc_engine {
+    constexpr uint32_t g_width = 800;
+    constexpr uint32_t g_height = 600;
+
+    Window::Window()
     {
         glfwInit();
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
         m_window = glfwCreateWindow(g_width, g_height, "Narcoleptic Engine", nullptr, nullptr);
         glfwSetWindowUserPointer(m_window, this);
         glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback); //call static function because GLFW does know how to call a member function
     }
 
-    void Window::initSurface(VkInstance instance)
+    Window::~Window()
     {
-        if (glfwCreateWindowSurface(instance, m_window, nullptr, &m_surface) != VK_SUCCESS)
-        {
-            NARCLOG_FATAL("Failed to create window surface!");
-        }
+        m_engineInstance->destroyGLFWSurface(m_surface, nullptr);
+
+        glfwDestroyWindow(m_window);
+        glfwTerminate();
+    }
+
+    void Window::init(const EngineInstance* engineInstance)
+    {
+        m_engineInstance = engineInstance;
+        m_engineInstance->createGLFWSurface(m_window, &m_surface, nullptr);
     }
 
     void Window::update()
@@ -33,18 +40,7 @@ namespace narc_engine
         m_shouldClose = glfwWindowShouldClose(m_window);
     }
 
-    void Window::cleanSurface(VkInstance m_instance)
-    {
-        vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
-    }
-
-    void Window::clean()
-    {
-        glfwDestroyWindow(m_window);
-        glfwTerminate();
-    }
-
-    const char** Window::getRequiredInstanceExtensions(uint32_t* glfwExtensionCount) const
+    const char** Window::getRequiredInstanceExtensions(uint32_t* glfwExtensionCount)
     {
         return glfwGetRequiredInstanceExtensions(glfwExtensionCount);
     }

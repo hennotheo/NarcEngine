@@ -4,9 +4,9 @@
 
 #include "Engine.h"
 #include "core/DeviceHandler.h"
+#include "renderer/DepthResources.h"
 
-namespace narc_engine
-{
+namespace narc_engine {
     void SwapChain::create()
     {
         Engine* engine = Engine::getInstance();
@@ -15,7 +15,9 @@ namespace narc_engine
 
         createSwapChain();
         createImageViews();
-        createRenderPass();
+        m_renderPass = std::make_unique<RenderPass>(m_swapChainImageFormat);
+        m_depthResources = std::make_unique<DepthResources>();
+        m_depthResources->create(m_swapChainExtent.width, m_swapChainExtent.height);
     }
 
     VkResult SwapChain::acquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex)
@@ -38,12 +40,13 @@ namespace narc_engine
 
     void SwapChain::cleanSwapChain()
     {
-        for (auto framebuffer : m_swapChainFramebuffers)
+        m_depthResources->release();
+        for (auto framebuffer: m_swapChainFramebuffers)
         {
             vkDestroyFramebuffer(m_deviceHandler->getDevice(), framebuffer, nullptr);
         }
 
-        for (auto imageView : m_swapChainImageViews)
+        for (auto imageView: m_swapChainImageViews)
         {
             vkDestroyImageView(m_deviceHandler->getDevice(), imageView, nullptr);
         }
@@ -53,7 +56,7 @@ namespace narc_engine
 
     void SwapChain::cleanRenderPass()
     {
-        vkDestroyRenderPass(m_deviceHandler->getDevice(), m_renderPass, nullptr);
+        m_renderPass.reset();
     }
 
     void SwapChain::reCreate()
@@ -68,6 +71,7 @@ namespace narc_engine
 
         createSwapChain();
         createImageViews();
+        m_depthResources->create(m_swapChainExtent.width, m_swapChainExtent.height);
         createFramebuffers();
     }
 
@@ -77,16 +81,16 @@ namespace narc_engine
 
         for (size_t i = 0; i < m_swapChainImageViews.size(); i++)
         {
-            VkImageView attachments[] =
-            {
-                m_swapChainImageViews[i]
+            std::array<VkImageView, 2> attachments = {
+                m_swapChainImageViews[i],
+                m_depthResources->getImageView()
             };
 
             VkFramebufferCreateInfo framebufferInfo{};
             framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferInfo.renderPass = m_renderPass;
-            framebufferInfo.attachmentCount = 1;
-            framebufferInfo.pAttachments = attachments;
+            framebufferInfo.renderPass = getRenderPass()->getRenderPass();
+            framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+            framebufferInfo.pAttachments = attachments.data();
             framebufferInfo.width = m_swapChainExtent.width;
             framebufferInfo.height = m_swapChainExtent.height;
             framebufferInfo.layers = 1;
@@ -102,7 +106,7 @@ namespace narc_engine
     {
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = m_renderPass;
+        renderPassInfo.renderPass = getRenderPass()->getRenderPass();
         renderPassInfo.framebuffer = m_swapChainFramebuffers[imageIndex];
         renderPassInfo.renderArea.offset = {0, 0};
         renderPassInfo.renderArea.extent = m_swapChainExtent;
@@ -149,87 +153,19 @@ namespace narc_engine
         m_swapChainExtent = extent;
     }
 
-    void SwapChain::createRenderPass()
-    {
-        VkAttachmentDescription colorAttachment{};
-        colorAttachment.format = m_swapChainImageFormat;
-        colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-        //Qu'est-ce que l'on fait avec la data
-        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        //on fait rien avec le stencil buffer donc -> dont care
-        colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-        VkAttachmentReference colorAttachmentRef{};
-        colorAttachmentRef.attachment = 0;
-        colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-        VkSubpassDescription subpass{};
-        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        subpass.colorAttachmentCount = 1;
-        subpass.pColorAttachments = &colorAttachmentRef;
-
-        VkSubpassDependency dependency{};
-        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-        dependency.dstSubpass = 0;
-        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.srcAccessMask = 0;
-        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-        VkRenderPassCreateInfo renderPassInfo{};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        renderPassInfo.attachmentCount = 1;
-        renderPassInfo.pAttachments = &colorAttachment;
-        renderPassInfo.subpassCount = 1;
-        renderPassInfo.pSubpasses = &subpass;
-        renderPassInfo.dependencyCount = 1;
-        renderPassInfo.pDependencies = &dependency;
-
-        if (vkCreateRenderPass(m_deviceHandler->getDevice(), &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS)
-        {
-            NARCLOG_FATAL("failed to create render pass!");
-        }
-    }
-
     void SwapChain::createImageViews()
     {
         m_swapChainImageViews.resize(m_swapChainImages.size());
 
         for (size_t i = 0; i < m_swapChainImages.size(); i++)
         {
-            m_swapChainImageViews[i] = createImageView(m_swapChainImages[i], m_swapChainImageFormat);
+            m_swapChainImageViews[i] = m_deviceHandler->createImageView(m_swapChainImages[i], m_swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
         }
-    }
-
-    VkImageView SwapChain::createImageView(VkImage image, VkFormat format)
-    {
-        VkImageViewCreateInfo viewInfo{};
-        viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        viewInfo.image = image;
-        viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        viewInfo.format = format;
-        viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        viewInfo.subresourceRange.baseMipLevel = 0;
-        viewInfo.subresourceRange.levelCount = 1;
-        viewInfo.subresourceRange.baseArrayLayer = 0;
-        viewInfo.subresourceRange.layerCount = 1;
-
-        VkImageView imageView;
-        if (vkCreateImageView(m_deviceHandler->getDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS)
-        {
-            NARCLOG_FATAL("failed to create texture image view!");
-        }
-
-        return imageView;
     }
 
     VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
     {
-        for (const auto& availableFormat : availableFormats)
+        for (const auto& availableFormat: availableFormats)
         {
             if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
             {
@@ -242,7 +178,7 @@ namespace narc_engine
 
     VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
     {
-        for (const auto& availablePresentMode : availablePresentModes)
+        for (const auto& availablePresentMode: availablePresentModes)
         {
             if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
             {
@@ -253,7 +189,7 @@ namespace narc_engine
         return VK_PRESENT_MODE_FIFO_KHR;
     }
 
-    VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
+    VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const
     {
         if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
         {

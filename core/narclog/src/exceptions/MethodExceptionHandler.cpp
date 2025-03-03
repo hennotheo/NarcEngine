@@ -49,7 +49,7 @@ namespace narclog {
     {
     }
 
-    void MethodExceptionHandler::fatalExceptionHandler(const FatalException& e) const
+    void MethodExceptionHandler::fatalExceptionHandler(const FatalException& e)
     {
         if (m_rethrowFatal)
         {

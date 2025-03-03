@@ -2,8 +2,10 @@
 
 #include <vulkan/vulkan.h>
 
-namespace narc_engine
-{
+#include "RenderPass.h"
+#include "renderer/DepthResources.h"
+
+namespace narc_engine {
     class DeviceHandler;
     class Window;
 
@@ -11,13 +13,12 @@ namespace narc_engine
     {
     public:
         const VkExtent2D& getSwapChainExtent() const { return m_swapChainExtent; }
-        const VkRenderPass& getRenderPass() const { return m_renderPass; }
+        const RenderPass* getRenderPass() const { return m_renderPass.get(); }
         const VkSwapchainKHR& getSwapChain() const { return m_swapChain; }
 
         void create();
         void createFramebuffers();
 
-        VkImageView createImageView(VkImage image, VkFormat format);
         VkRenderPassBeginInfo getRenderPassBeginInfos(uint32_t imageIndex) const;
         VkResult acquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex);
         void reCreate();
@@ -33,16 +34,16 @@ namespace narc_engine
         std::vector<VkImageView> m_swapChainImageViews;
         std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
-        VkRenderPass m_renderPass;
+        std::unique_ptr<DepthResources> m_depthResources;
+        std::unique_ptr<RenderPass> m_renderPass;
 
         const DeviceHandler* m_deviceHandler = nullptr;
         const Window* m_window = nullptr;
 
         void createSwapChain();
-        void createRenderPass();
         void createImageViews();
-        VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-        VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+        static VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+        static VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const;
     };
 }

@@ -3,25 +3,23 @@
 #include "CommandBuffer.h"
 #include "DescriptorPool.h"
 #include "buffers/UniformBuffer.h"
-#include "data/Vertex.h"
+#include "models/Vertex.h"
 #include "renderer/SwapChain.h"
 #include "renderer/RenderTask.h"
-#include "data/Mesh.h"
+#include "models/Mesh.h"
 
-namespace narc_engine
-{
+namespace narc_engine {
     class EngineRenderer
     {
     public:
-        void create();
+        EngineRenderer();
+        ~EngineRenderer();
 
         void drawFrame();
         void updateUniformBuffer(uint32_t currentImage);
 
         void bindMesh(const Mesh* mesh) { m_renderTask.bindMesh(mesh); }
         void unbindMesh(const Mesh* mesh) { m_renderTask.unbindMesh(mesh); }
-
-        void release();
 
     private:
         SwapChain m_swapChain;
@@ -41,7 +39,7 @@ namespace narc_engine
         VkImageView m_textureImageView;
         VkSampler m_textureSampler;
 
-        VkDevice m_device;
+        const DeviceHandler* m_device = nullptr;
 
         void createDescriptorPool(uint32_t maxFrameInFlight);
         void createDescriptorSetLayout();

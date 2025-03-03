@@ -4,20 +4,19 @@
 #include "CommandBuffer.h"
 #include "core/DeviceHandler.h"
 
-namespace narc_engine
-{
+namespace narc_engine {
     class CommandPool
     {
     public:
+        CommandPool(const DeviceHandler* deviceHandler);
+        ~CommandPool();
+
         CommandBuffer* getCommandBuffer(uint32_t index) { return &m_commandBuffers[index]; }
 
-        void create(const DeviceHandler* deviceHandler);
         void createCommandBuffers(uint32_t commandBufferCount);
 
-        CommandBuffer beginSingleTimeCommands();
-        void endSingleTimeCommands(CommandBuffer commandBuffer);
-
-        void release();
+        CommandBuffer beginSingleTimeCommands() const;
+        void endSingleTimeCommands(CommandBuffer commandBuffer) const;
 
     private:
         VkCommandPool m_commandPool;

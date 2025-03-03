@@ -13,5 +13,6 @@
 #include <fstream>
 #include <optional>
 #include <array>
+#include <memory>
 
 #include "Core.h"

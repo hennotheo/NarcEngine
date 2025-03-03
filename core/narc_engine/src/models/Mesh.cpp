@@ -1,7 +1,7 @@
 //
 // Created by theoh on 25/02/2025.
 //
-#include "data/Mesh.h"
+#include "models/Mesh.h"
 
 #include "buffers/GraphicsBuffer.h"
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "Buffer.h"
-#include "data/UniformBufferObject.h"
+#include "models/UniformBufferObject.h"
 
 namespace narc_engine
 {

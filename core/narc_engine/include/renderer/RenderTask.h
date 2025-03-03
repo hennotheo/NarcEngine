@@ -3,8 +3,8 @@
 #include "DescriptorPool.h"
 #include "SwapChain.h"
 #include "buffers/UniformBuffer.h"
-#include "data/Mesh.h"
-#include "data/Vertex.h"
+#include "models/Mesh.h"
+#include "models/Vertex.h"
 
 namespace narc_engine
 {

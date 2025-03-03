@@ -32,7 +32,7 @@ namespace narclog
 
         const char* m_name = nullptr;
 
-        void fatalExceptionHandler(const FatalException& e) const;
+        void fatalExceptionHandler(const FatalException& e);
         void errorExceptionHandler(const std::exception& e) const;
         std::string format(const std::exception& e) const;
         std::string format(const std::exception& e, const std::string& handlerName) const;

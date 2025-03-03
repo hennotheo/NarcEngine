@@ -2,22 +2,28 @@
 
 #include <NarcLog.h>
 
-namespace narc_engine
-{
+#include "core/EngineInstance.h"
+
+namespace narc_engine {
     const std::vector<const char*> g_deviceExtensions =
     {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
-    void DeviceHandler::create(const Window* window, const VkInstance& instance, const EngineDebugLogger& debugLogger)
+    DeviceHandler::DeviceHandler(const Window* window, const EngineInstance* instance, const EngineDebugLogger* debugLogger)
     {
-        m_vulkanInstance = instance;
+        m_instance = instance;
         m_window = window;
 
         pickPhysicalDevice();
         createLogicalDevice(debugLogger);
 
         vkGetPhysicalDeviceProperties(m_physicalDevice, &m_physicalDeviceProperties);
+    }
+
+    DeviceHandler::~DeviceHandler()
+    {
+        vkDestroyDevice(m_device, nullptr);
     }
 
     VkShaderModule DeviceHandler::createShaderModule(const std::vector<char>& code) const
@@ -36,9 +42,39 @@ namespace narc_engine
         return shaderModule;
     }
 
+    VkImageView DeviceHandler::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const
+    {
+        VkImageViewCreateInfo viewInfo{};
+        viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        viewInfo.image = image;
+        viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        viewInfo.format = format;
+        viewInfo.subresourceRange.aspectMask = aspectFlags; //VK_IMAGE_ASPECT_COLOR_BIT;
+        viewInfo.subresourceRange.baseMipLevel = 0;
+        viewInfo.subresourceRange.levelCount = 1;
+        viewInfo.subresourceRange.baseArrayLayer = 0;
+        viewInfo.subresourceRange.layerCount = 1;
+
+        VkImageView imageView;
+        if (vkCreateImageView(m_device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
+        {
+            NARCLOG_FATAL("failed to create texture image view!");
+        }
+
+        return imageView;
+    }
+
     void DeviceHandler::destroyShaderModule(VkShaderModule shaderModule) const
     {
         vkDestroyShaderModule(m_device, shaderModule, nullptr);
+    }
+
+    void DeviceHandler::waitDeviceIdle() const
+    {
+        if (vkDeviceWaitIdle(m_device) != VK_SUCCESS)
+        {
+            NARCLOG_FATAL("Failed to wait for device idle!");
+        }
     }
 
     uint32_t DeviceHandler::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const
@@ -60,18 +96,13 @@ namespace narc_engine
     void DeviceHandler::createCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateInfo poolInfo) const
     {
         QueueFamilyIndices queueFamilyIndices = findQueueFamilies(m_physicalDevice);
-        
+
         poolInfo.queueFamilyIndex = queueFamilyIndices.GraphicsFamily.value();
 
         if (vkCreateCommandPool(m_device, &poolInfo, nullptr, commandPool) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create command pool!");
         }
-    }
-
-    VkResult DeviceHandler::waitDeviceIdle() const
-    {
-        return vkDeviceWaitIdle(m_device);
     }
 
     VkResult DeviceHandler::submitGraphicsQueue(uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const
@@ -87,6 +118,39 @@ namespace narc_engine
     void DeviceHandler::waitGraphicsQueueIdle() const
     {
         vkQueueWaitIdle(m_graphicsQueue);
+    }
+
+    VkFormat DeviceHandler::findDepthFormat() const
+    {
+        const std::vector<VkFormat> candidates = {
+            VK_FORMAT_D32_SFLOAT,
+            VK_FORMAT_D32_SFLOAT_S8_UINT,
+            VK_FORMAT_D24_UNORM_S8_UINT
+        };
+
+        return findSupportedFormat(candidates,
+                                   VK_IMAGE_TILING_OPTIMAL,
+                                   VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+    }
+
+    VkFormat DeviceHandler::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const
+    {
+        for (const VkFormat format: candidates)
+        {
+            VkFormatProperties props;
+            vkGetPhysicalDeviceFormatProperties(m_physicalDevice, format, &props);
+
+            if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
+            {
+                return format;
+            }
+            if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
+            {
+                return format;
+            }
+        }
+
+        NARCLOG_FATAL("Failed to find supported format!");
     }
 
     void DeviceHandler::createSwapChain(VkSwapchainCreateInfoKHR& createInfo, VkSwapchainKHR* swapchain) const
@@ -106,32 +170,27 @@ namespace narc_engine
             createInfo.queueFamilyIndexCount = 0; // Optional
             createInfo.pQueueFamilyIndices = nullptr; // Optional
         }
-        
+
         if (vkCreateSwapchainKHR(m_device, &createInfo, nullptr, swapchain) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create swap chain!");
         }
     }
 
-    void DeviceHandler::release()
-    {
-        vkDestroyDevice(m_device, nullptr);
-    }
-
     void DeviceHandler::pickPhysicalDevice()
     {
         uint32_t deviceCount = 0;
-        vkEnumeratePhysicalDevices(m_vulkanInstance, &deviceCount, nullptr);
+        m_instance->getAllPhysicalDevices(&deviceCount, nullptr);
         std::vector<VkPhysicalDevice> devices(deviceCount);
-        vkEnumeratePhysicalDevices(m_vulkanInstance, &deviceCount, devices.data());
+        m_instance->getAllPhysicalDevices(&deviceCount, devices.data());
 
         if (deviceCount == 0)
         {
             NARCLOG_FATAL("Failed to find GPUs with Vulkan Support!");
         }
-        
+
         std::multimap<int, VkPhysicalDevice> candidates;
-        for (const auto& device : devices)
+        for (const auto& device: devices)
         {
             int score = rateDeviceSuitability(device);
             candidates.insert(std::make_pair(score, device));
@@ -147,7 +206,7 @@ namespace narc_engine
         }
     }
 
-    void DeviceHandler::createLogicalDevice(const EngineDebugLogger& debugLogger)
+    void DeviceHandler::createLogicalDevice(const EngineDebugLogger* debugLogger)
     {
         QueueFamilyIndices indices = findQueueFamilies(m_physicalDevice);
 
@@ -155,7 +214,7 @@ namespace narc_engine
         std::set<uint32_t> uniqueQueueFamilies = {indices.GraphicsFamily.value(), indices.PresentFamily.value()};
 
         float queuePriority = 1.0f;
-        for (uint32_t queueFamily : uniqueQueueFamilies)
+        for (uint32_t queueFamily: uniqueQueueFamilies)
         {
             VkDeviceQueueCreateInfo queueCreateInfo{};
             queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -179,7 +238,7 @@ namespace narc_engine
         createInfo.enabledExtensionCount = static_cast<uint32_t>(g_deviceExtensions.size());
         createInfo.ppEnabledExtensionNames = g_deviceExtensions.data();
 
-        debugLogger.linkToDevice(createInfo);
+        debugLogger->linkToDevice(createInfo);
 
         if (vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device) != VK_SUCCESS)
         {
@@ -230,12 +289,6 @@ namespace narc_engine
         }
 
         QueueFamilyIndices indices = findQueueFamilies(device);
-        VkDeviceQueueCreateInfo queueCreateInfo{};
-        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        queueCreateInfo.queueFamilyIndex = indices.GraphicsFamily.value();
-        queueCreateInfo.queueCount = 1;
-        float queuePriority = 1.0f;
-        queueCreateInfo.pQueuePriorities = &queuePriority;
         if (!indices.isComplete())
         {
             return 0;
@@ -253,7 +306,7 @@ namespace narc_engine
         vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, availableExtensions.data());
 
         std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
-        for (const auto& extension : availableExtensions)
+        for (const auto& extension: availableExtensions)
         {
             requiredExtensions.erase(extension.extensionName);
         }
@@ -271,7 +324,7 @@ namespace narc_engine
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
         int i = 0;
-        for (const auto& queueFamily : queueFamilies)
+        for (const auto& queueFamily: queueFamilies)
         {
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
             {
