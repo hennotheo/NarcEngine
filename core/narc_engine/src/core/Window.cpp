@@ -5,15 +5,15 @@
 #include "core/EngineInstance.h"
 
 namespace narc_engine {
-    const uint32_t g_width = 800;
-    const uint32_t g_height = 600;
+    constexpr uint32_t g_width = 800;
+    constexpr uint32_t g_height = 600;
 
     Window::Window()
     {
         glfwInit();
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
         m_window = glfwCreateWindow(g_width, g_height, "Narcoleptic Engine", nullptr, nullptr);
         glfwSetWindowUserPointer(m_window, this);

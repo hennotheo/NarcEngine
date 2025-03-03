@@ -8,7 +8,7 @@
 #include "buffers/StagingBuffer.h"
 
 namespace narc_engine {
-    const uint32_t g_maxFramesInFlight = 2;
+    constexpr uint32_t g_maxFramesInFlight = 2;
 
     EngineRenderer::EngineRenderer()
     {
@@ -17,7 +17,7 @@ namespace narc_engine {
         m_swapChain.create();
         createDescriptorSetLayout();
         m_renderTask.create(&m_swapChain, &m_descriptorSetLayout);
-        m_swapChain.createFramebuffers(); // CreateFramebuffers();
+        m_swapChain.createFramebuffers();
 
         Engine::getInstance()->getCommandPool()->createCommandBuffers(g_maxFramesInFlight);
 
@@ -98,8 +98,7 @@ namespace narc_engine {
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
 
-        if (Engine::getInstance()->getDevice()->submitGraphicsQueue(1, &submitInfo, m_inFlightFences[m_currentFrame]) !=
-            VK_SUCCESS)
+        if (m_device->submitGraphicsQueue(1, &submitInfo, m_inFlightFences[m_currentFrame]) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to submit draw command buffer!");
         }
@@ -116,7 +115,7 @@ namespace narc_engine {
         presentInfo.pImageIndices = &imageIndex;
         presentInfo.pResults = nullptr;
 
-        result = Engine::getInstance()->getDevice()->presentKHR(&presentInfo);
+        result = m_device->presentKHR(&presentInfo);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || Engine::getInstance()->getWindow()->
             isFramebufferResized())

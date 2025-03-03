@@ -21,8 +21,6 @@ namespace narc_engine {
         void bindMesh(const Mesh* mesh) { m_renderTask.bindMesh(mesh); }
         void unbindMesh(const Mesh* mesh) { m_renderTask.unbindMesh(mesh); }
 
-        void release();
-
     private:
         SwapChain m_swapChain;
         RenderTask m_renderTask;

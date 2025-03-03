@@ -39,7 +39,7 @@ namespace narc_engine {
         CommandBuffer::allocateBuffers(m_deviceHandler, &allocInfo, m_commandBuffers);
     }
 
-    CommandBuffer CommandPool::beginSingleTimeCommands()
+    CommandBuffer CommandPool::beginSingleTimeCommands() const
     {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -58,7 +58,7 @@ namespace narc_engine {
         return commandBuffer;
     }
 
-    void CommandPool::endSingleTimeCommands(CommandBuffer commandBuffer)
+    void CommandPool::endSingleTimeCommands(CommandBuffer commandBuffer) const
     {
         commandBuffer.end();
 

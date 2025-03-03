@@ -57,7 +57,6 @@ namespace narc_engine {
     void SwapChain::cleanRenderPass()
     {
         m_renderPass.reset();
-        //m_renderPass->release();
     }
 
     void SwapChain::reCreate()
@@ -190,7 +189,7 @@ namespace narc_engine {
         return VK_PRESENT_MODE_FIFO_KHR;
     }
 
-    VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
+    VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const
     {
         if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
         {

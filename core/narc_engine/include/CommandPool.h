@@ -15,8 +15,8 @@ namespace narc_engine {
 
         void createCommandBuffers(uint32_t commandBufferCount);
 
-        CommandBuffer beginSingleTimeCommands();
-        void endSingleTimeCommands(CommandBuffer commandBuffer);
+        CommandBuffer beginSingleTimeCommands() const;
+        void endSingleTimeCommands(CommandBuffer commandBuffer) const;
 
     private:
         VkCommandPool m_commandPool;

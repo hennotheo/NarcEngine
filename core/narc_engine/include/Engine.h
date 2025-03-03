@@ -54,7 +54,6 @@ namespace narc_engine {
         std::unique_ptr<EngineBinder> m_engineBinder;
 
     private:
-        //void createVulkanInstance();
         static bool hasStencilComponent(VkFormat format);
     };
 }
