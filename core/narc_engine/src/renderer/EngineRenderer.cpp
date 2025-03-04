@@ -9,6 +9,7 @@
 
 namespace narc_engine {
     constexpr uint32_t g_maxFramesInFlight = 2;
+    const std::string g_texturePath = "textures/test.png";
 
     EngineRenderer::EngineRenderer()
     {
@@ -268,7 +269,7 @@ namespace narc_engine {
 
     void EngineRenderer::createTextureImage()
     {
-        narc_io::Image image = narc_io::FileReader::readImage("textures/logo.png");
+        narc_io::Image image = narc_io::FileReader::readImage(g_texturePath.c_str());
         VkDeviceSize imageSize = image.getWidth() * image.getHeight() * 4;
 
         StagingBuffer staggingBuffer;

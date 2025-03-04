@@ -62,7 +62,6 @@ ExternalProject_Add(
         PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/vendors/glfw
         CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
 )
-
 ExternalProject_Add(
         glm
         GIT_REPOSITORY

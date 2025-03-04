@@ -7,8 +7,7 @@ cmake*/
 .idea/
 
 # Auto installed libraries
-**/vendors/glfw/
-**/vendors/glm/
+**/vendors/**
 
 # Prerequisites
 *.d

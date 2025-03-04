@@ -5,9 +5,8 @@
 
 #include "buffers/GraphicsBuffer.h"
 
-namespace narc_engine
-{
-    Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices)
+namespace narc_engine {
+    Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
     {
         m_vertexBuffer = std::make_unique<VertexBuffer>();
         m_indexBuffer = std::make_unique<IndexBuffer>();

@@ -2,5 +2,7 @@
 
 #include "Core.h"
 
-#include "data/Image.h"
+#include "models/Image.h"
+#include "models/Model3D.h"
+
 #include "FileReader.h"

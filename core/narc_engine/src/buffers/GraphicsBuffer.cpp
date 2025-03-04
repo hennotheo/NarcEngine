@@ -4,13 +4,12 @@
 #include "models/Vertex.h"
 #include "buffers/StagingBuffer.h"
 
-namespace narc_engine
-{
+namespace narc_engine {
     template class GraphicsBuffer<Vertex>;
-    template class GraphicsBuffer<uint16_t>;
+    template class GraphicsBuffer<uint32_t>;
 
-    template <typename T>
-    void GraphicsBuffer<T>::create(const std::vector<T>& input, VkBufferUsageFlagBits usage)//vertex : VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, index : VK_BUFFER_USAGE_INDEX_BUFFER_BIT 
+    template<typename T>
+    void GraphicsBuffer<T>::create(const std::vector<T>& input, VkBufferUsageFlagBits usage) //vertex : VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, index : VK_BUFFER_USAGE_INDEX_BUFFER_BIT
     {
         VkDeviceSize bufferSize = sizeof(input[0]) * input.size();
 

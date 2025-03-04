@@ -22,7 +22,7 @@ namespace narc_engine {
             VkBuffer vertexBuffers[] = {mesh->getVertexBuffer()->getBuffer()};
             VkDeviceSize offsets[] = {0};
             commandBuffer->cmdBindVertexBuffers(0, 1, vertexBuffers, offsets);
-            commandBuffer->cmdBindIndexBuffer(mesh->getIndexBuffer()->getBuffer(), 0, VK_INDEX_TYPE_UINT16);
+            commandBuffer->cmdBindIndexBuffer(mesh->getIndexBuffer()->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
             commandBuffer->cmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1,
                                                  &m_descriptorSets[currentFrame], 0, nullptr);
 
