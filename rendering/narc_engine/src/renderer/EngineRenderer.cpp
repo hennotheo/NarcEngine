@@ -1,8 +1,7 @@
 #include "renderer/EngineRenderer.h"
 
 #include <NarcLog.h>
-#include <glm/ext/matrix_clip_space.hpp>
-#include <glm/ext/matrix_transform.hpp>
+#include <NarcMath.h>
 
 #include "Engine.h"
 #include "buffers/StagingBuffer.h"

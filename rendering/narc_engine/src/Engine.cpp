@@ -1,10 +1,9 @@
 #include "Engine.h"
 
 #include <NarcLog.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include <NarcMath.h>
 
-#include "../include/models/Vertex.h"
+#include "models/Vertex.h"
 #include "buffers/StagingBuffer.h"
 #include "core/Window.h"
 

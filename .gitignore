@@ -44,4 +44,4 @@ cmake*/
 
 #Shaders
 *.spv
-core/shaders/compile_shaders.bat
+rendering/shaders/compile_shaders.bat

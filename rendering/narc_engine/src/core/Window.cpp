@@ -15,7 +15,7 @@ namespace narc_engine {
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-        m_window = glfwCreateWindow(g_width, g_height, "Narcoleptic Engine", nullptr, nullptr);
+        m_window = glfwCreateWindow(g_width, g_height, "Narc Engine", nullptr, nullptr);
         glfwSetWindowUserPointer(m_window, this);
         glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback); //call static function because GLFW does know how to call a member function
     }

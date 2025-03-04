@@ -59,15 +59,7 @@ ExternalProject_Add(
         GIT_REPOSITORY
         GIT_REPOSITORY https://github.com/glfw/glfw.git
         GIT_TAG 3.4
-        PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/vendors/glfw
-        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-)
-ExternalProject_Add(
-        glm
-        GIT_REPOSITORY
-        GIT_REPOSITORY https://github.com/g-truc/glm.git
-        GIT_TAG 1.0.1
-        PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/vendors/glm
+        PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/vendors
         CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
 )
 
@@ -79,10 +71,10 @@ set(NARC_ENGINE "NarcEngine" CACHE STRING "" FORCE)
 set(NARC_ENGINE_INCLUDE
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
         "${VULKAN_PATH}/Include"
-        "${CMAKE_CURRENT_SOURCE_DIR}/vendors/glm/include"
-        "${CMAKE_CURRENT_SOURCE_DIR}/vendors/glfw/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vendors/include"
         "${NARC_IO_INCLUDE}"
         "${NARC_LOG_INCLUDE}"
+        "${NARC_MATH_INCLUDE}"
         CACHE STRING "" FORCE)
 
 set(VULKAN_LIB_LIST "vulkan-1")
@@ -92,7 +84,7 @@ set(GLFW_LIB_LIST "glfw3")
 file(GLOB_RECURSE CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/vendors/glfw/lib)
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib)
 link_directories(${VULKAN_PATH}/Lib)
 
 add_compile_definitions(NARC_ENGINE_BUILD_DLL)
@@ -101,10 +93,10 @@ add_library(${NARC_ENGINE} SHARED include/NarcEngine.h ${CPP_FILES} ${HPP_FILES}
 
 include_directories(${NARC_ENGINE_INCLUDE})
 
-add_dependencies(${NARC_ENGINE} ${NARC_IO} ${NARC_LOG} glfw glm)
+add_dependencies(${NARC_ENGINE} ${NARC_IO} ${NARC_LOG} ${NARC_MATH} glfw)
 
 target_link_libraries(${NARC_ENGINE} PRIVATE ${VULKAN_LIB_LIST})
 target_link_libraries(${NARC_ENGINE} PRIVATE ${GLFW_LIB_LIST})
-target_link_libraries(${NARC_ENGINE} PUBLIC ${NARC_IO} ${NARC_LOG})
+target_link_libraries(${NARC_ENGINE} PUBLIC ${NARC_IO} ${NARC_LOG} ${NARC_MATH})
 
 target_precompile_headers(${NARC_ENGINE} PRIVATE "include/pch.h")

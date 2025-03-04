@@ -5,7 +5,6 @@
 #include "renderer/DepthResources.h"
 
 #include "Engine.h"
-#include "NarcLog.h"
 
 namespace narc_engine {
     DepthResources::DepthResources()

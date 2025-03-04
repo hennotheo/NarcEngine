@@ -7,7 +7,7 @@
 #include <map>
 #include <set>
 #include <string>
-#include <string.h>
+#include <cstring>
 #include <vector>
 #include <cstdint>
 #include <fstream>

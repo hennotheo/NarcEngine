@@ -1,7 +1,8 @@
 #include "renderer/DescriptorPool.h"
 
-#include "Engine.h"
 #include <NarcLog.h>
+
+#include "Engine.h"
 
 namespace narc_engine {
     void DescriptorPool::create(DescriptorPoolBuilder* builder)
