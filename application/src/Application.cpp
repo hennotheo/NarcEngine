@@ -35,9 +35,9 @@ namespace narc {
         std::vector<uint32_t> indices;
 
         narc_io::Model3D model = narc_io::FileReader::load3DModel(g_modelPath);
-        const std::vector<std::array<float, 3> > modelVertices = *model.getVertices();
-        const std::vector<std::array<float, 2> > modelTexCoords = *model.getTexCoords();
-        const std::vector<uint32_t> modelIndices = *model.getIndices();
+        const narc_io::VertexList modelVertices = *model.getVertices();
+        const narc_io::TexCoordList modelTexCoords = *model.getTexCoords();
+        const narc_io::IndexList modelIndices = *model.getIndices();
         for (int i = 0; i < model.getVerticesCount(); ++i)
         {
             vertices.push_back({

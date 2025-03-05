@@ -4,19 +4,28 @@
 
 #pragma once
 
+#include <NarcMath.h>
+
 namespace narc_io {
+    typedef std::vector<glm::vec3> VertexList;
+    typedef std::vector<glm::vec3> ColorList;
+    typedef std::vector<glm::vec2> TexCoordList;
+    typedef std::vector<uint32_t> IndexList;
+
     struct NARC_IO_API Model3D final
     {
         friend class FileReader;
 
         [[nodiscard]] uint32_t getVerticesCount() const { return m_vertices.size(); };
-        [[nodiscard]] const std::vector<std::array<float, 3> >* getVertices() const { return &m_vertices; };
-        [[nodiscard]] const std::vector<std::array<float, 2> >* getTexCoords() const { return &m_texCoords; };
-        [[nodiscard]] const std::vector<uint32_t>* getIndices() const { return &m_indices; };
+        [[nodiscard]] const VertexList* getVertices() const { return &m_vertices; };
+        [[nodiscard]] const TexCoordList* getTexCoords() const { return &m_texCoords; };
+        [[nodiscard]] const ColorList* getColors() const { return &m_colors; };
+        [[nodiscard]] const IndexList* getIndices() const { return &m_indices; };
 
     private:
-        std::vector<std::array<float, 3> > m_vertices{};
-        std::vector<std::array<float, 2> > m_texCoords{};
+        std::vector<glm::vec3> m_vertices{};
+        std::vector<glm::vec2> m_texCoords{};
+        std::vector<glm::vec3> m_colors{};
         std::vector<uint32_t> m_indices;
     };
 } // narcio
