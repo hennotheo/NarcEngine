@@ -36,7 +36,7 @@ add_subdirectory(rendering/shaders)
 
 # Install Path
 install(TARGETS
-        ${NARC_ENGINE_APP}
+        
         ${NARC_IO}
         ${NARC_ENGINE}
         ${NARC_LOG}
@@ -45,6 +45,7 @@ install(TARGETS
 install(DIRECTORY
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/shaders
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/textures
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/models
         DESTINATION /)
 
 if (MINGW)
