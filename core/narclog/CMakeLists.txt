@@ -1,7 +1,6 @@
 set(NARC_LOG "NarcLog" CACHE STRING "" FORCE)
 set(NARC_LOG_INCLUDE
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
-#        "${CMAKE_CURRENT_SOURCE_DIR}/vendors"
         CACHE STRING "" FORCE)
 
 file(GLOB_RECURSE CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)

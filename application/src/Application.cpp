@@ -4,25 +4,13 @@
 
 #include "Application.h"
 
+#include <NarcIO.h>
 #include <NarcLog.h>
 
+#include "FileReader.h"
+
 namespace narc {
-    const std::vector<narc_engine::Vertex> g_vertices = {
-        {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-        {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-        {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-        {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-
-        {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-        {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-        {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-        {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-    };
-
-    const std::vector<uint16_t> g_indices = {
-        0, 1, 2, 2, 3, 0,
-        4, 5, 6, 6, 7, 4
-    };
+    const std::string g_modelPath = "models/test.obj";
 
     const narc_engine::Mesh* g_mesh = nullptr;
 
@@ -43,7 +31,27 @@ namespace narc {
 
     void Application::start()
     {
-        g_mesh = new narc_engine::Mesh(g_vertices, g_indices);
+        std::vector<narc_engine::Vertex> vertices;
+        std::vector<uint32_t> indices;
+
+        narc_io::Model3D model = narc_io::FileReader::load3DModel(g_modelPath);
+        const narc_io::VertexList modelVertices = *model.getVertices();
+        const narc_io::TexCoordList modelTexCoords = *model.getTexCoords();
+        const narc_io::IndexList modelIndices = *model.getIndices();
+        for (int i = 0; i < model.getVerticesCount(); ++i)
+        {
+            vertices.push_back({
+                {modelVertices[i][0], modelVertices[i][1], modelVertices[i][2]},
+                {1.0f, 1.0f, 1.0f},
+                {modelTexCoords[i][0], modelTexCoords[i][1]}
+            });
+        }
+        for (uint32_t modelIndice: modelIndices)
+        {
+            indices.push_back(modelIndice);
+        }
+
+        g_mesh = new narc_engine::Mesh(vertices, indices);
         narc_engine::getEngine()->binder()->bindMesh(g_mesh);
     }
 

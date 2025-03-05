@@ -7,8 +7,7 @@ cmake*/
 .idea/
 
 # Auto installed libraries
-**/vendors/glfw/
-**/vendors/glm/
+**/vendors/**
 
 # Prerequisites
 *.d
@@ -45,4 +44,4 @@ cmake*/
 
 #Shaders
 *.spv
-core/shaders/compile_shaders.bat
+rendering/shaders/compile_shaders.bat
