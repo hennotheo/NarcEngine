@@ -77,27 +77,27 @@ file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib)
 link_directories(${VULKAN_PATH}/Lib)
 
-add_library(${NARC_ENGINE} SHARED include/NarcEngine.h ${CPP_FILES} ${HPP_FILES}) # ${CPP_FILES} ${HPP_FILES})
+add_library(NarcEngine SHARED include/NarcEngine.h ${CPP_FILES} ${HPP_FILES}) # ${CPP_FILES} ${HPP_FILES})
 
-add_dependencies(${NARC_ENGINE}
-        ${NARC_IO}
-        ${NARC_LOG}
-        ${NARC_MATH}
+add_dependencies(NarcEngine
+        NarcIO
+        NarcLog
+        NarcMath
         glfw)
 
-target_compile_definitions(${NARC_ENGINE} PRIVATE NARC_ENGINE_BUILD_DLL)
+target_compile_definitions(NarcEngine PRIVATE NARC_ENGINE_BUILD_DLL)
 
-target_include_directories(${NARC_ENGINE} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_include_directories(${NARC_ENGINE} PRIVATE
+target_include_directories(NarcEngine PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(NarcEngine PRIVATE
         "${VULKAN_PATH}/Include"
         "${CMAKE_CURRENT_SOURCE_DIR}/vendors/include")
 
-target_link_libraries(${NARC_ENGINE} PUBLIC
-        ${NARC_IO}
-        ${NARC_LOG}
-        ${NARC_MATH})
-target_link_libraries(${NARC_ENGINE} PRIVATE
+target_link_libraries(NarcEngine PUBLIC
+        NarcIO
+        NarcLog
+        NarcMath)
+target_link_libraries(NarcEngine PRIVATE
         ${GLFW_LIB_LIST}
         ${VULKAN_LIB_LIST})
 
-target_precompile_headers(${NARC_ENGINE} PRIVATE "include/pch.h")
+target_precompile_headers(NarcEngine PRIVATE "include/pch.h")

@@ -3,16 +3,16 @@ file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 
 link_directories(${CMAKE_BINARY_DIR}/NarcEngine/${CMAKE_BUILD_TYPE})
 
-add_executable(${NARC_ENGINE_APP} src/main.cpp ${CPP_FILES} ${HPP_FILES})
+add_executable(NarcEngineApp src/main.cpp ${CPP_FILES} ${HPP_FILES})
 
-add_dependencies(${NARC_ENGINE_APP}
-        ${COMPILE_SHADER_COMMAND}
-        ${NARC_ENGINE})
+add_dependencies(NarcEngineApp
+        CompileShaderCommand
+        NarcEngine)
 
-target_include_directories(${NARC_ENGINE_APP} PRIVATE
+target_include_directories(NarcEngineApp PRIVATE
         ${CMAKE_SOURCE_DIR}/application/include)
 
-target_link_libraries(${NARC_ENGINE_APP} PRIVATE ${NARC_ENGINE})
+target_link_libraries(NarcEngineApp PRIVATE NarcEngine)
 
 install(TARGETS
-        ${NARC_ENGINE_APP})
+        NarcEngineApp)

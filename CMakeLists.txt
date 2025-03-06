@@ -17,7 +17,7 @@ set(ENGINE_LIB_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}" CACHE INTERNAL "Library p
 set(VULKAN_GLSLC_PATH "" CACHE INTERNAL "Vulkan GLSL Compiler Path")
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 
-project(NarcEngine VERSION 0.1)
+project(NarcEngineApp VERSION 0.1)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS "NARC_BUILD_DEBUG" APPEND)
@@ -36,11 +36,11 @@ add_subdirectory(rendering/shaders)
 
 # Install Path
 install(TARGETS
-        
-        ${NARC_IO}
-        ${NARC_ENGINE}
-        ${NARC_LOG}
-        ${NARC_MATH}
+        NarcEngineApp
+        NarcEngine
+        NarcMath
+        NarcLog
+        NarcIO
         DESTINATION /)
 install(DIRECTORY
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/shaders

@@ -1,9 +1,9 @@
 file(GLOB_RECURSE CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 
-add_library(${NARC_LOG} SHARED include/NarcLog.h ${CPP_FILES} ${HPP_FILES}) # ${CPP_FILES} ${HPP_FILES})
+add_library(NarcLog SHARED include/NarcLog.h ${CPP_FILES} ${HPP_FILES}) # ${CPP_FILES} ${HPP_FILES})
 
-target_compile_definitions(${NARC_LOG} PRIVATE NARCLOG_BUILD_DLL)
-target_precompile_headers(${NARC_LOG} PRIVATE "include/pch.h")
+target_compile_definitions(NarcLog PRIVATE NARCLOG_BUILD_DLL)
+target_precompile_headers(NarcLog PRIVATE "include/pch.h")
 
-target_include_directories(${NARC_LOG} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(NarcLog PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
