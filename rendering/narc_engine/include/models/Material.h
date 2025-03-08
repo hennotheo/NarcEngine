@@ -17,6 +17,10 @@ namespace narc_engine
         [[nodiscard]] const narc_io::Image& getMainTexture() const { return m_mainTexture; }
 
     private:
+        static uint32_t s_materialCounter;
+
+        uint32_t m_materialID;
+
         narc_io::Image m_mainTexture;
     };
 } // narc_engine

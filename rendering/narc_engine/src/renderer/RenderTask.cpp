@@ -8,6 +8,12 @@
 namespace narc_engine {
     void RenderTask::create(const SwapChain* swapChain, const VkDescriptorSetLayout* m_descriptorSetLayout)
     {
+        if (m_isCreated)
+        {
+            NARCLOG_FATAL("Cannot create RenderTask twice!");
+        }
+
+        m_isCreated = true;
         m_device = Engine::getInstance()->getDevice()->getDevice();
 
         createGraphicsPipeline(swapChain, m_descriptorSetLayout);
@@ -17,7 +23,7 @@ namespace narc_engine {
     {
         commandBuffer->cmdBindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
 
-        for (auto mesh: m_meshes)
+        for (auto mesh: m_renderers)
         {
             VkBuffer vertexBuffers[] = {mesh->getVertexBuffer()->getBuffer()};
             VkDeviceSize offsets[] = {0};
@@ -80,6 +86,13 @@ namespace narc_engine {
 
     void RenderTask::release()
     {
+        if (!m_isCreated)
+        {
+            NARCLOG_WARNING("Cannot release RenderTask twice!");
+            return;
+        }
+
+        m_isCreated = false;
         vkDestroyPipeline(m_device, m_pipeline, nullptr);
         vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
     }

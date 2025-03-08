@@ -28,9 +28,6 @@ namespace narc {
 
     void Application::start()
     {
-        m_renderMaterial = new narc_engine::Material(g_texturePath.c_str());
-        m_engine->binder()->bindMaterial(m_renderMaterial);
-
         std::vector<narc_engine::Vertex> vertices;
         std::vector<uint32_t> indices;
 
@@ -38,7 +35,7 @@ namespace narc {
         const narc_io::VertexList modelVertices = *model.getVertices();
         const narc_io::TexCoordList modelTexCoords = *model.getTexCoords();
         const narc_io::IndexList modelIndices = *model.getIndices();
-        for (int i = 0; i < model.getVerticesCount(); ++i)
+        for (uint32_t i = 0; i < model.getVerticesCount(); ++i)
         {
             vertices.push_back({
                 {modelVertices[i][0], modelVertices[i][1], modelVertices[i][2]},
@@ -52,14 +49,16 @@ namespace narc {
         }
 
         m_mesh = new narc_engine::Mesh(vertices, indices);
-        narc_engine::getEngine()->binder()->bindMesh(m_mesh);
+        m_renderMaterial = new narc_engine::Material(g_texturePath.c_str());
 
+        m_renderer = new narc_engine::Renderer(m_mesh, m_renderMaterial);
     }
 
     void Application::stop()
     {
         m_engine->waitDeviceIdle();
 
+        delete m_renderer;
         delete m_mesh;
         delete m_renderMaterial;
     }

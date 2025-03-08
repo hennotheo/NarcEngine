@@ -6,7 +6,8 @@
 #include "Engine.h"
 #include "buffers/StagingBuffer.h"
 
-namespace narc_engine {
+namespace narc_engine
+{
     constexpr uint32_t g_maxFramesInFlight = 2;
 
     EngineRenderer::EngineRenderer()
@@ -15,7 +16,6 @@ namespace narc_engine {
 
         m_swapChain.create();
         createDescriptorSetLayout();
-        m_renderTask.create(&m_swapChain, &m_descriptorSetLayout);
         m_swapChain.createFramebuffers();
 
         Engine::getInstance()->getCommandPool()->createCommandBuffers(g_maxFramesInFlight);
@@ -34,7 +34,7 @@ namespace narc_engine {
         vkDestroyImage(device, m_textureImage, nullptr);
         vkFreeMemory(device, m_textureImageMemory, nullptr);
 
-        for (UniformBuffer& buffer: m_uniformBuffers)
+        for (UniformBuffer& buffer : m_uniformBuffers)
         {
             buffer.release();
         }
@@ -134,10 +134,22 @@ namespace narc_engine {
         UniformBufferObject ubo{};
         ubo.Model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.View = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.Proj = glm::perspective(glm::radians(45.0f), m_swapChain.getSwapChainExtent().width / (float) m_swapChain.getSwapChainExtent().height, 0.1f, 10.0f);
+        ubo.Proj = glm::perspective(glm::radians(45.0f),
+                                    m_swapChain.getSwapChainExtent().width / (float)m_swapChain.getSwapChainExtent().
+                                    height, 0.1f, 10.0f);
         ubo.Proj[1][1] *= -1;
 
         m_uniformBuffers[currentImage].setData(ubo);
+    }
+
+    void EngineRenderer::attachRenderer(const Renderer* renderer)
+    {
+        if (!m_renderTask.isCreated())
+        {
+            createRenderTask(renderer->getMaterial());
+        }
+
+        m_renderTask.bindRenderer(renderer);
     }
 
     void EngineRenderer::createDescriptorSetLayout()
@@ -162,7 +174,8 @@ namespace narc_engine {
         layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
         layoutInfo.pBindings = bindings.data();
 
-        if (vkCreateDescriptorSetLayout(m_device->getDevice(), &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS)
+        if (vkCreateDescriptorSetLayout(m_device->getDevice(), &layoutInfo, nullptr, &m_descriptorSetLayout) !=
+            VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create descriptor set layout!");
         }
@@ -202,8 +215,8 @@ namespace narc_engine {
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = (float) swapChainExtent.width;
-        viewport.height = (float) swapChainExtent.height;
+        viewport.width = (float)swapChainExtent.width;
+        viewport.height = (float)swapChainExtent.height;
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
         commandBuffer->cmdSetViewport(&viewport, 0, 1);
@@ -237,8 +250,10 @@ namespace narc_engine {
 
         for (size_t i = 0; i < g_maxFramesInFlight; i++)
         {
-            if (vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]) != VK_SUCCESS ||
-                vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]) != VK_SUCCESS ||
+            if (vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]) !=
+                VK_SUCCESS ||
+                vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]) !=
+                VK_SUCCESS ||
                 vkCreateFence(m_device->getDevice(), &fenceInfo, nullptr, &m_inFlightFences[i]) != VK_SUCCESS)
             {
                 NARCLOG_FATAL("failed to create semaphores!");
@@ -256,16 +271,6 @@ namespace narc_engine {
         {
             m_uniformBuffers[i].create(bufferSize);
         }
-    }
-
-    void EngineRenderer::bindMaterial(const Material* material)
-    {
-        createTextureImage(material->getMainTexture());
-        createImageTextureView();
-        createTextureSampler();
-        createUniformBuffers();
-        createDescriptorPool(g_maxFramesInFlight);
-        m_renderTask.createDescriptorSets(g_maxFramesInFlight, m_descriptorSetLayout, m_uniformBuffers.data(), m_textureImageView, m_textureSampler, &m_descriptorPool);
     }
 
     void EngineRenderer::createTextureImage(const narc_io::Image& sourceImage)
@@ -326,6 +331,19 @@ namespace narc_engine {
 
     void EngineRenderer::createImageTextureView()
     {
-        m_textureImageView = m_device->createImageView(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+        m_textureImageView = m_device->createImageView(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB,
+                                                       VK_IMAGE_ASPECT_COLOR_BIT);
+    }
+
+    void EngineRenderer::createRenderTask(const Material* material)
+    {
+        m_renderTask.create(&m_swapChain, &m_descriptorSetLayout);
+        createTextureImage(material->getMainTexture());
+        createImageTextureView();
+        createTextureSampler();
+        createUniformBuffers();
+        createDescriptorPool(g_maxFramesInFlight);
+        m_renderTask.createDescriptorSets(g_maxFramesInFlight, m_descriptorSetLayout, m_uniformBuffers.data(),
+                                          m_textureImageView, m_textureSampler, &m_descriptorPool);
     }
 } // narc_engine

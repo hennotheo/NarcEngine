@@ -20,5 +20,6 @@ namespace narc
 
         const narc_engine::Material* m_renderMaterial = nullptr;
         const narc_engine::Mesh* m_mesh = nullptr;
+        const narc_engine::Renderer* m_renderer = nullptr;
     };
 }

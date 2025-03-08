@@ -8,6 +8,7 @@
 #include "renderer/SwapChain.h"
 #include "renderer/RenderTask.h"
 #include "models/Mesh.h"
+#include "models/Renderer.h"
 
 namespace narc_engine {
     class Material;
@@ -23,10 +24,7 @@ namespace narc_engine {
         void drawFrame();
         void updateUniformBuffer(uint32_t currentImage);
 
-        void bindMesh(const Mesh* mesh) { m_renderTask.bindMesh(mesh); }
-        void unbindMesh(const Mesh* mesh) { m_renderTask.unbindMesh(mesh); }
-
-        void bindMaterial(const Material* material);
+        void attachRenderer(const Renderer* renderer);
 
     private:
         SwapChain m_swapChain;
@@ -56,5 +54,6 @@ namespace narc_engine {
         void createTextureImage(const narc_io::Image& sourceImage);
         void createTextureSampler();
         void createImageTextureView();
+        void createRenderTask(const Material* material);
     };
 } // narc_engine
