@@ -13,6 +13,3 @@ target_include_directories(NarcEngineApp PRIVATE
         ${CMAKE_SOURCE_DIR}/application/include)
 
 target_link_libraries(NarcEngineApp PRIVATE NarcEngine)
-
-install(TARGETS
-        NarcEngineApp)
