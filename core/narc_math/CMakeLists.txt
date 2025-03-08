@@ -1,25 +1,27 @@
-include(ExternalProject)
-ExternalProject_Add(
+include(FetchContent)
+FetchContent_Declare(
         glm
-        GIT_REPOSITORY
         GIT_REPOSITORY https://github.com/g-truc/glm.git
         GIT_TAG 1.0.1
-        PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/vendors
-        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendors/glm
 )
 
-set(NARC_MATH "NarcMath" CACHE STRING "" FORCE)
-set(NARC_MATH_INCLUDE
-        "${CMAKE_CURRENT_SOURCE_DIR}/include"
-        "${CMAKE_CURRENT_SOURCE_DIR}/vendors/include"
-        CACHE STRING "" FORCE)
+FetchContent_MakeAvailable(glm)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 file(GLOB_RECURSE CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
-add_library(${NARC_MATH} SHARED include/NarcMath.h ${CPP_FILES} ${HPP_FILES})
 
-target_compile_definitions(${NARC_MATH} PRIVATE NARC_MATH_BUILD_DLL)
-target_precompile_headers(${NARC_MATH} PRIVATE "include/pch.h")
+add_library(NarcMath SHARED include/NarcMath.h ${CPP_FILES} ${HPP_FILES})
 
-add_dependencies(${NARC_MATH} glm)
-target_include_directories(${NARC_MATH} PRIVATE ${NARC_MATH_INCLUDE})
+add_dependencies(NarcMath glm)
+
+target_compile_definitions(NarcMath PRIVATE NARC_MATH_BUILD_DLL)
+
+target_precompile_headers(NarcMath PRIVATE "include/pch.h")
+
+target_include_directories(NarcMath PUBLIC
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        "${glm_SOURCE_DIR}")
+
+target_link_libraries(NarcMath PRIVATE glm)

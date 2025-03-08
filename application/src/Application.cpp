@@ -7,8 +7,6 @@
 #include <NarcIO.h>
 #include <NarcLog.h>
 
-#include "FileReader.h"
-
 namespace narc {
     const std::string g_modelPath = "models/test.obj";
 

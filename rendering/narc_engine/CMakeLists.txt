@@ -67,16 +67,6 @@ ExternalProject_Add(
 #----- MAIN -----
 #----------------
 
-set(NARC_ENGINE "NarcEngine" CACHE STRING "" FORCE)
-set(NARC_ENGINE_INCLUDE
-        "${CMAKE_CURRENT_SOURCE_DIR}/include"
-        "${VULKAN_PATH}/Include"
-        "${CMAKE_CURRENT_SOURCE_DIR}/vendors/include"
-        "${NARC_IO_INCLUDE}"
-        "${NARC_LOG_INCLUDE}"
-        "${NARC_MATH_INCLUDE}"
-        CACHE STRING "" FORCE)
-
 set(VULKAN_LIB_LIST "vulkan-1")
 set(GLFW_LIB_LIST "glfw3")
 
@@ -87,16 +77,28 @@ file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib)
 link_directories(${VULKAN_PATH}/Lib)
 
-add_compile_definitions(NARC_ENGINE_BUILD_DLL)
+add_library(NarcEngine SHARED include/NarcEngine.h ${CPP_FILES} ${HPP_FILES}) # ${CPP_FILES} ${HPP_FILES})
 
-add_library(${NARC_ENGINE} SHARED include/NarcEngine.h ${CPP_FILES} ${HPP_FILES}) # ${CPP_FILES} ${HPP_FILES})
+add_dependencies(NarcEngine
+        NarcIO
+        NarcLog
+        NarcMath
+        glfw
+        CompileShaderCommand)
 
-include_directories(${NARC_ENGINE_INCLUDE})
+target_compile_definitions(NarcEngine PRIVATE NARC_ENGINE_BUILD_DLL)
 
-add_dependencies(${NARC_ENGINE} ${NARC_IO} ${NARC_LOG} ${NARC_MATH} glfw)
+target_include_directories(NarcEngine PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(NarcEngine PRIVATE
+        "${VULKAN_PATH}/Include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vendors/include")
 
-target_link_libraries(${NARC_ENGINE} PRIVATE ${VULKAN_LIB_LIST})
-target_link_libraries(${NARC_ENGINE} PRIVATE ${GLFW_LIB_LIST})
-target_link_libraries(${NARC_ENGINE} PUBLIC ${NARC_IO} ${NARC_LOG} ${NARC_MATH})
+target_link_libraries(NarcEngine PUBLIC
+        NarcIO
+        NarcLog
+        NarcMath)
+target_link_libraries(NarcEngine PRIVATE
+        ${GLFW_LIB_LIST}
+        ${VULKAN_LIB_LIST})
 
-target_precompile_headers(${NARC_ENGINE} PRIVATE "include/pch.h")
+target_precompile_headers(NarcEngine PRIVATE "include/pch.h")
