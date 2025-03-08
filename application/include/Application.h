@@ -17,5 +17,8 @@ namespace narc
 
     private:
         narc_engine::IEngine* m_engine;
+
+        const narc_engine::Material* m_renderMaterial = nullptr;
+        const narc_engine::Mesh* m_mesh = nullptr;
     };
 }

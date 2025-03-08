@@ -12,4 +12,9 @@ namespace narc_engine {
     {
         static_cast<Engine*>(m_engine)->m_renderer->unbindMesh(mesh);
     }
+
+    void EngineBinder::bindMaterial(const Material* material) const
+    {
+        static_cast<Engine*>(m_engine)->m_renderer->bindMaterial(material);
+    }
 }

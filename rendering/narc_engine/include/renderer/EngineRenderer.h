@@ -10,12 +10,14 @@
 #include "models/Mesh.h"
 
 namespace narc_engine {
+    class Material;
+
     class EngineRenderer
     {
         friend class EngineBinder;
 
     public:
-        EngineRenderer(const narc_io::Image& sourceImage);
+        EngineRenderer();
         ~EngineRenderer();
 
         void drawFrame();
@@ -24,7 +26,7 @@ namespace narc_engine {
         void bindMesh(const Mesh* mesh) { m_renderTask.bindMesh(mesh); }
         void unbindMesh(const Mesh* mesh) { m_renderTask.unbindMesh(mesh); }
 
-        void bindImage(const narc_io::Image& image);
+        void bindMaterial(const Material* material);
 
     private:
         SwapChain m_swapChain;

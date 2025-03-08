@@ -11,12 +11,9 @@ namespace narc {
     const std::string g_modelPath = "models/test.obj";
     const std::string g_texturePath = "textures/test.png";
 
-    const narc_engine::Mesh* g_mesh = nullptr;
-
     Application::Application()
     {
-        narc_io::Image texture = narc_io::FileReader::readImage(g_texturePath);
-        m_engine = narc_engine::createEngine(texture);
+        m_engine = narc_engine::createEngine();
     }
 
     Application::~Application()
@@ -31,6 +28,9 @@ namespace narc {
 
     void Application::start()
     {
+        m_renderMaterial = new narc_engine::Material(g_texturePath.c_str());
+        m_engine->binder()->bindMaterial(m_renderMaterial);
+
         std::vector<narc_engine::Vertex> vertices;
         std::vector<uint32_t> indices;
 
@@ -51,14 +51,17 @@ namespace narc {
             indices.push_back(modelIndice);
         }
 
-        g_mesh = new narc_engine::Mesh(vertices, indices);
-        narc_engine::getEngine()->binder()->bindMesh(g_mesh);
+        m_mesh = new narc_engine::Mesh(vertices, indices);
+        narc_engine::getEngine()->binder()->bindMesh(m_mesh);
+
     }
 
     void Application::stop()
     {
         m_engine->waitDeviceIdle();
-        delete g_mesh;
+
+        delete m_mesh;
+        delete m_renderMaterial;
     }
 
     void Application::appLoopBody()

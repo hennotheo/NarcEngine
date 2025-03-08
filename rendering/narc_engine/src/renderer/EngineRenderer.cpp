@@ -9,7 +9,7 @@
 namespace narc_engine {
     constexpr uint32_t g_maxFramesInFlight = 2;
 
-    EngineRenderer::EngineRenderer(const narc_io::Image& sourceImage)
+    EngineRenderer::EngineRenderer()
     {
         m_device = Engine::getInstance()->getDevice();
 
@@ -19,13 +19,6 @@ namespace narc_engine {
         m_swapChain.createFramebuffers();
 
         Engine::getInstance()->getCommandPool()->createCommandBuffers(g_maxFramesInFlight);
-
-        createTextureImage(sourceImage);
-        createImageTextureView();
-        createTextureSampler();
-        createUniformBuffers();
-        createDescriptorPool(g_maxFramesInFlight);
-        m_renderTask.createDescriptorSets(g_maxFramesInFlight, m_descriptorSetLayout, m_uniformBuffers.data(), m_textureImageView, m_textureSampler, &m_descriptorPool);
 
         createSyncObjects();
     }
@@ -265,11 +258,14 @@ namespace narc_engine {
         }
     }
 
-    void EngineRenderer::bindImage(const narc_io::Image& image)
+    void EngineRenderer::bindMaterial(const Material* material)
     {
-        createTextureImage(image);
+        createTextureImage(material->getMainTexture());
         createImageTextureView();
         createTextureSampler();
+        createUniformBuffers();
+        createDescriptorPool(g_maxFramesInFlight);
+        m_renderTask.createDescriptorSets(g_maxFramesInFlight, m_descriptorSetLayout, m_uniformBuffers.data(), m_textureImageView, m_textureSampler, &m_descriptorPool);
     }
 
     void EngineRenderer::createTextureImage(const narc_io::Image& sourceImage)

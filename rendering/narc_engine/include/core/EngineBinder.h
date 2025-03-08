@@ -7,6 +7,7 @@ namespace narc_io
 
 namespace narc_engine
 {
+    class Material;
     class IEngine;
     class Mesh;
 
@@ -19,6 +20,8 @@ namespace narc_engine
 
         void bindMesh(const Mesh* mesh) const;
         void unbindMesh(const Mesh* mesh) const;
+
+        void bindMaterial(const Material* material) const;
 
     private:
         IEngine* m_engine;

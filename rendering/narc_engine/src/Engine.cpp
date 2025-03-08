@@ -18,15 +18,15 @@ namespace narc_engine {
         return nullptr;
     }
 
-    IEngine* createEngine(const narc_io::Image& sourceTexture)
+    IEngine* createEngine()
     {
 #ifdef NARC_ENGINE_PLATFORM_WINDOWS
-        return new Engine(sourceTexture);
+        return new Engine();
 #endif
         NARCLOG_FATAL("Engine not implemented for this platform!");
     }
 
-    Engine::Engine(const narc_io::Image& sourceTexture)
+    Engine::Engine()
     {
         s_instance = this;
         m_window = std::make_unique<Window>();
@@ -36,7 +36,7 @@ namespace narc_engine {
         m_deviceHandler = std::make_unique<DeviceHandler>(m_window.get(), m_instance.get(), m_debugLogger.get());
 
         m_commandPool = std::make_unique<CommandPool>(m_deviceHandler.get());
-        m_renderer = std::make_unique<EngineRenderer>(sourceTexture);
+        m_renderer = std::make_unique<EngineRenderer>();
 
         m_engineBinder = std::make_unique<EngineBinder>(this);
     }

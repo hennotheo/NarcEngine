@@ -5,6 +5,7 @@
 
 #include "models/Mesh.h"
 #include "models/Vertex.h"
+#include "models/Material.h"
 
 #include "core/EngineBinder.h"
 
