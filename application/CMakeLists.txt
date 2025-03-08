@@ -6,7 +6,6 @@ link_directories(${CMAKE_BINARY_DIR}/NarcEngine/${CMAKE_BUILD_TYPE})
 add_executable(NarcEngineApp src/main.cpp ${CPP_FILES} ${HPP_FILES})
 
 add_dependencies(NarcEngineApp
-        CompileShaderCommand
         NarcEngine)
 
 target_include_directories(NarcEngineApp PRIVATE

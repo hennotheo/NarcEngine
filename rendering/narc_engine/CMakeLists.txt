@@ -83,7 +83,8 @@ add_dependencies(NarcEngine
         NarcIO
         NarcLog
         NarcMath
-        glfw)
+        glfw
+        CompileShaderCommand)
 
 target_compile_definitions(NarcEngine PRIVATE NARC_ENGINE_BUILD_DLL)
 
