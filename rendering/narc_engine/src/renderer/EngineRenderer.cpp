@@ -8,9 +8,8 @@
 
 namespace narc_engine {
     constexpr uint32_t g_maxFramesInFlight = 2;
-    const std::string g_texturePath = "textures/test.png";
 
-    EngineRenderer::EngineRenderer()
+    EngineRenderer::EngineRenderer(const narc_io::Image& sourceImage)
     {
         m_device = Engine::getInstance()->getDevice();
 
@@ -21,7 +20,7 @@ namespace narc_engine {
 
         Engine::getInstance()->getCommandPool()->createCommandBuffers(g_maxFramesInFlight);
 
-        createTextureImage();
+        createTextureImage(sourceImage);
         createImageTextureView();
         createTextureSampler();
         createUniformBuffers();
@@ -266,18 +265,24 @@ namespace narc_engine {
         }
     }
 
-    void EngineRenderer::createTextureImage()
+    void EngineRenderer::bindImage(const narc_io::Image& image)
     {
-        narc_io::Image image = narc_io::FileReader::readImage(g_texturePath.c_str());
-        VkDeviceSize imageSize = image.getWidth() * image.getHeight() * 4;
+        createTextureImage(image);
+        createImageTextureView();
+        createTextureSampler();
+    }
+
+    void EngineRenderer::createTextureImage(const narc_io::Image& sourceImage)
+    {
+        VkDeviceSize imageSize = sourceImage.getWidth() * sourceImage.getHeight() * 4;
 
         StagingBuffer staggingBuffer;
         staggingBuffer.create(imageSize);
-        staggingBuffer.input(image.getData());
+        staggingBuffer.input(sourceImage.getData());
 
         // stbi_image_free(pixels);
 
-        Engine::getInstance()->createImage(image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
+        Engine::getInstance()->createImage(sourceImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
                                            VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                                            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                                            m_textureImage, m_textureImageMemory);
@@ -285,8 +290,8 @@ namespace narc_engine {
         Engine::getInstance()->transitionImageLayout(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
                                                      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
         Engine::getInstance()->copyBufferToImage(staggingBuffer.getBuffer(), m_textureImage,
-                                                 static_cast<uint32_t>(image.getWidth()),
-                                                 static_cast<uint32_t>(image.getHeight()));
+                                                 static_cast<uint32_t>(sourceImage.getWidth()),
+                                                 static_cast<uint32_t>(sourceImage.getHeight()));
         Engine::getInstance()->transitionImageLayout(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB,
                                                      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                                      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);

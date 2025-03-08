@@ -9,12 +9,14 @@
 
 namespace narc {
     const std::string g_modelPath = "models/test.obj";
+    const std::string g_texturePath = "textures/test.png";
 
     const narc_engine::Mesh* g_mesh = nullptr;
 
     Application::Application()
     {
-        m_engine = narc_engine::createEngine();
+        narc_io::Image texture = narc_io::FileReader::readImage(g_texturePath);
+        m_engine = narc_engine::createEngine(texture);
     }
 
     Application::~Application()

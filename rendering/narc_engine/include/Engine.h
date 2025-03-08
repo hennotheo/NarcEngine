@@ -16,7 +16,7 @@ namespace narc_engine {
         friend EngineBinder;
 
     public:
-        Engine();
+        explicit Engine(const narc_io::Image& sourceTexture);
         ~Engine() override;
 
         static Engine* getInstance();

@@ -18,5 +18,5 @@ namespace narc_engine {
     };
 
     NARC_ENGINE_API IEngine* getEngine();
-    NARC_ENGINE_API IEngine* createEngine();
+    NARC_ENGINE_API IEngine* createEngine(const narc_io::Image& sourceTexture);
 }

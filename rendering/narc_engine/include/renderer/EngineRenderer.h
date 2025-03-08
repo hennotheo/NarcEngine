@@ -3,6 +3,7 @@
 #include "CommandBuffer.h"
 #include "DescriptorPool.h"
 #include "buffers/UniformBuffer.h"
+#include "models/Image.h"
 #include "models/Vertex.h"
 #include "renderer/SwapChain.h"
 #include "renderer/RenderTask.h"
@@ -11,8 +12,10 @@
 namespace narc_engine {
     class EngineRenderer
     {
+        friend class EngineBinder;
+
     public:
-        EngineRenderer();
+        EngineRenderer(const narc_io::Image& sourceImage);
         ~EngineRenderer();
 
         void drawFrame();
@@ -20,6 +23,8 @@ namespace narc_engine {
 
         void bindMesh(const Mesh* mesh) { m_renderTask.bindMesh(mesh); }
         void unbindMesh(const Mesh* mesh) { m_renderTask.unbindMesh(mesh); }
+
+        void bindImage(const narc_io::Image& image);
 
     private:
         SwapChain m_swapChain;
@@ -46,7 +51,7 @@ namespace narc_engine {
         void recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex);
         void createSyncObjects();
         void createUniformBuffers();
-        void createTextureImage();
+        void createTextureImage(const narc_io::Image& sourceImage);
         void createTextureSampler();
         void createImageTextureView();
     };
