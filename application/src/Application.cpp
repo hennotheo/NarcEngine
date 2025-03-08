@@ -9,6 +9,7 @@
 
 namespace narc {
     const std::string g_modelPath = "models/test.obj";
+    const std::string g_model2Path = "models/test2.obj";
     const std::string g_texturePath = "textures/test.png";
 
     Application::Application()
@@ -28,30 +29,12 @@ namespace narc {
 
     void Application::start()
     {
-        std::vector<narc_engine::Vertex> vertices;
-        std::vector<uint32_t> indices;
-
         narc_io::Model3D model = narc_io::FileReader::load3DModel(g_modelPath);
-        const narc_io::VertexList modelVertices = *model.getVertices();
-        const narc_io::TexCoordList modelTexCoords = *model.getTexCoords();
-        const narc_io::IndexList modelIndices = *model.getIndices();
-        for (uint32_t i = 0; i < model.getVerticesCount(); ++i)
-        {
-            vertices.push_back({
-                {modelVertices[i][0], modelVertices[i][1], modelVertices[i][2]},
-                {1.0f, 1.0f, 1.0f},
-                {modelTexCoords[i][0], modelTexCoords[i][1]}
-            });
-        }
-        for (uint32_t modelIndice: modelIndices)
-        {
-            indices.push_back(modelIndice);
-        }
-
-        m_mesh = new narc_engine::Mesh(vertices, indices);
+        narc_io::Model3D model2 = narc_io::FileReader::load3DModel(g_model2Path);
         m_renderMaterial = new narc_engine::Material(g_texturePath.c_str());
 
-        m_renderer = new narc_engine::Renderer(m_mesh, m_renderMaterial);
+        m_renderer = new narc_engine::Renderer(&model, m_renderMaterial);
+        m_renderer2 = new narc_engine::Renderer(&model2, m_renderMaterial);
     }
 
     void Application::stop()
@@ -59,6 +42,7 @@ namespace narc {
         m_engine->waitDeviceIdle();
 
         delete m_renderer;
+        delete m_renderer2;
         delete m_mesh;
         delete m_renderMaterial;
     }

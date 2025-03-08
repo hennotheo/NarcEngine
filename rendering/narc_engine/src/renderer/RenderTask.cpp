@@ -23,8 +23,9 @@ namespace narc_engine {
     {
         commandBuffer->cmdBindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
 
-        for (auto mesh: m_renderers)
+        for (auto renderer: m_renderers)
         {
+            const Mesh* mesh = renderer->getMesh();
             VkBuffer vertexBuffers[] = {mesh->getVertexBuffer()->getBuffer()};
             VkDeviceSize offsets[] = {0};
             commandBuffer->cmdBindVertexBuffers(0, 1, vertexBuffers, offsets);
