@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 if (NOT DEFINED CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: Debug Release" FORCE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release" FORCE)
 endif ()
 
 set(CMAKE_CXX_STANDARD 20)
@@ -33,11 +33,10 @@ add_subdirectory(core/narc_math)
 add_subdirectory(core/narclog)
 add_subdirectory(core/narcio)
 
+add_subdirectory(rendering/shaders)
 add_subdirectory(rendering/narc_engine)
 
 add_subdirectory(application)
-
-add_subdirectory(rendering/shaders)
 
 # Install Path
 install(TARGETS
