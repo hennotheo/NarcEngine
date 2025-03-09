@@ -14,6 +14,9 @@ namespace narc_engine
     class NARC_ENGINE_API EngineResourcesManager final
     {
     public:
+        EngineResourcesManager() = default;
+        ~EngineResourcesManager();
+
         const GraphicResourceHandler& createTexture2D(const char* path);
 
         [[nodiscard]] const GraphicResource* getResource(const GraphicResourceHandler& resourceHandler) const;

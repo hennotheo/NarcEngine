@@ -9,6 +9,15 @@
 
 namespace narc_engine
 {
+    EngineResourcesManager::~EngineResourcesManager()
+    {
+        for (auto [id, resource] : m_resources)
+        {
+            delete resource;
+            resource = nullptr;
+        }
+    }
+
     const GraphicResourceHandler& EngineResourcesManager::createTexture2D(const char* path)
     {
         Texture2DResource* texture = new Texture2DResource(path, m_resourceIDCounter);
