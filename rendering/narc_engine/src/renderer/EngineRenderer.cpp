@@ -31,10 +31,10 @@ namespace narc_engine
 
         m_swapChain.cleanSwapChain();
 
-        vkDestroySampler(device, m_textureSampler, nullptr);
-        vkDestroyImageView(device, m_textureImageView, nullptr);
-        vkDestroyImage(device, m_textureImage, nullptr);
-        vkFreeMemory(device, m_textureImageMemory, nullptr);
+        // vkDestroySampler(device, m_textureSampler, nullptr);
+        // vkDestroyImageView(device, m_textureImageView, nullptr);
+        // vkDestroyImage(device, m_textureImage, nullptr);
+        // vkFreeMemory(device, m_textureImageMemory, nullptr);
 
         for (UniformBuffer& buffer : m_uniformBuffers)
         {
@@ -74,8 +74,7 @@ namespace narc_engine
 
         for (const auto& [id, rendererTask] : m_rendererTasks)
         {
-            rendererTask->updateDescriptorSets(m_currentFrame, m_descriptorSets, m_uniformBuffers.data(),
-                                               m_textureImageView, m_textureSampler);
+            rendererTask->updateDescriptorSets(m_currentFrame, m_descriptorSets, m_uniformBuffers.data());
         }
 
         vkResetFences(m_device->getDevice(), 1, &m_inFlightFences[m_currentFrame]);
@@ -302,68 +301,6 @@ namespace narc_engine
         }
     }
 
-    void EngineRenderer::createTextureImage(const narc_io::Image& sourceImage)
-    {
-        VkDeviceSize imageSize = sourceImage.getWidth() * sourceImage.getHeight() * 4;
-
-        StagingBuffer staggingBuffer;
-        staggingBuffer.create(imageSize);
-        staggingBuffer.input(sourceImage.getData());
-
-        // stbi_image_free(pixels);
-
-        Engine::getInstance()->createImage(sourceImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
-                                           VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-                                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                                           m_textureImage, m_textureImageMemory);
-
-        Engine::getInstance()->transitionImageLayout(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
-                                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-        Engine::getInstance()->copyBufferToImage(staggingBuffer.getBuffer(), m_textureImage,
-                                                 static_cast<uint32_t>(sourceImage.getWidth()),
-                                                 static_cast<uint32_t>(sourceImage.getHeight()));
-        Engine::getInstance()->transitionImageLayout(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB,
-                                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-        staggingBuffer.release();
-    }
-
-    void EngineRenderer::createTextureSampler()
-    {
-        VkSamplerCreateInfo samplerInfo{};
-        samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-        samplerInfo.magFilter = VK_FILTER_LINEAR;
-        samplerInfo.minFilter = VK_FILTER_LINEAR;
-        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-
-        VkPhysicalDeviceProperties properties = Engine::getInstance()->getDevice()->getPhysicalDeviceProperties();
-        samplerInfo.anisotropyEnable = VK_TRUE;
-        samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
-
-        samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-        samplerInfo.unnormalizedCoordinates = VK_FALSE;
-        samplerInfo.compareEnable = VK_FALSE;
-        samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-        samplerInfo.mipLodBias = 0.0f;
-        samplerInfo.minLod = 0.0f;
-        samplerInfo.maxLod = 0.0f;
-
-        if (vkCreateSampler(m_device->getDevice(), &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
-        {
-            NARCLOG_FATAL("failed to create texture sampler!");
-        }
-    }
-
-    void EngineRenderer::createImageTextureView()
-    {
-        m_textureImageView = m_device->createImageView(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB,
-                                                       VK_IMAGE_ASPECT_COLOR_BIT);
-    }
-
     RenderTask* EngineRenderer::createRenderTask(const Material* material)
     {
         if (m_rendererTasks.contains(material->getMaterialID()))
@@ -371,19 +308,9 @@ namespace narc_engine
             NARCLOG_FATAL("Can't create render task for the same material twice!");
         }
 
-        RenderTask* renderer = new RenderTask(&m_swapChain, &m_descriptorSetLayout);
-        if (m_rendererTasks.size() == 0)
-        {
-            createTextureImage(material->getMainTexture());
-            createImageTextureView();
-            createTextureSampler();
-            // renderer->updateDescriptorSets(g_maxFramesInFlight, m_descriptorSets, m_uniformBuffers.data(),
-            //                                m_textureImageView, m_textureSampler);
-            NARCLOG_DEBUG("Texture image created");
-        }
+        RenderTask* renderer = new RenderTask(&m_swapChain, &m_descriptorSetLayout, material);
 
         m_rendererTasks.emplace(material->getMaterialID(), renderer);
-        NARCLOG_DEBUG("Renderer created");
 
         return renderer;
     }

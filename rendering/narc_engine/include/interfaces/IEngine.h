@@ -2,7 +2,8 @@
 
 #include <NarcEngine.h>
 
-namespace narc_engine {
+namespace narc_engine
+{
     class NARC_ENGINE_API IEngine
     {
         friend class EngineBinder;
@@ -10,9 +11,10 @@ namespace narc_engine {
     public:
         virtual ~IEngine() = default;
 
-        virtual EngineBinder* binder() const = 0;
+        [[nodiscard]] virtual EngineBinder* binder() const = 0;
+        [[nodiscard]] virtual EngineResourcesManager* resourceManager() const = 0;
         virtual void pollEvents() = 0;
-        virtual bool shouldClose() const = 0;
+        [[nodiscard]] virtual bool shouldClose() const = 0;
         virtual void render() = 0;
         virtual void waitDeviceIdle() = 0;
     };

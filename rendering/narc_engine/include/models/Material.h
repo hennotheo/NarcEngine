@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <NarcIO.h>
+#include "resources/GraphicResourceHandler.h"
 
 namespace narc_engine
 {
@@ -15,13 +15,13 @@ namespace narc_engine
         ~Material();
 
         [[nodiscard]] const uint32_t& getMaterialID() const { return m_materialID; }
-        [[nodiscard]] const narc_io::Image& getMainTexture() const { return m_mainTexture; }
+        [[nodiscard]] const GraphicResourceHandler& getMainTexture() const { return m_mainTexture; }
 
     private:
         static uint32_t s_materialCounter;
 
         uint32_t m_materialID;
 
-        narc_io::Image m_mainTexture;
+        GraphicResourceHandler m_mainTexture;
     };
 } // narc_engine

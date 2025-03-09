@@ -9,5 +9,8 @@
 #include "models/Renderer.h"
 
 #include "core/EngineBinder.h"
+#include "core/EngineResourcesManager.h"
+
+#include "resources/GraphicResourceHandler.h"
 
 #include "interfaces/IEngine.h"

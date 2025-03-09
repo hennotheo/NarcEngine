@@ -26,6 +26,7 @@ namespace narc_engine {
         void render() override;
         void waitDeviceIdle() override;
         EngineBinder* binder() const override;
+        EngineResourcesManager* resourceManager() const override;
 
         const DeviceHandler* getDevice() const { return m_deviceHandler.get(); }
         Window* getWindow() const { return m_window.get(); }
@@ -52,6 +53,7 @@ namespace narc_engine {
         std::unique_ptr<EngineRenderer> m_renderer;
 
         std::unique_ptr<EngineBinder> m_engineBinder;
+        std::unique_ptr<EngineResourcesManager> m_resourcesManager;
 
     private:
         static bool hasStencilComponent(VkFormat format);

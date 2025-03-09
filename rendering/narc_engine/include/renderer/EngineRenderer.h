@@ -40,10 +40,10 @@ namespace narc_engine {
         std::vector<VkSemaphore> m_renderFinishedSemaphores;
         std::vector<VkFence> m_inFlightFences;
 
-        VkImage m_textureImage;
-        VkDeviceMemory m_textureImageMemory;
-        VkImageView m_textureImageView;
-        VkSampler m_textureSampler;
+        // VkImage m_textureImage;
+        // VkDeviceMemory m_textureImageMemory;
+        // VkImageView m_textureImageView;
+        // VkSampler m_textureSampler;
 
         const DeviceHandler* m_device = nullptr;
 
@@ -52,9 +52,9 @@ namespace narc_engine {
         void recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex);
         void createSyncObjects();
         void createUniformBuffers();
-        void createTextureImage(const narc_io::Image& sourceImage);
-        void createTextureSampler();
-        void createImageTextureView();
+        // void createTextureImage(const narc_io::Image& sourceImage);
+        // void createTextureSampler();
+        // void createImageTextureView();
         RenderTask* createRenderTask(const Material* material);
     };
 } // narc_engine

@@ -39,11 +39,10 @@ namespace narc_engine {
         m_renderer = std::make_unique<EngineRenderer>();
 
         m_engineBinder = std::make_unique<EngineBinder>(this);
+        m_resourcesManager = std::make_unique<EngineResourcesManager>();
     }
 
-    Engine::~Engine()
-    {
-    }
+    Engine::~Engine() = default;
 
     Engine* Engine::getInstance()
     {
@@ -53,6 +52,11 @@ namespace narc_engine {
     EngineBinder* Engine::binder() const
     {
         return m_engineBinder.get();
+    }
+
+    EngineResourcesManager* Engine::resourceManager() const
+    {
+        return m_resourcesManager.get();
     }
 
     void Engine::pollEvents()

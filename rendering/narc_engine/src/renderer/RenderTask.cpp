@@ -7,9 +7,11 @@
 
 namespace narc_engine
 {
-    RenderTask::RenderTask(const SwapChain* swapChain, const VkDescriptorSetLayout* m_descriptorSetLayout)
+    RenderTask::RenderTask(const SwapChain* swapChain, const VkDescriptorSetLayout* m_descriptorSetLayout,
+                           const Material* material)
     {
         m_device = Engine::getInstance()->getDevice()->getDevice();
+        m_material = material;
 
         createGraphicsPipeline(swapChain, m_descriptorSetLayout);
     }
@@ -24,7 +26,7 @@ namespace narc_engine
     {
         commandBuffer->cmdBindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
         commandBuffer->cmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1,
-                                                         m_descriptorSet, 0, nullptr);
+                                             m_descriptorSet, 0, nullptr);
 
         for (auto renderer : m_renderers)
         {
@@ -39,18 +41,19 @@ namespace narc_engine
     }
 
     void RenderTask::updateDescriptorSets(uint32_t currentFrameID, const std::vector<VkDescriptorSet>& descriptorSets,
-                                          const UniformBuffer* uniformBuffers, VkImageView textureImageView,
-                                          VkSampler textureSampler) const
+                                          const UniformBuffer* uniformBuffers) const
     {
         VkDescriptorBufferInfo bufferInfo{};
         bufferInfo.buffer = uniformBuffers[currentFrameID].getBuffer();
         bufferInfo.offset = 0;
         bufferInfo.range = sizeof(UniformBufferObject);
 
+        GraphicResourceHandler textureHandler = m_material->getMainTexture();
+        const Texture2DResource* texture = dynamic_cast<const Texture2DResource*>(Engine::getInstance()->resourceManager()->getResource(textureHandler));
         VkDescriptorImageInfo imageInfo{};
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView = textureImageView;
-        imageInfo.sampler = textureSampler;
+        imageInfo.imageView = texture->getImageView();
+        imageInfo.sampler = texture->getSampler();
 
         std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
