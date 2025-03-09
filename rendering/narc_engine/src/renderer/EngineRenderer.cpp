@@ -17,6 +17,8 @@ namespace narc_engine
         m_swapChain.create();
         createDescriptorSetLayout();
         m_swapChain.createFramebuffers();
+        createUniformBuffers();
+        createDescriptorPool(g_maxFramesInFlight);
 
         Engine::getInstance()->getCommandPool()->createCommandBuffers(g_maxFramesInFlight);
 
@@ -42,7 +44,14 @@ namespace narc_engine
         m_descriptorPool.release();
         vkDestroyDescriptorSetLayout(device, m_descriptorSetLayout, nullptr);
 
-        m_renderTask.release();
+        for (auto& [id, rendererTask] : m_rendererTasks)
+        {
+            if (rendererTask != nullptr)
+            {
+                delete rendererTask;
+                rendererTask = nullptr;
+            }
+        }
 
         m_swapChain.cleanRenderPass();
 
@@ -63,10 +72,17 @@ namespace narc_engine
 
         updateUniformBuffer(m_currentFrame);
 
+        for (const auto& [id, rendererTask] : m_rendererTasks)
+        {
+            rendererTask->updateDescriptorSets(m_currentFrame, m_descriptorSets, m_uniformBuffers.data(),
+                                               m_textureImageView, m_textureSampler);
+        }
+
         vkResetFences(m_device->getDevice(), 1, &m_inFlightFences[m_currentFrame]);
 
         CommandBuffer* buffer = Engine::getInstance()->getCommandPool()->getCommandBuffer(m_currentFrame);
         buffer->reset(0);
+
         recordCommandBuffer(buffer, imageIndex);
 
         VkSubmitInfo submitInfo{};
@@ -144,12 +160,12 @@ namespace narc_engine
 
     void EngineRenderer::attachRenderer(const Renderer* renderer)
     {
-        if (!m_renderTask.isCreated())
-        {
-            createRenderTask(renderer->getMaterial());
-        }
+        const uint32_t materialID = renderer->getMaterial()->getMaterialID();
+        RenderTask* renderTask = m_rendererTasks.contains(materialID)
+                                     ? m_rendererTasks[materialID]
+                                     : createRenderTask(renderer->getMaterial());
 
-        m_renderTask.bindRenderer(renderer);
+        renderTask->bindRenderer(renderer);
     }
 
     void EngineRenderer::createDescriptorSetLayout()
@@ -183,13 +199,22 @@ namespace narc_engine
 
     void EngineRenderer::createDescriptorPool(uint32_t maxFrameInFlight)
     {
-        uint32_t descriptionCount = maxFrameInFlight;
+        const uint32_t descriptionCount = maxFrameInFlight;
         DescriptorPoolBuilder builder;
         builder.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, descriptionCount);
         builder.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descriptionCount);
         builder.setMaxSet(descriptionCount);
 
         m_descriptorPool.create(&builder);
+
+        std::vector<VkDescriptorSetLayout> layouts(maxFrameInFlight, m_descriptorSetLayout);
+        VkDescriptorSetAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        allocInfo.descriptorSetCount = maxFrameInFlight;
+        allocInfo.pSetLayouts = layouts.data();
+
+        m_descriptorSets.resize(maxFrameInFlight);
+        m_descriptorPool.allocateDescriptorSets(&allocInfo, m_descriptorSets.data());
     }
 
     void EngineRenderer::recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex)
@@ -226,7 +251,11 @@ namespace narc_engine
         scissor.extent = swapChainExtent;
         commandBuffer->cmdSetScissor(&scissor, 0, 1);
 
-        m_renderTask.recordTask(commandBuffer, m_currentFrame);
+        for (const auto& [id, rendererTask] : m_rendererTasks)
+        {
+            rendererTask->recordTask(commandBuffer, &m_descriptorSets[m_currentFrame]);
+        }
+
         commandBuffer->cmdEndRenderPass();
 
         if (commandBuffer->end() != VK_SUCCESS)
@@ -335,15 +364,27 @@ namespace narc_engine
                                                        VK_IMAGE_ASPECT_COLOR_BIT);
     }
 
-    void EngineRenderer::createRenderTask(const Material* material)
+    RenderTask* EngineRenderer::createRenderTask(const Material* material)
     {
-        m_renderTask.create(&m_swapChain, &m_descriptorSetLayout);
-        createTextureImage(material->getMainTexture());
-        createImageTextureView();
-        createTextureSampler();
-        createUniformBuffers();
-        createDescriptorPool(g_maxFramesInFlight);
-        m_renderTask.createDescriptorSets(g_maxFramesInFlight, m_descriptorSetLayout, m_uniformBuffers.data(),
-                                          m_textureImageView, m_textureSampler, &m_descriptorPool);
+        if (m_rendererTasks.contains(material->getMaterialID()))
+        {
+            NARCLOG_FATAL("Can't create render task for the same material twice!");
+        }
+
+        RenderTask* renderer = new RenderTask(&m_swapChain, &m_descriptorSetLayout);
+        if (m_rendererTasks.size() == 0)
+        {
+            createTextureImage(material->getMainTexture());
+            createImageTextureView();
+            createTextureSampler();
+            // renderer->updateDescriptorSets(g_maxFramesInFlight, m_descriptorSets, m_uniformBuffers.data(),
+            //                                m_textureImageView, m_textureSampler);
+            NARCLOG_DEBUG("Texture image created");
+        }
+
+        m_rendererTasks.emplace(material->getMaterialID(), renderer);
+        NARCLOG_DEBUG("Renderer created");
+
+        return renderer;
     }
 } // narc_engine

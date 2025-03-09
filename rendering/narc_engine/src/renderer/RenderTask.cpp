@@ -5,97 +5,108 @@
 #include "Engine.h"
 #include "buffers/GraphicsBuffer.h"
 
-namespace narc_engine {
-    void RenderTask::create(const SwapChain* swapChain, const VkDescriptorSetLayout* m_descriptorSetLayout)
+namespace narc_engine
+{
+    RenderTask::RenderTask(const SwapChain* swapChain, const VkDescriptorSetLayout* m_descriptorSetLayout)
     {
-        if (m_isCreated)
-        {
-            NARCLOG_FATAL("Cannot create RenderTask twice!");
-        }
-
-        m_isCreated = true;
         m_device = Engine::getInstance()->getDevice()->getDevice();
 
         createGraphicsPipeline(swapChain, m_descriptorSetLayout);
     }
 
-    void RenderTask::recordTask(const CommandBuffer* commandBuffer, uint32_t currentFrame)
+    RenderTask::~RenderTask()
+    {
+        vkDestroyPipeline(m_device, m_pipeline, nullptr);
+        vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
+    }
+
+    void RenderTask::recordTask(const CommandBuffer* commandBuffer, const VkDescriptorSet* m_descriptorSet) const
     {
         commandBuffer->cmdBindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
+        commandBuffer->cmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1,
+                                                         m_descriptorSet, 0, nullptr);
 
-        for (auto renderer: m_renderers)
+        for (auto renderer : m_renderers)
         {
             const Mesh* mesh = renderer->getMesh();
             VkBuffer vertexBuffers[] = {mesh->getVertexBuffer()->getBuffer()};
             VkDeviceSize offsets[] = {0};
             commandBuffer->cmdBindVertexBuffers(0, 1, vertexBuffers, offsets);
             commandBuffer->cmdBindIndexBuffer(mesh->getIndexBuffer()->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
-            commandBuffer->cmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1,
-                                                 &m_descriptorSets[currentFrame], 0, nullptr);
 
             commandBuffer->cmdDrawIndexed(mesh->getIndexCount(), 1, 0, 0, 0);
         }
     }
 
-    void RenderTask::createDescriptorSets(uint32_t maxFrameInFlight, VkDescriptorSetLayout descriptorSetLayout,
+    void RenderTask::updateDescriptorSets(uint32_t currentFrameID, const std::vector<VkDescriptorSet>& descriptorSets,
                                           const UniformBuffer* uniformBuffers, VkImageView textureImageView,
-                                          VkSampler textureSampler, const DescriptorPool* descriptorPool)
+                                          VkSampler textureSampler) const
     {
-        std::vector<VkDescriptorSetLayout> layouts(maxFrameInFlight, descriptorSetLayout);
-        VkDescriptorSetAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        allocInfo.descriptorSetCount = maxFrameInFlight;
-        allocInfo.pSetLayouts = layouts.data();
+        VkDescriptorBufferInfo bufferInfo{};
+        bufferInfo.buffer = uniformBuffers[currentFrameID].getBuffer();
+        bufferInfo.offset = 0;
+        bufferInfo.range = sizeof(UniformBufferObject);
 
-        m_descriptorSets.resize(maxFrameInFlight);
-        descriptorPool->allocateDescriptorSets(&allocInfo, m_descriptorSets.data());
+        VkDescriptorImageInfo imageInfo{};
+        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageInfo.imageView = textureImageView;
+        imageInfo.sampler = textureSampler;
 
-        for (size_t i = 0; i < maxFrameInFlight; i++)
-        {
-            VkDescriptorBufferInfo bufferInfo{};
-            bufferInfo.buffer = uniformBuffers[i].getBuffer();
-            bufferInfo.offset = 0;
-            bufferInfo.range = sizeof(UniformBufferObject);
+        std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
-            VkDescriptorImageInfo imageInfo{};
-            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageInfo.imageView = textureImageView;
-            imageInfo.sampler = textureSampler;
+        descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrites[0].dstSet = descriptorSets[currentFrameID];
+        descriptorWrites[0].dstBinding = 0;
+        descriptorWrites[0].dstArrayElement = 0;
+        descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptorWrites[0].descriptorCount = 1;
+        descriptorWrites[0].pBufferInfo = &bufferInfo;
 
-            std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+        descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrites[1].dstSet = descriptorSets[currentFrameID];
+        descriptorWrites[1].dstBinding = 1;
+        descriptorWrites[1].dstArrayElement = 0;
+        descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptorWrites[1].descriptorCount = 1;
+        descriptorWrites[1].pImageInfo = &imageInfo;
 
-            descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrites[0].dstSet = m_descriptorSets[i];
-            descriptorWrites[0].dstBinding = 0;
-            descriptorWrites[0].dstArrayElement = 0;
-            descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            descriptorWrites[0].descriptorCount = 1;
-            descriptorWrites[0].pBufferInfo = &bufferInfo;
+        vkUpdateDescriptorSets(m_device, static_cast<uint32_t>(descriptorWrites.size()),
+                               descriptorWrites.data(), 0, nullptr);
 
-            descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrites[1].dstSet = m_descriptorSets[i];
-            descriptorWrites[1].dstBinding = 1;
-            descriptorWrites[1].dstArrayElement = 0;
-            descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            descriptorWrites[1].descriptorCount = 1;
-            descriptorWrites[1].pImageInfo = &imageInfo;
-
-            vkUpdateDescriptorSets(m_device, static_cast<uint32_t>(descriptorWrites.size()),
-                                   descriptorWrites.data(), 0, nullptr);
-        }
-    }
-
-    void RenderTask::release()
-    {
-        if (!m_isCreated)
-        {
-            NARCLOG_WARNING("Cannot release RenderTask twice!");
-            return;
-        }
-
-        m_isCreated = false;
-        vkDestroyPipeline(m_device, m_pipeline, nullptr);
-        vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
+        //TODO DONT DO THIS EVERY TIME
+        // for (size_t i = 0; i < maxFrameInFlight; i++)
+        // {
+        //     VkDescriptorBufferInfo bufferInfo{};
+        //     bufferInfo.buffer = uniformBuffers[i].getBuffer();
+        //     bufferInfo.offset = 0;
+        //     bufferInfo.range = sizeof(UniformBufferObject);
+        //
+        //     VkDescriptorImageInfo imageInfo{};
+        //     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        //     imageInfo.imageView = textureImageView;
+        //     imageInfo.sampler = textureSampler;
+        //
+        //     std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+        //
+        //     descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        //     descriptorWrites[0].dstSet = descriptorSets[i];
+        //     descriptorWrites[0].dstBinding = 0;
+        //     descriptorWrites[0].dstArrayElement = 0;
+        //     descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        //     descriptorWrites[0].descriptorCount = 1;
+        //     descriptorWrites[0].pBufferInfo = &bufferInfo;
+        //
+        //     descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        //     descriptorWrites[1].dstSet = descriptorSets[i];
+        //     descriptorWrites[1].dstBinding = 1;
+        //     descriptorWrites[1].dstArrayElement = 0;
+        //     descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        //     descriptorWrites[1].descriptorCount = 1;
+        //     descriptorWrites[1].pImageInfo = &imageInfo;
+        //
+        //     vkUpdateDescriptorSets(m_device, static_cast<uint32_t>(descriptorWrites.size()),
+        //                            descriptorWrites.data(), 0, nullptr);
+        // }
     }
 
     void RenderTask::createGraphicsPipeline(const SwapChain* swapChain,
@@ -177,7 +188,7 @@ namespace narc_engine {
 
         VkPipelineColorBlendAttachmentState colorBlendAttachment{};
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-                                              VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+            VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
         colorBlendAttachment.blendEnable = VK_FALSE;
 
         VkPipelineColorBlendStateCreateInfo colorBlending{};

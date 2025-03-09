@@ -14,6 +14,7 @@ namespace narc_engine
         explicit Material(const char* texturePath);
         ~Material();
 
+        [[nodiscard]] const uint32_t& getMaterialID() const { return m_materialID; }
         [[nodiscard]] const narc_io::Image& getMainTexture() const { return m_mainTexture; }
 
     private:

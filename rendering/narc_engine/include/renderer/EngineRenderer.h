@@ -28,10 +28,11 @@ namespace narc_engine {
 
     private:
         SwapChain m_swapChain;
-        RenderTask m_renderTask;
+        std::map<uint32_t, RenderTask*> m_rendererTasks;
 
         DescriptorPool m_descriptorPool;
         VkDescriptorSetLayout m_descriptorSetLayout;
+        std::vector<VkDescriptorSet> m_descriptorSets;
         std::vector<UniformBuffer> m_uniformBuffers;
         uint32_t m_currentFrame = 0;
 
@@ -54,6 +55,6 @@ namespace narc_engine {
         void createTextureImage(const narc_io::Image& sourceImage);
         void createTextureSampler();
         void createImageTextureView();
-        void createRenderTask(const Material* material);
+        RenderTask* createRenderTask(const Material* material);
     };
 } // narc_engine
