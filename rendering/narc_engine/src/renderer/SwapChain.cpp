@@ -22,7 +22,7 @@ namespace narc_engine {
 
     VkResult SwapChain::acquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex)
     {
-        VkResult result = vkAcquireNextImageKHR(m_deviceHandler->getDevice(), m_swapChain, UINT64_MAX, semaphore, VK_NULL_HANDLE, imageIndex);
+        const VkResult result = vkAcquireNextImageKHR(m_deviceHandler->getDevice(), m_swapChain, UINT64_MAX, semaphore, VK_NULL_HANDLE, imageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) //OUT DUE TO WINDOW RESIZE FOR EXAMPLE
         {

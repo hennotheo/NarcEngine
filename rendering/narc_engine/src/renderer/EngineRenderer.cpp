@@ -6,8 +6,7 @@
 #include "Engine.h"
 #include "buffers/StagingBuffer.h"
 
-namespace narc_engine
-{
+namespace narc_engine {
     constexpr uint32_t g_maxFramesInFlight = 2;
 
     EngineRenderer::EngineRenderer()
@@ -15,6 +14,7 @@ namespace narc_engine
         m_device = Engine::getInstance()->getDevice();
 
         m_swapChain.create();
+        m_frameManager = std::make_unique<MultiFrameManager>(g_maxFramesInFlight);
         createDescriptorSetLayout();
         m_swapChain.createFramebuffers();
         createUniformBuffers();
@@ -36,7 +36,7 @@ namespace narc_engine
         // vkDestroyImage(device, m_textureImage, nullptr);
         // vkFreeMemory(device, m_textureImageMemory, nullptr);
 
-        for (UniformBuffer& buffer : m_uniformBuffers)
+        for (UniformBuffer& buffer: m_uniformBuffers)
         {
             buffer.release();
         }
@@ -44,7 +44,7 @@ namespace narc_engine
         m_descriptorPool.release();
         vkDestroyDescriptorSetLayout(device, m_descriptorSetLayout, nullptr);
 
-        for (auto& [id, rendererTask] : m_rendererTasks)
+        for (auto& [id, rendererTask]: m_rendererTasks)
         {
             if (rendererTask != nullptr)
             {
@@ -55,31 +55,35 @@ namespace narc_engine
 
         m_swapChain.cleanRenderPass();
 
-        for (size_t i = 0; i < g_maxFramesInFlight; i++)
-        {
-            vkDestroySemaphore(device, m_renderFinishedSemaphores[i], nullptr);
-            vkDestroySemaphore(device, m_imageAvailableSemaphores[i], nullptr);
-            vkDestroyFence(device, m_inFlightFences[i], nullptr);
-        }
+        // for (size_t i = 0; i < g_maxFramesInFlight; i++)
+        // {
+        //     vkDestroySemaphore(device, m_renderFinishedSemaphores[i], nullptr);
+        //     vkDestroySemaphore(device, m_imageAvailableSemaphores[i], nullptr);
+        //     vkDestroyFence(device, m_inFlightFences[i], nullptr);
+        // }
     }
 
     void EngineRenderer::drawFrame()
     {
-        vkWaitForFences(m_device->getDevice(), 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
+        uint32_t currentFrame = m_frameManager->getCurrentFrame();
+        const FrameHandler* frameHandler = m_frameManager->getCurrentFrameHandler();
+
+        const std::vector<VkFence> inFlightFencesToWait = {frameHandler->getInFlightFence()};
+        vkWaitForFences(m_device->getDevice(), 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
 
         uint32_t imageIndex;
-        VkResult result = m_swapChain.acquireNextImage(m_imageAvailableSemaphores[m_currentFrame], &imageIndex);
+        VkResult result = m_swapChain.acquireNextImage(frameHandler->getImageAvailableSemaphore(), &imageIndex);
 
-        updateUniformBuffer(m_currentFrame);
+        updateUniformBuffer(currentFrame);
 
-        for (const auto& [id, rendererTask] : m_rendererTasks)
+        for (const auto& [id, rendererTask]: m_rendererTasks)
         {
-            rendererTask->updateDescriptorSets(m_currentFrame, m_descriptorSets, m_uniformBuffers.data());
+            rendererTask->updateDescriptorSets(currentFrame, m_descriptorSets, m_uniformBuffers.data());
         }
 
-        vkResetFences(m_device->getDevice(), 1, &m_inFlightFences[m_currentFrame]);
+        vkResetFences(m_device->getDevice(), 1, inFlightFencesToWait.data());
 
-        CommandBuffer* buffer = Engine::getInstance()->getCommandPool()->getCommandBuffer(m_currentFrame);
+        CommandBuffer* buffer = Engine::getInstance()->getCommandPool()->getCommandBuffer(currentFrame);
         buffer->reset(0);
 
         recordCommandBuffer(buffer, imageIndex);
@@ -87,11 +91,11 @@ namespace narc_engine
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-        VkSemaphore waitSemaphores[] =
+        const VkSemaphore waitSemaphores[] =
         {
-            m_imageAvailableSemaphores[m_currentFrame]
+            frameHandler->getImageAvailableSemaphore()
         };
-        VkPipelineStageFlags waitStages[] =
+        constexpr VkPipelineStageFlags waitStages[] =
         {
             VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
         };
@@ -101,11 +105,11 @@ namespace narc_engine
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = buffer->getVkCommandBuffer();
 
-        VkSemaphore signalSemaphores[] = {m_renderFinishedSemaphores[m_currentFrame]};
+        const VkSemaphore signalSemaphores[] = {frameHandler->getRenderFinishedSemaphore()};
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
 
-        if (m_device->submitGraphicsQueue(1, &submitInfo, m_inFlightFences[m_currentFrame]) != VK_SUCCESS)
+        if (m_device->submitGraphicsQueue(1, &submitInfo, frameHandler->getInFlightFence()) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to submit draw command buffer!");
         }
@@ -136,7 +140,7 @@ namespace narc_engine
             NARCLOG_FATAL("failed to present swap chain image!");
         }
 
-        m_currentFrame = (m_currentFrame + 1) % g_maxFramesInFlight;
+        m_frameManager->nextFrame();
     }
 
     void EngineRenderer::updateUniformBuffer(uint32_t currentImage)
@@ -150,7 +154,7 @@ namespace narc_engine
         ubo.Model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.View = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.Proj = glm::perspective(glm::radians(45.0f),
-                                    m_swapChain.getSwapChainExtent().width / (float)m_swapChain.getSwapChainExtent().
+                                    m_swapChain.getSwapChainExtent().width / (float) m_swapChain.getSwapChainExtent().
                                     height, 0.1f, 10.0f);
         ubo.Proj[1][1] *= -1;
 
@@ -239,8 +243,8 @@ namespace narc_engine
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = (float)swapChainExtent.width;
-        viewport.height = (float)swapChainExtent.height;
+        viewport.width = (float) swapChainExtent.width;
+        viewport.height = (float) swapChainExtent.height;
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
         commandBuffer->cmdSetViewport(&viewport, 0, 1);
@@ -250,9 +254,9 @@ namespace narc_engine
         scissor.extent = swapChainExtent;
         commandBuffer->cmdSetScissor(&scissor, 0, 1);
 
-        for (const auto& [id, rendererTask] : m_rendererTasks)
+        for (const auto& [id, rendererTask]: m_rendererTasks)
         {
-            rendererTask->recordTask(commandBuffer, &m_descriptorSets[m_currentFrame]);
+            rendererTask->recordTask(commandBuffer, &m_descriptorSets[m_frameManager->getCurrentFrame()]);
         }
 
         commandBuffer->cmdEndRenderPass();
@@ -265,28 +269,28 @@ namespace narc_engine
 
     void EngineRenderer::createSyncObjects()
     {
-        m_imageAvailableSemaphores.resize(g_maxFramesInFlight);
-        m_renderFinishedSemaphores.resize(g_maxFramesInFlight);
-        m_inFlightFences.resize(g_maxFramesInFlight);
-
-        VkSemaphoreCreateInfo semaphoreInfo{};
-        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-        VkFenceCreateInfo fenceInfo{};
-        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-        fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-        for (size_t i = 0; i < g_maxFramesInFlight; i++)
-        {
-            if (vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]) !=
-                VK_SUCCESS ||
-                vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]) !=
-                VK_SUCCESS ||
-                vkCreateFence(m_device->getDevice(), &fenceInfo, nullptr, &m_inFlightFences[i]) != VK_SUCCESS)
-            {
-                NARCLOG_FATAL("failed to create semaphores!");
-            }
-        }
+        // m_imageAvailableSemaphores.resize(g_maxFramesInFlight);
+        // m_renderFinishedSemaphores.resize(g_maxFramesInFlight);
+        // m_inFlightFences.resize(g_maxFramesInFlight);
+        //
+        // VkSemaphoreCreateInfo semaphoreInfo{};
+        // semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        //
+        // VkFenceCreateInfo fenceInfo{};
+        // fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        // fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+        //
+        // for (size_t i = 0; i < g_maxFramesInFlight; i++)
+        // {
+        //     if (vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]) !=
+        //         VK_SUCCESS ||
+        //         vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]) !=
+        //         VK_SUCCESS ||
+        //         vkCreateFence(m_device->getDevice(), &fenceInfo, nullptr, &m_inFlightFences[i]) != VK_SUCCESS)
+        //     {
+        //         NARCLOG_FATAL("failed to create semaphores!");
+        //     }
+        // }
     }
 
     void EngineRenderer::createUniformBuffers()

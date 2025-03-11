@@ -15,6 +15,7 @@ namespace narc_io {
         static std::vector<char> readFile(const std::string& filename);
         static Model3D load3DModel(const std::string& filename);
         static Image readImage(const std::string& filename);
+
         static void releaseImage(void* imageData);
     };
 }

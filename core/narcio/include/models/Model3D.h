@@ -16,11 +16,11 @@ namespace narc_io {
     {
         friend class FileReader;
 
-        [[nodiscard]] uint32_t getVerticesCount() const { return m_vertices.size(); };
-        [[nodiscard]] const VertexList* getVertices() const { return &m_vertices; };
-        [[nodiscard]] const TexCoordList* getTexCoords() const { return &m_texCoords; };
-        [[nodiscard]] const ColorList* getColors() const { return &m_colors; };
-        [[nodiscard]] const IndexList* getIndices() const { return &m_indices; };
+        GETTER uint32_t getVerticesCount() const { return m_vertices.size(); };
+        GETTER const VertexList* getVertices() const { return &m_vertices; };
+        GETTER const TexCoordList* getTexCoords() const { return &m_texCoords; };
+        GETTER const ColorList* getColors() const { return &m_colors; };
+        GETTER const IndexList* getIndices() const { return &m_indices; };
 
     private:
         std::vector<glm::vec3> m_vertices{};

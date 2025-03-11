@@ -2,6 +2,7 @@
 
 #include "CommandBuffer.h"
 #include "DescriptorPool.h"
+#include "MultiFrameManager.h"
 #include "buffers/UniformBuffer.h"
 #include "models/Image.h"
 #include "models/Vertex.h"
@@ -28,17 +29,17 @@ namespace narc_engine {
 
     private:
         SwapChain m_swapChain;
+        std::unique_ptr<MultiFrameManager> m_frameManager;
         std::map<uint32_t, RenderTask*> m_rendererTasks;
 
         DescriptorPool m_descriptorPool;
         VkDescriptorSetLayout m_descriptorSetLayout;
         std::vector<VkDescriptorSet> m_descriptorSets;
         std::vector<UniformBuffer> m_uniformBuffers;
-        uint32_t m_currentFrame = 0;
 
-        std::vector<VkSemaphore> m_imageAvailableSemaphores;
-        std::vector<VkSemaphore> m_renderFinishedSemaphores;
-        std::vector<VkFence> m_inFlightFences;
+        // std::vector<VkSemaphore> m_imageAvailableSemaphores;
+        // std::vector<VkSemaphore> m_renderFinishedSemaphores;
+        // std::vector<VkFence> m_inFlightFences;
 
         // VkImage m_textureImage;
         // VkDeviceMemory m_textureImageMemory;
