@@ -4,15 +4,13 @@
 
 namespace narc_engine
 {
-    class UniformBuffer : public Buffer
+    class UniformBuffer final : public Buffer
     {
     public:
-        UniformBuffer() : Buffer() {}
-
-        void create(const VkDeviceSize& bufferSize);
+        explicit UniformBuffer(const VkDeviceSize& bufferSize);
 
         void setData(const UniformBufferObject& ubo);
     private:
-        void* uniformBuffersMapped;
+        void* uniformBuffersMapped = nullptr;
     };
 }

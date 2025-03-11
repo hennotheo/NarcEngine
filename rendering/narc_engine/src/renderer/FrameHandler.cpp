@@ -20,13 +20,14 @@ namespace narc_engine {
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-
         if (vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphore) != VK_SUCCESS ||
             vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphore) != VK_SUCCESS ||
             vkCreateFence(m_device->getDevice(), &fenceInfo, nullptr, &m_inFlightFence) != VK_SUCCESS)
         {
             NARCLOG_FATAL("Failed to create semaphores!");
         }
+
+        m_uniformBuffer = std::make_unique<UniformBuffer>(sizeof(UniformBufferObject));
     }
 
     FrameHandler::~FrameHandler()

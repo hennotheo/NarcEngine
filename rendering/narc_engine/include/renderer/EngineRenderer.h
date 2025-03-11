@@ -23,7 +23,7 @@ namespace narc_engine {
         ~EngineRenderer();
 
         void drawFrame();
-        void updateUniformBuffer(uint32_t currentImage);
+        void updateUniformBuffer(UniformBuffer* buffer) const;
 
         void attachRenderer(const Renderer* renderer);
 
@@ -35,7 +35,7 @@ namespace narc_engine {
         DescriptorPool m_descriptorPool;
         VkDescriptorSetLayout m_descriptorSetLayout;
         std::vector<VkDescriptorSet> m_descriptorSets;
-        std::vector<UniformBuffer> m_uniformBuffers;
+        // std::vector<UniformBuffer> m_uniformBuffers;
 
         // std::vector<VkSemaphore> m_imageAvailableSemaphores;
         // std::vector<VkSemaphore> m_renderFinishedSemaphores;
@@ -52,7 +52,7 @@ namespace narc_engine {
         void createDescriptorSetLayout();
         void recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex);
         void createSyncObjects();
-        void createUniformBuffers();
+        // void createUniformBuffers();
         // void createTextureImage(const narc_io::Image& sourceImage);
         // void createTextureSampler();
         // void createImageTextureView();

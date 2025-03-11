@@ -2,7 +2,7 @@
 
 namespace narc_engine
 {
-    void UniformBuffer::create(const VkDeviceSize& bufferSize)
+    UniformBuffer::UniformBuffer(const VkDeviceSize& bufferSize)
     {
         this->createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, this->m_buffer, this->m_bufferMemory);
 

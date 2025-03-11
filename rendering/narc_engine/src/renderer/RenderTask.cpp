@@ -44,7 +44,7 @@ namespace narc_engine
                                           const UniformBuffer* uniformBuffers) const
     {
         VkDescriptorBufferInfo bufferInfo{};
-        bufferInfo.buffer = uniformBuffers[currentFrameID].getBuffer();
+        bufferInfo.buffer = uniformBuffers->getBuffer();
         bufferInfo.offset = 0;
         bufferInfo.range = sizeof(UniformBufferObject);
 

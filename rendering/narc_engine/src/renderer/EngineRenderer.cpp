@@ -17,7 +17,7 @@ namespace narc_engine {
         m_frameManager = std::make_unique<MultiFrameManager>(g_maxFramesInFlight);
         createDescriptorSetLayout();
         m_swapChain.createFramebuffers();
-        createUniformBuffers();
+        // createUniformBuffers();
         createDescriptorPool(g_maxFramesInFlight);
 
         Engine::getInstance()->getCommandPool()->createCommandBuffers(g_maxFramesInFlight);
@@ -36,10 +36,10 @@ namespace narc_engine {
         // vkDestroyImage(device, m_textureImage, nullptr);
         // vkFreeMemory(device, m_textureImageMemory, nullptr);
 
-        for (UniformBuffer& buffer: m_uniformBuffers)
-        {
-            buffer.release();
-        }
+        // for (UniformBuffer& buffer: m_uniformBuffers)
+        // {
+        //     buffer.release();
+        // }
 
         m_descriptorPool.release();
         vkDestroyDescriptorSetLayout(device, m_descriptorSetLayout, nullptr);
@@ -72,13 +72,13 @@ namespace narc_engine {
         vkWaitForFences(m_device->getDevice(), 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
 
         uint32_t imageIndex;
-        VkResult result = m_swapChain.acquireNextImage(frameHandler->getImageAvailableSemaphore(), &imageIndex);
+        m_swapChain.acquireNextImage(frameHandler->getImageAvailableSemaphore(), &imageIndex);
 
-        updateUniformBuffer(currentFrame);
+        updateUniformBuffer(frameHandler->getUniformBuffer());
 
         for (const auto& [id, rendererTask]: m_rendererTasks)
         {
-            rendererTask->updateDescriptorSets(currentFrame, m_descriptorSets, m_uniformBuffers.data());
+            rendererTask->updateDescriptorSets(currentFrame, m_descriptorSets, frameHandler->getUniformBuffer());
         }
 
         vkResetFences(m_device->getDevice(), 1, inFlightFencesToWait.data());
@@ -114,20 +114,17 @@ namespace narc_engine {
             NARCLOG_FATAL("failed to submit draw command buffer!");
         }
 
+        const VkSwapchainKHR swapChains[] = {m_swapChain.getSwapChain()};
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = signalSemaphores;
-
-        VkSwapchainKHR swapChains[] = {m_swapChain.getSwapChain()};
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = swapChains;
-
         presentInfo.pImageIndices = &imageIndex;
         presentInfo.pResults = nullptr;
 
-        result = m_device->presentKHR(&presentInfo);
-
+        const VkResult result = m_device->presentKHR(&presentInfo);
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || Engine::getInstance()->getWindow()->
             isFramebufferResized())
         {
@@ -143,7 +140,7 @@ namespace narc_engine {
         m_frameManager->nextFrame();
     }
 
-    void EngineRenderer::updateUniformBuffer(uint32_t currentImage)
+    void EngineRenderer::updateUniformBuffer(UniformBuffer* buffer) const
     {
         static auto startTime = std::chrono::high_resolution_clock::now();
 
@@ -158,7 +155,7 @@ namespace narc_engine {
                                     height, 0.1f, 10.0f);
         ubo.Proj[1][1] *= -1;
 
-        m_uniformBuffers[currentImage].setData(ubo);
+        buffer->setData(ubo);
     }
 
     void EngineRenderer::attachRenderer(const Renderer* renderer)
@@ -293,17 +290,17 @@ namespace narc_engine {
         // }
     }
 
-    void EngineRenderer::createUniformBuffers()
-    {
-        VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
-        m_uniformBuffers.resize(g_maxFramesInFlight);
-
-        for (size_t i = 0; i < g_maxFramesInFlight; i++)
-        {
-            m_uniformBuffers[i].create(bufferSize);
-        }
-    }
+    // void EngineRenderer::createUniformBuffers()
+    // {
+    //     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+    //
+    //     m_uniformBuffers.resize(g_maxFramesInFlight);
+    //
+    //     for (size_t i = 0; i < g_maxFramesInFlight; i++)
+    //     {
+    //         m_uniformBuffers[i].create(bufferSize);
+    //     }
+    // }
 
     RenderTask* EngineRenderer::createRenderTask(const Material* material)
     {

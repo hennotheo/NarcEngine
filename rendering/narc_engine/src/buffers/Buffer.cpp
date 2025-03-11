@@ -14,6 +14,11 @@ namespace narc_engine
         }
     }
 
+    Buffer::~Buffer()
+    {
+        Buffer::release();
+    }
+
     void Buffer::release()
     {
         vkDestroyBuffer(m_linkedDevice->getDevice(), m_buffer, nullptr);

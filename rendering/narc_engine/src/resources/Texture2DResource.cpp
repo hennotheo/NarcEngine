@@ -10,8 +10,7 @@
 #include "Engine.h"
 #include "buffers/StagingBuffer.h"
 
-namespace narc_engine
-{
+namespace narc_engine {
     Texture2DResource::Texture2DResource(const char* path, const uint32_t resourceID) : GraphicResource(GraphicResourceType::TEXTURE_2D, resourceID)
     {
         const narc_io::Image image = narc_io::FileReader::readImage(path);
@@ -51,8 +50,6 @@ namespace narc_engine
         Engine::getInstance()->transitionImageLayout(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB,
                                                      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                                      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-        staggingBuffer.release();
     }
 
     void Texture2DResource::createTextureSampler()
