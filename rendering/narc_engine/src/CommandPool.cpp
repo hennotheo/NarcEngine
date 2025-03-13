@@ -62,10 +62,11 @@ namespace narc_engine {
     {
         commandBuffer.end();
 
+        const std::array<VkCommandBuffer, 1> commandBuffers = {commandBuffer.getVkCommandBuffer()};
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = commandBuffer.getVkCommandBuffer();
+        submitInfo.pCommandBuffers = commandBuffers.data();
 
         m_deviceHandler->submitGraphicsQueue(1, &submitInfo, VK_NULL_HANDLE);
         m_deviceHandler->waitGraphicsQueueIdle();

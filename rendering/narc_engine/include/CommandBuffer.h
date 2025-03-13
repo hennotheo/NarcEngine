@@ -5,7 +5,7 @@ namespace narc_engine {
     class CommandBuffer
     {
     public:
-        const VkCommandBuffer* getVkCommandBuffer() const { return &m_commandBuffer; }
+        GETTER VkCommandBuffer getVkCommandBuffer() const { return m_commandBuffer; }
 
         void allocate(const DeviceHandler* deviceHandler, const VkCommandBufferAllocateInfo* allocInfo);
         void reset(VkCommandBufferResetFlags flags);

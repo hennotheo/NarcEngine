@@ -74,17 +74,25 @@ namespace narc_engine {
 
         updateUniformBuffer(frameHandler->getUniformBuffer());
 
+        uint32_t materialID = 0;
         for (const auto& [id, rendererTask]: m_rendererTasks)
         {
-            rendererTask->updateDescriptorSet(frameHandler->getDescriptorSets()[0], frameHandler->getUniformBuffer());
+            rendererTask->updateDescriptorSet(frameHandler->getDescriptorSets()[materialID], frameHandler->getUniformBuffer());
+            materialID++;
         }
 
         vkResetFences(m_device->getDevice(), 1, inFlightFencesToWait.data());
 
-        CommandBuffer* buffer =frameHandler->getCommandPool()->getCommandBuffer(0);
+        CommandBuffer* buffer = frameHandler->getCommandPool()->getCommandBuffer(0);
         buffer->reset(0);
 
-        recordCommandBuffer(buffer, imageIndex, &frameHandler->getDescriptorSets()[0]);
+        std::array<VkCommandBuffer, 1> commandBuffers = {buffer->getVkCommandBuffer()};
+        materialID = 0;
+        for (const auto& [id, rendererTask]: m_rendererTasks)
+        {
+            materialID++;
+        }
+        recordCommandBuffer(buffer, imageIndex, frameHandler->getDescriptorSets());
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -101,7 +109,7 @@ namespace narc_engine {
         submitInfo.pWaitSemaphores = waitSemaphores;
         submitInfo.pWaitDstStageMask = waitStages;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = buffer->getVkCommandBuffer();
+        submitInfo.pCommandBuffers = commandBuffers.data();
 
         const VkSemaphore signalSemaphores[] = {frameHandler->getRenderFinishedSemaphore()};
         submitInfo.signalSemaphoreCount = 1;
@@ -196,7 +204,7 @@ namespace narc_engine {
         }
     }
 
-    void EngineRenderer::recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex, const VkDescriptorSet* descriptorSet)
+    void EngineRenderer::recordCommandBuffer(CommandBuffer* commandBuffer, const uint32_t imageIndex, const std::vector<VkDescriptorSet>& descriptorSets)
     {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -206,7 +214,7 @@ namespace narc_engine {
         commandBuffer->begin(beginInfo);
 
         VkRenderPassBeginInfo renderPassInfo = m_swapChain.getRenderPassBeginInfos(imageIndex);
-        VkExtent2D swapChainExtent = m_swapChain.getSwapChainExtent();
+        const VkExtent2D swapChainExtent = m_swapChain.getSwapChainExtent();
 
         std::array<VkClearValue, 2> clearValues{};
         clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
@@ -230,9 +238,11 @@ namespace narc_engine {
         scissor.extent = swapChainExtent;
         commandBuffer->cmdSetScissor(&scissor, 0, 1);
 
+        uint32_t materialID = 0;
         for (const auto& [id, rendererTask]: m_rendererTasks)
         {
-            rendererTask->recordTask(commandBuffer, descriptorSet);
+            rendererTask->recordTask(commandBuffer, &descriptorSets[materialID]);
+            materialID++;
         }
 
         commandBuffer->cmdEndRenderPass();

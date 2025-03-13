@@ -11,9 +11,9 @@ namespace narc_engine {
     {
         m_descriptorPool = std::make_unique<DescriptorPool>(maxFrameInFlight);
         m_descriptorPool->builder()
-                ->addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1)
+                ->addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2)
                 ->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 2)
-                ->setMaxSet(1);
+                ->setMaxSet(2);
         m_descriptorPool->create();
 
         m_frames = std::vector<std::unique_ptr<FrameHandler> >(maxFrameInFlight);

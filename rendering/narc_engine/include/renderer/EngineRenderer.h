@@ -52,7 +52,7 @@ namespace narc_engine {
 
         void createDescriptorPool(uint32_t maxFrameInFlight);
         void createDescriptorSetLayout();
-        void recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex, const VkDescriptorSet* descriptorSet);
+        void recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex, const std::vector<VkDescriptorSet>& descriptorSets);
         void createSyncObjects();
         // void createUniformBuffers();
         // void createTextureImage(const narc_io::Image& sourceImage);
