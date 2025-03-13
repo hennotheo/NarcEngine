@@ -12,7 +12,7 @@ namespace narc_engine {
     class RenderPass
     {
     public:
-        RenderPass(VkFormat colorFormat);
+        explicit RenderPass(VkFormat colorFormat);
         ~RenderPass();
 
         const VkRenderPass& getRenderPass() const { return m_renderPass; }

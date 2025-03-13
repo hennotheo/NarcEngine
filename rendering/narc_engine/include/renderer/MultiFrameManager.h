@@ -13,10 +13,9 @@ namespace narc_engine {
         explicit MultiFrameManager(uint32_t maxFrameInFlight);
         ~MultiFrameManager();
 
-        void nextFrame();
-        GETTER DEPRECATED uint32_t getCurrentFrame() const { return m_currentFrame; }
         GETTER const FrameHandler* getCurrentFrameHandler() const { return m_frames[m_currentFrame].get(); }
 
+        void nextFrame();
         void allocateDescriptorSets(VkDescriptorSetAllocateInfo& allocInfo);
 
     private:

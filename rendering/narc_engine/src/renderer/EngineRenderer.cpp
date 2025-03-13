@@ -4,7 +4,6 @@
 #include <NarcMath.h>
 
 #include "Engine.h"
-#include "buffers/StagingBuffer.h"
 
 namespace narc_engine {
     constexpr uint32_t g_maxFramesInFlight = 2;
@@ -17,10 +16,6 @@ namespace narc_engine {
         m_frameManager = std::make_unique<MultiFrameManager>(g_maxFramesInFlight);
         createDescriptorSetLayout();
         m_swapChain.createFramebuffers();
-        // createUniformBuffers();
-        // createDescriptorPool(g_maxFramesInFlight);
-
-        createSyncObjects();
     }
 
     EngineRenderer::~EngineRenderer()
@@ -29,17 +24,6 @@ namespace narc_engine {
 
         m_swapChain.cleanSwapChain();
 
-        // vkDestroySampler(device, m_textureSampler, nullptr);
-        // vkDestroyImageView(device, m_textureImageView, nullptr);
-        // vkDestroyImage(device, m_textureImage, nullptr);
-        // vkFreeMemory(device, m_textureImageMemory, nullptr);
-
-        // for (UniformBuffer& buffer: m_uniformBuffers)
-        // {
-        //     buffer.release();
-        // }
-
-        // m_descriptorPool.release();
         vkDestroyDescriptorSetLayout(device, m_descriptorSetLayout, nullptr);
 
         for (auto& [id, rendererTask]: m_rendererTasks)
@@ -52,18 +36,10 @@ namespace narc_engine {
         }
 
         m_swapChain.cleanRenderPass();
-
-        // for (size_t i = 0; i < g_maxFramesInFlight; i++)
-        // {
-        //     vkDestroySemaphore(device, m_renderFinishedSemaphores[i], nullptr);
-        //     vkDestroySemaphore(device, m_imageAvailableSemaphores[i], nullptr);
-        //     vkDestroyFence(device, m_inFlightFences[i], nullptr);
-        // }
     }
 
     void EngineRenderer::drawFrame()
     {
-        const uint32_t currentFrame = m_frameManager->getCurrentFrame();
         const FrameHandler* frameHandler = m_frameManager->getCurrentFrameHandler();
 
         const std::vector<VkFence> inFlightFencesToWait = {frameHandler->getInFlightFence()};
@@ -86,7 +62,7 @@ namespace narc_engine {
         CommandBuffer* buffer = frameHandler->getCommandPool()->getCommandBuffer(0);
         buffer->reset(0);
 
-        std::array<VkCommandBuffer, 1> commandBuffers = {buffer->getVkCommandBuffer()};
+        const std::array<VkCommandBuffer, 1> commandBuffers = {buffer->getVkCommandBuffer()};
         materialID = 0;
         for (const auto& [id, rendererTask]: m_rendererTasks)
         {
@@ -252,44 +228,6 @@ namespace narc_engine {
             NARCLOG_FATAL("Failed to record command buffer!");
         }
     }
-
-    void EngineRenderer::createSyncObjects()
-    {
-        // m_imageAvailableSemaphores.resize(g_maxFramesInFlight);
-        // m_renderFinishedSemaphores.resize(g_maxFramesInFlight);
-        // m_inFlightFences.resize(g_maxFramesInFlight);
-        //
-        // VkSemaphoreCreateInfo semaphoreInfo{};
-        // semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-        //
-        // VkFenceCreateInfo fenceInfo{};
-        // fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-        // fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-        //
-        // for (size_t i = 0; i < g_maxFramesInFlight; i++)
-        // {
-        //     if (vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]) !=
-        //         VK_SUCCESS ||
-        //         vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]) !=
-        //         VK_SUCCESS ||
-        //         vkCreateFence(m_device->getDevice(), &fenceInfo, nullptr, &m_inFlightFences[i]) != VK_SUCCESS)
-        //     {
-        //         NARCLOG_FATAL("failed to create semaphores!");
-        //     }
-        // }
-    }
-
-    // void EngineRenderer::createUniformBuffers()
-    // {
-    //     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-    //
-    //     m_uniformBuffers.resize(g_maxFramesInFlight);
-    //
-    //     for (size_t i = 0; i < g_maxFramesInFlight; i++)
-    //     {
-    //         m_uniformBuffers[i].create(bufferSize);
-    //     }
-    // }
 
     RenderTask* EngineRenderer::createRenderTask(const Material* material)
     {
