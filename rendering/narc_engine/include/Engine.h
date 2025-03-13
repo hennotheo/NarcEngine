@@ -30,7 +30,6 @@ namespace narc_engine {
 
         const DeviceHandler* getDevice() const { return m_deviceHandler.get(); }
         Window* getWindow() const { return m_window.get(); }
-        CommandPool* getCommandPool() const { return m_commandPool.get(); }
 
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
@@ -56,6 +55,8 @@ namespace narc_engine {
         std::unique_ptr<EngineResourcesManager> m_resourcesManager;
 
     private:
+        GETTER CommandPool* getCommandPool() const { return m_commandPool.get(); }
+
         static bool hasStencilComponent(VkFormat format);
     };
 }

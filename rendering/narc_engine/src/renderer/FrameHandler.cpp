@@ -13,6 +13,9 @@ namespace narc_engine {
     {
         m_device = Engine::getInstance()->getDevice();
 
+        m_commandPool = std::make_unique<CommandPool>(m_device);
+        m_commandPool->createCommandBuffers(6);
+
         VkSemaphoreCreateInfo semaphoreInfo{};
         semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 

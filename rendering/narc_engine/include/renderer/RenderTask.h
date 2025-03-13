@@ -19,8 +19,7 @@ namespace narc_engine
         ~RenderTask();
 
         void recordTask(const CommandBuffer* commandBuffer, const VkDescriptorSet* m_descriptorSet) const;
-        void updateDescriptorSets(uint32_t currentFrameID, const std::vector<VkDescriptorSet>& descriptorSets,
-                                  const UniformBuffer* uniformBuffers) const;
+        void updateDescriptorSet(VkDescriptorSet descriptorSets, const UniformBuffer* uniformBuffers) const;
 
         void bindRenderer(const Renderer* renderer) { m_renderers.push_back(renderer); }
         void unbindRenderer(const Renderer* renderer) { std::erase(m_renderers, renderer); }

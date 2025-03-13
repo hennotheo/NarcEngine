@@ -18,9 +18,7 @@ namespace narc_engine {
         createDescriptorSetLayout();
         m_swapChain.createFramebuffers();
         // createUniformBuffers();
-        createDescriptorPool(g_maxFramesInFlight);
-
-        Engine::getInstance()->getCommandPool()->createCommandBuffers(g_maxFramesInFlight);
+        // createDescriptorPool(g_maxFramesInFlight);
 
         createSyncObjects();
     }
@@ -41,7 +39,7 @@ namespace narc_engine {
         //     buffer.release();
         // }
 
-        m_descriptorPool.release();
+        // m_descriptorPool.release();
         vkDestroyDescriptorSetLayout(device, m_descriptorSetLayout, nullptr);
 
         for (auto& [id, rendererTask]: m_rendererTasks)
@@ -65,7 +63,7 @@ namespace narc_engine {
 
     void EngineRenderer::drawFrame()
     {
-        uint32_t currentFrame = m_frameManager->getCurrentFrame();
+        const uint32_t currentFrame = m_frameManager->getCurrentFrame();
         const FrameHandler* frameHandler = m_frameManager->getCurrentFrameHandler();
 
         const std::vector<VkFence> inFlightFencesToWait = {frameHandler->getInFlightFence()};
@@ -78,15 +76,15 @@ namespace narc_engine {
 
         for (const auto& [id, rendererTask]: m_rendererTasks)
         {
-            rendererTask->updateDescriptorSets(currentFrame, m_descriptorSets, frameHandler->getUniformBuffer());
+            rendererTask->updateDescriptorSet(frameHandler->getDescriptorSets()[0], frameHandler->getUniformBuffer());
         }
 
         vkResetFences(m_device->getDevice(), 1, inFlightFencesToWait.data());
 
-        CommandBuffer* buffer = Engine::getInstance()->getCommandPool()->getCommandBuffer(currentFrame);
+        CommandBuffer* buffer =frameHandler->getCommandPool()->getCommandBuffer(0);
         buffer->reset(0);
 
-        recordCommandBuffer(buffer, imageIndex);
+        recordCommandBuffer(buffer, imageIndex, &frameHandler->getDescriptorSets()[0]);
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -160,6 +158,7 @@ namespace narc_engine {
 
     void EngineRenderer::attachRenderer(const Renderer* renderer)
     {
+        //TODO change to multimaterial renderer task
         const uint32_t materialID = renderer->getMaterial()->getMaterialID();
         RenderTask* renderTask = m_rendererTasks.contains(materialID)
                                      ? m_rendererTasks[materialID]
@@ -197,27 +196,7 @@ namespace narc_engine {
         }
     }
 
-    void EngineRenderer::createDescriptorPool(uint32_t maxFrameInFlight)
-    {
-        const uint32_t descriptionCount = maxFrameInFlight;
-        DescriptorPoolBuilder builder;
-        builder.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, descriptionCount);
-        builder.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descriptionCount);
-        builder.setMaxSet(descriptionCount);
-
-        m_descriptorPool.create(&builder);
-
-        std::vector<VkDescriptorSetLayout> layouts(maxFrameInFlight, m_descriptorSetLayout);
-        VkDescriptorSetAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        allocInfo.descriptorSetCount = maxFrameInFlight;
-        allocInfo.pSetLayouts = layouts.data();
-
-        m_descriptorSets.resize(maxFrameInFlight);
-        m_descriptorPool.allocateDescriptorSets(&allocInfo, m_descriptorSets.data());
-    }
-
-    void EngineRenderer::recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex)
+    void EngineRenderer::recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex, const VkDescriptorSet* descriptorSet)
     {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -253,7 +232,7 @@ namespace narc_engine {
 
         for (const auto& [id, rendererTask]: m_rendererTasks)
         {
-            rendererTask->recordTask(commandBuffer, &m_descriptorSets[m_frameManager->getCurrentFrame()]);
+            rendererTask->recordTask(commandBuffer, descriptorSet);
         }
 
         commandBuffer->cmdEndRenderPass();
@@ -309,8 +288,16 @@ namespace narc_engine {
             NARCLOG_FATAL("Can't create render task for the same material twice!");
         }
 
-        RenderTask* renderer = new RenderTask(&m_swapChain, &m_descriptorSetLayout, material);
+        constexpr uint32_t descriptorSetCount = 1;
+        const std::vector<VkDescriptorSetLayout> layouts(descriptorSetCount, m_descriptorSetLayout);
+        VkDescriptorSetAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        allocInfo.descriptorSetCount = descriptorSetCount;
+        allocInfo.pSetLayouts = layouts.data();
 
+        m_frameManager->allocateDescriptorSets(allocInfo);
+
+        RenderTask* renderer = new RenderTask(&m_swapChain, &m_descriptorSetLayout, material);
         m_rendererTasks.emplace(material->getMaterialID(), renderer);
 
         return renderer;

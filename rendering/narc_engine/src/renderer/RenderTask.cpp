@@ -40,7 +40,7 @@ namespace narc_engine
         }
     }
 
-    void RenderTask::updateDescriptorSets(uint32_t currentFrameID, const std::vector<VkDescriptorSet>& descriptorSets,
+    void RenderTask::updateDescriptorSet(const VkDescriptorSet descriptorSet,
                                           const UniformBuffer* uniformBuffers) const
     {
         VkDescriptorBufferInfo bufferInfo{};
@@ -58,7 +58,7 @@ namespace narc_engine
         std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
         descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[0].dstSet = descriptorSets[currentFrameID];
+        descriptorWrites[0].dstSet = descriptorSet;
         descriptorWrites[0].dstBinding = 0;
         descriptorWrites[0].dstArrayElement = 0;
         descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -66,7 +66,7 @@ namespace narc_engine
         descriptorWrites[0].pBufferInfo = &bufferInfo;
 
         descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[1].dstSet = descriptorSets[currentFrameID];
+        descriptorWrites[1].dstSet = descriptorSet;
         descriptorWrites[1].dstBinding = 1;
         descriptorWrites[1].dstArrayElement = 0;
         descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;

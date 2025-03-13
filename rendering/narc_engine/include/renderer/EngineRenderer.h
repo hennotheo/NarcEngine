@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CommandBuffer.h"
+#include "CommandPool.h"
 #include "DescriptorPool.h"
 #include "MultiFrameManager.h"
 #include "buffers/UniformBuffer.h"
@@ -17,6 +18,7 @@ namespace narc_engine {
     class EngineRenderer
     {
         friend class EngineBinder;
+        friend class Engine;
 
     public:
         EngineRenderer();
@@ -32,9 +34,9 @@ namespace narc_engine {
         std::unique_ptr<MultiFrameManager> m_frameManager;
         std::map<uint32_t, RenderTask*> m_rendererTasks;
 
-        DescriptorPool m_descriptorPool;
+        // DescriptorPool m_descriptorPool;
         VkDescriptorSetLayout m_descriptorSetLayout;
-        std::vector<VkDescriptorSet> m_descriptorSets;
+        // std::vector<VkDescriptorSet> m_descriptorSets;
         // std::vector<UniformBuffer> m_uniformBuffers;
 
         // std::vector<VkSemaphore> m_imageAvailableSemaphores;
@@ -50,7 +52,7 @@ namespace narc_engine {
 
         void createDescriptorPool(uint32_t maxFrameInFlight);
         void createDescriptorSetLayout();
-        void recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex);
+        void recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex, const VkDescriptorSet* descriptorSet);
         void createSyncObjects();
         // void createUniformBuffers();
         // void createTextureImage(const narc_io::Image& sourceImage);

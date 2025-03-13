@@ -5,14 +5,26 @@
 #include "Engine.h"
 
 namespace narc_engine {
-    void DescriptorPool::create(DescriptorPoolBuilder* builder)
+    DescriptorPool::DescriptorPool(const uint32_t poolCount)
     {
         m_deviceHandler = Engine::getInstance()->getDevice();
+        m_builder = std::make_unique<DescriptorPoolBuilder>(poolCount);
+    }
 
-        if (vkCreateDescriptorPool(m_deviceHandler->getDevice(), builder->build(), nullptr, &m_descriptorPool) != VK_SUCCESS)
+    DescriptorPool::~DescriptorPool()
+    {
+        if (m_allocated)
+            release();
+    }
+
+    void DescriptorPool::create()
+    {
+        if (vkCreateDescriptorPool(m_deviceHandler->getDevice(), m_builder->build(), nullptr, &m_descriptorPool) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create descriptor pool!");
         }
+
+        m_allocated = true;
     }
 
     void DescriptorPool::allocateDescriptorSets(VkDescriptorSetAllocateInfo* allocInfo, VkDescriptorSet* descriptorSets) const
@@ -27,6 +39,7 @@ namespace narc_engine {
 
     void DescriptorPool::release()
     {
+        m_allocated = false;
         vkDestroyDescriptorPool(m_deviceHandler->getDevice(), m_descriptorPool, nullptr);
     }
 }

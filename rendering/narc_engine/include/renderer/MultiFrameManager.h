@@ -7,7 +7,6 @@
 #include "FrameHandler.h"
 
 namespace narc_engine {
-
     class MultiFrameManager
     {
     public:
@@ -18,11 +17,14 @@ namespace narc_engine {
         GETTER DEPRECATED uint32_t getCurrentFrame() const { return m_currentFrame; }
         GETTER const FrameHandler* getCurrentFrameHandler() const { return m_frames[m_currentFrame].get(); }
 
+        void allocateDescriptorSets(VkDescriptorSetAllocateInfo& allocInfo);
+
     private:
         const uint32_t m_maxFrameInFlight;
 
-        std::vector<std::unique_ptr<FrameHandler>> m_frames;
+        std::unique_ptr<DescriptorPool> m_descriptorPool;
+
+        std::vector<std::unique_ptr<FrameHandler> > m_frames;
         uint32_t m_currentFrame = 0;
     };
-
 } // narc_engine

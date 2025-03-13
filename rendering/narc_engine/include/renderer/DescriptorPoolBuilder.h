@@ -5,28 +5,34 @@ namespace narc_engine {
     {
         friend class DescriptorPool;
 
-        DescriptorPoolBuilder()
+        inline DescriptorPoolBuilder* setMaxSet(const uint32_t maxSets)
+        {
+            m_poolInfo.maxSets = maxSets * m_poolCount;
+
+            return this;
+        }
+
+        inline DescriptorPoolBuilder* addPoolSize(VkDescriptorType type, uint32_t count)
+        {
+            VkDescriptorPoolSize poolSize{};
+            poolSize.type = type;
+            poolSize.descriptorCount = count * m_poolCount;
+
+            m_poolSizes.push_back(poolSize);
+
+            return this;
+        }
+
+
+        explicit DescriptorPoolBuilder(const uint32_t poolCount = 1)
+            : m_poolCount(poolCount)
         {
             m_poolInfo = {};
             m_poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
             m_poolInfo.maxSets = 0;
         }
-
-        inline void setMaxSet(const uint32_t maxSets)
-        {
-            m_poolInfo.maxSets = maxSets;
-        }
-
-        inline void addPoolSize(VkDescriptorType type, uint32_t count)
-        {
-            VkDescriptorPoolSize poolSize{};
-            poolSize.type = type;
-            poolSize.descriptorCount = count;
-
-            m_poolSizes.push_back(poolSize);
-        }
-
     protected:
+
         VkDescriptorPoolCreateInfo* build()
         {
             m_poolInfo.poolSizeCount = static_cast<uint32_t>(m_poolSizes.size());
@@ -36,7 +42,8 @@ namespace narc_engine {
         }
 
     private:
-        VkDescriptorPoolCreateInfo m_poolInfo;
+        const uint32_t m_poolCount = 1;
+        VkDescriptorPoolCreateInfo m_poolInfo{};
 
         std::vector<VkDescriptorPoolSize> m_poolSizes;
     };

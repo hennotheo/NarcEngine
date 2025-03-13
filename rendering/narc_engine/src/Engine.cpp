@@ -86,7 +86,7 @@ namespace narc_engine {
 
     void Engine::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
     {
-        CommandBuffer commandBuffer = m_commandPool->beginSingleTimeCommands();
+        CommandBuffer commandBuffer = getCommandPool()->beginSingleTimeCommands();
 
         VkImageMemoryBarrier barrier{};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -150,12 +150,12 @@ namespace narc_engine {
 
         commandBuffer.cmdPipelineBarrier(sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
-        m_commandPool->endSingleTimeCommands(commandBuffer);
+        getCommandPool()->endSingleTimeCommands(commandBuffer);
     }
 
     void Engine::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
     {
-        CommandBuffer commandBuffer = m_commandPool->beginSingleTimeCommands();
+        CommandBuffer commandBuffer = getCommandPool()->beginSingleTimeCommands();
 
         VkBufferImageCopy region{};
         region.bufferOffset = 0;
@@ -176,12 +176,12 @@ namespace narc_engine {
 
         commandBuffer.cmdCopyBufferImage(buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-        m_commandPool->endSingleTimeCommands(commandBuffer);
+        getCommandPool()->endSingleTimeCommands(commandBuffer);
     }
 
     void Engine::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
     {
-        CommandBuffer commandBuffer = m_commandPool->beginSingleTimeCommands();
+        CommandBuffer commandBuffer = getCommandPool()->beginSingleTimeCommands();
 
         VkBufferCopy copyRegion{};
         copyRegion.srcOffset = 0; // Optional
@@ -189,7 +189,7 @@ namespace narc_engine {
         copyRegion.size = size;
         commandBuffer.cmdCopyBuffer(srcBuffer, dstBuffer, 1, &copyRegion);
 
-        m_commandPool->endSingleTimeCommands(commandBuffer);
+        getCommandPool()->endSingleTimeCommands(commandBuffer);
     }
 
     void Engine::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
