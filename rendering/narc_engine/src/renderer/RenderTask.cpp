@@ -4,9 +4,9 @@
 
 #include "Engine.h"
 #include "buffers/GraphicsBuffer.h"
+#include "models/ShaderModule.h"
 
-namespace narc_engine
-{
+namespace narc_engine {
     RenderTask::RenderTask(const SwapChain* swapChain, const VkDescriptorSetLayout* m_descriptorSetLayout,
                            const Material* material)
     {
@@ -28,7 +28,7 @@ namespace narc_engine
         commandBuffer->cmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1,
                                              m_descriptorSet, 0, nullptr);
 
-        for (auto renderer : m_renderers)
+        for (auto renderer: m_renderers)
         {
             const Mesh* mesh = renderer->getMesh();
             VkBuffer vertexBuffers[] = {mesh->getVertexBuffer()->getBuffer()};
@@ -40,8 +40,7 @@ namespace narc_engine
         }
     }
 
-    void RenderTask::updateDescriptorSet(const VkDescriptorSet descriptorSet,
-                                          const UniformBuffer* uniformBuffers) const
+    void RenderTask::updateDescriptorSet(const VkDescriptorSet descriptorSet, const UniformBuffer* uniformBuffers) const
     {
         VkDescriptorBufferInfo bufferInfo{};
         bufferInfo.buffer = uniformBuffers->getBuffer();
@@ -75,65 +74,18 @@ namespace narc_engine
 
         vkUpdateDescriptorSets(m_device, static_cast<uint32_t>(descriptorWrites.size()),
                                descriptorWrites.data(), 0, nullptr);
-
-        //TODO DONT DO THIS EVERY TIME
-        // for (size_t i = 0; i < maxFrameInFlight; i++)
-        // {
-        //     VkDescriptorBufferInfo bufferInfo{};
-        //     bufferInfo.buffer = uniformBuffers[i].getBuffer();
-        //     bufferInfo.offset = 0;
-        //     bufferInfo.range = sizeof(UniformBufferObject);
-        //
-        //     VkDescriptorImageInfo imageInfo{};
-        //     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        //     imageInfo.imageView = textureImageView;
-        //     imageInfo.sampler = textureSampler;
-        //
-        //     std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
-        //
-        //     descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        //     descriptorWrites[0].dstSet = descriptorSets[i];
-        //     descriptorWrites[0].dstBinding = 0;
-        //     descriptorWrites[0].dstArrayElement = 0;
-        //     descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        //     descriptorWrites[0].descriptorCount = 1;
-        //     descriptorWrites[0].pBufferInfo = &bufferInfo;
-        //
-        //     descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        //     descriptorWrites[1].dstSet = descriptorSets[i];
-        //     descriptorWrites[1].dstBinding = 1;
-        //     descriptorWrites[1].dstArrayElement = 0;
-        //     descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        //     descriptorWrites[1].descriptorCount = 1;
-        //     descriptorWrites[1].pImageInfo = &imageInfo;
-        //
-        //     vkUpdateDescriptorSets(m_device, static_cast<uint32_t>(descriptorWrites.size()),
-        //                            descriptorWrites.data(), 0, nullptr);
-        // }
     }
 
     void RenderTask::createGraphicsPipeline(const SwapChain* swapChain,
                                             const VkDescriptorSetLayout* m_descriptorSetLayout)
     {
-        auto vertShaderCode = narc_io::FileReader::readFile("shaders/shader_vert.spv");
-        auto fragShaderCode = narc_io::FileReader::readFile("shaders/shader_frag.spv");
+        ShaderModule vertShaderModule("shaders/shader_vert.spv");
+        ShaderModule fragShaderModule("shaders/shader_frag.spv");
 
-        VkShaderModule vertShaderModule = Engine::getInstance()->getDevice()->createShaderModule(vertShaderCode);
-        VkShaderModule fragShaderModule = Engine::getInstance()->getDevice()->createShaderModule(fragShaderCode);
-
-        VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-        vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-        vertShaderStageInfo.module = vertShaderModule;
-        vertShaderStageInfo.pName = "main";
-
-        VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-        fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-        fragShaderStageInfo.module = fragShaderModule;
-        fragShaderStageInfo.pName = "main";
-
-        VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
+        VkPipelineShaderStageCreateInfo shaderStages[] = {
+            vertShaderModule.configureShaderStage("main", VK_SHADER_STAGE_VERTEX_BIT),
+            fragShaderModule.configureShaderStage("main", VK_SHADER_STAGE_FRAGMENT_BIT)
+        };
 
         auto bindingDescription = Vertex::getBindingDescription();
         auto attributeDescriptions = Vertex::getAttributeDescriptions();
@@ -191,7 +143,7 @@ namespace narc_engine
 
         VkPipelineColorBlendAttachmentState colorBlendAttachment{};
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-            VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+                                              VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
         colorBlendAttachment.blendEnable = VK_FALSE;
 
         VkPipelineColorBlendStateCreateInfo colorBlending{};
@@ -251,8 +203,5 @@ namespace narc_engine
         {
             NARCLOG_FATAL("Failed to create graphics pipeline!");
         }
-
-        Engine::getInstance()->getDevice()->destroyShaderModule(fragShaderModule);
-        Engine::getInstance()->getDevice()->destroyShaderModule(vertShaderModule);
     }
 } // narc_engine
