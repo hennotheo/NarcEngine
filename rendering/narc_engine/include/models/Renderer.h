@@ -3,9 +3,6 @@
 //
 
 #pragma once
-#include <NarcMath.h>
-#include <NarcEngine.h>
-#include <NarcIO.h>
 
 namespace narc_engine
 {
@@ -20,6 +17,9 @@ namespace narc_engine
 
         const Material* getMaterial() const { return m_material; }
         const Mesh* getMesh() const { return m_mesh.get(); }
+
+        GETTER const glm::mat4& getModelMatrix() const { return m_modelMatrix; }
+        TEMP_CODE void setModelMatrix(const glm::mat4& modelMatrix) { m_modelMatrix = modelMatrix; }
 
     private:
         std::unique_ptr<Mesh> m_mesh;

@@ -55,6 +55,7 @@ namespace narc {
         m_engine->pollEvents();
 
         //UPDATE ENGINE LOGIC
+        m_renderer2->setModelMatrix(glm::rotate(m_renderer2->getModelMatrix(), glm::radians(0.1f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
         //RENDER ENGINE
         m_engine->render();

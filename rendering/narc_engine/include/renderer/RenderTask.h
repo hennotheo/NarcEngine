@@ -24,6 +24,8 @@ namespace narc_engine
         void bindRenderer(const Renderer* renderer) { m_renderers.push_back(renderer); }
         void unbindRenderer(const Renderer* renderer) { std::erase(m_renderers, renderer); }
 
+        DEPRECATED GETTER std::vector<const Renderer*>* getRenderers() { return &m_renderers; }
+
     private:
         VkPipeline m_pipeline;
         VkPipelineLayout m_pipelineLayout;

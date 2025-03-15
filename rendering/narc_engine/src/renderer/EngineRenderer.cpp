@@ -44,11 +44,12 @@ namespace narc_engine {
         uint32_t imageIndex;
         m_swapChain.acquireNextImage(frameHandler->getImageAvailableSemaphore(), &imageIndex);
 
-        updateUniformBuffer(frameHandler->getUniformBuffer());
 
         uint32_t materialID = 0;
         for (const auto& [id, rendererTask]: m_rendererTasks)
         {
+            updateUniformBuffer(frameHandler->getUniformBuffer(), rendererTask);
+
             rendererTask->updateDescriptorSet(frameHandler->getDescriptorSets()[materialID], frameHandler->getUniformBuffer());
             materialID++;
         }
@@ -113,15 +114,11 @@ namespace narc_engine {
         m_frameManager->nextFrame();
     }
 
-    void EngineRenderer::updateUniformBuffer(UniformBuffer* buffer) const
+    void EngineRenderer::updateUniformBuffer(UniformBuffer* buffer, RenderTask* rendererTask) const
     {
-        static auto startTime = std::chrono::high_resolution_clock::now();
-
-        auto currentTime = std::chrono::high_resolution_clock::now();
-        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
+        const Renderer* renderer = rendererTask->getRenderers()->data()[0];//TODO change to multiobject
         UniformBufferObject ubo{};
-        ubo.Model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.Model = renderer->getModelMatrix();
         ubo.View = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.Proj = glm::perspective(glm::radians(45.0f),
                                     m_swapChain.getSwapChainExtent().width / (float) m_swapChain.getSwapChainExtent().

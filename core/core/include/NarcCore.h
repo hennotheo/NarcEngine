@@ -6,12 +6,7 @@
 
 #define GETTER [[nodiscard]]
 
-#define NGETTER(type, name) \
-    private: \
-        type m_##name; \
-    public: \
-        GETTER type get##name() const { return m_##name; }
-
 #define DEPRECATED [[deprecated]]
+#define TEMP_CODE [[deprecated("Temporary code just for testing purposes")]]
 
 #include "pch.h"

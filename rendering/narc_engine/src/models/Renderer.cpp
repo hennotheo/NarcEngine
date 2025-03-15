@@ -32,7 +32,7 @@ namespace narc_engine
         m_mesh = std::make_unique<Mesh>(vertices, indices);
         m_material = material;
 
-        m_modelMatrix = glm::mat4();
+        m_modelMatrix = glm::mat4(1.0f);
 
         Engine::getInstance()->binder()->attachRenderer(this);
     }

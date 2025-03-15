@@ -23,7 +23,7 @@ namespace narc_engine {
         ~EngineRenderer();
 
         void drawFrame();
-        void updateUniformBuffer(UniformBuffer* buffer) const;
+        void updateUniformBuffer(UniformBuffer* buffer, RenderTask* rendererTask) const;
 
         void attachRenderer(const Renderer* renderer);
 
