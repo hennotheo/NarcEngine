@@ -6,6 +6,8 @@
 
 #include <NarcLog.h>
 
+#include "exceptions/MethodExceptionHandler.h"
+
 namespace narclog
 {
     ExceptionHandlerBuilder* ExceptionHandlerBuilder::bind(const std::function<void()>& function)

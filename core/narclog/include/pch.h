@@ -4,4 +4,6 @@
 
 #pragma once
 
-#include "Core.h"
+#include <NarcCore.h>
+
+#include "NarcLog.h"

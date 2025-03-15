@@ -4,9 +4,6 @@
 
 #pragma once
 
-#include <memory>
-#include <NarcLog.h>
-
 namespace narclog {
     class FileLogger;
 

@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include <NarcLog.h>
-
 #define NARC_EXECUTE_HANDLED(handlerName, method, ...) NARCLOG_HANDLED_METHOD_NAME(handlerName).execute([__VA_ARGS__] { method; })
 
 namespace narclog
 {
+    class FatalException;
+
     class NARCLOG_API MethodExceptionHandler final
     {
         friend class ExceptionHandlerBuilder;
@@ -34,8 +34,8 @@ namespace narclog
 
         void fatalExceptionHandler(const FatalException& e);
         void errorExceptionHandler(const std::exception& e) const;
-        std::string format(const std::exception& e) const;
-        std::string format(const std::exception& e, const std::string& handlerName) const;
+        GETTER std::string format(const std::exception& e) const;
+        GETTER std::string format(const std::exception& e, const std::string& handlerName) const;
 
         void finally() const;
     };

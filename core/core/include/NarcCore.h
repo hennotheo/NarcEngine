@@ -13,3 +13,5 @@
         GETTER type get##name() const { return m_##name; }
 
 #define DEPRECATED [[deprecated]]
+
+#include "pch.h"

@@ -14,8 +14,8 @@ namespace narc_engine
         explicit Material(const char* texturePath);
         ~Material();
 
-        [[nodiscard]] const uint32_t& getMaterialID() const { return m_materialID; }
-        [[nodiscard]] const GraphicResourceHandler& getMainTexture() const { return m_mainTexture; }
+        GETTER const uint32_t& getMaterialID() const { return m_materialID; }
+        GETTER const GraphicResourceHandler& getMainTexture() const { return m_mainTexture; }
 
     private:
         static uint32_t s_materialCounter;

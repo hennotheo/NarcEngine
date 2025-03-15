@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <NarcMath.h>
+
 
 namespace narc_io {
     typedef std::vector<glm::vec3> VertexList;

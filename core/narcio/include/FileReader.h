@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include "Core.h"
-
 namespace narc_io {
     struct Image;
     struct Model3D;

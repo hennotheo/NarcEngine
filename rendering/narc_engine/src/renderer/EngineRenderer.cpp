@@ -63,11 +63,6 @@ namespace narc_engine {
         buffer->reset(0);
 
         const std::array<VkCommandBuffer, 1> commandBuffers = {buffer->getVkCommandBuffer()};
-        materialID = 0;
-        for (const auto& [id, rendererTask]: m_rendererTasks)
-        {
-            materialID++;
-        }
         recordCommandBuffer(buffer, imageIndex, frameHandler->getDescriptorSets());
 
         VkSubmitInfo submitInfo{};

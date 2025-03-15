@@ -1,8 +1,6 @@
 #pragma once
 
 #include "FileReader.h"
-#include "Core.h"
-#include "NarcCore.h"
 
 namespace narc_io
 {
