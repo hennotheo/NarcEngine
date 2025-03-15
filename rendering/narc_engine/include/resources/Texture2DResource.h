@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <NarcIO.h>
 #include <vulkan/vulkan_core.h>
 
 #include "GraphicResource.h"

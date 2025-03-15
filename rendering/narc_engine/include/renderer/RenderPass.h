@@ -6,10 +6,12 @@
 
 #include <vulkan/vulkan.h>
 
+#include "core/DeviceComponent.h"
+
 namespace narc_engine {
     class DeviceHandler;
 
-    class RenderPass
+    class RenderPass : public DeviceComponent
     {
     public:
         explicit RenderPass(VkFormat colorFormat);
@@ -19,7 +21,5 @@ namespace narc_engine {
 
     private:
         VkRenderPass m_renderPass;
-
-        const DeviceHandler* m_deviceHandler = nullptr;
     };
 } // narc_engine

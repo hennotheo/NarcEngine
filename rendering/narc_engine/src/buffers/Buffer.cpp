@@ -5,14 +5,7 @@
 
 namespace narc_engine
 {
-    Buffer::Buffer()
-    {
-        m_linkedDevice = Engine::getInstance()->getDevice();
-        if (!m_linkedDevice)
-        {
-            NARCLOG_FATAL("Failed to get linked device from Engine instance.");
-        }
-    }
+    Buffer::Buffer() = default;
 
     Buffer::~Buffer()
     {
@@ -21,8 +14,8 @@ namespace narc_engine
 
     void Buffer::release()
     {
-        vkDestroyBuffer(m_linkedDevice->getDevice(), m_buffer, nullptr);
-        vkFreeMemory(m_linkedDevice->getDevice(), m_bufferMemory, nullptr);
+        vkDestroyBuffer(getVkDevice(), m_buffer, nullptr);
+        vkFreeMemory(getVkDevice(), m_bufferMemory, nullptr);
     }
 
     void Buffer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
@@ -34,24 +27,24 @@ namespace narc_engine
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (vkCreateBuffer(m_linkedDevice->getDevice(), &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+        if (vkCreateBuffer(getVkDevice(), &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create buffer!");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetBufferMemoryRequirements(m_linkedDevice->getDevice(), buffer, &memRequirements);
+        vkGetBufferMemoryRequirements(getVkDevice(), buffer, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = m_linkedDevice->findMemoryType(memRequirements.memoryTypeBits, properties);
+        allocInfo.memoryTypeIndex = getDeviceHandler()->findMemoryType(memRequirements.memoryTypeBits, properties);
 
-        if (vkAllocateMemory(m_linkedDevice->getDevice(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
+        if (vkAllocateMemory(getVkDevice(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to allocate buffer memory!");
         }
 
-        vkBindBufferMemory(m_linkedDevice->getDevice(), buffer, bufferMemory, 0);
+        vkBindBufferMemory(getVkDevice(), buffer, bufferMemory, 0);
     }
 }

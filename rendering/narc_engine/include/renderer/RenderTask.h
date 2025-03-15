@@ -11,7 +11,7 @@ namespace narc_engine
 {
     class Renderer;
 
-    class RenderTask
+    class RenderTask : public DeviceComponent
     {
     public:
         RenderTask(const SwapChain* swapChain, const VkDescriptorSetLayout* m_descriptorSetLayout,
@@ -29,11 +29,8 @@ namespace narc_engine
         VkPipelineLayout m_pipelineLayout;
 
         std::vector<const Renderer*> m_renderers;
-        // std::vector<VkDescriptorSet> m_descriptorSets;
 
         const Material* m_material;
-
-        VkDevice m_device;
 
         void createGraphicsPipeline(const SwapChain* swapChain, const VkDescriptorSetLayout* m_descriptorSetLayout);
     };

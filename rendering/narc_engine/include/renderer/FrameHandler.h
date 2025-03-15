@@ -12,7 +12,7 @@
 namespace narc_engine {
     class DeviceHandler;
 
-    class FrameHandler
+    class FrameHandler : public DeviceComponent
     {
         friend class MultiFrameManager;
 
@@ -39,8 +39,6 @@ namespace narc_engine {
         std::unique_ptr<UniformBuffer> m_uniformBuffer;
 
         std::vector<VkDescriptorSet> m_descriptorSets;
-
-        const DeviceHandler* m_device = nullptr;
 
         void addDescriptorSets(const VkDescriptorSet descriptorSet) { m_descriptorSets.push_back(descriptorSet); }
     };

@@ -3,7 +3,9 @@
 #include "CommandBuffer.h"
 #include "CommandPool.h"
 #include "MultiFrameManager.h"
+
 #include "models/Renderer.h"
+
 #include "renderer/RenderTask.h"
 #include "renderer/SwapChain.h"
 
@@ -11,7 +13,7 @@ namespace narc_engine {
     class Material;
     class UniformBuffer;
 
-    class EngineRenderer
+    class EngineRenderer : public DeviceComponent
     {
         friend class EngineBinder;
         friend class Engine;
@@ -31,8 +33,6 @@ namespace narc_engine {
         std::map<uint32_t, RenderTask*> m_rendererTasks;
 
         VkDescriptorSetLayout m_descriptorSetLayout;
-
-        const DeviceHandler* m_device = nullptr;
 
         void createDescriptorSetLayout();
         void recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex, const std::vector<VkDescriptorSet>& descriptorSets);

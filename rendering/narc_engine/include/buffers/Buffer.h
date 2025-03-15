@@ -1,11 +1,13 @@
 #pragma once
 
 #include <vulkan/vulkan.h>
+
+#include "core/DeviceComponent.h"
 #include "core/DeviceHandler.h"
 
 namespace narc_engine
 {
-    class Buffer
+    class Buffer : public DeviceComponent
     {
     public:
         Buffer();
@@ -16,8 +18,6 @@ namespace narc_engine
     protected:
         VkBuffer m_buffer;
         VkDeviceMemory m_bufferMemory;
-
-        const DeviceHandler* m_linkedDevice;
 
         void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
         virtual void release();

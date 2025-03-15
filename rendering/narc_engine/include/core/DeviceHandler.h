@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <vulkan/vulkan_core.h>
 
-#include "QueueFamilyIndices.h"
 #include "EngineDebugLogger.h"
+#include "QueueFamilyIndices.h"
 
 namespace narc_engine {
     class Window;

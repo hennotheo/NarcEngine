@@ -2,13 +2,14 @@
 #include <vulkan/vulkan_core.h>
 
 #include "CommandBuffer.h"
+#include "core/DeviceComponent.h"
 #include "core/DeviceHandler.h"
 
 namespace narc_engine {
-    class CommandPool
+    class CommandPool : public DeviceComponent
     {
     public:
-        CommandPool(const DeviceHandler* deviceHandler);
+        CommandPool();
         ~CommandPool();
 
         CommandBuffer* getCommandBuffer(uint32_t index) { return &m_commandBuffers[index]; }
@@ -22,7 +23,5 @@ namespace narc_engine {
         VkCommandPool m_commandPool;
 
         std::vector<CommandBuffer> m_commandBuffers;
-
-        const DeviceHandler* m_deviceHandler;
     };
 }

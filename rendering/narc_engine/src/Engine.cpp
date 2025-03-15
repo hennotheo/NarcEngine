@@ -35,7 +35,7 @@ namespace narc_engine {
         m_debugLogger = std::make_unique<EngineDebugLogger>(m_instance.get());
         m_deviceHandler = std::make_unique<DeviceHandler>(m_window.get(), m_instance.get(), m_debugLogger.get());
 
-        m_commandPool = std::make_unique<CommandPool>(m_deviceHandler.get());
+        m_commandPool = std::make_unique<CommandPool>();
         m_renderer = std::make_unique<EngineRenderer>();
 
         m_engineBinder = std::make_unique<EngineBinder>(this);

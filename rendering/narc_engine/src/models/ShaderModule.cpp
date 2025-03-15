@@ -10,10 +10,8 @@
 #include "Engine.h"
 
 namespace narc_engine {
-    ShaderModule::ShaderModule(const std::string& filename)
+    ShaderModule::ShaderModule(const std::string& filename) : DeviceComponent()
     {
-        m_device = Engine::getInstance()->getDevice();
-
         const auto code = narc_io::FileReader::readFile(filename);
 
         VkShaderModuleCreateInfo createInfo{};
@@ -21,7 +19,7 @@ namespace narc_engine {
         createInfo.codeSize = code.size();
         createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
-        if (vkCreateShaderModule(m_device->getDevice(), &createInfo, nullptr, &m_shaderModule) != VK_SUCCESS)
+        if (vkCreateShaderModule(getVkDevice(), &createInfo, nullptr, &m_shaderModule) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create shader module!");
         }
@@ -29,7 +27,7 @@ namespace narc_engine {
 
     ShaderModule::~ShaderModule()
     {
-        vkDestroyShaderModule(m_device->getDevice(), m_shaderModule, nullptr);
+        vkDestroyShaderModule(getVkDevice(), m_shaderModule, nullptr);
     }
 
     VkPipelineShaderStageCreateInfo ShaderModule::configureShaderStage(const char* entryPoint, VkShaderStageFlagBits stage) const

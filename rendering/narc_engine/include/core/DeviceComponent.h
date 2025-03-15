@@ -3,10 +3,7 @@
 //
 
 #pragma once
-
-#include <vulkan/vulkan.h>
-
-#include "Engine.h"
+#include "DeviceHandler.h"
 
 namespace narc_engine {
     class DeviceHandler;
@@ -14,10 +11,7 @@ namespace narc_engine {
     class DeviceComponent
     {
     public:
-        DeviceComponent()
-        {
-            // m_device = Engine::getInstance()->getDevice();
-        }
+        DeviceComponent();
 
     protected:
         GETTER const DeviceHandler* getDeviceHandler() const { return m_device; }

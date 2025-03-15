@@ -11,10 +11,10 @@ namespace narc_engine
     public:
         virtual ~IEngine() = default;
 
-        [[nodiscard]] virtual EngineBinder* binder() const = 0;
-        [[nodiscard]] virtual EngineResourcesManager* resourceManager() const = 0;
+        GETTER virtual EngineBinder* binder() const = 0;
+        GETTER virtual EngineResourcesManager* resourceManager() const = 0;
+        GETTER virtual bool shouldClose() const = 0;
         virtual void pollEvents() = 0;
-        [[nodiscard]] virtual bool shouldClose() const = 0;
         virtual void render() = 0;
         virtual void waitDeviceIdle() = 0;
     };

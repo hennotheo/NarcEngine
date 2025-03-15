@@ -8,10 +8,8 @@
 namespace narc_engine {
     constexpr uint32_t g_maxFramesInFlight = 2;
 
-    EngineRenderer::EngineRenderer()
+    EngineRenderer::EngineRenderer() : DeviceComponent()
     {
-        m_device = Engine::getInstance()->getDevice();
-
         m_swapChain.create();
         m_frameManager = std::make_unique<MultiFrameManager>(g_maxFramesInFlight);
         createDescriptorSetLayout();
@@ -20,11 +18,9 @@ namespace narc_engine {
 
     EngineRenderer::~EngineRenderer()
     {
-        VkDevice device = m_device->getDevice();
-
         m_swapChain.cleanSwapChain();
 
-        vkDestroyDescriptorSetLayout(device, m_descriptorSetLayout, nullptr);
+        vkDestroyDescriptorSetLayout(getVkDevice(), m_descriptorSetLayout, nullptr);
 
         for (auto& [id, rendererTask]: m_rendererTasks)
         {
@@ -43,7 +39,7 @@ namespace narc_engine {
         const FrameHandler* frameHandler = m_frameManager->getCurrentFrameHandler();
 
         const std::vector<VkFence> inFlightFencesToWait = {frameHandler->getInFlightFence()};
-        vkWaitForFences(m_device->getDevice(), 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
+        vkWaitForFences(getVkDevice(), 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
 
         uint32_t imageIndex;
         m_swapChain.acquireNextImage(frameHandler->getImageAvailableSemaphore(), &imageIndex);
@@ -57,7 +53,7 @@ namespace narc_engine {
             materialID++;
         }
 
-        vkResetFences(m_device->getDevice(), 1, inFlightFencesToWait.data());
+        vkResetFences(getVkDevice(), 1, inFlightFencesToWait.data());
 
         CommandBuffer* buffer = frameHandler->getCommandPool()->getCommandBuffer(0);
         buffer->reset(0);
@@ -86,7 +82,7 @@ namespace narc_engine {
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
 
-        if (m_device->submitGraphicsQueue(1, &submitInfo, frameHandler->getInFlightFence()) != VK_SUCCESS)
+        if (getDeviceHandler()->submitGraphicsQueue(1, &submitInfo, frameHandler->getInFlightFence()) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to submit draw command buffer!");
         }
@@ -101,7 +97,7 @@ namespace narc_engine {
         presentInfo.pImageIndices = &imageIndex;
         presentInfo.pResults = nullptr;
 
-        const VkResult result = m_device->presentKHR(&presentInfo);
+        const VkResult result = getDeviceHandler()->presentKHR(&presentInfo);
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || Engine::getInstance()->getWindow()->
             isFramebufferResized())
         {
@@ -168,7 +164,7 @@ namespace narc_engine {
         layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
         layoutInfo.pBindings = bindings.data();
 
-        if (vkCreateDescriptorSetLayout(m_device->getDevice(), &layoutInfo, nullptr, &m_descriptorSetLayout) !=
+        if (vkCreateDescriptorSetLayout(getVkDevice(), &layoutInfo, nullptr, &m_descriptorSetLayout) !=
             VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create descriptor set layout!");

@@ -9,8 +9,7 @@
 namespace narc_engine {
     void SwapChain::create()
     {
-        Engine* engine = Engine::getInstance();
-        m_deviceHandler = engine->getDevice();
+        const Engine* engine = Engine::getInstance();
         m_window = engine->getWindow();
 
         createSwapChain();
@@ -22,7 +21,7 @@ namespace narc_engine {
 
     VkResult SwapChain::acquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex)
     {
-        const VkResult result = vkAcquireNextImageKHR(m_deviceHandler->getDevice(), m_swapChain, UINT64_MAX, semaphore, VK_NULL_HANDLE, imageIndex);
+        const VkResult result = vkAcquireNextImageKHR(getVkDevice(), m_swapChain, UINT64_MAX, semaphore, VK_NULL_HANDLE, imageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) //OUT DUE TO WINDOW RESIZE FOR EXAMPLE
         {
@@ -43,15 +42,15 @@ namespace narc_engine {
         m_depthResources->release();
         for (auto framebuffer: m_swapChainFramebuffers)
         {
-            vkDestroyFramebuffer(m_deviceHandler->getDevice(), framebuffer, nullptr);
+            vkDestroyFramebuffer(getVkDevice(), framebuffer, nullptr);
         }
 
         for (auto imageView: m_swapChainImageViews)
         {
-            vkDestroyImageView(m_deviceHandler->getDevice(), imageView, nullptr);
+            vkDestroyImageView(getVkDevice(), imageView, nullptr);
         }
 
-        vkDestroySwapchainKHR(m_deviceHandler->getDevice(), m_swapChain, nullptr);
+        vkDestroySwapchainKHR(getVkDevice(), m_swapChain, nullptr);
     }
 
     void SwapChain::cleanRenderPass()
@@ -65,7 +64,7 @@ namespace narc_engine {
         int height = 0;
         m_window->getValidFramebufferSize(&width, &height);
 
-        m_deviceHandler->waitDeviceIdle();
+        getDeviceHandler()->waitDeviceIdle();
 
         cleanSwapChain();
 
@@ -95,7 +94,7 @@ namespace narc_engine {
             framebufferInfo.height = m_swapChainExtent.height;
             framebufferInfo.layers = 1;
 
-            if (vkCreateFramebuffer(m_deviceHandler->getDevice(), &framebufferInfo, nullptr, &m_swapChainFramebuffers[i]) != VK_SUCCESS)
+            if (vkCreateFramebuffer(getVkDevice(), &framebufferInfo, nullptr, &m_swapChainFramebuffers[i]) != VK_SUCCESS)
             {
                 NARCLOG_FATAL("failed to create framebuffer!");
             }
@@ -116,7 +115,7 @@ namespace narc_engine {
 
     void SwapChain::createSwapChain()
     {
-        SwapChainSupportDetails swapChainSupport = m_window->querySwapChainSupport(m_deviceHandler->getPhysicalDevice());
+        SwapChainSupportDetails swapChainSupport = m_window->querySwapChainSupport(getDeviceHandler()->getPhysicalDevice());
         VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.Formats);
         VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.PresentModes);
         VkExtent2D extent = chooseSwapExtent(swapChainSupport.Capabilities);
@@ -143,11 +142,11 @@ namespace narc_engine {
         createInfo.clipped = VK_TRUE;
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-        m_deviceHandler->createSwapChain(createInfo, &m_swapChain);
+        getDeviceHandler()->createSwapChain(createInfo, &m_swapChain);
 
-        vkGetSwapchainImagesKHR(m_deviceHandler->getDevice(), m_swapChain, &imageCount, nullptr);
+        vkGetSwapchainImagesKHR(getVkDevice(), m_swapChain, &imageCount, nullptr);
         m_swapChainImages.resize(imageCount);
-        vkGetSwapchainImagesKHR(m_deviceHandler->getDevice(), m_swapChain, &imageCount, m_swapChainImages.data());
+        vkGetSwapchainImagesKHR(getVkDevice(), m_swapChain, &imageCount, m_swapChainImages.data());
 
         m_swapChainImageFormat = surfaceFormat.format;
         m_swapChainExtent = extent;
@@ -159,7 +158,7 @@ namespace narc_engine {
 
         for (size_t i = 0; i < m_swapChainImages.size(); i++)
         {
-            m_swapChainImageViews[i] = m_deviceHandler->createImageView(m_swapChainImages[i], m_swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+            m_swapChainImageViews[i] = getDeviceHandler()->createImageView(m_swapChainImages[i], m_swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
         }
     }
 

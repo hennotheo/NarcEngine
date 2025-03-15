@@ -4,7 +4,7 @@
 
 namespace narc
 {
-    class Application
+    class Application final
     {
     public:
         Application();

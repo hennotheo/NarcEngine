@@ -6,11 +6,11 @@
 
 #include "Engine.h"
 
-namespace narc_engine
-{
-    GraphicResource::GraphicResource(const GraphicResourceType type, const uint32_t resourceID): m_resourceHandler(resourceID, type)
+namespace narc_engine {
+    GraphicResource::GraphicResource(const GraphicResourceType type, const uint32_t resourceID)
+        : DeviceComponent(),
+          m_resourceHandler(resourceID, type)
     {
-        m_device = Engine::getInstance()->getDevice();
     }
 
     GraphicResource::~GraphicResource()

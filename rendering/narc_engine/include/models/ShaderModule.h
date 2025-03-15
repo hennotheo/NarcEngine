@@ -6,10 +6,12 @@
 
 #include <vulkan/vulkan.h>
 
+#include "core/DeviceComponent.h"
+
 namespace narc_engine {
     class DeviceHandler;
 
-    class ShaderModule
+    class ShaderModule : public DeviceComponent
     {
     public:
         explicit ShaderModule(const std::string& filename);
@@ -19,7 +21,5 @@ namespace narc_engine {
 
     private:
         VkShaderModule m_shaderModule;
-
-        const DeviceHandler* m_device;
     };
 } // narc_engine

@@ -8,9 +8,8 @@
 
 namespace narc_engine {
     RenderTask::RenderTask(const SwapChain* swapChain, const VkDescriptorSetLayout* m_descriptorSetLayout,
-                           const Material* material)
+                           const Material* material) : DeviceComponent()
     {
-        m_device = Engine::getInstance()->getDevice()->getDevice();
         m_material = material;
 
         createGraphicsPipeline(swapChain, m_descriptorSetLayout);
@@ -18,8 +17,8 @@ namespace narc_engine {
 
     RenderTask::~RenderTask()
     {
-        vkDestroyPipeline(m_device, m_pipeline, nullptr);
-        vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
+        vkDestroyPipeline(getVkDevice(), m_pipeline, nullptr);
+        vkDestroyPipelineLayout(getVkDevice(), m_pipelineLayout, nullptr);
     }
 
     void RenderTask::recordTask(const CommandBuffer* commandBuffer, const VkDescriptorSet* m_descriptorSet) const
@@ -72,7 +71,7 @@ namespace narc_engine {
         descriptorWrites[1].descriptorCount = 1;
         descriptorWrites[1].pImageInfo = &imageInfo;
 
-        vkUpdateDescriptorSets(m_device, static_cast<uint32_t>(descriptorWrites.size()),
+        vkUpdateDescriptorSets(getVkDevice(), static_cast<uint32_t>(descriptorWrites.size()),
                                descriptorWrites.data(), 0, nullptr);
     }
 
@@ -175,7 +174,7 @@ namespace narc_engine {
         pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
         pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-        if (vkCreatePipelineLayout(m_device, &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
+        if (vkCreatePipelineLayout(getVkDevice(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create pipeline layout!");
         }
@@ -199,7 +198,7 @@ namespace narc_engine {
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
         pipelineInfo.basePipelineIndex = -1; // Optional
 
-        if (vkCreateGraphicsPipelines(m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) != VK_SUCCESS)
+        if (vkCreateGraphicsPipelines(getVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) != VK_SUCCESS)
         {
             NARCLOG_FATAL("Failed to create graphics pipeline!");
         }
