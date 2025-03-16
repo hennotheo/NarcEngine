@@ -15,8 +15,8 @@ namespace narc_engine
         Renderer(const narc_io::Model3D* model, const Material* material);
         ~Renderer();
 
-        const Material* getMaterial() const { return m_material; }
-        const Mesh* getMesh() const { return m_mesh.get(); }
+        GETTER const Material* getMaterial() const { return m_material; }
+        GETTER const Mesh* getMesh() const { return m_mesh.get(); }
 
         GETTER const glm::mat4& getModelMatrix() const { return m_modelMatrix; }
         TEMP_CODE void setModelMatrix(const glm::mat4& modelMatrix) { m_modelMatrix = modelMatrix; }

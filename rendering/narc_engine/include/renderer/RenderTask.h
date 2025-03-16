@@ -2,6 +2,7 @@
 
 #include "CommandBuffer.h"
 #include "DescriptorPool.h"
+#include "GraphicsPipeline.h"
 #include "SwapChain.h"
 #include "buffers/UniformBuffer.h"
 #include "models/Material.h"
@@ -14,7 +15,7 @@ namespace narc_engine
     class RenderTask : public DeviceComponent
     {
     public:
-        RenderTask(const SwapChain* swapChain, const VkDescriptorSetLayout* m_descriptorSetLayout,
+        RenderTask(const SwapChain* swapChain, const VkDescriptorSetLayout* descriptorSetLayout,
                    const Material* material);
         ~RenderTask();
 
@@ -27,8 +28,7 @@ namespace narc_engine
         DEPRECATED GETTER std::vector<const Renderer*>* getRenderers() { return &m_renderers; }
 
     private:
-        VkPipeline m_pipeline;
-        VkPipelineLayout m_pipelineLayout;
+        std::unique_ptr<GraphicsPipeline> m_pipeline;
 
         std::vector<const Renderer*> m_renderers;
 
