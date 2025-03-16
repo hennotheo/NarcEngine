@@ -1,6 +1,13 @@
 x64/
 .vs/
-cmake/
+
+# CMake
+build*/
+cmake*/
+.idea/
+
+# Auto installed libraries
+**/vendors/**
 
 # Prerequisites
 *.d
@@ -36,5 +43,5 @@ cmake/
 *.app
 
 #Shaders
-NarcEngine/shaders/compile-shaders.bat
 *.spv
+rendering/shaders/compile_shaders.bat
