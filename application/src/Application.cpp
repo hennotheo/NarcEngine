@@ -9,8 +9,9 @@
 
 namespace narc {
     const std::string g_modelPath = "models/test.obj";
-
-    const narc_engine::Mesh* g_mesh = nullptr;
+    const std::string g_model2Path = "models/test2.obj";
+    const std::string g_texturePath = "textures/test.png";
+    const std::string g_texture2Path = "textures/test2.png";
 
     Application::Application()
     {
@@ -29,34 +30,23 @@ namespace narc {
 
     void Application::start()
     {
-        std::vector<narc_engine::Vertex> vertices;
-        std::vector<uint32_t> indices;
+        const narc_io::Model3D model = narc_io::FileReader::load3DModel(g_modelPath);
+        const narc_io::Model3D model2 = narc_io::FileReader::load3DModel(g_model2Path);
+        m_renderMaterial = new narc_engine::Material(g_texturePath.c_str());
+        m_renderMaterial2 = new narc_engine::Material(g_texture2Path.c_str());
 
-        narc_io::Model3D model = narc_io::FileReader::load3DModel(g_modelPath);
-        const narc_io::VertexList modelVertices = *model.getVertices();
-        const narc_io::TexCoordList modelTexCoords = *model.getTexCoords();
-        const narc_io::IndexList modelIndices = *model.getIndices();
-        for (int i = 0; i < model.getVerticesCount(); ++i)
-        {
-            vertices.push_back({
-                {modelVertices[i][0], modelVertices[i][1], modelVertices[i][2]},
-                {1.0f, 1.0f, 1.0f},
-                {modelTexCoords[i][0], modelTexCoords[i][1]}
-            });
-        }
-        for (uint32_t modelIndice: modelIndices)
-        {
-            indices.push_back(modelIndice);
-        }
-
-        g_mesh = new narc_engine::Mesh(vertices, indices);
-        narc_engine::getEngine()->binder()->bindMesh(g_mesh);
+        m_renderer = new narc_engine::Renderer(&model, m_renderMaterial);
+        m_renderer2 = new narc_engine::Renderer(&model2, m_renderMaterial2);
     }
 
     void Application::stop()
     {
         m_engine->waitDeviceIdle();
-        delete g_mesh;
+
+        delete m_renderer;
+        delete m_renderer2;
+        delete m_mesh;
+        delete m_renderMaterial;
     }
 
     void Application::appLoopBody()
@@ -65,6 +55,7 @@ namespace narc {
         m_engine->pollEvents();
 
         //UPDATE ENGINE LOGIC
+        m_renderer2->setModelMatrix(glm::rotate(m_renderer2->getModelMatrix(), glm::radians(0.1f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
         //RENDER ENGINE
         m_engine->render();

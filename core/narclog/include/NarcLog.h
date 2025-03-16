@@ -7,16 +7,17 @@
 #define NARCLOG_DEBUG(message) narclog::log(DEBUG, message)
 
 #include "pch.h"
+
 #include "Core.h"
 
 #include "keywords/KeyWords.h"
 #include "keywords/LogLevel.h"
 
-#include "exceptions/FatalException.h"
 #include "exceptions/ErrorException.h"
+#include "exceptions/FatalException.h"
 
-#include "exceptions/MethodExceptionHandler.h"
 #include "exceptions/ExceptionHandlerBuilder.h"
+#include "exceptions/MethodExceptionHandler.h"
 
 namespace narclog
 {

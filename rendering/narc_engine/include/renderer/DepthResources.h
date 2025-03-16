@@ -6,13 +6,15 @@
 
 #include <vulkan/vulkan_core.h>
 
+#include "core/DeviceComponent.h"
+
 namespace narc_engine {
     class DeviceHandler;
 
-    class DepthResources final
+    class DepthResources final : public DeviceComponent
     {
     public:
-        DepthResources();
+        DepthResources() = default;
         ~DepthResources();
 
         VkImageView getImageView() const { return m_depthImageView; }
@@ -24,7 +26,5 @@ namespace narc_engine {
         VkImage m_depthImage;
         VkDeviceMemory m_depthImageMemory;
         VkImageView m_depthImageView;
-
-        const DeviceHandler* m_deviceHandler = nullptr;
     };
 }

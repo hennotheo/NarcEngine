@@ -26,22 +26,6 @@ namespace narc_engine {
         vkDestroyDevice(m_device, nullptr);
     }
 
-    VkShaderModule DeviceHandler::createShaderModule(const std::vector<char>& code) const
-    {
-        VkShaderModuleCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-        createInfo.codeSize = code.size();
-        createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
-
-        VkShaderModule shaderModule;
-        if (vkCreateShaderModule(m_device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
-        {
-            NARCLOG_FATAL("failed to create shader module!");
-        }
-
-        return shaderModule;
-    }
-
     VkImageView DeviceHandler::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const
     {
         VkImageViewCreateInfo viewInfo{};
@@ -62,11 +46,6 @@ namespace narc_engine {
         }
 
         return imageView;
-    }
-
-    void DeviceHandler::destroyShaderModule(VkShaderModule shaderModule) const
-    {
-        vkDestroyShaderModule(m_device, shaderModule, nullptr);
     }
 
     void DeviceHandler::waitDeviceIdle() const

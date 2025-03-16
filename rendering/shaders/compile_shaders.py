@@ -1,12 +1,14 @@
 import subprocess
 import os
 
+
 def compile_shader(shader_path, output_path):
     result = subprocess.run(['glslc', shader_path, '-o', output_path], capture_output=True, text=True)
     if result.returncode != 0:
         print(f"Error compiling shader {shader_path}: {result.stderr}")
     else:
         print(f"Compiled {shader_path} to {output_path}")
+
 
 def find_files_with_extension(extension):
     matching_files = []
@@ -16,11 +18,15 @@ def find_files_with_extension(extension):
                 matching_files.append(os.path.join(root, file))
     return matching_files
 
+
 def main():
     engine_bin_dir = os.getenv('ENGINE_BIN_DIR')
     if engine_bin_dir is None:
         print("ENGINE_BIN_DIR environment variable not set. Please set it to the engine's binary directory.")
         return
+
+    if not os.path.exists(engine_bin_dir):
+        os.makedirs(engine_bin_dir)
 
     vertex_shaders = find_files_with_extension('.vert')
     fragment_shaders = find_files_with_extension('.frag')

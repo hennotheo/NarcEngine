@@ -9,7 +9,7 @@ namespace narc_engine {
     class DeviceHandler;
     class Window;
 
-    class SwapChain
+    class SwapChain : public DeviceComponent
     {
     public:
         const VkExtent2D& getSwapChainExtent() const { return m_swapChainExtent; }
@@ -37,7 +37,6 @@ namespace narc_engine {
         std::unique_ptr<DepthResources> m_depthResources;
         std::unique_ptr<RenderPass> m_renderPass;
 
-        const DeviceHandler* m_deviceHandler = nullptr;
         const Window* m_window = nullptr;
 
         void createSwapChain();

@@ -4,6 +4,8 @@
 
 #pragma once
 
+//TODO Modify to use reflection
+
 #define NARCLOG_HANDLED_METHOD_NAME(handlerName) narclog__method_handler_##handlerName
 
 #define NARCLOG_PREPARE_HANDLER(name) auto NARCLOG_HANDLED_METHOD_NAME(name) = narclog::ExceptionHandlerBuilder() \
@@ -47,7 +49,7 @@ namespace narclog
 
         ExceptionHandlerBuilder* setName(const char* name);
 
-        [[nodiscard]] MethodExceptionHandler create() const;
+        GETTER MethodExceptionHandler create() const;
 
     private:
         std::function<void()> m_function;

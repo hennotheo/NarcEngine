@@ -1,18 +1,7 @@
 #pragma once
 
-#include <iostream>
-#include <algorithm>
-#include <stdexcept>
-#include <chrono>
-#include <map>
-#include <set>
-#include <string>
-#include <cstring>
-#include <vector>
-#include <cstdint>
-#include <fstream>
-#include <optional>
-#include <array>
-#include <memory>
+#include <NarcIO.h>
+#include <NarcLog.h>
+#include <NarcMath.h>
 
 #include "Core.h"

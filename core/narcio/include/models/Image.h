@@ -1,7 +1,6 @@
 #pragma once
 
 #include "FileReader.h"
-#include "Core.h"
 
 namespace narc_io
 {
@@ -10,15 +9,15 @@ namespace narc_io
         friend class FileReader;
 
     public:
-        inline ~Image()
+        ~Image()
         {
             FileReader::releaseImage(m_data);
         }
 
-        inline int getWidth() const { return m_width; }
-        inline int getHeight() const { return m_height; }
-        inline int getChannels() const { return m_channels; }
-        inline void* getData() const { return m_data; }
+        GETTER int getWidth() const { return m_width; }
+        GETTER int getHeight() const { return m_height; }
+        GETTER int getChannels() const { return m_channels; }
+        GETTER void* getData() const { return m_data; }
 
     private:
         Image(int width, int height, int channels, void* data)

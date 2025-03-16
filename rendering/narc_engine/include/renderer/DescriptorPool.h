@@ -3,21 +3,29 @@
 #include <vulkan/vulkan.h>
 
 #include "DescriptorPoolBuilder.h"
+#include "core/DeviceComponent.h"
 #include "core/DeviceHandler.h"
 
 namespace narc_engine {
-    class DescriptorPool
+    class DescriptorPool : public DeviceComponent
     {
     public:
-        void create(DescriptorPoolBuilder* builder);
+        explicit DescriptorPool(uint32_t poolCount);
+        ~DescriptorPool();
+
+        GETTER DescriptorPoolBuilder* builder() const { return m_builder.get(); }
+
+        void create();
 
         void allocateDescriptorSets(VkDescriptorSetAllocateInfo* allocInfo, VkDescriptorSet* descriptorSets) const;
 
         void release();
 
     private:
+        std::unique_ptr<DescriptorPoolBuilder> m_builder;
+
         VkDescriptorPool m_descriptorPool;
 
-        const DeviceHandler* m_deviceHandler;
+        bool m_allocated = false;
     };
 }

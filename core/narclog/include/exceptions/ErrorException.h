@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <NarcLog.h>
-
 namespace narclog
 {
     class NARCLOG_API ErrorException final : public std::runtime_error

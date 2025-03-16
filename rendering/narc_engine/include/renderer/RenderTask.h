@@ -1,36 +1,35 @@
 #pragma once
+
 #include "CommandBuffer.h"
 #include "DescriptorPool.h"
+#include "GraphicsPipeline.h"
 #include "SwapChain.h"
 #include "buffers/UniformBuffer.h"
-#include "models/Mesh.h"
-#include "models/Vertex.h"
+#include "models/Material.h"
 
 namespace narc_engine
 {
-    class RenderTask
+    class Renderer;
+
+    class RenderTask : public DeviceComponent
     {
     public:
-        void create(const SwapChain* swapChain, const VkDescriptorSetLayout* m_descriptorSetLayout);
+        RenderTask(const SwapChain* swapChain, const VkDescriptorSetLayout* descriptorSetLayout,
+                   const Material* material);
+        ~RenderTask();
 
-        void recordTask(const CommandBuffer* commandBuffer, uint32_t currentFrame);
-        void createDescriptorSets(uint32_t maxFrameInFlight, VkDescriptorSetLayout descriptorSetLayout,
-                                  const UniformBuffer* uniformBuffers, VkImageView
-                                  textureImageView, VkSampler textureSampler, const DescriptorPool* descriptorPool);
-        void bindMesh(const Mesh* mesh) { m_meshes.push_back(mesh); }
-        void unbindMesh(const Mesh* mesh) { m_meshes.erase(std::remove(m_meshes.begin(), m_meshes.end(), mesh), m_meshes.end()); }
+        void recordTask(const CommandBuffer* commandBuffer, const VkDescriptorSet* m_descriptorSet) const;
+        void updateDescriptorSet(VkDescriptorSet descriptorSets, const UniformBuffer* uniformBuffers) const;
 
-        void release();
+        void bindRenderer(const Renderer* renderer) { m_renderers.push_back(renderer); }
+        void unbindRenderer(const Renderer* renderer) { std::erase(m_renderers, renderer); }
+
+        DEPRECATED GETTER std::vector<const Renderer*>* getRenderers() { return &m_renderers; }
 
     private:
-        VkPipeline m_pipeline;
-        VkPipelineLayout m_pipelineLayout;
+        std::unique_ptr<GraphicsPipeline> m_pipeline;
+        std::vector<const Renderer*> m_renderers;
 
-        std::vector<const Mesh*> m_meshes;
-        std::vector<VkDescriptorSet> m_descriptorSets;
-
-        VkDevice m_device;
-
-        void createGraphicsPipeline(const SwapChain* swapChain, const VkDescriptorSetLayout* m_descriptorSetLayout);
+        const Material* m_material;
     };
 } // narc_engine

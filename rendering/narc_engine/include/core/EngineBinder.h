@@ -1,9 +1,14 @@
 #pragma once
 
+namespace narc_io
+{
+    struct Image;
+}
+
 namespace narc_engine
 {
+    class Renderer;
     class IEngine;
-    class Mesh;
 
     class NARC_ENGINE_API EngineBinder
     {
@@ -12,8 +17,7 @@ namespace narc_engine
         {
         }
 
-        void bindMesh(const Mesh* mesh);
-        void unbindMesh(const Mesh* mesh);
+        void attachRenderer(const Renderer* renderer) const;
 
     private:
         IEngine* m_engine;

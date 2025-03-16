@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <vulkan/vulkan_core.h>
 
-#include "QueueFamilyIndices.h"
 #include "EngineDebugLogger.h"
+#include "QueueFamilyIndices.h"
 
 namespace narc_engine {
     class Window;
@@ -19,7 +19,6 @@ namespace narc_engine {
 
         void createSwapChain(VkSwapchainCreateInfoKHR& createInfo, VkSwapchainKHR* swapchain) const;
         void createCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateInfo poolInfo) const;
-        VkShaderModule createShaderModule(const std::vector<char>& code) const;
         VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const;
 
         void waitDeviceIdle() const;
@@ -30,8 +29,6 @@ namespace narc_engine {
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
         VkFormat findDepthFormat() const;
         VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
-
-        void destroyShaderModule(VkShaderModule shaderModule) const;
 
     private:
         VkDevice m_device;

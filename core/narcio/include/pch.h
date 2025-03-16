@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
-#include <string>
-#include <fstream>
+#include <NarcCore.h>
 
-#include "Core.h"
+#include <NarcMath.h>
+
+#include "NarcIO.h"

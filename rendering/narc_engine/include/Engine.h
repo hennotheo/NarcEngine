@@ -1,13 +1,14 @@
 #pragma once
 
-#include <NarcIO.h>
+#include "interfaces/IEngine.h"
 
 #include "CommandPool.h"
-#include "core/EngineDebugLogger.h"
+
 #include "core/DeviceHandler.h"
 #include "core/EngineBinder.h"
+#include "core/EngineDebugLogger.h"
 #include "core/EngineInstance.h"
-#include "interfaces/IEngine.h"
+
 #include "renderer/EngineRenderer.h"
 
 namespace narc_engine {
@@ -26,10 +27,10 @@ namespace narc_engine {
         void render() override;
         void waitDeviceIdle() override;
         EngineBinder* binder() const override;
+        EngineResourcesManager* resourceManager() const override;
 
         const DeviceHandler* getDevice() const { return m_deviceHandler.get(); }
         Window* getWindow() const { return m_window.get(); }
-        CommandPool* getCommandPool() const { return m_commandPool.get(); }
 
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
@@ -52,8 +53,11 @@ namespace narc_engine {
         std::unique_ptr<EngineRenderer> m_renderer;
 
         std::unique_ptr<EngineBinder> m_engineBinder;
+        std::unique_ptr<EngineResourcesManager> m_resourcesManager;
 
     private:
+        GETTER CommandPool* getCommandPool() const { return m_commandPool.get(); }
+
         static bool hasStencilComponent(VkFormat format);
     };
 }

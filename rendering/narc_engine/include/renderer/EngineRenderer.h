@@ -1,53 +1,41 @@
 #pragma once
 
 #include "CommandBuffer.h"
-#include "DescriptorPool.h"
-#include "buffers/UniformBuffer.h"
-#include "models/Vertex.h"
-#include "renderer/SwapChain.h"
+#include "CommandPool.h"
+#include "MultiFrameManager.h"
+
+#include "models/Renderer.h"
+
 #include "renderer/RenderTask.h"
-#include "models/Mesh.h"
+#include "renderer/SwapChain.h"
 
 namespace narc_engine {
-    class EngineRenderer
+    class Material;
+    class UniformBuffer;
+
+    class EngineRenderer : public DeviceComponent
     {
+        friend class EngineBinder;
+        friend class Engine;
+
     public:
         EngineRenderer();
         ~EngineRenderer();
 
         void drawFrame();
-        void updateUniformBuffer(uint32_t currentImage);
+        void updateUniformBuffer(UniformBuffer* buffer, RenderTask* rendererTask) const;
 
-        void bindMesh(const Mesh* mesh) { m_renderTask.bindMesh(mesh); }
-        void unbindMesh(const Mesh* mesh) { m_renderTask.unbindMesh(mesh); }
+        void attachRenderer(const Renderer* renderer);
 
     private:
         SwapChain m_swapChain;
-        RenderTask m_renderTask;
+        std::unique_ptr<MultiFrameManager> m_frameManager;
+        std::map<uint32_t, RenderTask*> m_rendererTasks;
 
-        DescriptorPool m_descriptorPool;
         VkDescriptorSetLayout m_descriptorSetLayout;
-        std::vector<UniformBuffer> m_uniformBuffers;
-        uint32_t m_currentFrame = 0;
 
-        std::vector<VkSemaphore> m_imageAvailableSemaphores;
-        std::vector<VkSemaphore> m_renderFinishedSemaphores;
-        std::vector<VkFence> m_inFlightFences;
-
-        VkImage m_textureImage;
-        VkDeviceMemory m_textureImageMemory;
-        VkImageView m_textureImageView;
-        VkSampler m_textureSampler;
-
-        const DeviceHandler* m_device = nullptr;
-
-        void createDescriptorPool(uint32_t maxFrameInFlight);
         void createDescriptorSetLayout();
-        void recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex);
-        void createSyncObjects();
-        void createUniformBuffers();
-        void createTextureImage();
-        void createTextureSampler();
-        void createImageTextureView();
+        void recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex, const std::vector<VkDescriptorSet>& descriptorSets);
+        RenderTask* createRenderTask(const Material* material);
     };
 } // narc_engine

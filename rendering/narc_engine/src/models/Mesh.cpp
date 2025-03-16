@@ -17,9 +17,5 @@ namespace narc_engine {
         m_indexCount = static_cast<uint32_t>(indices.size());
     }
 
-    Mesh::~Mesh()
-    {
-        m_indexBuffer->release();
-        m_vertexBuffer->release();
-    }
+    Mesh::~Mesh() = default;
 }

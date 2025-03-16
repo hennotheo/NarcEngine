@@ -4,7 +4,7 @@
 namespace narc_engine
 {
     template <typename T>
-    class GraphicsBuffer : public Buffer
+    class GraphicsBuffer final : public Buffer
     {
     public:
         GraphicsBuffer(): Buffer()
