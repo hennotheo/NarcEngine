@@ -3,6 +3,7 @@
 #include "Engine.h"
 #include "buffers/GraphicsBuffer.h"
 #include "models/ShaderModule.h"
+#include "resources/Texture2DResource.h"
 
 namespace narc_engine {
     RenderTask::RenderTask(const SwapChain* swapChain, const VkDescriptorSetLayout* descriptorSetLayout,
