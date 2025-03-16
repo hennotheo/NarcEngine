@@ -6,7 +6,6 @@
 #include "SwapChain.h"
 #include "buffers/UniformBuffer.h"
 #include "models/Material.h"
-#include "resources/Texture2DResource.h"
 
 namespace narc_engine
 {
@@ -29,11 +28,8 @@ namespace narc_engine
 
     private:
         std::unique_ptr<GraphicsPipeline> m_pipeline;
-
         std::vector<const Renderer*> m_renderers;
 
         const Material* m_material;
-
-        void createGraphicsPipeline(const SwapChain* swapChain, const VkDescriptorSetLayout* m_descriptorSetLayout);
     };
 } // narc_engine

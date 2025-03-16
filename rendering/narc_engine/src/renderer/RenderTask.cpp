@@ -70,9 +70,4 @@ namespace narc_engine {
         vkUpdateDescriptorSets(getVkDevice(), static_cast<uint32_t>(descriptorWrites.size()),
                                descriptorWrites.data(), 0, nullptr);
     }
-
-    void RenderTask::createGraphicsPipeline(const SwapChain* swapChain,
-                                            const VkDescriptorSetLayout* m_descriptorSetLayout)
-    {
-    }
 } // narc_engine

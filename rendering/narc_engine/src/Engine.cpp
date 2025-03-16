@@ -1,8 +1,5 @@
 #include "Engine.h"
 
-#include <NarcLog.h>
-#include <NarcMath.h>
-
 #include "models/Vertex.h"
 #include "buffers/StagingBuffer.h"
 #include "core/Window.h"

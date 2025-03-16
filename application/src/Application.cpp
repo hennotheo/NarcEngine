@@ -30,8 +30,8 @@ namespace narc {
 
     void Application::start()
     {
-        narc_io::Model3D model = narc_io::FileReader::load3DModel(g_modelPath);
-        narc_io::Model3D model2 = narc_io::FileReader::load3DModel(g_model2Path);
+        const narc_io::Model3D model = narc_io::FileReader::load3DModel(g_modelPath);
+        const narc_io::Model3D model2 = narc_io::FileReader::load3DModel(g_model2Path);
         m_renderMaterial = new narc_engine::Material(g_texturePath.c_str());
         m_renderMaterial2 = new narc_engine::Material(g_texture2Path.c_str());
 
