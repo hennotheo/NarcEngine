@@ -29,6 +29,8 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif ()
 set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS "NARC_ENGINE_PLATFORM_WINDOWS" APPEND)
 
+add_subdirectory(tests)
+
 add_subdirectory(core/core)
 add_subdirectory(core/narc_math)
 add_subdirectory(core/narclog)
