@@ -1,5 +1,16 @@
 cmake_minimum_required(VERSION 3.10)
 
+include(ExternalProject)
+ExternalProject_Add(
+        googleTest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG v1.16.x
+        PREFIX ./vendors
+        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR> -DBUILD_GMOCK=OFF
+)
+
+set(VENDORS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendors CACHE STRING "Vendors directory")
+
 if (NOT DEFINED CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release" FORCE)
 endif ()
@@ -28,8 +39,6 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS "NARC_BUILD_DEBUG" APPEND)
 endif ()
 set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS "NARC_ENGINE_PLATFORM_WINDOWS" APPEND)
-
-add_subdirectory(tests)
 
 add_subdirectory(core/core)
 add_subdirectory(core/narc_math)
