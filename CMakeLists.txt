@@ -52,7 +52,7 @@ add_subdirectory(application)
 
 # Install Path
 install(TARGETS
-        NarcEngineApp
+        NarcEngineEditor
         NarcEngine
         NarcMath
         NarcLog
@@ -72,7 +72,7 @@ if (MINGW)
         get_filename_component(MINGW_BIN_DIR "${MINGW_BIN_DIR}" DIRECTORY)
     endif ()
 
-    set_target_properties(NarcEngineApp PROPERTIES ENABLE_EXPORTS ON)
+    set_target_properties(NarcEngineEditor PROPERTIES ENABLE_EXPORTS ON)
     install(CODE "
         file(GLOB MINGW_DLLS
             \"${MINGW_BIN_DIR}/libgcc_s_seh-1.dll\"
