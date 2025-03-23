@@ -56,7 +56,6 @@ set(VULKAN_GLSLC_PATH "${VULKAN_PATH}/Bin/glslc.exe" CACHE INTERNAL "Vulkan GLSL
 include(ExternalProject)
 ExternalProject_Add(
         glfw
-        GIT_REPOSITORY
         GIT_REPOSITORY https://github.com/glfw/glfw.git
         GIT_TAG 3.4
         PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/vendors
@@ -74,17 +73,19 @@ set(GLFW_LIB_LIST "glfw3")
 file(GLOB_RECURSE CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib)
-link_directories(${VULKAN_PATH}/Lib)
-
-add_library(NarcEngine SHARED include/NarcEngine.h ${CPP_FILES} ${HPP_FILES}) # ${CPP_FILES} ${HPP_FILES})
-
-add_dependencies(NarcEngine
+set(NARC_ENGINE_DEPENDENCIES
         NarcIO
         NarcLog
         NarcMath
         glfw
         CompileShaderCommand)
+
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib)
+link_directories(${VULKAN_PATH}/Lib)
+
+add_library(NarcEngine SHARED include/NarcEngine.h ${CPP_FILES} ${HPP_FILES}) # ${CPP_FILES} ${HPP_FILES})
+
+add_dependencies(NarcEngine ${NARC_ENGINE_DEPENDENCIES})
 
 target_compile_definitions(NarcEngine PRIVATE NARC_ENGINE_BUILD_DLL)
 
@@ -111,11 +112,7 @@ add_executable(NarcEngine_Tests tests/test_main.cpp ${CPP_FILES} ${HPP_FILES})
 
 add_dependencies(NarcEngine_Tests
         googleTest
-        NarcIO
-        NarcLog
-        NarcMath
-        glfw
-        CompileShaderCommand)
+        ${NARC_ENGINE_DEPENDENCIES})
 
 target_link_directories(NarcEngine_Tests PRIVATE
         ${CMAKE_BINARY_DIR}/NarcEngine/${CMAKE_BUILD_TYPE}
