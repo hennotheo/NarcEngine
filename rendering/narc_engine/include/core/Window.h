@@ -36,6 +36,8 @@ namespace narc_engine {
         GLFWwindow* m_window;
         VkSurfaceKHR m_surface;
 
+        bool m_initialized = false;
+
         bool m_framebufferResized = false;
         bool m_shouldClose = false;
 

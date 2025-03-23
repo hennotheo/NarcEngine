@@ -7,6 +7,7 @@ cmake*/
 .idea/
 
 # Auto installed libraries
+vendors/**
 **/vendors/**
 
 # Prerequisites
