@@ -107,7 +107,7 @@ target_precompile_headers(NarcEngine PRIVATE "include/pch.h")
 #----- TEST -----
 #----------------
 
-add_executable(NarcEngine_Tests tests/test_main.cpp ${CPP_FILES} ${HPP_FILES}) # ${CPP_FILES} ${HPP_FILES})
+add_executable(NarcEngine_Tests tests/test_main.cpp ${CPP_FILES} ${HPP_FILES})
 
 add_dependencies(NarcEngine_Tests
         googleTest
@@ -142,4 +142,3 @@ target_link_libraries(NarcEngine_Tests PRIVATE
         ${VULKAN_LIB_LIST})
 
 target_precompile_headers(NarcEngine_Tests PRIVATE "include/pch.h")
-
