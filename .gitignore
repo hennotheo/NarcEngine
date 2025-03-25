@@ -5,6 +5,7 @@ x64/
 build*/
 cmake*/
 .idea/
+.vscode/
 
 # Auto installed libraries
 vendors/**
