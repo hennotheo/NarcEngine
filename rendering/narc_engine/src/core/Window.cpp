@@ -22,7 +22,8 @@ namespace narc_engine {
 
     Window::~Window()
     {
-        m_engineInstance->destroyGLFWSurface(m_surface, nullptr);
+        if (m_initialized)
+            m_engineInstance->destroyGLFWSurface(m_surface, nullptr);
 
         glfwDestroyWindow(m_window);
         glfwTerminate();
@@ -30,6 +31,7 @@ namespace narc_engine {
 
     void Window::init(const EngineInstance* engineInstance)
     {
+        m_initialized = true;
         m_engineInstance = engineInstance;
         m_engineInstance->createGLFWSurface(m_window, &m_surface, nullptr);
     }

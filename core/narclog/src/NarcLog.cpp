@@ -70,4 +70,4 @@ namespace narclog {
     template void log<uint32_t>(LogLevel, uint32_t);
     template void log<uint16_t>(LogLevel, uint16_t);
     template void log<bool>(LogLevel, bool);
-} // narclog
+}

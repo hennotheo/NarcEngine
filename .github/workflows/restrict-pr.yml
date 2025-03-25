@@ -25,7 +25,7 @@ jobs:
           HEAD_BRANCH="${{ github.event.pull_request.head.ref }}"
 
           BASE_PATTERN="^main$"
-          HEAD_PATTERN="^release/.*$"
+          HEAD_PATTERN="^dev/.*$"
 
           if [[ "$BASE_BRANCH" =~ $BASE_PATTERN ]]; then
             if [[ ! "$HEAD_BRANCH" =~ $HEAD_PATTERN ]]; then

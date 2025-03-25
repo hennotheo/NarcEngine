@@ -29,6 +29,12 @@ namespace narc_engine {
         m_window = std::make_unique<Window>();
         m_instance = std::make_unique<EngineInstance>();
         m_window->init(m_instance.get());
+
+        if (m_instance == nullptr || m_window == nullptr)
+        {
+            NARCLOG_FATAL("Failed to initialize Engine: m_instance or m_window is null");
+        }
+
         m_debugLogger = std::make_unique<EngineDebugLogger>(m_instance.get());
         m_deviceHandler = std::make_unique<DeviceHandler>(m_window.get(), m_instance.get(), m_debugLogger.get());
 

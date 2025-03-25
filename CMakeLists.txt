@@ -1,5 +1,16 @@
 cmake_minimum_required(VERSION 3.10)
 
+include(ExternalProject)
+ExternalProject_Add(
+        googleTest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG v1.16.x
+        PREFIX ./vendors
+        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+)
+
+set(VENDORS_DIR ${CMAKE_BINARY_DIR}/vendors CACHE STRING "Vendors directory")
+
 if (NOT DEFINED CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release" FORCE)
 endif ()
@@ -19,7 +30,7 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Choose the type of b
 
 set(NARC_VERSION_MAJOR "0")
 set(NARC_VERSION_MINOR "1")
-set(NARC_VERSION_PATCH "0")
+set(NARC_VERSION_PATCH "1")
 set(NARC_VERSION "${NARC_VERSION_MAJOR}.${NARC_VERSION_MINOR}.${NARC_VERSION_PATCH}")
 
 project(NarcEngineApp VERSION ${NARC_VERSION})
@@ -41,7 +52,7 @@ add_subdirectory(application)
 
 # Install Path
 install(TARGETS
-        NarcEngineApp
+        NarcEngineEditor
         NarcEngine
         NarcMath
         NarcLog
@@ -61,7 +72,7 @@ if (MINGW)
         get_filename_component(MINGW_BIN_DIR "${MINGW_BIN_DIR}" DIRECTORY)
     endif ()
 
-    set_target_properties(NarcEngineApp PROPERTIES ENABLE_EXPORTS ON)
+    set_target_properties(NarcEngineEditor PROPERTIES ENABLE_EXPORTS ON)
     install(CODE "
         file(GLOB MINGW_DLLS
             \"${MINGW_BIN_DIR}/libgcc_s_seh-1.dll\"
