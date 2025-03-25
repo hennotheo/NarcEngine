@@ -21,7 +21,7 @@ set(TEST_CPP_FILES ${CPP_FILES})
 list(REMOVE_ITEM TEST_CPP_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
 add_executable(NarcEngineEditor_Tests tests/test_main.cpp ${TEST_CPP_FILES} ${HPP_FILES})
 
-add_dependencies(NarcEngineEditor
+add_dependencies(NarcEngineEditor_Tests
         googleTest
         NarcEngine)
 
