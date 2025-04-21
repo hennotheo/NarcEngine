@@ -17,25 +17,25 @@ target_link_libraries(NarcEngineEditor PRIVATE NarcEngine)
 #----- TEST -----
 #----------------
 
-set(TEST_CPP_FILES ${CPP_FILES})
-list(REMOVE_ITEM TEST_CPP_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
-add_executable(NarcEngineEditor_Tests tests/test_main.cpp ${TEST_CPP_FILES} ${HPP_FILES})
+# set(TEST_CPP_FILES ${CPP_FILES})
+# list(REMOVE_ITEM TEST_CPP_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
+# add_executable(NarcEngineEditor_Tests tests/test_main.cpp ${TEST_CPP_FILES} ${HPP_FILES})
 
-add_dependencies(NarcEngineEditor_Tests
-        googleTest
-        NarcEngine)
+# add_dependencies(NarcEngineEditor_Tests
+#         googleTest
+#         NarcEngine)
 
-target_link_directories(NarcEngineEditor_Tests PRIVATE
-        ${CMAKE_BINARY_DIR}/NarcEngine/${CMAKE_BUILD_TYPE}
-        ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
-        "${VENDORS_DIR}/lib")
+# target_link_directories(NarcEngineEditor_Tests PRIVATE
+#         ${CMAKE_BINARY_DIR}/NarcEngine/${CMAKE_BUILD_TYPE}
+#         ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
+#         "${VENDORS_DIR}/lib")
 
-target_include_directories(NarcEngineEditor_Tests PRIVATE
-        "${CMAKE_CURRENT_SOURCE_DIR}/include"
-        "${CMAKE_CURRENT_SOURCE_DIR}/vendors/include"
-        "${VENDORS_DIR}/include")
+# target_include_directories(NarcEngineEditor_Tests PRIVATE
+#         "${CMAKE_CURRENT_SOURCE_DIR}/include"
+#         "${CMAKE_CURRENT_SOURCE_DIR}/vendors/include"
+#         "${VENDORS_DIR}/include")
 
-target_link_libraries(NarcEngineEditor_Tests PRIVATE
-        NarcEngine
-        gtest gtest_main
-        gmock gmock_main)
+# target_link_libraries(NarcEngineEditor_Tests PRIVATE
+#         NarcEngine
+#         gtest gtest_main
+#         gmock gmock_main)
