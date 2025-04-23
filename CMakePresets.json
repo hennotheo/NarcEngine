@@ -1,5 +1,5 @@
 {
-    "version": 3,
+    "version": 6,
     "configurePresets": [
         {
             "name": "dev",
@@ -31,13 +31,28 @@
             "configurePreset": "dev",
             "targets":[
                 "NarcEngineEditor"
-            ]
+            ],
+            "cleanFirst": true
+        },
+        {
+            "name": "release",
+            "configurePreset": "release",
+            "targets":[
+                "NarcEngineEditor"
+            ],
+            "cleanFirst": true
         }
     ],
     "testPresets": [
         {
             "name": "tests",
             "configurePreset": "dev_tests"
+        }
+    ],
+    "packagePresets": [
+        {
+            "name": "package",
+            "configurePreset": "release"
         }
     ]
 }

@@ -45,12 +45,12 @@ NarcEngine is a C++ game engine that leverages Vulkan for high-performance graph
 
 3. Configure the project with CMake:
     ```sh
-    cmake .. -G "YOUR_COMPILER" -B build
+    cmake --preset release
     ```
 
 4. Build the project:
     ```sh
-    cmake --build build
+    cmake --build --preset release
     ```
 
 ## License
