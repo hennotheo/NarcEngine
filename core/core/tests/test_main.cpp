@@ -11,10 +11,9 @@
 class EventTest : public ::testing::Test
 {
 protected:
-    narc_core::Event<void()> event; // Event sans arguments pour tester des callbacks simples.
+    narc_core::Event<void()> event;
 };
 
-// Test : Classe Event avec un handler sans arguments
 TEST(EventTest, SubscriptionAndTriggerNoArgs) {
     narc_core::Event<> event;
 
@@ -23,12 +22,10 @@ TEST(EventTest, SubscriptionAndTriggerNoArgs) {
         called = true;
         });
 
-    // Vérifie que le handler est appelé lors du déclenchement
     event.trigger();
     EXPECT_TRUE(called);
 }
 
-// Test : Classe Event avec un handler prenant un argument
 TEST(EventTest, SubscriptionAndTriggerWithArgs) {
     narc_core::Event<int> event;
 
@@ -37,12 +34,10 @@ TEST(EventTest, SubscriptionAndTriggerWithArgs) {
         receivedValue = value;
         });
 
-    // Déclenche l'événement avec une valeur
     event.trigger(42);
     EXPECT_EQ(receivedValue, 42);
 }
 
-// Test : Plusieurs abonnements
 TEST(EventTest, MultipleSubscriptions) {
     narc_core::Event<> event;
 
@@ -54,12 +49,10 @@ TEST(EventTest, MultipleSubscriptions) {
         callCount++;
         });
 
-    // Déclenche l'événement une fois
     event.trigger();
     EXPECT_EQ(callCount, 2);
 }
 
-// Test : Désabonnement explicite
 TEST(EventTest, UnsubscribeExplicitly) {
     narc_core::Event<> event;
 
@@ -71,11 +64,9 @@ TEST(EventTest, UnsubscribeExplicitly) {
     subscription.unsubscribe();
     event.trigger();
 
-    // Vérifie que le handler n'est pas appelé après désabonnement
     EXPECT_FALSE(called);
 }
 
-// Test : Désabonnement automatique via RAII
 TEST(EventTest, UnsubscribeAutomatically) {
     narc_core::Event<> event;
 
@@ -84,16 +75,13 @@ TEST(EventTest, UnsubscribeAutomatically) {
         auto subscription = event.subscribe([&]() {
             called = true;
             });
-        // subscription se détruit ici
     }
 
     event.trigger();
 
-    // Vérifie que le handler n'est pas appelé après destruction de l'abonnement
     EXPECT_FALSE(called);
 }
 
-// Test : Abonnement avec move semantics
 TEST(EventTest, SubscriptionMoveSemantics) {
     narc_core::Event<> event;
 
@@ -102,15 +90,12 @@ TEST(EventTest, SubscriptionMoveSemantics) {
         called = true;
         });
 
-    // Déplace l'abonnement
     auto subscription2 = std::move(subscription1);
 
-    // Déclenche l'événement
     event.trigger();
     EXPECT_TRUE(called);
 }
 
-// Test : Désabonnement via move semantics
 TEST(EventTest, UnsubscribeViaMovedSubscription) {
     narc_core::Event<> event;
 
@@ -119,15 +104,12 @@ TEST(EventTest, UnsubscribeViaMovedSubscription) {
         called = true;
         });
 
-    // Déplace l'abonnement
     auto subscription2 = std::move(subscription1);
 
-    // Désabonne via le nouvel objet
     subscription2.unsubscribe();
 
     event.trigger();
-
-    // Vérifie que le handler n'est pas appelé
+    
     EXPECT_FALSE(called);
 }
 

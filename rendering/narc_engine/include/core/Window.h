@@ -36,6 +36,11 @@ namespace narc_engine {
         GLFWwindow* m_window;
         VkSurfaceKHR m_surface;
 
+        narc_core::Event<int, int, int, int> m_onKeyboardEvent;
+        narc_core::Event<int, int, int> m_onMouseEvent;
+        double m_mouseXpos = 0.0;
+        double m_mouseYpos = 0.0;
+
         bool m_initialized = false;
 
         bool m_framebufferResized = false;
@@ -45,5 +50,7 @@ namespace narc_engine {
 
     private:
         static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+        static void onKeyboardInputPerformed(GLFWwindow* window, int key, int scancode, int action, int mods);
+        static void onMouseInputPerformed(GLFWwindow* window, int button, int action, int mods);
     };
 }
