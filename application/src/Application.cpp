@@ -58,8 +58,12 @@ namespace narc
         // PRE-UPDATE ENGINE LOGIC
         m_engine->pollEvents();
 
+        double newTime = m_engine->window()->getWindowTime();
+        double deltaTime = newTime - m_currentTime;
+        m_currentTime = newTime;
+
         // UPDATE ENGINE LOGIC
-        m_transform->rotateZ(0.1f);
+        m_transform->rotateZ(50.0 * deltaTime);
 
         // RENDER ENGINE
         m_engine->render();

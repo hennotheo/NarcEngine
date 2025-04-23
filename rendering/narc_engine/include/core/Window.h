@@ -3,16 +3,19 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include "interfaces/IWindow.h"
 #include "renderer/SwapChainSupportDetails.h"
 
 namespace narc_engine {
     class EngineInstance;
 
-    class Window
+    class Window : public IWindow
     {
     public:
         Window();
         ~Window();
+
+        GETTER double getWindowTime() const override { return m_time; }
 
         void init(const EngineInstance* engineInstance);
 
@@ -36,14 +39,24 @@ namespace narc_engine {
         GLFWwindow* m_window;
         VkSurfaceKHR m_surface;
 
+        narc_core::Event<int, int, int, int> m_onKeyboardEvent;
+        narc_core::Event<int, int, int> m_onMouseEvent;
+
         bool m_initialized = false;
 
         bool m_framebufferResized = false;
         bool m_shouldClose = false;
 
+        //TODO : REMOVE THIS
+        double m_mouseXpos = 0.0;
+        double m_mouseYpos = 0.0;
+        double m_time = 0.0;
+
         const EngineInstance* m_engineInstance;
 
     private:
         static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+        static void onKeyboardInputPerformed(GLFWwindow* window, int key, int scancode, int action, int mods);
+        static void onMouseInputPerformed(GLFWwindow* window, int button, int action, int mods);
     };
 }

@@ -1,10 +1,12 @@
 #include "core/Window.h"
 
 #include <NarcLog.h>
+#include <NarcCore.h>
 
 #include "core/EngineInstance.h"
 
-namespace narc_engine {
+namespace narc_engine
+{
     constexpr uint32_t g_width = 800;
     constexpr uint32_t g_height = 600;
 
@@ -17,7 +19,9 @@ namespace narc_engine {
 
         m_window = glfwCreateWindow(g_width, g_height, "Narc Engine", nullptr, nullptr);
         glfwSetWindowUserPointer(m_window, this);
-        glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback); //call static function because GLFW does know how to call a member function
+        glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback);
+        glfwSetKeyCallback(m_window, onKeyboardInputPerformed);
+        glfwSetMouseButtonCallback(m_window, onMouseInputPerformed);
     }
 
     Window::~Window()
@@ -40,6 +44,9 @@ namespace narc_engine {
     {
         glfwPollEvents();
         m_shouldClose = glfwWindowShouldClose(m_window);
+
+        glfwGetCursorPos(m_window, &m_mouseXpos, &m_mouseYpos);
+        m_time = glfwGetTime();
     }
 
     const char** Window::getRequiredInstanceExtensions(uint32_t* glfwExtensionCount)
@@ -100,5 +107,17 @@ namespace narc_engine {
     {
         auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
         app->m_framebufferResized = true;
+    }
+
+    void Window::onKeyboardInputPerformed(GLFWwindow* window, int key, int scancode, int action, int mods)
+    {
+        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+        app->m_onKeyboardEvent.trigger(key, scancode, action, mods);
+    }
+
+    void Window::onMouseInputPerformed(GLFWwindow* window, int button, int action, int mods)
+    {
+        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+        app->m_onMouseEvent.trigger(button, action, mods);
     }
 }
