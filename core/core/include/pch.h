@@ -22,5 +22,7 @@
 #include <string>
 #include <type_traits>
 #include <vector>
+#include <atomic>
+#include <unordered_map>
 
 #include "NarcCore.h"

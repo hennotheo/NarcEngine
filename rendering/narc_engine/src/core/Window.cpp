@@ -4,9 +4,15 @@
 
 #include "core/EngineInstance.h"
 
-namespace narc_engine {
+namespace narc_engine
+{
     constexpr uint32_t g_width = 800;
     constexpr uint32_t g_height = 600;
+
+    void keyboardCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
+    {
+        NARCLOG_DEBUG(std::to_string(key));
+    }
 
     Window::Window()
     {
@@ -17,7 +23,8 @@ namespace narc_engine {
 
         m_window = glfwCreateWindow(g_width, g_height, "Narc Engine", nullptr, nullptr);
         glfwSetWindowUserPointer(m_window, this);
-        glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback); //call static function because GLFW does know how to call a member function
+        glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback); // call static function because GLFW does know how to call a member function
+        glfwSetKeyCallback(m_window, keyboardCallback);
     }
 
     Window::~Window()
@@ -29,7 +36,7 @@ namespace narc_engine {
         glfwTerminate();
     }
 
-    void Window::init(const EngineInstance* engineInstance)
+    void Window::init(const EngineInstance *engineInstance)
     {
         m_initialized = true;
         m_engineInstance = engineInstance;
@@ -42,7 +49,7 @@ namespace narc_engine {
         m_shouldClose = glfwWindowShouldClose(m_window);
     }
 
-    const char** Window::getRequiredInstanceExtensions(uint32_t* glfwExtensionCount)
+    const char **Window::getRequiredInstanceExtensions(uint32_t *glfwExtensionCount)
     {
         return glfwGetRequiredInstanceExtensions(glfwExtensionCount);
     }
@@ -74,7 +81,7 @@ namespace narc_engine {
         return details;
     }
 
-    void Window::getValidFramebufferSize(int* width, int* height) const
+    void Window::getValidFramebufferSize(int *width, int *height) const
     {
         getFramebufferSize(width, height);
         while (*width == 0 || *height == 0)
@@ -84,7 +91,7 @@ namespace narc_engine {
         }
     }
 
-    void Window::getFramebufferSize(int* width, int* height) const
+    void Window::getFramebufferSize(int *width, int *height) const
     {
         glfwGetFramebufferSize(m_window, width, height);
     }
@@ -96,9 +103,9 @@ namespace narc_engine {
         return supported;
     }
 
-    void Window::framebufferResizeCallback(GLFWwindow* window, int width, int height)
+    void Window::framebufferResizeCallback(GLFWwindow *window, int width, int height)
     {
-        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+        auto app = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
         app->m_framebufferResized = true;
     }
 }
