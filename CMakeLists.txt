@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.31)
+cmake_policy(VERSION 3.31)
 
 include(cmake/versionning.cmake)
 
@@ -12,7 +13,9 @@ if (NOT DEFINED CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release")
 endif ()
 
-project(NarcEngineEditor VERSION ${NARC_VERSION})
+project(NarcEngineEditor
+VERSION ${NARC_VERSION}
+LANGUAGES CXX C)
 
 include(cmake/helpers.cmake)
 include(cmake/dependencies.cmake)

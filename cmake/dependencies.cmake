@@ -1,6 +1,9 @@
 set(VENDOR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendors)
 set(FETCHCONTENT_QUIET ON)
 
+set(CMAKE_POLICY_WARNING_CMP0000 OFF)
+set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS 1 CACHE INTERNAL "No dev warnings")
+
 include(FetchContent)
 
 FetchContent_Declare(
