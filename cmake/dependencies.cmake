@@ -8,6 +8,7 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/g-truc/glm.git
     GIT_TAG 1.0.1
     SOURCE_DIR ${VENDOR_DIR}/glm
+    EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(glm)
 
@@ -16,6 +17,7 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/nothings/stb.git
     GIT_TAG master
     SOURCE_DIR ${VENDOR_DIR}/stb
+    EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(stb)
 
@@ -24,6 +26,8 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/tinyobjloader/tinyobjloader.git
     GIT_TAG v2.0.0rc13
     SOURCE_DIR ${VENDOR_DIR}/tinyobjloader
+    EXCLUDE_FROM_ALL
+
 )
 FetchContent_MakeAvailable(tinyobjloader)
 
@@ -32,26 +36,9 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/glfw/glfw.git
     GIT_TAG 3.4
     SOURCE_DIR ${VENDOR_DIR}/glfw
+    EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(glfw)
-
-FetchContent_Declare(
-    glfw
-    GIT_REPOSITORY https://github.com/glfw/glfw.git
-    GIT_TAG 3.4
-    SOURCE_DIR ${VENDOR_DIR}/glfw
-)
-FetchContent_MakeAvailable(glfw)
-
-# --- GOOGLE_TEST ---
-FetchContent_Declare(
-    googleTest
-    GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG v1.16.x
-    SOURCE_DIR ${VENDOR_DIR}/googleTests
-)
-FetchContent_MakeAvailable(googleTest)
-include(GoogleTest)
 
 # --- VULKAN ---
 find_package(Vulkan)

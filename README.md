@@ -19,6 +19,7 @@ NarcEngine is a C++ game engine that leverages Vulkan for high-performance graph
 - [STB](https://github.com/nothings/stb.git)
 - [Tinyobjloader](https://github.com/tinyobjloader/tinyobjloader.git)
 - [GoogleTest](https://github.com/google/googletest.git)
+- [NSIS](https://nsis.sourceforge.io/Main_Page)
 
 ## Building the Project
 

@@ -16,12 +16,3 @@ target_link_libraries(NarcLog PUBLIC NarcCore)
 #----------------
 
 narc_auto_setup_tests(NarcLog "")
-# add_executable(Tests_NarcLog tests/test_main.cpp)
-
-# target_link_libraries(Tests_NarcLog PRIVATE
-#         gtest gtest_main
-#         gmock gmock_main
-#         NarcLog
-# )
-# gtest_discover_tests(Tests_NarcLog 
-#         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
