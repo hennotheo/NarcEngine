@@ -43,6 +43,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glfw)
 
+# --- GOOGLE_TEST ---
 FetchContent_Declare(
     googleTest
     GIT_REPOSITORY https://github.com/google/googletest.git
@@ -52,6 +53,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googleTest)
 include(GoogleTest)
 
+# --- VULKAN ---
 find_package(Vulkan)
 
 if(WIN32)
@@ -84,3 +86,6 @@ else()
 endif()
 
 set(VULKAN_GLSLC_PATH "${VULKAN_PATH}/Bin/glslc.exe" CACHE INTERNAL "Vulkan GLSL Compiler Path")
+
+# --- PYTHON ---
+find_package (Python COMPONENTS Interpreter)
