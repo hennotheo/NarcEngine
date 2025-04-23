@@ -1,5 +1,4 @@
-file(GLOB_RECURSE CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
+narc_blob_source_files()
 
 add_library(NarcCore STATIC include/NarcCore.h ${CPP_FILES} ${HPP_FILES})
 

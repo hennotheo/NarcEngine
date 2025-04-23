@@ -1,16 +1,4 @@
-include(FetchContent)
-FetchContent_Declare(
-        glm
-        GIT_REPOSITORY https://github.com/g-truc/glm.git
-        GIT_TAG 1.0.1
-        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendors/glm
-)
-
-FetchContent_MakeAvailable(glm)
-
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-file(GLOB_RECURSE CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
+narc_blob_source_files()
 
 add_library(NarcMath SHARED include/NarcMath.h ${CPP_FILES} ${HPP_FILES})
 

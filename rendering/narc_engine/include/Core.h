@@ -4,6 +4,11 @@
 
 #define NARC_ENGINE_API __declspec(dllexport)
 
+
+#elif defined(TESTING_BUILD_DLL)
+
+#define NARC_ENGINE_API 
+
 #else
       
 #define NARC_ENGINE_API __declspec(dllimport)

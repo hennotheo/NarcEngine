@@ -3,9 +3,10 @@ x64/
 
 # CMake
 build*/
-cmake*/
+cmake_*/
 .idea/
 .vscode/
+**/logs/**
 
 # Auto installed libraries
 vendors/**
@@ -46,4 +47,3 @@ vendors/**
 
 #Shaders
 *.spv
-rendering/shaders/compile_shaders.bat
