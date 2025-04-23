@@ -27,5 +27,7 @@ namespace narc
 
         narc_engine::Renderer* m_renderer = nullptr;
         narc_engine::Renderer* m_renderer2 = nullptr;
+
+        double m_currentTime = 0.0;
     };
 }

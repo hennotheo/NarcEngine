@@ -130,7 +130,7 @@ namespace narc_engine {
             destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
         }
         else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout ==
-                 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
         {
             barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
             barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
@@ -170,7 +170,7 @@ namespace narc_engine {
         region.imageSubresource.baseArrayLayer = 0;
         region.imageSubresource.layerCount = 1;
 
-        region.imageOffset = {0, 0, 0};
+        region.imageOffset = { 0, 0, 0 };
         region.imageExtent = {
             width,
             height,
@@ -196,8 +196,8 @@ namespace narc_engine {
     }
 
     void Engine::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
-                             VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
-                             VkDeviceMemory& imageMemory) const
+        VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
+        VkDeviceMemory& imageMemory) const
     {
         VkImageCreateInfo imageInfo{};
         imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -237,16 +237,20 @@ namespace narc_engine {
     }
 
     void Engine::createImage(const narc_io::Image& imageData, VkFormat format, VkImageTiling tiling,
-                             VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
-                             VkDeviceMemory& imageMemory) const
+        VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
+        VkDeviceMemory& imageMemory) const
     {
         createImage(imageData.getWidth(),
-                    imageData.getHeight(),
-                    format,
-                    tiling,
-                    usage,
-                    properties,
-                    image,
-                    imageMemory);
+            imageData.getHeight(),
+            format,
+            tiling,
+            usage,
+            properties,
+            image,
+            imageMemory);
+    }
+    IWindow* Engine::window() const
+    {
+        return m_window.get();
     }
 }

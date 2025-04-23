@@ -4,6 +4,8 @@
 
 namespace narc_engine
 {
+    class IWindow;
+
     class NARC_ENGINE_API IEngine
     {
         friend class EngineBinder;
@@ -13,6 +15,7 @@ namespace narc_engine
 
         GETTER virtual EngineBinder* binder() const = 0;
         GETTER virtual EngineResourcesManager* resourceManager() const = 0;
+        GETTER virtual const IWindow* window() const = 0;
         GETTER virtual bool shouldClose() const = 0;
         virtual void pollEvents() = 0;
         virtual void render() = 0;

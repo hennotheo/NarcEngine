@@ -46,6 +46,7 @@ namespace narc_engine
         m_shouldClose = glfwWindowShouldClose(m_window);
 
         glfwGetCursorPos(m_window, &m_mouseXpos, &m_mouseYpos);
+        m_time = glfwGetTime();
     }
 
     const char** Window::getRequiredInstanceExtensions(uint32_t* glfwExtensionCount)
