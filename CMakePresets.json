@@ -1,0 +1,43 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "dev",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "release",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "dev_tests",
+            "inherits": "dev",
+            "cacheVariables": {
+                "ENABLE_TESTS": "ON"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "dev-editor",
+            "configurePreset": "dev",
+            "targets":[
+                "NarcEngineEditor"
+            ]
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "tests",
+            "configurePreset": "dev_tests"
+        }
+    ]
+}

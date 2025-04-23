@@ -1,6 +1,7 @@
 #include "core/Window.h"
 
 #include <NarcLog.h>
+#include <NarcCore.h>
 
 #include "core/EngineInstance.h"
 
@@ -12,6 +13,14 @@ namespace narc_engine
     void keyboardCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
     {
         NARCLOG_DEBUG(std::to_string(key));
+        narc_core::Event<int, int, int, int> event = narc_core::Event<int, int, int, int>();
+
+        narc_core::Event<int, int, int, int>::Subscription sub = event.subscribe([](int key, int scancode, int action, int mods) {
+            NARCLOG_DEBUG("Key pressed: " + std::to_string(key));
+        });
+
+        event.trigger(key, scancode, action, mods);
+        sub.unsubscribe();
     }
 
     Window::Window()
