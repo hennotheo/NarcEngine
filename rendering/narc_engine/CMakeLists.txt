@@ -1,16 +1,14 @@
-#----------------
-#----- MAIN -----
-#----------------
-
-# Gather list of header and source files for compilation
-file(GLOB_RECURSE CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
+narc_blob_source_files()
 
 set(NARC_ENGINE_DEPENDENCIES
     NarcIO
     NarcLog
     NarcMath
     CompileShaderCommand)
+
+set(PRIVATE_LIBS
+    glfw
+    Vulkan::Vulkan)
 
 add_library(NarcEngine SHARED include/NarcEngine.h ${CPP_FILES} ${HPP_FILES})
 
@@ -19,51 +17,41 @@ add_dependencies(NarcEngine ${NARC_ENGINE_DEPENDENCIES})
 target_compile_definitions(NarcEngine PRIVATE NARC_ENGINE_BUILD_DLL)
 
 target_include_directories(NarcEngine PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_include_directories(NarcEngine PRIVATE
-    "${Vulkan_INCLUDE_DIRS}")
+target_include_directories(NarcEngine PRIVATE "${Vulkan_INCLUDE_DIRS}")
 
 target_link_libraries(NarcEngine PUBLIC
     NarcIO
     NarcLog
     NarcMath)
-target_link_libraries(NarcEngine PRIVATE
-    glfw
-    Vulkan::Vulkan)
-
+target_link_libraries(NarcEngine PRIVATE ${PRIVATE_LIBS})
 target_precompile_headers(NarcEngine PRIVATE "include/pch.h")
+
 
 #----------------
 #----- TEST -----
 #----------------
 
-# add_executable(NarcEngine_Tests tests/test_main.cpp ${CPP_FILES} ${HPP_FILES})
+file(GLOB_RECURSE TESTS_CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp)
+file(GLOB_RECURSE TESTS_HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.h)
 
-# add_dependencies(NarcEngine_Tests
-#         googleTest
-#         ${NARC_ENGINE_DEPENDENCIES})
+link_directories(${CMAKE_BINARY_DIR}/NarcEngine/${CMAKE_BUILD_TYPE} )
+add_executable(Tests_NarcEngine tests/test_main.cpp ${TESTS_CPP_FILES} ${TESTS_HPP_FILES} ${CPP_FILES} ${HPP_FILES})
 
-# target_link_directories(NarcEngine_Tests PRIVATE
-#         ${CMAKE_BINARY_DIR}/NarcEngine/${CMAKE_BUILD_TYPE}
-#         ${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib
-#         ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
-#         ${VULKAN_PATH}/Lib
-#         "${VENDORS_DIR}/lib")
+add_dependencies(Tests_NarcEngine NarcEngine ${NARC_ENGINE_DEPENDENCIES})
 
-# target_compile_definitions(NarcEngine_Tests PRIVATE NARC_ENGINE_BUILD_DLL)
+target_include_directories(Tests_NarcEngine PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(Tests_NarcEngine PRIVATE "${Vulkan_INCLUDE_DIRS}")
 
-# target_include_directories(NarcEngine_Tests PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-# target_include_directories(NarcEngine_Tests PRIVATE
-#         "${VULKAN_PATH}/Include"
-#         "${CMAKE_CURRENT_SOURCE_DIR}/vendors/include"
-#         "${VENDORS_DIR}/include")
+target_compile_definitions(Tests_NarcEngine PRIVATE TESTING_BUILD_DLL)
 
-# target_link_libraries(NarcEngine_Tests PRIVATE
-#         NarcIO
-#         NarcLog
-#         NarcMath
-#         gtest gtest_main
-#         gmock gmock_main
-#         ${GLFW_LIB_LIST}
-#         ${VULKAN_LIB_LIST})
+target_link_libraries(Tests_NarcEngine PRIVATE
+    gtest gtest_main
+    gmock gmock_main
+    ${PRIVATE_LIBS}
+    NarcIO
+    NarcLog
+    NarcMath)
 
-# target_precompile_headers(NarcEngine_Tests PRIVATE "include/pch.h")
+target_precompile_headers(Tests_NarcEngine PRIVATE "include/pch.h")
+gtest_discover_tests(Tests_NarcEngine
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)

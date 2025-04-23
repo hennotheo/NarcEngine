@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "test_includes.h"
+
 class ResourcesTest : public ::testing::Test
 {
 protected:

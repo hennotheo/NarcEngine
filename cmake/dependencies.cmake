@@ -1,0 +1,86 @@
+set(VENDOR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendors)
+set(FETCHCONTENT_QUIET ON)
+
+include(FetchContent)
+
+FetchContent_Declare(
+    glm
+    GIT_REPOSITORY https://github.com/g-truc/glm.git
+    GIT_TAG 1.0.1
+    SOURCE_DIR ${VENDOR_DIR}/glm
+)
+FetchContent_MakeAvailable(glm)
+
+FetchContent_Declare(
+    stb
+    GIT_REPOSITORY https://github.com/nothings/stb.git
+    GIT_TAG master
+    SOURCE_DIR ${VENDOR_DIR}/stb
+)
+FetchContent_MakeAvailable(stb)
+
+FetchContent_Declare(
+    tinyobjloader
+    GIT_REPOSITORY https://github.com/tinyobjloader/tinyobjloader.git
+    GIT_TAG v2.0.0rc13
+    SOURCE_DIR ${VENDOR_DIR}/tinyobjloader
+)
+FetchContent_MakeAvailable(tinyobjloader)
+
+FetchContent_Declare(
+    glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_TAG 3.4
+    SOURCE_DIR ${VENDOR_DIR}/glfw
+)
+FetchContent_MakeAvailable(glfw)
+
+FetchContent_Declare(
+    glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_TAG 3.4
+    SOURCE_DIR ${VENDOR_DIR}/glfw
+)
+FetchContent_MakeAvailable(glfw)
+
+FetchContent_Declare(
+    googleTest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG v1.16.x
+    SOURCE_DIR ${VENDOR_DIR}/googleTests
+)
+FetchContent_MakeAvailable(googleTest)
+include(GoogleTest)
+
+find_package(Vulkan)
+
+if(WIN32)
+
+    if(NOT Vulkan_FOUND)
+        find_library(Vulkan_LIBRARY NAMES vulkan-1 vulkan PATHS ${CMAKE_SOURCE_DIR}/libs/vulkan)
+        if(Vulkan_LIBRARY)
+            set(Vulkan_FOUND ON)
+            message("Using bundled Vulkan library version")
+        endif()
+    endif()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_USE_PLATFORM_WIN32_KHR")
+
+elseif(UNIX)
+
+    message(FATAL_ERROR "Apple platform is not supported yet.")
+
+elseif(APPLE)
+
+    message(FATAL_ERROR "Apple platform is not supported yet.")
+
+endif(WIN32)
+
+if(Vulkan_FOUND)
+    set(VULKAN_INCLUDE_DIRS ${Vulkan_INCLUDE_DIRS})
+    set(VULKAN_LIBRARIES ${Vulkan_LIBRARIES})
+    set(VULKAN_FOUND ${Vulkan_FOUND})
+else()
+    message(FATAL_ERROR "Vulkan not found. Please install Vulkan SDK and set VULKAN_SDK environment variable.")
+endif()
+
+set(VULKAN_GLSLC_PATH "${VULKAN_PATH}/Bin/glslc.exe" CACHE INTERNAL "Vulkan GLSL Compiler Path")
