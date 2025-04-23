@@ -31,9 +31,7 @@ target_precompile_headers(NarcEngine PRIVATE "include/pch.h")
 #----- TEST -----
 #----------------
 
-file(GLOB_RECURSE TESTS_CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp)
-file(GLOB_RECURSE TESTS_HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.h)
-
+narc_auto_glob_tests()
 link_directories(${CMAKE_BINARY_DIR}/NarcEngine/${CMAKE_BUILD_TYPE} )
 add_executable(Tests_NarcEngine tests/test_main.cpp ${TESTS_CPP_FILES} ${TESTS_HPP_FILES} ${CPP_FILES} ${HPP_FILES})
 

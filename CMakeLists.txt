@@ -1,11 +1,22 @@
 cmake_minimum_required(VERSION 3.31)
 
+include(cmake/versionning.cmake)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-project(NarcEngineEditor VERSION 0.1.2)
+set(CMAKE_CXX_COMPILER g++)
+set(CMAKE_CXX_COMPILER gcc)
 
-enable_testing()
+project(NarcEngineEditor VERSION ${NARC_VERSION})
+
+include(cmake/helpers.cmake)
+include(cmake/dependencies.cmake)
+include(cmake/tests.cmake)
+
+if (NOT DEFINED CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release" FORCE)
+endif ()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS "NARC_BUILD_DEBUG" APPEND)
@@ -16,9 +27,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE})
 
-include(cmake/helpers.cmake)
-include(cmake/dependencies.cmake)
-
 add_subdirectory(core/core)
 add_subdirectory(core/narc_math)
 add_subdirectory(core/narclog)
@@ -28,49 +36,6 @@ add_subdirectory(rendering/shaders)
 add_subdirectory(rendering/narc_engine)
 
 add_subdirectory(application)
-
-# cmake_minimum_required(VERSION 3.10)
-
-# set(VENDORS_DIR ${CMAKE_BINARY_DIR}/vendors CACHE STRING "Vendors directory")
-
-# if (NOT DEFINED CMAKE_BUILD_TYPE)
-#     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release" FORCE)
-# endif ()
-
-# set(CMAKE_CXX_STANDARD 20)
-# set(CMAKE_CXX_STANDARD_REQUIRED True)
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fexceptions")
-
-# set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE})
-# set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE})
-# set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE})
-
-# set(ENGINE_BIN_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" CACHE STRING "Binary path")
-# set(ENGINE_LIB_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}" CACHE STRING "Library path")
-# set(VULKAN_GLSLC_PATH "" CACHE INTERNAL "Vulkan GLSL Compiler Path")
-# set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Choose the type of build" FORCE)
-
-# set(NARC_VERSION_MAJOR "0")
-# set(NARC_VERSION_MINOR "1")
-# set(NARC_VERSION_PATCH "1")
-# set(NARC_VERSION "${NARC_VERSION_MAJOR}.${NARC_VERSION_MINOR}.${NARC_VERSION_PATCH}")
-
-# project(NarcEngineApp VERSION ${NARC_VERSION})
-
-# if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-#     set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS "NARC_BUILD_DEBUG" APPEND)
-# endif ()
-# set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS "NARC_ENGINE_PLATFORM_WINDOWS" APPEND)
-
-# add_subdirectory(core/core)
-# add_subdirectory(core/narc_math)
-# add_subdirectory(core/narclog)
-# add_subdirectory(core/narcio)
-
-# add_subdirectory(rendering/shaders)
-# add_subdirectory(rendering/narc_engine)
-
-# add_subdirectory(application)
 
 # # Install Path
 # install(TARGETS
