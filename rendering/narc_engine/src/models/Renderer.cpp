@@ -8,7 +8,7 @@
 
 namespace narc_engine
 {
-    Renderer::Renderer(const narc_io::Model3D* model, const Material* material)
+    Renderer::Renderer(const narc_io::Model3D* model, const Material* material, const narc_math::Transform* transform)
     {
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
@@ -22,7 +22,7 @@ namespace narc_engine
                 {modelVertices[i][0], modelVertices[i][1], modelVertices[i][2]},
                 {1.0f, 1.0f, 1.0f},
                 {modelTexCoords[i][0], modelTexCoords[i][1]}
-            });
+                });
         }
         for (uint32_t modelIndice : modelIndices)
         {
@@ -31,8 +31,7 @@ namespace narc_engine
 
         m_mesh = std::make_unique<Mesh>(vertices, indices);
         m_material = material;
-
-        m_modelMatrix = glm::mat4(1.0f);
+        m_transform = transform;
 
         Engine::getInstance()->binder()->attachRenderer(this);
     }

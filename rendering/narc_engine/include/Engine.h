@@ -1,6 +1,7 @@
 #pragma once
 
 #include "interfaces/IEngine.h"
+#include "interfaces/IWindow.h"
 
 #include "CommandPool.h"
 
@@ -12,6 +13,8 @@
 #include "renderer/EngineRenderer.h"
 
 namespace narc_engine {
+    class IWindow;
+
     class Engine final : public IEngine
     {
         friend EngineBinder;
@@ -26,6 +29,7 @@ namespace narc_engine {
         bool shouldClose() const override;
         void render() override;
         void waitDeviceIdle() override;
+        IWindow* window() const override;
         EngineBinder* binder() const override;
         EngineResourcesManager* resourceManager() const override;
 
@@ -37,11 +41,11 @@ namespace narc_engine {
         void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
         void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
         void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
-                         VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
-                         VkDeviceMemory& imageMemory) const;
+            VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
+            VkDeviceMemory& imageMemory) const;
         void createImage(const narc_io::Image& imageData, VkFormat format, VkImageTiling tiling,
-                         VkImageUsageFlags usage,
-                         VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) const;
+            VkImageUsageFlags usage,
+            VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) const;
 
     private:
         std::unique_ptr<EngineInstance> m_instance;

@@ -4,6 +4,8 @@
 #include <NarcLog.h>
 
 #ifdef NARC_ENGINE_PLATFORM_WINDOWS
+
+#ifndef TESTING_BUILD_DLL
 #include "Application.h"
 
 narc::Application* g_app = nullptr;
@@ -44,5 +46,7 @@ int main(int argc, char** argv)
     narclog::destroyLogger();
     return result;
 }
+
+#endif
 
 #endif

@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "test_includes.h"
+
 class ResourcesTest : public ::testing::Test
 {
 protected:
@@ -58,7 +60,8 @@ TEST_F(ResourcesTest, RendererCreation)
     const Renderer* renderer = nullptr;
     const Material renderMaterial = Material(TEXTURE_PATH);
     const narc_io::Model3D model = narc_io::FileReader::load3DModel(MODEL_PATH);
+    const narc_math::Transform transform = narc_math::Transform();
 
-    EXPECT_NO_THROW(renderer = new Renderer(&model, &renderMaterial););
+    EXPECT_NO_THROW(renderer = new Renderer(&model, &renderMaterial, &transform););
     EXPECT_NE(renderer, nullptr);
 }

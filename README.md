@@ -11,20 +11,22 @@ NarcEngine is a C++ game engine that leverages Vulkan for high-performance graph
 
 ## Dependencies
 
+- [CMake](https://cmake.org/)
 - [Vulkan SDK](https://vulkan.lunarg.com/sdk/home)
 - [GLFW](https://github.com/glfw/glfw)
 - [GLM](https://github.com/g-truc/glm)
 - [Python](https://www.python.org/)
-- [CMake](https://cmake.org/)
 - [STB](https://github.com/nothings/stb.git)
 - [Tinyobjloader](https://github.com/tinyobjloader/tinyobjloader.git)
+- [GoogleTest](https://github.com/google/googletest.git)
+- [NSIS](https://nsis.sourceforge.io/Main_Page)
 
 ## Building the Project
 
 ### Prerequisites
 
 - CMake 3.10 or higher
-- A C++17 compatible compiler
+- A C++20 compatible compiler
 - Vulkan SDK installed
 - Python 3.6 or higher (for building dependencies)
 
@@ -36,25 +38,20 @@ NarcEngine is a C++ game engine that leverages Vulkan for high-performance graph
     cd NarcEngine
     ```
 
-2. Create a build directory and navigate into it:
+2. Create a build directory:
     ```sh
     mkdir build
-    cd build
     ```
 
 3. Configure the project with CMake:
     ```sh
-    cmake ..
+    cmake --preset release
     ```
 
 4. Build the project:
     ```sh
-    cmake --build .
+    cmake --build --preset release
     ```
-
-## Usage
-
-To use the NarcEngine in your project, link against the `NarcEngine` library and include the necessary headers.
 
 ## License
 
