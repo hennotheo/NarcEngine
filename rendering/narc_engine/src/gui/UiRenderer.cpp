@@ -13,6 +13,11 @@ namespace narc_engine
 {
     UiRenderer::UiRenderer(const EngineInstance *instance, const MultiFrameManager *frameManager, const SwapChain *swapChain)
     {
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO &io = ImGui::GetIO();
+        ImGui::StyleColorsDark();
+
         Engine *engine = Engine::getInstance();
         const DeviceHandler *device = engine->getDevice();
 
@@ -31,13 +36,13 @@ namespace narc_engine
             }
         };
 
-        // ImGui_ImplVulkan_Init(&initInfo);
+        ImGui_ImplVulkan_Init(&initInfo);
     }
 
     UiRenderer::~UiRenderer()
     {
-        // ImGui_ImplVulkan_Shutdown();
-        // ImGui_ImplGlfw_Shutdown();
-        // ImGui::DestroyContext();
+        ImGui_ImplVulkan_Shutdown();
+        // ImGui_ImplGlfw_Shutdown();//TODO check if needed
+        ImGui::DestroyContext();
     }
 }

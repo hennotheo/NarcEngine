@@ -32,6 +32,7 @@ namespace narc_engine
 
     void DeviceHandler::setupImGui(ImGui_ImplVulkan_InitInfo* initInfo) const
     {
+        initInfo->PhysicalDevice = m_physicalDevice;
         initInfo->Device = m_device;
         initInfo->QueueFamily = m_queueFamilyIndices.GraphicsFamily.value();
         initInfo->Queue = m_graphicsQueue;
