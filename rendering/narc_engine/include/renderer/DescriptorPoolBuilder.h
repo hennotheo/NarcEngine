@@ -5,6 +5,13 @@ namespace narc_engine {
     {
         friend class DescriptorPool;
 
+        inline DescriptorPoolBuilder* setFlags(const VkDescriptorPoolCreateFlags flags)
+        {
+            m_poolInfo.flags = flags;
+
+            return this;
+        }
+
         inline DescriptorPoolBuilder* setMaxSet(const uint32_t maxSets)
         {
             m_poolInfo.maxSets = maxSets * m_poolCount;

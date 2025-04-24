@@ -4,13 +4,17 @@
 
 #include "core/EngineInstance.h"
 
-namespace narc_engine {
-    const std::vector<const char*> g_deviceExtensions =
-    {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME
-    };
+#include "imgui.h"
+#include "backends/imgui_impl_vulkan.h"
+#include "backends/imgui_impl_glfw.h"
 
-    DeviceHandler::DeviceHandler(const Window* window, const EngineInstance* instance, const EngineDebugLogger* debugLogger)
+namespace narc_engine
+{
+    const std::vector<const char *> g_deviceExtensions =
+        {
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
+    DeviceHandler::DeviceHandler(const Window *window, const EngineInstance *instance, const EngineDebugLogger *debugLogger)
     {
         m_instance = instance;
         m_window = window;
@@ -26,6 +30,13 @@ namespace narc_engine {
         vkDestroyDevice(m_device, nullptr);
     }
 
+    void DeviceHandler::setupImGui(ImGui_ImplVulkan_InitInfo* initInfo) const
+    {
+        initInfo->Device = m_device;
+        initInfo->QueueFamily = m_queueFamilyIndices.GraphicsFamily.value();
+        initInfo->Queue = m_graphicsQueue;
+    }
+
     VkImageView DeviceHandler::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const
     {
         VkImageViewCreateInfo viewInfo{};
@@ -33,7 +44,7 @@ namespace narc_engine {
         viewInfo.image = image;
         viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
         viewInfo.format = format;
-        viewInfo.subresourceRange.aspectMask = aspectFlags; //VK_IMAGE_ASPECT_COLOR_BIT;
+        viewInfo.subresourceRange.aspectMask = aspectFlags; // VK_IMAGE_ASPECT_COLOR_BIT;
         viewInfo.subresourceRange.baseMipLevel = 0;
         viewInfo.subresourceRange.levelCount = 1;
         viewInfo.subresourceRange.baseArrayLayer = 0;
@@ -72,7 +83,7 @@ namespace narc_engine {
         NARCLOG_FATAL("failed to find suitable memory type!");
     }
 
-    void DeviceHandler::createCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateInfo poolInfo) const
+    void DeviceHandler::createCommandPool(VkCommandPool *commandPool, VkCommandPoolCreateInfo poolInfo) const
     {
         QueueFamilyIndices queueFamilyIndices = findQueueFamilies(m_physicalDevice);
 
@@ -84,12 +95,12 @@ namespace narc_engine {
         }
     }
 
-    VkResult DeviceHandler::submitGraphicsQueue(uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const
+    VkResult DeviceHandler::submitGraphicsQueue(uint32_t submitCount, const VkSubmitInfo *submitInfo, VkFence fence) const
     {
         return vkQueueSubmit(m_graphicsQueue, submitCount, submitInfo, fence);
     }
 
-    VkResult DeviceHandler::presentKHR(const VkPresentInfoKHR* presentInfo) const
+    VkResult DeviceHandler::presentKHR(const VkPresentInfoKHR *presentInfo) const
     {
         return vkQueuePresentKHR(m_presentQueue, presentInfo);
     }
@@ -104,17 +115,16 @@ namespace narc_engine {
         const std::vector<VkFormat> candidates = {
             VK_FORMAT_D32_SFLOAT,
             VK_FORMAT_D32_SFLOAT_S8_UINT,
-            VK_FORMAT_D24_UNORM_S8_UINT
-        };
+            VK_FORMAT_D24_UNORM_S8_UINT};
 
         return findSupportedFormat(candidates,
                                    VK_IMAGE_TILING_OPTIMAL,
                                    VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
     }
 
-    VkFormat DeviceHandler::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const
+    VkFormat DeviceHandler::findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const
     {
-        for (const VkFormat format: candidates)
+        for (const VkFormat format : candidates)
         {
             VkFormatProperties props;
             vkGetPhysicalDeviceFormatProperties(m_physicalDevice, format, &props);
@@ -132,22 +142,22 @@ namespace narc_engine {
         NARCLOG_FATAL("Failed to find supported format!");
     }
 
-    void DeviceHandler::createSwapChain(VkSwapchainCreateInfoKHR& createInfo, VkSwapchainKHR* swapchain) const
+    void DeviceHandler::createSwapChain(VkSwapchainCreateInfoKHR &createInfo, VkSwapchainKHR *swapchain) const
     {
         QueueFamilyIndices indices = findQueueFamilies(m_physicalDevice);
         uint32_t queueFamilyIndices[] = {indices.GraphicsFamily.value(), indices.PresentFamily.value()};
 
         if (indices.GraphicsFamily != indices.PresentFamily)
         {
-            createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT; //Multiple queue family without explicit ownership
+            createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT; // Multiple queue family without explicit ownership
             createInfo.queueFamilyIndexCount = 2;
             createInfo.pQueueFamilyIndices = queueFamilyIndices;
         }
         else
         {
-            createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE; //Best perf : one queue family ownership
-            createInfo.queueFamilyIndexCount = 0; // Optional
-            createInfo.pQueueFamilyIndices = nullptr; // Optional
+            createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE; // Best perf : one queue family ownership
+            createInfo.queueFamilyIndexCount = 0;                    // Optional
+            createInfo.pQueueFamilyIndices = nullptr;                // Optional
         }
 
         if (vkCreateSwapchainKHR(m_device, &createInfo, nullptr, swapchain) != VK_SUCCESS)
@@ -169,7 +179,7 @@ namespace narc_engine {
         }
 
         std::multimap<int, VkPhysicalDevice> candidates;
-        for (const auto& device: devices)
+        for (const auto &device : devices)
         {
             int score = rateDeviceSuitability(device);
             candidates.insert(std::make_pair(score, device));
@@ -178,6 +188,7 @@ namespace narc_engine {
         if (candidates.rbegin()->first > 0)
         {
             m_physicalDevice = candidates.rbegin()->second;
+            m_queueFamilyIndices = findQueueFamilies(m_physicalDevice);
         }
         else
         {
@@ -185,7 +196,7 @@ namespace narc_engine {
         }
     }
 
-    void DeviceHandler::createLogicalDevice(const EngineDebugLogger* debugLogger)
+    void DeviceHandler::createLogicalDevice(const EngineDebugLogger *debugLogger)
     {
         QueueFamilyIndices indices = findQueueFamilies(m_physicalDevice);
 
@@ -193,7 +204,7 @@ namespace narc_engine {
         std::set<uint32_t> uniqueQueueFamilies = {indices.GraphicsFamily.value(), indices.PresentFamily.value()};
 
         float queuePriority = 1.0f;
-        for (uint32_t queueFamily: uniqueQueueFamilies)
+        for (uint32_t queueFamily : uniqueQueueFamilies)
         {
             VkDeviceQueueCreateInfo queueCreateInfo{};
             queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -237,17 +248,17 @@ namespace narc_engine {
 
         int score = 0;
 
-        //Performance advantage
+        // Performance advantage
         if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
         {
             score += 1000;
         }
 
-        //Max possible size of texture affect graphics quality
+        // Max possible size of texture affect graphics quality
         score += deviceProperties.limits.maxImageDimension2D;
         score += deviceFeatures.samplerAnisotropy ? 1000 : 0;
 
-        //Application can't function without geometry shaders
+        // Application can't function without geometry shaders
         if (!deviceFeatures.geometryShader)
         {
             return 0;
@@ -276,7 +287,7 @@ namespace narc_engine {
         return score;
     }
 
-    bool DeviceHandler::checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice, const std::vector<const char*>& deviceExtensions)
+    bool DeviceHandler::checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice, const std::vector<const char *> &deviceExtensions)
     {
         uint32_t extensionCount;
         vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);
@@ -285,7 +296,7 @@ namespace narc_engine {
         vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, availableExtensions.data());
 
         std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
-        for (const auto& extension: availableExtensions)
+        for (const auto &extension : availableExtensions)
         {
             requiredExtensions.erase(extension.extensionName);
         }
@@ -303,7 +314,7 @@ namespace narc_engine {
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
         int i = 0;
-        for (const auto& queueFamily: queueFamilies)
+        for (const auto &queueFamily : queueFamilies)
         {
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
             {

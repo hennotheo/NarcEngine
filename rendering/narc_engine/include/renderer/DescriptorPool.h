@@ -14,6 +14,7 @@ namespace narc_engine {
         ~DescriptorPool();
 
         GETTER DescriptorPoolBuilder* builder() const { return m_builder.get(); }
+        GETTER VkDescriptorPool getVkDescriptorPool() const { return m_descriptorPool; }
 
         void create();
 

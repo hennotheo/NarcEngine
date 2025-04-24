@@ -16,6 +16,8 @@ namespace narc_engine {
         EngineInstance();
         ~EngineInstance();
 
+        GETTER VkInstance getvkInstance() const { return m_instance; }
+
         void getAllPhysicalDevices(uint32_t* pPhysicalDeviceCount, VkPhysicalDevice* pPhysicalDevices) const;
 
         void createGLFWSurface(GLFWwindow* window, VkSurfaceKHR* surface, const VkAllocationCallbacks* pAllocator) const;

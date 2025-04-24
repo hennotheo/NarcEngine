@@ -77,5 +77,24 @@ endif()
 
 set(VULKAN_GLSLC_PATH "${VULKAN_PATH}/Bin/glslc.exe" CACHE INTERNAL "Vulkan GLSL Compiler Path")
 
+#--- IMGUI ---
+FetchContent_Declare(
+    imgui
+    GIT_REPOSITORY https://github.com/ocornut/imgui.git
+    GIT_TAG v1.91.9
+    SOURCE_DIR ${VENDOR_DIR}/imgui
+    EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(imgui)
+
+set(imgui_SOURCE_FILES 
+    ${VENDOR_DIR}/imgui/imgui.cpp
+    ${VENDOR_DIR}/imgui/imgui_draw.cpp
+    ${VENDOR_DIR}/imgui/imgui_widgets.cpp
+    ${VENDOR_DIR}/imgui/imgui_tables.cpp
+    ${VENDOR_DIR}/imgui/backends/imgui_impl_glfw.cpp
+    ${VENDOR_DIR}/imgui/backends/imgui_impl_vulkan.cpp
+)
+
 # --- PYTHON ---
 find_package (Python COMPONENTS Interpreter)

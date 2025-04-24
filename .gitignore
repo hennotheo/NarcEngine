@@ -7,6 +7,7 @@ cmake_*/
 .idea/
 .vscode/
 **/logs/**
+__cmake_systeminformation/
 
 # Auto installed libraries
 vendors/**

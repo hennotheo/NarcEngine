@@ -33,8 +33,8 @@ namespace narc_engine {
         EngineBinder* binder() const override;
         EngineResourcesManager* resourceManager() const override;
 
-        const DeviceHandler* getDevice() const { return m_deviceHandler.get(); }
-        Window* getWindow() const { return m_window.get(); }
+        GETTER const DeviceHandler* getDevice() const { return m_deviceHandler.get(); }
+        GETTER Window* getWindow() const { return m_window.get(); }
 
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 

@@ -4,16 +4,19 @@
 #include <NarcMath.h>
 
 #include "Engine.h"
+#include "gui/UiRenderer.h"
 
 namespace narc_engine {
     constexpr uint32_t g_maxFramesInFlight = 2;
 
-    EngineRenderer::EngineRenderer() : DeviceComponent()
+    EngineRenderer::EngineRenderer(const EngineInstance* instance) : DeviceComponent()
     {
         m_swapChain.create();
         m_frameManager = std::make_unique<MultiFrameManager>(g_maxFramesInFlight);
         createDescriptorSetLayout();
         m_swapChain.createFramebuffers();
+
+        m_uiRenderer = std::make_unique<UiRenderer>(instance, m_frameManager.get(), &m_swapChain);
     }
 
     EngineRenderer::~EngineRenderer()
