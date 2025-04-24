@@ -12,7 +12,7 @@ namespace narc_engine {
     FrameHandler::FrameHandler() : DeviceComponent()
     {
         m_commandPool = std::make_unique<CommandPool>();
-        m_commandPool->createCommandBuffers(6);
+        m_commandPool->createCommandBuffers(10);
 
         VkSemaphoreCreateInfo semaphoreInfo{};
         semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;

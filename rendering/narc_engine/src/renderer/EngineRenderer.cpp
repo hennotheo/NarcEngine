@@ -25,7 +25,7 @@ namespace narc_engine {
 
         vkDestroyDescriptorSetLayout(getVkDevice(), m_descriptorSetLayout, nullptr);
 
-        for (auto& [id, rendererTask]: m_rendererTasks)
+        for (auto& [id, rendererTask] : m_rendererTasks)
         {
             if (rendererTask != nullptr)
             {
@@ -41,7 +41,7 @@ namespace narc_engine {
     {
         const FrameHandler* frameHandler = m_frameManager->getCurrentFrameHandler();
 
-        const std::vector<VkFence> inFlightFencesToWait = {frameHandler->getInFlightFence()};
+        const std::vector<VkFence> inFlightFencesToWait = { frameHandler->getInFlightFence() };
         vkWaitForFences(getVkDevice(), 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
 
         uint32_t imageIndex;
@@ -49,7 +49,7 @@ namespace narc_engine {
 
 
         uint32_t materialID = 0;
-        for (const auto& [id, rendererTask]: m_rendererTasks)
+        for (const auto& [id, rendererTask] : m_rendererTasks)
         {
             updateUniformBuffer(frameHandler->getUniformBuffer(), rendererTask);
 
@@ -59,11 +59,11 @@ namespace narc_engine {
 
         vkResetFences(getVkDevice(), 1, inFlightFencesToWait.data());
 
-        CommandBuffer* buffer = frameHandler->getCommandPool()->getCommandBuffer(0);
-        buffer->reset(0);
+        CommandBuffer* bufferForObjects = frameHandler->getCommandPool()->getCommandBuffer(0);
+        bufferForObjects->reset(0);
 
-        const std::array<VkCommandBuffer, 1> commandBuffers = {buffer->getVkCommandBuffer()};
-        recordCommandBuffer(buffer, imageIndex, frameHandler->getDescriptorSets());
+        const std::array<VkCommandBuffer, 1> commandBuffers = { bufferForObjects->getVkCommandBuffer() };
+        recordCommandBuffer(bufferForObjects, imageIndex, frameHandler->getDescriptorSets());
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -82,7 +82,7 @@ namespace narc_engine {
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = commandBuffers.data();
 
-        const VkSemaphore signalSemaphores[] = {frameHandler->getRenderFinishedSemaphore()};
+        const VkSemaphore signalSemaphores[] = { frameHandler->getRenderFinishedSemaphore() };
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
 
@@ -91,7 +91,7 @@ namespace narc_engine {
             NARCLOG_FATAL("failed to submit draw command buffer!");
         }
 
-        const VkSwapchainKHR swapChains[] = {m_swapChain.getSwapChain()};
+        const VkSwapchainKHR swapChains[] = { m_swapChain.getSwapChain() };
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
@@ -124,8 +124,8 @@ namespace narc_engine {
         ubo.Model = renderer->getModelMatrix();
         ubo.View = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.Proj = glm::perspective(glm::radians(45.0f),
-                                    m_swapChain.getSwapChainExtent().width / (float) m_swapChain.getSwapChainExtent().
-                                    height, 0.1f, 10.0f);
+            m_swapChain.getSwapChainExtent().width / (float)m_swapChain.getSwapChainExtent().
+            height, 0.1f, 10.0f);
         ubo.Proj[1][1] *= -1;
 
         buffer->setData(ubo);
@@ -136,8 +136,8 @@ namespace narc_engine {
         //TODO change to multimaterial renderer task
         const uint32_t materialID = renderer->getMaterial()->getMaterialID();
         RenderTask* renderTask = m_rendererTasks.contains(materialID)
-                                     ? m_rendererTasks[materialID]
-                                     : createRenderTask(renderer->getMaterial());
+            ? m_rendererTasks[materialID]
+            : createRenderTask(renderer->getMaterial());
 
         renderTask->bindRenderer(renderer);
     }
@@ -158,7 +158,7 @@ namespace narc_engine {
         samplerLayoutBinding.pImmutableSamplers = nullptr;
         samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-        std::array<VkDescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding, samplerLayoutBinding};
+        std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
         VkDescriptorSetLayoutCreateInfo layoutInfo{};
         layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
         layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
@@ -184,8 +184,8 @@ namespace narc_engine {
         const VkExtent2D swapChainExtent = m_swapChain.getSwapChainExtent();
 
         std::array<VkClearValue, 2> clearValues{};
-        clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
-        clearValues[1].depthStencil = {1.0f, 0};
+        clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+        clearValues[1].depthStencil = { 1.0f, 0 };
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
         renderPassInfo.pClearValues = clearValues.data();
 
@@ -194,23 +194,26 @@ namespace narc_engine {
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = (float) swapChainExtent.width;
-        viewport.height = (float) swapChainExtent.height;
+        viewport.width = (float)swapChainExtent.width;
+        viewport.height = (float)swapChainExtent.height;
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
         commandBuffer->cmdSetViewport(&viewport, 0, 1);
 
         VkRect2D scissor{};
-        scissor.offset = {0, 0};
+        scissor.offset = { 0, 0 };
         scissor.extent = swapChainExtent;
         commandBuffer->cmdSetScissor(&scissor, 0, 1);
 
         uint32_t materialID = 0;
-        for (const auto& [id, rendererTask]: m_rendererTasks)
+        for (const auto& [id, rendererTask] : m_rendererTasks)
         {
             rendererTask->recordTask(commandBuffer, &descriptorSets[materialID]);
             materialID++;
         }
+
+        m_uiRenderer->beginFrame();
+        m_uiRenderer->render(commandBuffer);
 
         commandBuffer->cmdEndRenderPass();
 

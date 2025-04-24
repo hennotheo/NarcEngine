@@ -14,8 +14,8 @@ if (NOT DEFINED CMAKE_BUILD_TYPE)
 endif ()
 
 project(NarcEngineEditor
-VERSION ${NARC_VERSION}
-LANGUAGES CXX C)
+    VERSION ${NARC_VERSION}
+    LANGUAGES CXX C)
 
 include(cmake/helpers.cmake)
 include(cmake/dependencies.cmake)

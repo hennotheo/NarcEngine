@@ -17,6 +17,7 @@ namespace narc_engine
         ~Window();
 
         GETTER double getWindowTime() const override { return m_time; }
+        GETTER GLFWwindow *getWindow() const { return m_window; }
 
         void init(const EngineInstance *engineInstance);
 
