@@ -17,7 +17,9 @@ add_dependencies(NarcEngine ${NARC_ENGINE_DEPENDENCIES})
 target_compile_definitions(NarcEngine PRIVATE NARC_ENGINE_BUILD_DLL)
 
 target_include_directories(NarcEngine PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_include_directories(NarcEngine PRIVATE "${Vulkan_INCLUDE_DIRS}")
+target_include_directories(NarcEngine PRIVATE "${Vulkan_INCLUDE_DIRS}" "${imgui_SOURCE_DIR}")
+
+target_sources(NarcEngine PRIVATE ${imgui_SOURCE_FILES})
 
 target_link_libraries(NarcEngine PUBLIC
     NarcIO

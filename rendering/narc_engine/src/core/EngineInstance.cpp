@@ -8,7 +8,8 @@
 
 #include "core/EngineDebugLogger.h"
 
-namespace narc_engine {
+namespace narc_engine
+{
     EngineInstance::EngineInstance()
     {
         EngineDebugLogger::checkValidationLayerSupport();
@@ -16,10 +17,17 @@ namespace narc_engine {
         VkApplicationInfo appInfo{};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
         appInfo.pApplicationName = "Narc Engine";
-        appInfo.applicationVersion = VK_MAKE_VERSION(0, 1, 1);
+        appInfo.applicationVersion = VK_MAKE_VERSION(0, 2, 0);
         appInfo.pEngineName = "No Engine";
         appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.apiVersion = VK_API_VERSION_1_0;
+        appInfo.apiVersion = VK_API_VERSION_1_1;
+
+        uint32_t instanceVersion = 0;
+        vkEnumerateInstanceVersion(&instanceVersion);
+        if (instanceVersion < VK_API_VERSION_1_1)
+        {
+            NARCLOG_FATAL("Vulkan 1.1 is not supported by the instance.");
+        }
 
         VkInstanceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -43,7 +51,7 @@ namespace narc_engine {
         vkDestroyInstance(m_instance, nullptr);
     }
 
-    void EngineInstance::getAllPhysicalDevices(uint32_t* pPhysicalDeviceCount, VkPhysicalDevice* pPhysicalDevices) const
+    void EngineInstance::getAllPhysicalDevices(uint32_t *pPhysicalDeviceCount, VkPhysicalDevice *pPhysicalDevices) const
     {
         if (vkEnumeratePhysicalDevices(m_instance, pPhysicalDeviceCount, pPhysicalDevices) != VK_SUCCESS)
         {
@@ -51,7 +59,7 @@ namespace narc_engine {
         }
     }
 
-    void EngineInstance::createGLFWSurface(GLFWwindow* window, VkSurfaceKHR* surface, const VkAllocationCallbacks* pAllocator) const
+    void EngineInstance::createGLFWSurface(GLFWwindow *window, VkSurfaceKHR *surface, const VkAllocationCallbacks *pAllocator) const
     {
         if (glfwCreateWindowSurface(m_instance, window, pAllocator, surface) != VK_SUCCESS)
         {
@@ -59,17 +67,17 @@ namespace narc_engine {
         }
     }
 
-    void EngineInstance::destroyGLFWSurface(VkSurfaceKHR surface, const VkAllocationCallbacks* pAllocator) const
+    void EngineInstance::destroyGLFWSurface(VkSurfaceKHR surface, const VkAllocationCallbacks *pAllocator) const
     {
         vkDestroySurfaceKHR(m_instance, surface, pAllocator);
     }
 
-    void EngineInstance::destroyDebugUtilsMessenger(VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) const
+    void EngineInstance::destroyDebugUtilsMessenger(VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks *pAllocator) const
     {
         destroyDebugUtilsMessengerEXT(m_instance, debugMessenger, pAllocator);
     }
 
-    void EngineInstance::createDebugUtilsMessenger(const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) const
+    void EngineInstance::createDebugUtilsMessenger(const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger) const
     {
         if (createDebugUtilsMessengerEXT(m_instance, pCreateInfo, pAllocator, pDebugMessenger) != VK_SUCCESS)
         {

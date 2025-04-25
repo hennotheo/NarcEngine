@@ -13,6 +13,8 @@ namespace narc_engine {
         explicit MultiFrameManager(uint32_t maxFrameInFlight);
         ~MultiFrameManager();
 
+        GETTER const DescriptorPool* getDescriptorPool() const { return m_descriptorPool.get(); }
+        GETTER const uint32_t getMaxFrameInFlight() const { return m_maxFrameInFlight; }
         GETTER const FrameHandler* getCurrentFrameHandler() const { return m_frames[m_currentFrame].get(); }
 
         void nextFrame();

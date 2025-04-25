@@ -9,13 +9,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_C_COMPILER gcc)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 if (NOT DEFINED CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release")
 endif ()
 
 project(NarcEngineEditor
-VERSION ${NARC_VERSION}
-LANGUAGES CXX C)
+    VERSION ${NARC_VERSION}
+    LANGUAGES CXX C)
 
 include(cmake/helpers.cmake)
 include(cmake/dependencies.cmake)

@@ -32,7 +32,7 @@
             "targets":[
                 "NarcEngineEditor"
             ],
-            "cleanFirst": true
+            "cleanFirst": false
         },
         {
             "name": "release",

@@ -4,31 +4,35 @@
 #include "EngineDebugLogger.h"
 #include "QueueFamilyIndices.h"
 
-namespace narc_engine {
+class ImGui_ImplVulkan_InitInfo;
+
+namespace narc_engine
+{
     class Window;
 
     class DeviceHandler
     {
     public:
-        DeviceHandler(const Window* window, const EngineInstance* instance, const EngineDebugLogger* debugLogger);
+        DeviceHandler(const Window *window, const EngineInstance *instance, const EngineDebugLogger *debugLogger);
         ~DeviceHandler();
 
-        const inline VkDevice& getDevice() const { return m_device; }
-        const inline VkPhysicalDevice& getPhysicalDevice() const { return m_physicalDevice; }
-        const inline VkPhysicalDeviceProperties& getPhysicalDeviceProperties() const { return m_physicalDeviceProperties; }
+        GETTER const inline VkDevice &getDevice() const { return m_device; }
+        GETTER const inline VkPhysicalDevice &getPhysicalDevice() const { return m_physicalDevice; }
+        GETTER const inline VkPhysicalDeviceProperties &getPhysicalDeviceProperties() const { return m_physicalDeviceProperties; }
 
-        void createSwapChain(VkSwapchainCreateInfoKHR& createInfo, VkSwapchainKHR* swapchain) const;
-        void createCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateInfo poolInfo) const;
+        void createSwapChain(VkSwapchainCreateInfoKHR &createInfo, VkSwapchainKHR *swapchain) const;
+        void createCommandPool(VkCommandPool *commandPool, VkCommandPoolCreateInfo poolInfo) const;
         VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const;
+        void setupImGui(ImGui_ImplVulkan_InitInfo *initInfo) const;
 
         void waitDeviceIdle() const;
         void waitGraphicsQueueIdle() const;
-        VkResult submitGraphicsQueue(uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const;
-        VkResult presentKHR(const VkPresentInfoKHR* presentInfo) const;
+        VkResult submitGraphicsQueue(uint32_t submitCount, const VkSubmitInfo *submitInfo, VkFence fence) const;
+        VkResult presentKHR(const VkPresentInfoKHR *presentInfo) const;
 
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
         VkFormat findDepthFormat() const;
-        VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
+        VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
 
     private:
         VkDevice m_device;
@@ -36,16 +40,17 @@ namespace narc_engine {
 
         VkQueue m_presentQueue;
         VkQueue m_graphicsQueue;
+        QueueFamilyIndices m_queueFamilyIndices;
 
         VkPhysicalDeviceProperties m_physicalDeviceProperties{};
 
-        const EngineInstance* m_instance = nullptr;
-        const Window* m_window = nullptr;
+        const EngineInstance *m_instance = nullptr;
+        const Window *m_window = nullptr;
 
         void pickPhysicalDevice();
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) const;
-        void createLogicalDevice(const EngineDebugLogger* debugLogger);
+        void createLogicalDevice(const EngineDebugLogger *debugLogger);
         int rateDeviceSuitability(VkPhysicalDevice device);
-        bool checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice, const std::vector<const char*>& deviceExtensions);
+        bool checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice, const std::vector<const char *> &deviceExtensions);
     };
 }

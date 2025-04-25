@@ -8,6 +8,7 @@
 
 #include "renderer/RenderTask.h"
 #include "renderer/SwapChain.h"
+#include "gui/UiRenderer.h"
 
 namespace narc_engine {
     class Material;
@@ -19,7 +20,7 @@ namespace narc_engine {
         friend class Engine;
 
     public:
-        EngineRenderer();
+        EngineRenderer(const EngineInstance* instance);
         ~EngineRenderer();
 
         void drawFrame();
@@ -30,6 +31,7 @@ namespace narc_engine {
     private:
         SwapChain m_swapChain;
         std::unique_ptr<MultiFrameManager> m_frameManager;
+        std::unique_ptr<UiRenderer> m_uiRenderer;
         std::map<uint32_t, RenderTask*> m_rendererTasks;
 
         VkDescriptorSetLayout m_descriptorSetLayout;

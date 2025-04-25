@@ -12,9 +12,9 @@ namespace narc_engine {
     class SwapChain : public DeviceComponent
     {
     public:
-        const VkExtent2D& getSwapChainExtent() const { return m_swapChainExtent; }
-        const RenderPass* getRenderPass() const { return m_renderPass.get(); }
-        const VkSwapchainKHR& getSwapChain() const { return m_swapChain; }
+        GETTER const VkExtent2D& getSwapChainExtent() const { return m_swapChainExtent; }
+        GETTER const RenderPass* getRenderPass() const { return m_renderPass.get(); }
+        GETTER const VkSwapchainKHR& getSwapChain() const { return m_swapChain; }
 
         void create();
         void createFramebuffers();
