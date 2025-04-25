@@ -253,9 +253,13 @@ namespace narc_engine
     int DeviceHandler::rateDeviceSuitability(VkPhysicalDevice device)
     {
         VkPhysicalDeviceProperties deviceProperties;
-        VkPhysicalDeviceFeatures deviceFeatures;
+
+        VkPhysicalDeviceAccelerationStructureFeaturesKHR accelStructFeatures{};
+        VkPhysicalDeviceFeatures2 deviceFeatures2{};
+        deviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+        deviceFeatures2.pNext = &accelStructFeatures;
         vkGetPhysicalDeviceProperties(device, &deviceProperties);
-        vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+        vkGetPhysicalDeviceFeatures2(device, &deviceFeatures2);
 
         int score = 0;
 
@@ -267,10 +271,10 @@ namespace narc_engine
 
         // Max possible size of texture affect graphics quality
         score += deviceProperties.limits.maxImageDimension2D;
-        score += deviceFeatures.samplerAnisotropy ? 1000 : 0;
+        score += deviceFeatures2.features.samplerAnisotropy ? 1000 : 0;
 
         // Application can't function without geometry shaders
-        if (!deviceFeatures.geometryShader)
+        if (!deviceFeatures2.features.geometryShader)
         {
             return 0;
         }
