@@ -4,24 +4,30 @@
 #include <NarcCore.h>
 
 #include "core/EngineInstance.h"
+#include "core/interfaces/IEngineCallbacks.h"
 
 namespace narc_engine
 {
     constexpr uint32_t g_width = 800;
     constexpr uint32_t g_height = 600;
 
-    Window::Window()
+    Window::Window(const EngineInstance* engineInstance, IEngineCallbacks* engine): m_engine(engine)
     {
-        glfwInit();
-
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-
+        m_engineInstance = engineInstance;
+        
+        // glfwInit();
+        
+        // glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        // glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        
         m_window = glfwCreateWindow(g_width, g_height, "Narc Engine", nullptr, nullptr);
         glfwSetWindowUserPointer(m_window, this);
         glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback);
         glfwSetKeyCallback(m_window, onKeyboardInputPerformed);
         glfwSetMouseButtonCallback(m_window, onMouseInputPerformed);
+        
+        m_initialized = true;
+        m_engineInstance->createGLFWSurface(m_window, &m_surface, nullptr);
     }
 
     Window::~Window()
@@ -33,17 +39,15 @@ namespace narc_engine
         glfwTerminate();
     }
 
-    void Window::init(const EngineInstance* engineInstance)
-    {
-        m_initialized = true;
-        m_engineInstance = engineInstance;
-        m_engineInstance->createGLFWSurface(m_window, &m_surface, nullptr);
-    }
-
-    void Window::update()
+    void Window::pollEvents()
     {
         glfwPollEvents();
+
         m_shouldClose = glfwWindowShouldClose(m_window);
+        if(m_shouldClose)
+        {
+            m_engine->stop();
+        }
 
         glfwGetCursorPos(m_window, &m_mouseXpos, &m_mouseYpos);
         m_time = glfwGetTime();
@@ -106,7 +110,7 @@ namespace narc_engine
     void Window::framebufferResizeCallback(GLFWwindow* window, int width, int height)
     {
         auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-        app->m_framebufferResized = true;
+        app->notifyFramebufferResized(width, height);
     }
 
     void Window::onKeyboardInputPerformed(GLFWwindow* window, int key, int scancode, int action, int mods)

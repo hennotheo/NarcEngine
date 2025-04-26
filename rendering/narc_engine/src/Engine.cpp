@@ -4,6 +4,9 @@
 #include "buffers/StagingBuffer.h"
 #include "core/Window.h"
 
+#define CREATE_ENGINE_UNIQUE_COMPONENT(type, ...) std::make_unique<type>(__VA_ARGS__);\
+    NARCLOG_DEBUG("Created engine component: " #type); \
+
 namespace narc_engine {
     static Engine* s_instance;
 
@@ -26,23 +29,29 @@ namespace narc_engine {
     Engine::Engine()
     {
         s_instance = this;
-        m_window = std::make_unique<Window>();
-        m_instance = std::make_unique<EngineInstance>();
-        m_window->init(m_instance.get());
 
-        if (m_instance == nullptr || m_window == nullptr)
+        glfwInit();
+
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+
+
+        m_instance = CREATE_ENGINE_UNIQUE_COMPONENT(EngineInstance);
+        m_surfaceProvider = CREATE_ENGINE_UNIQUE_COMPONENT(Window, m_instance.get(), this);
+
+        if (m_instance == nullptr || m_surfaceProvider == nullptr)
         {
             NARCLOG_FATAL("Failed to initialize Engine: m_instance or m_window is null");
         }
 
-        m_debugLogger = std::make_unique<EngineDebugLogger>(m_instance.get());
-        m_deviceHandler = std::make_unique<DeviceHandler>(m_window.get(), m_instance.get(), m_debugLogger.get());
+        m_debugLogger = CREATE_ENGINE_UNIQUE_COMPONENT(EngineDebugLogger, m_instance.get());
+        m_deviceHandler = CREATE_ENGINE_UNIQUE_COMPONENT(DeviceHandler, m_surfaceProvider.get(), m_instance.get(), m_debugLogger.get());
 
-        m_commandPool = std::make_unique<CommandPool>();
-        m_renderer = std::make_unique<EngineRenderer>(m_instance.get());
+        m_commandPool = CREATE_ENGINE_UNIQUE_COMPONENT(CommandPool);
+        m_renderer = CREATE_ENGINE_UNIQUE_COMPONENT(EngineRenderer, m_instance.get(), m_surfaceProvider.get());
 
-        m_engineBinder = std::make_unique<EngineBinder>(this);
-        m_resourcesManager = std::make_unique<EngineResourcesManager>();
+        m_engineBinder = CREATE_ENGINE_UNIQUE_COMPONENT(EngineBinder, this);
+        m_resourcesManager = CREATE_ENGINE_UNIQUE_COMPONENT(EngineResourcesManager);
     }
 
     Engine::~Engine() = default;
@@ -64,12 +73,7 @@ namespace narc_engine {
 
     void Engine::pollEvents()
     {
-        m_window->update();
-    }
-
-    bool Engine::shouldClose() const
-    {
-        return m_window->shouldClose();
+        m_surfaceProvider->pollEvents();
     }
 
     void Engine::render()
@@ -248,9 +252,5 @@ namespace narc_engine {
             properties,
             image,
             imageMemory);
-    }
-    IWindow* Engine::window() const
-    {
-        return m_window.get();
     }
 }

@@ -6,6 +6,7 @@
 #include "renderer/DepthResources.h"
 
 namespace narc_engine {
+    class ISurfaceProvider;
     class DeviceHandler;
     class Window;
 
@@ -16,7 +17,7 @@ namespace narc_engine {
         GETTER const RenderPass* getRenderPass() const { return m_renderPass.get(); }
         GETTER const VkSwapchainKHR& getSwapChain() const { return m_swapChain; }
 
-        void create();
+        void create(ISurfaceProvider* surface);
         void createFramebuffers();
 
         VkRenderPassBeginInfo getRenderPassBeginInfos(uint32_t imageIndex) const;
@@ -25,6 +26,7 @@ namespace narc_engine {
 
         void cleanSwapChain();
         void cleanRenderPass();
+
 
     private:
         VkSwapchainKHR m_swapChain;
@@ -37,7 +39,7 @@ namespace narc_engine {
         std::unique_ptr<DepthResources> m_depthResources;
         std::unique_ptr<RenderPass> m_renderPass;
 
-        const Window* m_window = nullptr;
+        ISurfaceProvider* m_surface;
 
         void createSwapChain();
         void createImageViews();

@@ -5,17 +5,24 @@
 #include "Engine.h"
 #include "core/DeviceHandler.h"
 #include "renderer/DepthResources.h"
+#include "core/interfaces/ISurfaceProvider.h"
 
 namespace narc_engine {
-    void SwapChain::create()
+    void SwapChain::create(ISurfaceProvider* surface)
     {
         const Engine* engine = Engine::getInstance();
-        m_window = engine->getWindow();
+        m_surface = surface;
+        // m_window = engine->getWindow();
 
+        NARCLOG_DEBUG("Creating swapchain...");
         createSwapChain();
+        NARCLOG_DEBUG("Creating image views...");
         createImageViews();
+        NARCLOG_DEBUG("Creating renderpass...");
         m_renderPass = std::make_unique<RenderPass>(m_swapChainImageFormat);
+        NARCLOG_DEBUG("Creating depthresources...");
         m_depthResources = std::make_unique<DepthResources>();
+        NARCLOG_DEBUG("Creating depthresources with swapchain...");
         m_depthResources->create(m_swapChainExtent.width, m_swapChainExtent.height);
     }
 
@@ -40,12 +47,12 @@ namespace narc_engine {
     void SwapChain::cleanSwapChain()
     {
         m_depthResources->release();
-        for (auto framebuffer: m_swapChainFramebuffers)
+        for (auto framebuffer : m_swapChainFramebuffers)
         {
             vkDestroyFramebuffer(getVkDevice(), framebuffer, nullptr);
         }
 
-        for (auto imageView: m_swapChainImageViews)
+        for (auto imageView : m_swapChainImageViews)
         {
             vkDestroyImageView(getVkDevice(), imageView, nullptr);
         }
@@ -62,7 +69,14 @@ namespace narc_engine {
     {
         int width = 0;
         int height = 0;
-        m_window->getValidFramebufferSize(&width, &height);
+        m_surface->getValidFramebufferSize(&width, &height);
+
+        if (width == 0 || height == 0)
+        {
+            NARCLOG_FATAL("Window size is 0!");
+        }
+
+        NARCLOG_INFO(std::string("Recreating swapchain...") + std::to_string(width) + "x" + std::to_string(height));
 
         getDeviceHandler()->waitDeviceIdle();
 
@@ -72,6 +86,8 @@ namespace narc_engine {
         createImageViews();
         m_depthResources->create(m_swapChainExtent.width, m_swapChainExtent.height);
         createFramebuffers();
+
+        NARCLOG_INFO("Swapchain recreated!");
     }
 
     void SwapChain::createFramebuffers()
@@ -107,7 +123,7 @@ namespace narc_engine {
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassInfo.renderPass = getRenderPass()->getRenderPass();
         renderPassInfo.framebuffer = m_swapChainFramebuffers[imageIndex];
-        renderPassInfo.renderArea.offset = {0, 0};
+        renderPassInfo.renderArea.offset = { 0, 0 };
         renderPassInfo.renderArea.extent = m_swapChainExtent;
 
         return renderPassInfo;
@@ -115,7 +131,7 @@ namespace narc_engine {
 
     void SwapChain::createSwapChain()
     {
-        SwapChainSupportDetails swapChainSupport = m_window->querySwapChainSupport(getDeviceHandler()->getPhysicalDevice());
+        SwapChainSupportDetails swapChainSupport = getDeviceHandler()->getSwapChainSupportDetails();
         VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.Formats);
         VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.PresentModes);
         VkExtent2D extent = chooseSwapExtent(swapChainSupport.Capabilities);
@@ -129,7 +145,7 @@ namespace narc_engine {
 
         VkSwapchainCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = m_window->getSurface();
+        createInfo.surface = m_surface->getVkSurfaceKHR();
         createInfo.minImageCount = imageCount;
         createInfo.imageFormat = surfaceFormat.format;
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -164,7 +180,11 @@ namespace narc_engine {
 
     VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
     {
-        for (const auto& availableFormat: availableFormats)
+        if (availableFormats.empty())
+        {
+            NARCLOG_FATAL("No available formats for swapchain!");
+        }
+        for (const auto& availableFormat : availableFormats)
         {
             if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
             {
@@ -177,7 +197,11 @@ namespace narc_engine {
 
     VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
     {
-        for (const auto& availablePresentMode: availablePresentModes)
+        if (availablePresentModes.empty())
+        {
+            NARCLOG_FATAL("No available present modes for swapchain!");
+        }
+        for (const auto& availablePresentMode : availablePresentModes)
         {
             if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
             {
@@ -196,7 +220,7 @@ namespace narc_engine {
         }
 
         int width, height;
-        m_window->getFramebufferSize(&width, &height);
+        m_surface->getFramebufferSize(&width, &height);
 
         VkExtent2D actualExtent =
         {

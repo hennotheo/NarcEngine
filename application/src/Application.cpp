@@ -48,7 +48,6 @@ namespace narc
         delete m_transform;
         delete m_renderer;
         delete m_renderer2;
-        delete m_mesh;
         delete m_renderMaterial;
         delete m_renderMaterial2;
     }
@@ -58,12 +57,13 @@ namespace narc
         // PRE-UPDATE ENGINE LOGIC
         m_engine->pollEvents();
 
-        double newTime = m_engine->window()->getWindowTime();
-        double deltaTime = newTime - m_currentTime;
-        m_currentTime = newTime;
+
+        double newTime = 0;//m_engine->window()->getWindowTime();
+        double deltaTime = 0.0166666666666667;
+        m_currentTime += deltaTime;
 
         // UPDATE ENGINE LOGIC
-        m_transform->rotateZ(50.0 * deltaTime);
+        m_transform->rotateZ(10.0 * deltaTime);
 
         // RENDER ENGINE
         m_engine->render();

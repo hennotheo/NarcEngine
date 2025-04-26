@@ -3,6 +3,7 @@
 #include <NarcLog.h>
 
 #include "core/EngineInstance.h"
+#include "core/interfaces/ISurfaceProvider.h"
 
 #include "imgui.h"
 #include "backends/imgui_impl_vulkan.h"
@@ -19,10 +20,10 @@ namespace narc_engine
         VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
     };
 
-    DeviceHandler::DeviceHandler(const Window* window, const EngineInstance* instance, const EngineDebugLogger* debugLogger)
+    DeviceHandler::DeviceHandler(const ISurfaceProvider* surface, const EngineInstance* instance, const EngineDebugLogger* debugLogger)
     {
         m_instance = instance;
-        m_window = window;
+        m_surface = surface;
 
         pickPhysicalDevice();
         createLogicalDevice(debugLogger);
@@ -219,7 +220,7 @@ namespace narc_engine
             queueCreateInfo.pQueuePriorities = &queuePriority;
             queueCreateInfos.push_back(queueCreateInfo);
         }
-        
+
         VkPhysicalDeviceAccelerationStructureFeaturesKHR accelStructFeatures{};
         accelStructFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR;
         accelStructFeatures.accelerationStructure = VK_TRUE;
@@ -286,7 +287,7 @@ namespace narc_engine
         }
 
         bool swapChainAdequate = false;
-        SwapChainSupportDetails swapChainSupport = m_window->querySwapChainSupport(device);
+        SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
         swapChainAdequate = !swapChainSupport.Formats.empty() && !swapChainSupport.PresentModes.empty();
         if (!swapChainAdequate)
         {
@@ -336,7 +337,7 @@ namespace narc_engine
                 indices.GraphicsFamily = i;
             }
 
-            if (m_window->isPhysicalDeviceSupported(device, i))
+            if (isPhysicalDeviceSupported(device, i))
             {
                 indices.PresentFamily = i;
             }
@@ -348,5 +349,40 @@ namespace narc_engine
         }
 
         return indices;
+    }
+
+    SwapChainSupportDetails DeviceHandler::querySwapChainSupport(VkPhysicalDevice physicalDevice) const
+    {
+        SwapChainSupportDetails details;
+        VkSurfaceKHR surface = m_surface->getVkSurfaceKHR();
+
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details.Capabilities);
+
+        uint32_t formatCount;
+        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
+
+        if (formatCount != 0)
+        {
+            details.Formats.resize(formatCount);
+            vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, details.Formats.data());
+        }
+
+        uint32_t presentModeCount;
+        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
+
+        if (presentModeCount != 0)
+        {
+            details.PresentModes.resize(presentModeCount);
+            vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, details.PresentModes.data());
+        }
+
+        return details;
+    }
+
+    VkBool32 DeviceHandler::isPhysicalDeviceSupported(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) const
+    {
+        VkBool32 supported = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_surface->getVkSurfaceKHR(), &supported);
+        return supported;
     }
 }

@@ -14,13 +14,13 @@ namespace narc_engine {
     class Material;
     class UniformBuffer;
 
-    class EngineRenderer : public DeviceComponent
+    class EngineRenderer : public DeviceComponent, public ISurfaceObserver
     {
         friend class EngineBinder;
         friend class Engine;
 
     public:
-        EngineRenderer(const EngineInstance* instance);
+        EngineRenderer(const EngineInstance* instance, ISurfaceProvider* surfaceProvider);
         ~EngineRenderer();
 
         void drawFrame();
@@ -28,11 +28,16 @@ namespace narc_engine {
 
         void attachRenderer(const Renderer* renderer);
 
+    protected:
+        void onSurfaceFramebufferResized(int width, int height) override;
+
     private:
         SwapChain m_swapChain;
         std::unique_ptr<MultiFrameManager> m_frameManager;
         std::unique_ptr<UiRenderer> m_uiRenderer;
         std::map<uint32_t, RenderTask*> m_rendererTasks;
+
+        bool m_framebufferResized = false;
 
         VkDescriptorSetLayout m_descriptorSetLayout;
 

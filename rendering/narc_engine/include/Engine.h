@@ -1,7 +1,7 @@
 #pragma once
 
 #include "interfaces/IEngine.h"
-#include "interfaces/IWindow.h"
+#include "core/interfaces/IEngineCallbacks.h"
 
 #include "CommandPool.h"
 
@@ -9,13 +9,13 @@
 #include "core/EngineBinder.h"
 #include "core/EngineDebugLogger.h"
 #include "core/EngineInstance.h"
+#include "core/interfaces/ISurfaceProvider.h"
 
 #include "renderer/EngineRenderer.h"
 
 namespace narc_engine {
-    class IWindow;
 
-    class Engine final : public IEngine
+    class Engine final : public IEngine, public IEngineCallbacks
     {
         friend EngineBinder;
 
@@ -25,16 +25,16 @@ namespace narc_engine {
 
         static Engine* getInstance();
 
+        GETTER bool shouldClose() const override { return m_shouldClose; }
+
+        void stop() override { m_shouldClose = true; }
         void pollEvents() override;
-        bool shouldClose() const override;
         void render() override;
         void waitDeviceIdle() override;
-        IWindow* window() const override;
         EngineBinder* binder() const override;
         EngineResourcesManager* resourceManager() const override;
 
         GETTER const DeviceHandler* getDevice() const { return m_deviceHandler.get(); }
-        GETTER Window* getWindow() const { return m_window.get(); }
 
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
@@ -49,7 +49,7 @@ namespace narc_engine {
 
     private:
         std::unique_ptr<EngineInstance> m_instance;
-        std::unique_ptr<Window> m_window;
+        std::unique_ptr<ISurfaceProvider> m_surfaceProvider;
         std::unique_ptr<EngineDebugLogger> m_debugLogger;
         std::unique_ptr<DeviceHandler> m_deviceHandler;
 
@@ -58,6 +58,8 @@ namespace narc_engine {
 
         std::unique_ptr<EngineBinder> m_engineBinder;
         std::unique_ptr<EngineResourcesManager> m_resourcesManager;
+
+        bool m_shouldClose = false;
 
     private:
         GETTER CommandPool* getCommandPool() const { return m_commandPool.get(); }

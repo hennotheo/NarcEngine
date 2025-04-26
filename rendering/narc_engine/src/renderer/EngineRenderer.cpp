@@ -9,13 +9,14 @@
 namespace narc_engine {
     constexpr uint32_t g_maxFramesInFlight = 2;
 
-    EngineRenderer::EngineRenderer(const EngineInstance* instance) : DeviceComponent()
+    EngineRenderer::EngineRenderer(const EngineInstance* instance, ISurfaceProvider* surfaceProvider) : DeviceComponent()
     {
-        m_swapChain.create();
+        surfaceProvider->attach(this);
+
+        m_swapChain.create(surfaceProvider);
         m_frameManager = std::make_unique<MultiFrameManager>(g_maxFramesInFlight);
         createDescriptorSetLayout();
         m_swapChain.createFramebuffers();
-
         m_uiRenderer = std::make_unique<UiRenderer>(instance, m_frameManager.get(), &m_swapChain);
     }
 
@@ -102,11 +103,9 @@ namespace narc_engine {
         presentInfo.pResults = nullptr;
 
         const VkResult result = getDeviceHandler()->presentKHR(&presentInfo);
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || Engine::getInstance()->getWindow()->
-            isFramebufferResized())
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebufferResized)
         {
-            Engine::getInstance()->getWindow()->setFramebufferResized(false);
-            //after vkQueuePresentKHR to ensure that the semaphores are in a consistent state
+            m_framebufferResized = false;
             m_swapChain.reCreate();
         }
         else if (result != VK_SUCCESS)
@@ -243,5 +242,11 @@ namespace narc_engine {
         m_rendererTasks.emplace(material->getMaterialID(), renderer);
 
         return renderer;
+    }
+
+    void EngineRenderer::onSurfaceFramebufferResized(int width, int height)
+    {
+        NARCLOG_INFO("Framebuffer resized to");
+        m_framebufferResized = true;
     }
 } // narc_engine
