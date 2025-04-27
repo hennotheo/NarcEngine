@@ -18,20 +18,12 @@ namespace narc_engine
         ~Window();
 
         GETTER VkSurfaceKHR getVkSurfaceKHR() const override { return m_surface; }
-
-        GETTER GLFWwindow* getWindow() const { return m_window; }
-
-        inline bool shouldClose() const { return m_shouldClose; }
-        inline VkSurfaceKHR getSurface() const { return m_surface; }
-
-        static const char** getRequiredInstanceExtensions(uint32_t* glfwExtensionCount);
-
-        SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) const;
-        void getValidFramebufferSize(int* width, int* height) const;
-        void getFramebufferSize(int* width, int* height) const;
-        VkBool32 isPhysicalDeviceSupported(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) const;
+        void getValidFramebufferSize(int* width, int* height) const override;
+        void getFramebufferSize(int* width, int* height) const override;
 
         void pollEvents();
+
+        static const char** getRequiredInstanceExtensions(uint32_t* glfwExtensionCount);
 
     private:
         GLFWwindow* m_window;
@@ -39,8 +31,6 @@ namespace narc_engine
 
         narc_core::Event<int, int, int, int> m_onKeyboardEvent;
         narc_core::Event<int, int, int> m_onMouseEvent;
-
-        bool m_shouldClose = false;
 
         // TODO : REMOVE THIS
         double m_mouseXpos = 0.0;

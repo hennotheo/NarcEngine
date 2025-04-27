@@ -12,8 +12,8 @@ namespace narc_engine {
     public:
         virtual ~ISurfaceProvider() = default;
 
-        GETTER virtual void getValidFramebufferSize(int* width, int* height) const = 0;
-        GETTER virtual void getFramebufferSize(int* width, int* height) const = 0;
+        virtual void getValidFramebufferSize(int* width, int* height) const = 0;
+        virtual void getFramebufferSize(int* width, int* height) const = 0;
         GETTER virtual VkSurfaceKHR getVkSurfaceKHR() const = 0;
 
         virtual void pollEvents() = 0;

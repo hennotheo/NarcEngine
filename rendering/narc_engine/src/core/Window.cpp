@@ -42,8 +42,8 @@ namespace narc_engine
     {
         glfwPollEvents();
 
-        m_shouldClose = glfwWindowShouldClose(m_window);
-        if (m_shouldClose)
+        bool shouldClose = glfwWindowShouldClose(m_window);
+        if (shouldClose)
         {
             m_engine->stop();
         }
@@ -55,33 +55,6 @@ namespace narc_engine
     const char** Window::getRequiredInstanceExtensions(uint32_t* glfwExtensionCount)
     {
         return glfwGetRequiredInstanceExtensions(glfwExtensionCount);
-    }
-
-    SwapChainSupportDetails Window::querySwapChainSupport(VkPhysicalDevice device) const
-    {
-        SwapChainSupportDetails details;
-
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_surface, &details.Capabilities);
-
-        uint32_t formatCount;
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, nullptr);
-
-        if (formatCount != 0)
-        {
-            details.Formats.resize(formatCount);
-            vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, details.Formats.data());
-        }
-
-        uint32_t presentModeCount;
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &presentModeCount, nullptr);
-
-        if (presentModeCount != 0)
-        {
-            details.PresentModes.resize(presentModeCount);
-            vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &presentModeCount, details.PresentModes.data());
-        }
-
-        return details;
     }
 
     void Window::getValidFramebufferSize(int* width, int* height) const
@@ -97,13 +70,6 @@ namespace narc_engine
     void Window::getFramebufferSize(int* width, int* height) const
     {
         glfwGetFramebufferSize(m_window, width, height);
-    }
-
-    VkBool32 Window::isPhysicalDeviceSupported(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) const
-    {
-        VkBool32 supported = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_surface, &supported);
-        return supported;
     }
 
     void Window::framebufferResizeCallback(GLFWwindow* window, int width, int height)
