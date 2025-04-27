@@ -15,7 +15,7 @@
 
 namespace narc_engine {
 
-    class Engine final : public IEngine, public IEngineCallbacks
+    class Engine : public IEngine, public IEngineCallbacks
     {
         friend EngineBinder;
 

@@ -10,30 +10,23 @@
 
 namespace narc_engine
 {
-    EngineInstance::EngineInstance()
+#define MINIMUM_VK_VERSION VK_API_VERSION_1_1
+
+    EngineInstance::EngineInstance(const EngineBuilder* builder)
     {
-        EngineDebugLogger::checkValidationLayerSupport();
+        glfwInit();
 
-        VkApplicationInfo appInfo{};
-        appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = "Narc Engine";
-        appInfo.applicationVersion = VK_MAKE_VERSION(0, 2, 0);
-        appInfo.pEngineName = "No Engine";
-        appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.apiVersion = VK_API_VERSION_1_1;
+        checkValidationLayerSupport(builder->getValidationLayers());
 
-        uint32_t instanceVersion = 0;
-        vkEnumerateInstanceVersion(&instanceVersion);
-        if (instanceVersion < VK_API_VERSION_1_1)
-        {
-            NARCLOG_FATAL("Vulkan 1.1 is not supported by the instance.");
-        }
+        m_appInfo = createAppInfo();
+
+        uint32_t instanceVersion = getInstanceVersion();
 
         VkInstanceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-        createInfo.pApplicationInfo = &appInfo;
+        createInfo.pApplicationInfo = &m_appInfo;
 
-        auto extensions = EngineDebugLogger::getRequiredExtensions();
+        auto extensions = getRequiredExtensions();
         createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
         createInfo.ppEnabledExtensionNames = extensions.data();
 
@@ -51,37 +44,72 @@ namespace narc_engine
         vkDestroyInstance(m_instance, nullptr);
     }
 
-    void EngineInstance::getAllPhysicalDevices(uint32_t *pPhysicalDeviceCount, VkPhysicalDevice *pPhysicalDevices) const
+    uint32_t EngineInstance::getInstanceVersion()
     {
-        if (vkEnumeratePhysicalDevices(m_instance, pPhysicalDeviceCount, pPhysicalDevices) != VK_SUCCESS)
+        uint32_t instanceVersion = 0;
+        vkEnumerateInstanceVersion(&instanceVersion);
+        if (instanceVersion < MINIMUM_VK_VERSION)
         {
-            NARCLOG_FATAL("Failed to get physical devices!");
+            NARCLOG_FATAL("Vulkan 1.1 is not supported by the instance.");
         }
+
+        return instanceVersion;
     }
 
-    void EngineInstance::createGLFWSurface(GLFWwindow *window, VkSurfaceKHR *surface, const VkAllocationCallbacks *pAllocator) const
+    VkApplicationInfo EngineInstance::createAppInfo()
     {
-        if (glfwCreateWindowSurface(m_instance, window, pAllocator, surface) != VK_SUCCESS)
+        VkApplicationInfo appInfo{};
+        appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+        appInfo.pApplicationName = "Narc Engine";
+        appInfo.applicationVersion = VK_MAKE_VERSION(0, 2, 0);
+        appInfo.pEngineName = "No Engine";
+        appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+        appInfo.apiVersion = MINIMUM_VK_VERSION;
+
+        return appInfo;
+    }
+
+    std::vector<const char*> EngineInstance::getRequiredExtensions()
+    {
+        uint32_t glfwExtensionCount = 0;
+        const char** glfwExtensions;
+        glfwExtensions = Window::getRequiredInstanceExtensions(&glfwExtensionCount);
+
+        std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+#ifdef ENABLE_VALIDATION_LAYERS
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
+
+        return extensions;
+    }
+
+    void EngineInstance::checkValidationLayerSupport(ValidationLayersPtr validationLayers)
+    {
+#ifdef ENABLE_VALIDATION_LAYERS
+
+        uint32_t layerCount;
+        vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+        std::vector<VkLayerProperties> availableLayers(layerCount);
+        vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+        for (const auto& layerName : *validationLayers)
         {
-            NARCLOG_FATAL("Failed to create window surface!");
+            bool layerFound = false;
+
+            for (const auto& layerProperties : availableLayers)
+            {
+                if (strcmp(layerName, layerProperties.layerName) == 0)
+                {
+                    layerFound = true;
+                    break;
+                }
+            }
+
+            if (!layerFound)
+                NARCLOG_WARNING("Validation layers requested, but not available!");
         }
-    }
 
-    void EngineInstance::destroyGLFWSurface(VkSurfaceKHR surface, const VkAllocationCallbacks *pAllocator) const
-    {
-        vkDestroySurfaceKHR(m_instance, surface, pAllocator);
-    }
-
-    void EngineInstance::destroyDebugUtilsMessenger(VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks *pAllocator) const
-    {
-        destroyDebugUtilsMessengerEXT(m_instance, debugMessenger, pAllocator);
-    }
-
-    void EngineInstance::createDebugUtilsMessenger(const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger) const
-    {
-        if (createDebugUtilsMessengerEXT(m_instance, pCreateInfo, pAllocator, pDebugMessenger) != VK_SUCCESS)
-        {
-            NARCLOG_FATAL("Failed to set up debug messenger!");
-        }
+#endif
     }
 } // narc_engine

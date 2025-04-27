@@ -27,7 +27,6 @@ if(ENABLE_TESTS)
         add_dependencies(Tests_NarcEngineEditor NarcEngineEditor NarcEngine)
 
         target_include_directories(Tests_NarcEngineEditor PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-        target_compile_definitions(Tests_NarcEngineEditor PRIVATE TESTING_BUILD_DLL)
         target_link_libraries(Tests_NarcEngineEditor PRIVATE
                 gtest gtest_main
                 gmock gmock_main

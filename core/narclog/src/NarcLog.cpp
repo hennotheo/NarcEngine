@@ -42,6 +42,12 @@ namespace narclog {
     template<LogConcept TMsg>
     void log(LogLevel level, TMsg message)
     {
+#ifdef NARC_TEST_BUILD
+        if (level == LogLevel::FATAL)
+        {
+            throw std::runtime_error("Logger not created.");
+        }
+#else
         if (g_logger == nullptr)
         {
             std::cout << "Logger not created : " << message << std::endl;
@@ -60,6 +66,7 @@ namespace narclog {
         }
 
         NARCLOG_FATAL("Message type " + std::string(typeid(message).name()) + " not supported.");
+#endif 
     }
 
     template void log<const char*>(LogLevel, const char*);

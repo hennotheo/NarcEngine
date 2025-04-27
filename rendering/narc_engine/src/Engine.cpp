@@ -3,11 +3,17 @@
 #include "models/Vertex.h"
 #include "buffers/StagingBuffer.h"
 #include "core/Window.h"
+#include "core/EngineBuilder.h"
 
 #define CREATE_ENGINE_UNIQUE_COMPONENT(type, ...) std::make_unique<type>(__VA_ARGS__);\
     NARCLOG_DEBUG("Created engine component: " #type); \
 
 namespace narc_engine {
+    const std::vector<const char*> g_validationLayers =
+    {
+        "VK_LAYER_KHRONOS_validation"
+    };
+
     static Engine* s_instance;
 
     IEngine* getEngine()
@@ -30,13 +36,10 @@ namespace narc_engine {
     {
         s_instance = this;
 
-        glfwInit();
+        EngineBuilder builder;
+        builder.setValidationLayers(&g_validationLayers);
 
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-
-
-        m_instance = CREATE_ENGINE_UNIQUE_COMPONENT(EngineInstance);
+        m_instance = CREATE_ENGINE_UNIQUE_COMPONENT(EngineInstance, &builder);
         m_surfaceProvider = CREATE_ENGINE_UNIQUE_COMPONENT(Window, m_instance.get(), this);
 
         if (m_instance == nullptr || m_surfaceProvider == nullptr)

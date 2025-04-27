@@ -10,6 +10,8 @@
 #include "renderer/SwapChain.h"
 #include "gui/UiRenderer.h"
 
+#include "core/interfaces/ISurfaceObserver.h"
+
 namespace narc_engine {
     class Material;
     class UniformBuffer;

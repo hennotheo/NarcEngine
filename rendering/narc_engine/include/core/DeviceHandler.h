@@ -56,5 +56,6 @@ namespace narc_engine
         bool checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice, const std::vector<const char*>& deviceExtensions);
         VkBool32 isPhysicalDeviceSupported(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) const;
         SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice physicalDevice) const;
+        void getAllPhysicalDevices(uint32_t* pPhysicalDeviceCount, VkPhysicalDevice* pPhysicalDevices) const;
     };
 }

@@ -4,12 +4,7 @@
 
 #pragma once
 
-#include "core/DeviceComponent.h"
-#include "core/DeviceHandler.h"
-#include "core/EngineBinder.h"
-#include "core/EngineDebugLogger.h"
-#include "core/EngineInstance.h"
-#include "core/Window.h"
-#include "interfaces/IEngine.h"
-#include "models/ShaderModule.h"
-#include "resources/Texture2DResource.h"
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
+#define INITIALISATION_TESTS(testName) TEST(NarcEngine_Initialisation, testName)

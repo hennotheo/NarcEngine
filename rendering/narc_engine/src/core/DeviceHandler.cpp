@@ -173,12 +173,20 @@ namespace narc_engine
         }
     }
 
+    void DeviceHandler::getAllPhysicalDevices(uint32_t *pPhysicalDeviceCount, VkPhysicalDevice *pPhysicalDevices) const
+    {
+        if (vkEnumeratePhysicalDevices(m_instance->getvkInstance(), pPhysicalDeviceCount, pPhysicalDevices) != VK_SUCCESS)
+        {
+            NARCLOG_FATAL("Failed to get physical devices!");
+        }
+    }
+
     void DeviceHandler::pickPhysicalDevice()
     {
         uint32_t deviceCount = 0;
-        m_instance->getAllPhysicalDevices(&deviceCount, nullptr);
+        getAllPhysicalDevices(&deviceCount, nullptr);
         std::vector<VkPhysicalDevice> devices(deviceCount);
-        m_instance->getAllPhysicalDevices(&deviceCount, devices.data());
+        getAllPhysicalDevices(&deviceCount, devices.data());
 
         if (deviceCount == 0)
         {

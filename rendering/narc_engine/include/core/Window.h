@@ -40,8 +40,6 @@ namespace narc_engine
         narc_core::Event<int, int, int, int> m_onKeyboardEvent;
         narc_core::Event<int, int, int> m_onMouseEvent;
 
-        bool m_initialized = false;
-
         bool m_shouldClose = false;
 
         // TODO : REMOVE THIS

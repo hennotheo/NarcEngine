@@ -5,7 +5,7 @@
 
 #ifdef NARC_ENGINE_PLATFORM_WINDOWS
 
-#ifndef TESTING_BUILD_DLL
+#ifndef NARC_TEST_BUILD
 #include "Application.h"
 
 narc::Application* g_app = nullptr;

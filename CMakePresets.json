@@ -20,8 +20,11 @@
         {
             "name": "dev_tests",
             "inherits": "dev",
+            "binaryDir": "${sourceDir}/build_tests",
             "cacheVariables": {
-                "ENABLE_TESTS": "ON"
+                "ENABLE_TESTS": "ON",
+                "BUILD_TESTS ": "ON",
+                "CMAKE_BUILD_TYPE": "Debug"
             }
         }
     ],
@@ -38,7 +41,7 @@
             "name": "release",
             "configurePreset": "release",
             "targets":[
-                "NarcEngineEditor"
+                "all"
             ],
             "cleanFirst": true
         }

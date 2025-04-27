@@ -11,29 +11,28 @@ namespace narc_engine
     constexpr uint32_t g_width = 800;
     constexpr uint32_t g_height = 600;
 
-    Window::Window(const EngineInstance* engineInstance, IEngineCallbacks* engine): m_engine(engine)
+    Window::Window(const EngineInstance* engineInstance, IEngineCallbacks* engine) : m_engine(engine)
     {
         m_engineInstance = engineInstance;
-        
-        // glfwInit();
-        
-        // glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        // glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-        
+
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+
         m_window = glfwCreateWindow(g_width, g_height, "Narc Engine", nullptr, nullptr);
         glfwSetWindowUserPointer(m_window, this);
         glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback);
         glfwSetKeyCallback(m_window, onKeyboardInputPerformed);
         glfwSetMouseButtonCallback(m_window, onMouseInputPerformed);
-        
-        m_initialized = true;
-        m_engineInstance->createGLFWSurface(m_window, &m_surface, nullptr);
+
+        if (glfwCreateWindowSurface(m_engineInstance->getvkInstance(), m_window, nullptr, &m_surface) != VK_SUCCESS)
+        {
+            NARCLOG_FATAL("Failed to create window surface!");
+        }
     }
 
     Window::~Window()
     {
-        if (m_initialized)
-            m_engineInstance->destroyGLFWSurface(m_surface, nullptr);
+        vkDestroySurfaceKHR(m_engineInstance->getvkInstance(), m_surface, nullptr);
 
         glfwDestroyWindow(m_window);
         glfwTerminate();
@@ -44,7 +43,7 @@ namespace narc_engine
         glfwPollEvents();
 
         m_shouldClose = glfwWindowShouldClose(m_window);
-        if(m_shouldClose)
+        if (m_shouldClose)
         {
             m_engine->stop();
         }

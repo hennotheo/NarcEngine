@@ -13,8 +13,6 @@ namespace narc_engine {
 
         static void linkToDevice(VkDeviceCreateInfo& createInfo);
         static void linkToInstance(VkInstanceCreateInfo& createInfo, VkDebugUtilsMessengerCreateInfoEXT& debugCreateInfo);
-        static std::vector<const char*> getRequiredExtensions();
-        static void checkValidationLayerSupport();
 
     private:
         VkDebugUtilsMessengerEXT m_debugMessenger;
