@@ -2,6 +2,7 @@
 
 #include <vulkan/vulkan_core.h>
 
+#include "core/EngineBuilder.h"
 #include "core/QueueFamilyIndices.h"
 #include "renderer/SwapChainSupportDetails.h"
 #include "core/devices/PhysicalDevice.h"
@@ -26,6 +27,7 @@ namespace narc_engine
         const EngineInstance *m_instance = nullptr;
         QueueFamilyIndices m_queueFamilyIndices;
 
+        LayersPtr m_deviceExtensions = nullptr;
         const ISurfaceProvider* m_surface = nullptr;
 
     private:

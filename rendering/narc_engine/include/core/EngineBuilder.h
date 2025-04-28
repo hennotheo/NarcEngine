@@ -2,7 +2,7 @@
 
 namespace narc_engine
 {
-    typedef const std::vector<const char *>* ValidationLayersPtr;
+    typedef const std::vector<const char *>* LayersPtr;
 
     class EngineInstance;
     class ISurfaceProvider;
@@ -17,12 +17,15 @@ namespace narc_engine
         GETTER const EngineInstance* getInstance() const { return m_instance; }
         GETTER const EngineDebugLogger* getDebugLogger() const { return m_debugLogger; }
         GETTER const ISurfaceProvider* getSurfaceProvider() const { return m_surface; }
-        GETTER ValidationLayersPtr getValidationLayers() const { return m_validationLayers; }
+        GETTER LayersPtr getValidationLayers() const { return m_validationLayers; }
+        GETTER LayersPtr getDeviceExtensions() const { return m_deviceExtensions; }
 
-        inline void setValidationLayers(ValidationLayersPtr validationLayers) { m_validationLayers = validationLayers; }
+        inline void setValidationLayers(LayersPtr validationLayers) { m_validationLayers = validationLayers; }
+        inline void setDeviceExtensions(LayersPtr extensions) { m_deviceExtensions = extensions; }
 
     private:
-        ValidationLayersPtr m_validationLayers;
+        LayersPtr m_validationLayers;
+        LayersPtr m_deviceExtensions;
 
         const EngineInstance* m_instance = nullptr;
         const ISurfaceProvider* m_surface = nullptr;

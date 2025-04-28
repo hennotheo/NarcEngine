@@ -5,19 +5,11 @@
 
 namespace narc_engine
 {
-    const std::vector<const char*> g_deviceExtensions =
-    {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-        VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
-        VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
-        VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
-        VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
-    };
-
     PhysicalDevice::PhysicalDevice(const EngineBuilder* builder)
     {
         m_surface = builder->getSurfaceProvider();
         m_instance = builder->getInstance();
+        m_deviceExtensions = builder->getDeviceExtensions();
         
         uint32_t deviceCount = 0;
         getAllPhysicalDevices(&deviceCount, nullptr);
@@ -84,7 +76,7 @@ namespace narc_engine
             return 0;
         }
 
-        bool extensionsSupported = checkDeviceExtensionSupport(device, g_deviceExtensions);
+        bool extensionsSupported = checkDeviceExtensionSupport(device, *m_deviceExtensions);
         if (!extensionsSupported)
         {
             return 0;

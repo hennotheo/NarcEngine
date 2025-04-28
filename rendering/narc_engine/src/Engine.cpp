@@ -14,6 +14,15 @@ namespace narc_engine {
         "VK_LAYER_KHRONOS_validation"
     };
 
+    const std::vector<const char*> g_deviceExtensions =
+    {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+        VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
+        VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
+        VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
+        VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
+    };
+
     static Engine* s_instance;
 
     IEngine* getEngine()
@@ -38,6 +47,7 @@ namespace narc_engine {
 
         EngineBuilder builder;
         builder.setValidationLayers(&g_validationLayers);
+        builder.setDeviceExtensions(&g_deviceExtensions);
 
         m_instance = CREATE_ENGINE_UNIQUE_COMPONENT(EngineInstance, &builder);
         builder.m_instance = m_instance.get();

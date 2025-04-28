@@ -84,7 +84,7 @@ namespace narc_engine
         return extensions;
     }
 
-    void EngineInstance::checkValidationLayerSupport(ValidationLayersPtr validationLayers)
+    void EngineInstance::checkValidationLayerSupport(LayersPtr validationLayers)
     {
 #ifdef ENABLE_VALIDATION_LAYERS
 

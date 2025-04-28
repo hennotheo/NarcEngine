@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <vulkan/vulkan_core.h>
 
+#include "core/EngineBuilder.h"
 #include "core/devices/PhysicalDevice.h"
 #include "EngineDebugLogger.h"
 #include "QueueFamilyIndices.h"
@@ -41,24 +42,16 @@ namespace narc_engine
     private:
         std::unique_ptr<PhysicalDevice> m_physicalDevice;
         VkDevice m_device;
-        // VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
 
         VkQueue m_presentQueue;
         VkQueue m_graphicsQueue;
-        // QueueFamilyIndices m_queueFamilyIndices;
 
         VkPhysicalDeviceProperties m_physicalDeviceProperties{};
 
         const EngineInstance *m_instance = nullptr;
         const ISurfaceProvider *m_surface = nullptr;
+        LayersPtr m_deviceExtensions;
 
-        // void pickPhysicalDevice();
-        // QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) const;
         void createLogicalDevice(const EngineDebugLogger *debugLogger);
-        // int rateDeviceSuitability(VkPhysicalDevice device);
-        // bool checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice, const std::vector<const char *> &deviceExtensions);
-        // VkBool32 isPhysicalDeviceSupported(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) const;
-        // SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice physicalDevice) const;
-        // void getAllPhysicalDevices(uint32_t *pPhysicalDeviceCount, VkPhysicalDevice *pPhysicalDevices) const;
     };
 }
