@@ -1,10 +1,12 @@
-﻿#include "core/DeviceHandler.h"
+﻿#include "core/devices/DeviceHandler.h"
 
 #include <NarcLog.h>
 
 #include "core/EngineBuilder.h"
 #include "core/EngineInstance.h"
 #include "core/interfaces/ISurfaceProvider.h"
+#include "core/QueueFamilyIndices.h"
+#include "core/EngineDebugLogger.h"
 
 #include "imgui.h"
 #include "backends/imgui_impl_vulkan.h"

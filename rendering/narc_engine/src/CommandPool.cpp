@@ -2,8 +2,6 @@
 
 #include "Engine.h"
 
-#include "core/DeviceHandler.h"
-
 namespace narc_engine {
     CommandPool::CommandPool() : DeviceComponent()
     {

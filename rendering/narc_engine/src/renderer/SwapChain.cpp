@@ -3,7 +3,7 @@
 #include <NarcLog.h>
 
 #include "Engine.h"
-#include "core/DeviceHandler.h"
+#include "core/devices/DeviceHandler.h"
 #include "renderer/DepthResources.h"
 #include "core/interfaces/ISurfaceProvider.h"
 

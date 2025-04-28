@@ -5,8 +5,6 @@
 #include "ISurfaceObserver.h"
 
 namespace narc_engine {
-    class EngineInstance;
-
     class ISurfaceProvider
     {
     public:

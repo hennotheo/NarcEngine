@@ -5,6 +5,7 @@
 
 #include "Engine.h"
 #include "gui/UiRenderer.h"
+#include "core/interfaces/ISurfaceProvider.h"
 
 namespace narc_engine {
     constexpr uint32_t g_maxFramesInFlight = 2;

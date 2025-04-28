@@ -13,6 +13,8 @@
 #include "core/Window.h"
 #include "core/EngineDebugLogger.h"
 #include "core/devices/PhysicalDevice.h"
+#include "core/devices/DeviceHandler.h"
+#include "core/devices/LogicalDevice.h"
 
 using namespace narc_engine;
 

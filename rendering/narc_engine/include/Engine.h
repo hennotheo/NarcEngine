@@ -7,7 +7,7 @@
 
 #include "CommandPool.h"
 
-#include "core/DeviceHandler.h"
+#include "core/devices/DeviceHandler.h"
 #include "core/EngineBinder.h"
 #include "core/EngineDebugLogger.h"
 #include "core/EngineInstance.h"

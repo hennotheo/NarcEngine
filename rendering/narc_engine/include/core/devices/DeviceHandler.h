@@ -1,10 +1,8 @@
 ﻿#pragma once
 #include <vulkan/vulkan_core.h>
 
-#include "core/EngineBuilder.h"
 #include "core/devices/PhysicalDevice.h"
-#include "EngineDebugLogger.h"
-#include "QueueFamilyIndices.h"
+#include "core/devices/LogicalDevice.h"
 
 class ImGui_ImplVulkan_InitInfo;
 
@@ -28,7 +26,7 @@ namespace narc_engine
         void createSwapChain(VkSwapchainCreateInfoKHR &createInfo, VkSwapchainKHR *swapchain) const;
         void createCommandPool(VkCommandPool *commandPool, VkCommandPoolCreateInfo poolInfo) const;
         VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const;
-        void setupImGui(ImGui_ImplVulkan_InitInfo *initInfo) const;
+        void setupImGui(ImGui_ImplVulkan_InitInfo* initInfo) const;
 
         void waitDeviceIdle() const;
         void waitGraphicsQueueIdle() const;
@@ -52,6 +50,6 @@ namespace narc_engine
         const ISurfaceProvider *m_surface = nullptr;
         LayersPtr m_deviceExtensions;
 
-        void createLogicalDevice(const EngineDebugLogger *debugLogger);
+        void createLogicalDevice(const EngineDebugLogger* debugLogger);
     };
 }

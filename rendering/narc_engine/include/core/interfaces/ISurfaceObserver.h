@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ISurfaceProvider.h"
-
 namespace narc_engine {
+    class ISurfaceProvider;
+
     class ISurfaceObserver
     {
         friend class ISurfaceProvider;
