@@ -23,12 +23,6 @@ RUNTIME_TESTS(Window_PollEvent_NoThrow)
     builder.setValidationLayers(&g_validationLayers);
     EngineInstance instance(&builder);
 
-    class MockEngine : public IEngineCallbacks
-    {
-    public:
-        void stop() override {}
-    };
-
     MockEngine engine;
     Window windows(&instance, &engine);
 

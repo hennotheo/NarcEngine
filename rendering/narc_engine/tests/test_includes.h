@@ -11,6 +11,8 @@
 #include "core/EngineBuilder.h"
 #include "core/EngineInstance.h"
 #include "core/Window.h"
+#include "core/EngineDebugLogger.h"
+#include "core/devices/PhysicalDevice.h"
 
 using namespace narc_engine;
 
@@ -20,4 +22,19 @@ using namespace narc_engine;
 const std::vector<const char*> g_validationLayers =
 {
     "VK_LAYER_KHRONOS_validation"
+};
+
+const std::vector<const char*> g_deviceExtensions =
+{
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+    VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
+    VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
+    VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
+    VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
+};
+
+class MockEngine : public IEngineCallbacks
+{
+public:
+    void stop() override {}
 };

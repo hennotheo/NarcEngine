@@ -2,7 +2,7 @@
 
 namespace narc_engine
 {
-    typedef const std::vector<const char *>* LayersPtr;
+    typedef const std::vector<const char*>* LayersPtr;
 
     class EngineInstance;
     class ISurfaceProvider;
@@ -23,7 +23,7 @@ namespace narc_engine
         inline void setValidationLayers(LayersPtr validationLayers) { m_validationLayers = validationLayers; }
         inline void setDeviceExtensions(LayersPtr extensions) { m_deviceExtensions = extensions; }
 
-    private:
+    PRIVATE_TESTABLE:
         LayersPtr m_validationLayers;
         LayersPtr m_deviceExtensions;
 
