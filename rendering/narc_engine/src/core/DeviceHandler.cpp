@@ -2,6 +2,7 @@
 
 #include <NarcLog.h>
 
+#include "core/EngineBuilder.h"
 #include "core/EngineInstance.h"
 #include "core/interfaces/ISurfaceProvider.h"
 
@@ -20,15 +21,18 @@ namespace narc_engine
         VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
     };
 
-    DeviceHandler::DeviceHandler(const ISurfaceProvider* surface, const EngineInstance* instance, const EngineDebugLogger* debugLogger)
+    DeviceHandler::DeviceHandler(const EngineBuilder* builder)
     {
-        m_instance = instance;
-        m_surface = surface;
+        m_instance = builder->getInstance();
+        m_surface = builder->getSurfaceProvider();
 
-        pickPhysicalDevice();
-        createLogicalDevice(debugLogger);
+        // pickPhysicalDevice();
 
-        vkGetPhysicalDeviceProperties(m_physicalDevice, &m_physicalDeviceProperties);
+        m_physicalDevice = std::make_unique<PhysicalDevice>(builder);
+
+        createLogicalDevice(builder->getDebugLogger());
+
+        vkGetPhysicalDeviceProperties(m_physicalDevice->getPhysicalDevice(), &m_physicalDeviceProperties);
     }
 
     DeviceHandler::~DeviceHandler()
@@ -38,9 +42,9 @@ namespace narc_engine
 
     void DeviceHandler::setupImGui(ImGui_ImplVulkan_InitInfo* initInfo) const
     {
-        initInfo->PhysicalDevice = m_physicalDevice;
+        initInfo->PhysicalDevice = m_physicalDevice->getPhysicalDevice();
         initInfo->Device = m_device;
-        initInfo->QueueFamily = m_queueFamilyIndices.GraphicsFamily.value();
+        initInfo->QueueFamily = m_physicalDevice->getQueueFamilyIndices().GraphicsFamily.value();
         initInfo->Queue = m_graphicsQueue;
     }
 
@@ -77,7 +81,7 @@ namespace narc_engine
     uint32_t DeviceHandler::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const
     {
         VkPhysicalDeviceMemoryProperties memProperties;
-        vkGetPhysicalDeviceMemoryProperties(m_physicalDevice, &memProperties);
+        vkGetPhysicalDeviceMemoryProperties(m_physicalDevice->getPhysicalDevice(), &memProperties);
 
         for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
         {
@@ -92,7 +96,7 @@ namespace narc_engine
 
     void DeviceHandler::createCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateInfo poolInfo) const
     {
-        QueueFamilyIndices queueFamilyIndices = findQueueFamilies(m_physicalDevice);
+        QueueFamilyIndices queueFamilyIndices = m_physicalDevice->getQueueFamilyIndices();
 
         poolInfo.queueFamilyIndex = queueFamilyIndices.GraphicsFamily.value();
 
@@ -134,7 +138,7 @@ namespace narc_engine
         for (const VkFormat format : candidates)
         {
             VkFormatProperties props;
-            vkGetPhysicalDeviceFormatProperties(m_physicalDevice, format, &props);
+            vkGetPhysicalDeviceFormatProperties(m_physicalDevice->getPhysicalDevice(), format, &props);
 
             if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
             {
@@ -151,7 +155,7 @@ namespace narc_engine
 
     void DeviceHandler::createSwapChain(VkSwapchainCreateInfoKHR& createInfo, VkSwapchainKHR* swapchain) const
     {
-        QueueFamilyIndices indices = findQueueFamilies(m_physicalDevice);
+        QueueFamilyIndices indices = m_physicalDevice->getQueueFamilyIndices();
         uint32_t queueFamilyIndices[] = { indices.GraphicsFamily.value(), indices.PresentFamily.value() };
 
         if (indices.GraphicsFamily != indices.PresentFamily)
@@ -173,47 +177,47 @@ namespace narc_engine
         }
     }
 
-    void DeviceHandler::getAllPhysicalDevices(uint32_t *pPhysicalDeviceCount, VkPhysicalDevice *pPhysicalDevices) const
-    {
-        if (vkEnumeratePhysicalDevices(m_instance->getvkInstance(), pPhysicalDeviceCount, pPhysicalDevices) != VK_SUCCESS)
-        {
-            NARCLOG_FATAL("Failed to get physical devices!");
-        }
-    }
+    // void DeviceHandler::getAllPhysicalDevices(uint32_t *pPhysicalDeviceCount, VkPhysicalDevice *pPhysicalDevices) const
+    // {
+    //     if (vkEnumeratePhysicalDevices(m_instance->getvkInstance(), pPhysicalDeviceCount, pPhysicalDevices) != VK_SUCCESS)
+    //     {
+    //         NARCLOG_FATAL("Failed to get physical devices!");
+    //     }
+    // }
 
-    void DeviceHandler::pickPhysicalDevice()
-    {
-        uint32_t deviceCount = 0;
-        getAllPhysicalDevices(&deviceCount, nullptr);
-        std::vector<VkPhysicalDevice> devices(deviceCount);
-        getAllPhysicalDevices(&deviceCount, devices.data());
+    // void DeviceHandler::pickPhysicalDevice()
+    // {
+    //     uint32_t deviceCount = 0;
+    //     getAllPhysicalDevices(&deviceCount, nullptr);
+    //     std::vector<VkPhysicalDevice> devices(deviceCount);
+    //     getAllPhysicalDevices(&deviceCount, devices.data());
 
-        if (deviceCount == 0)
-        {
-            NARCLOG_FATAL("Failed to find GPUs with Vulkan Support!");
-        }
+    //     if (deviceCount == 0)
+    //     {
+    //         NARCLOG_FATAL("Failed to find GPUs with Vulkan Support!");
+    //     }
 
-        std::multimap<int, VkPhysicalDevice> candidates;
-        for (const auto& device : devices)
-        {
-            int score = rateDeviceSuitability(device);
-            candidates.insert(std::make_pair(score, device));
-        }
+    //     std::multimap<int, VkPhysicalDevice> candidates;
+    //     for (const auto& device : devices)
+    //     {
+    //         int score = rateDeviceSuitability(device);
+    //         candidates.insert(std::make_pair(score, device));
+    //     }
 
-        if (candidates.rbegin()->first > 0)
-        {
-            m_physicalDevice = candidates.rbegin()->second;
-            m_queueFamilyIndices = findQueueFamilies(m_physicalDevice);
-        }
-        else
-        {
-            NARCLOG_FATAL("Failed to find a suitable GPU!");
-        }
-    }
+    //     if (candidates.rbegin()->first > 0)
+    //     {
+    //         m_physicalDevice = candidates.rbegin()->second;
+    //         m_queueFamilyIndices = findQueueFamilies(m_physicalDevice);
+    //     }
+    //     else
+    //     {
+    //         NARCLOG_FATAL("Failed to find a suitable GPU!");
+    //     }
+    // }
 
     void DeviceHandler::createLogicalDevice(const EngineDebugLogger* debugLogger)
     {
-        QueueFamilyIndices indices = findQueueFamilies(m_physicalDevice);
+        QueueFamilyIndices indices = m_physicalDevice->getQueueFamilyIndices();
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
         std::set<uint32_t> uniqueQueueFamilies = { indices.GraphicsFamily.value(), indices.PresentFamily.value() };
@@ -250,7 +254,7 @@ namespace narc_engine
 
         debugLogger->linkToDevice(createInfo);
 
-        if (vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device) != VK_SUCCESS)
+        if (vkCreateDevice(m_physicalDevice->getPhysicalDevice(), &createInfo, nullptr, &m_device) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create logical device!");
         }
@@ -259,138 +263,138 @@ namespace narc_engine
         vkGetDeviceQueue(m_device, indices.PresentFamily.value(), 0, &m_presentQueue);
     }
 
-    int DeviceHandler::rateDeviceSuitability(VkPhysicalDevice device)
-    {
-        VkPhysicalDeviceProperties deviceProperties;
+    // int DeviceHandler::rateDeviceSuitability(VkPhysicalDevice device)
+    // {
+    //     VkPhysicalDeviceProperties deviceProperties;
 
-        VkPhysicalDeviceAccelerationStructureFeaturesKHR accelStructFeatures{};
-        VkPhysicalDeviceFeatures2 deviceFeatures2{};
-        deviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-        deviceFeatures2.pNext = &accelStructFeatures;
-        vkGetPhysicalDeviceProperties(device, &deviceProperties);
-        vkGetPhysicalDeviceFeatures2(device, &deviceFeatures2);
+    //     VkPhysicalDeviceAccelerationStructureFeaturesKHR accelStructFeatures{};
+    //     VkPhysicalDeviceFeatures2 deviceFeatures2{};
+    //     deviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+    //     deviceFeatures2.pNext = &accelStructFeatures;
+    //     vkGetPhysicalDeviceProperties(device, &deviceProperties);
+    //     vkGetPhysicalDeviceFeatures2(device, &deviceFeatures2);
 
-        int score = 0;
+    //     int score = 0;
 
-        // Performance advantage
-        if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
-        {
-            score += 1000;
-        }
+    //     // Performance advantage
+    //     if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+    //     {
+    //         score += 1000;
+    //     }
 
-        // Max possible size of texture affect graphics quality
-        score += deviceProperties.limits.maxImageDimension2D;
-        score += deviceFeatures2.features.samplerAnisotropy ? 1000 : 0;
+    //     // Max possible size of texture affect graphics quality
+    //     score += deviceProperties.limits.maxImageDimension2D;
+    //     score += deviceFeatures2.features.samplerAnisotropy ? 1000 : 0;
 
-        // Application can't function without geometry shaders
-        if (!deviceFeatures2.features.geometryShader)
-        {
-            return 0;
-        }
+    //     // Application can't function without geometry shaders
+    //     if (!deviceFeatures2.features.geometryShader)
+    //     {
+    //         return 0;
+    //     }
 
-        bool extensionsSupported = checkDeviceExtensionSupport(device, g_deviceExtensions);
-        if (!extensionsSupported)
-        {
-            return 0;
-        }
+    //     bool extensionsSupported = checkDeviceExtensionSupport(device, g_deviceExtensions);
+    //     if (!extensionsSupported)
+    //     {
+    //         return 0;
+    //     }
 
-        bool swapChainAdequate = false;
-        SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
-        swapChainAdequate = !swapChainSupport.Formats.empty() && !swapChainSupport.PresentModes.empty();
-        if (!swapChainAdequate)
-        {
-            return 0;
-        }
+    //     bool swapChainAdequate = false;
+    //     SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
+    //     swapChainAdequate = !swapChainSupport.Formats.empty() && !swapChainSupport.PresentModes.empty();
+    //     if (!swapChainAdequate)
+    //     {
+    //         return 0;
+    //     }
 
-        QueueFamilyIndices indices = findQueueFamilies(device);
-        if (!indices.isComplete())
-        {
-            return 0;
-        }
+    //     QueueFamilyIndices indices = findQueueFamilies(device);
+    //     if (!indices.isComplete())
+    //     {
+    //         return 0;
+    //     }
 
-        return score;
-    }
+    //     return score;
+    // }
 
-    bool DeviceHandler::checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice, const std::vector<const char*>& deviceExtensions)
-    {
-        uint32_t extensionCount;
-        vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);
+    // bool DeviceHandler::checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice, const std::vector<const char*>& deviceExtensions)
+    // {
+    //     uint32_t extensionCount;
+    //     vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);
 
-        std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-        vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, availableExtensions.data());
+    //     std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+    //     vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, availableExtensions.data());
 
-        std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
-        for (const auto& extension : availableExtensions)
-        {
-            requiredExtensions.erase(extension.extensionName);
-        }
+    //     std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+    //     for (const auto& extension : availableExtensions)
+    //     {
+    //         requiredExtensions.erase(extension.extensionName);
+    //     }
 
-        return requiredExtensions.empty();
-    }
+    //     return requiredExtensions.empty();
+    // }
 
-    QueueFamilyIndices DeviceHandler::findQueueFamilies(VkPhysicalDevice device) const
-    {
-        QueueFamilyIndices indices;
+    // QueueFamilyIndices DeviceHandler::findQueueFamilies(VkPhysicalDevice device) const
+    // {
+    //     QueueFamilyIndices indices;
 
-        uint32_t queueFamilyCount = 0;
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+    //     uint32_t queueFamilyCount = 0;
+    //     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+    //     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    //     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
-        int i = 0;
-        for (const auto& queueFamily : queueFamilies)
-        {
-            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-            {
-                indices.GraphicsFamily = i;
-            }
+    //     int i = 0;
+    //     for (const auto& queueFamily : queueFamilies)
+    //     {
+    //         if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+    //         {
+    //             indices.GraphicsFamily = i;
+    //         }
 
-            if (isPhysicalDeviceSupported(device, i))
-            {
-                indices.PresentFamily = i;
-            }
+    //         if (isPhysicalDeviceSupported(device, i))
+    //         {
+    //             indices.PresentFamily = i;
+    //         }
 
-            if (indices.isComplete())
-                break;
+    //         if (indices.isComplete())
+    //             break;
 
-            i++;
-        }
+    //         i++;
+    //     }
 
-        return indices;
-    }
+    //     return indices;
+    // }
 
-    SwapChainSupportDetails DeviceHandler::querySwapChainSupport(VkPhysicalDevice physicalDevice) const
-    {
-        SwapChainSupportDetails details;
-        VkSurfaceKHR surface = m_surface->getVkSurfaceKHR();
+    // SwapChainSupportDetails DeviceHandler::querySwapChainSupport(VkPhysicalDevice physicalDevice) const
+    // {
+    //     SwapChainSupportDetails details;
+    //     VkSurfaceKHR surface = m_surface->getVkSurfaceKHR();
 
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details.Capabilities);
+    //     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details.Capabilities);
 
-        uint32_t formatCount;
-        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
+    //     uint32_t formatCount;
+    //     vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
 
-        if (formatCount != 0)
-        {
-            details.Formats.resize(formatCount);
-            vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, details.Formats.data());
-        }
+    //     if (formatCount != 0)
+    //     {
+    //         details.Formats.resize(formatCount);
+    //         vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, details.Formats.data());
+    //     }
 
-        uint32_t presentModeCount;
-        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
+    //     uint32_t presentModeCount;
+    //     vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
 
-        if (presentModeCount != 0)
-        {
-            details.PresentModes.resize(presentModeCount);
-            vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, details.PresentModes.data());
-        }
+    //     if (presentModeCount != 0)
+    //     {
+    //         details.PresentModes.resize(presentModeCount);
+    //         vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, details.PresentModes.data());
+    //     }
 
-        return details;
-    }
+    //     return details;
+    // }
 
-    VkBool32 DeviceHandler::isPhysicalDeviceSupported(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) const
-    {
-        VkBool32 supported = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_surface->getVkSurfaceKHR(), &supported);
-        return supported;
-    }
+    // VkBool32 DeviceHandler::isPhysicalDeviceSupported(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) const
+    // {
+    //     VkBool32 supported = false;
+    //     vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_surface->getVkSurfaceKHR(), &supported);
+    //     return supported;
+    // }
 }

@@ -40,7 +40,9 @@ namespace narc_engine {
         builder.setValidationLayers(&g_validationLayers);
 
         m_instance = CREATE_ENGINE_UNIQUE_COMPONENT(EngineInstance, &builder);
+        builder.m_instance = m_instance.get();
         m_surfaceProvider = CREATE_ENGINE_UNIQUE_COMPONENT(Window, m_instance.get(), this);
+        builder.m_surface = m_surfaceProvider.get();
 
         if (m_instance == nullptr || m_surfaceProvider == nullptr)
         {
@@ -48,7 +50,8 @@ namespace narc_engine {
         }
 
         m_debugLogger = CREATE_ENGINE_UNIQUE_COMPONENT(EngineDebugLogger, m_instance.get());
-        m_deviceHandler = CREATE_ENGINE_UNIQUE_COMPONENT(DeviceHandler, m_surfaceProvider.get(), m_instance.get(), m_debugLogger.get());
+        builder.m_debugLogger = m_debugLogger.get();
+        m_deviceHandler = CREATE_ENGINE_UNIQUE_COMPONENT(DeviceHandler, &builder);
 
         m_commandPool = CREATE_ENGINE_UNIQUE_COMPONENT(CommandPool);
         m_renderer = CREATE_ENGINE_UNIQUE_COMPONENT(EngineRenderer, m_instance.get(), m_surfaceProvider.get());

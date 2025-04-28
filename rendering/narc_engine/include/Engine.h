@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/EngineBuilder.h"
+
 #include "interfaces/IEngine.h"
 #include "core/interfaces/IEngineCallbacks.h"
 

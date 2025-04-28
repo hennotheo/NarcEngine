@@ -5,7 +5,8 @@
 #pragma once
 #include "DeviceHandler.h"
 
-namespace narc_engine {
+namespace narc_engine
+{
     class DeviceHandler;
 
     class DeviceComponent
