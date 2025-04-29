@@ -11,52 +11,47 @@
 #ifdef NARC_ENGINE_PLATFORM_WINDOWS
 
 #include "platform/windows/WindowsLogger.h"
-#define CREATE_LOGGER new WindowsLogger
+#define CREATE_LOGGER new narclog::WindowsLogger
 
 #else
 #error Unsupported platform.
 
 #endif
 
-namespace narclog {
-    Logger* g_logger = nullptr;
+namespace narclog
+{
+    Logger *g_logger = nullptr;
 
     void terminate()
     {
-        try
+        if (g_logger == nullptr)
         {
-            if (std::current_exception())
+            std::cout << "Logger not created." << std::endl;
+            return;
+        }
+
+        std::exception_ptr currentException = std::current_exception();
+        if (currentException)
+        {
+            try
             {
-                auto exceptionPtr = std::current_exception();
-                try
-                {
-                    if (exceptionPtr)
-                    {
-                        std::rethrow_exception(exceptionPtr);
-                    }
-                }
-                catch (const narclog::FatalException& e)
-                {
-                    std::cerr << "Fatal exception: " << e.what() << std::endl;
-                }
-                catch (const narclog::ErrorException& e)
-                {
-                    std::cerr << "Error exception: " << e.what() << std::endl;
-                    return;
-                }
-                catch (const std::exception& e)
-                {
-                    std::cerr << "Unhandled exception: " << e.what() << std::endl;
-                }
-                catch (...)
-                {
-                    std::cerr << "Unhandled unknown exception." << std::endl;
-                }
+                // Relancer l'exception pour la capturer
+                std::rethrow_exception(currentException);
+            }
+            catch (const std::exception &e)
+            {
+                // Afficher les informations sur l'exception
+                std::cerr << "Exception non interceptée : " << e.what() << std::endl;
+            }
+            catch (...)
+            {
+                // Gérer les exceptions non dérivées de std::exception
+                std::cerr << "Exception non interceptée : type inconnu" << std::endl;
             }
         }
-        catch (...)
+        else
         {
-            std::cerr << "Error while handling exception during termination." << std::endl;
+            std::cerr << "Aucune exception courante au moment de terminate" << std::endl;
         }
 
         if (g_logger != nullptr)
@@ -75,7 +70,6 @@ namespace narclog {
         }
 
         g_logger = CREATE_LOGGER();
-        std::set_terminate(terminate);
     }
 
     void destroyLogger()
@@ -89,14 +83,8 @@ namespace narclog {
         g_logger = nullptr;
     }
 
-    // template<LogConcept TMsg>
-    template <typename... Args>
-    void log(LogLevel level, const Args&... args)
+    void logString(LogLevel level, const std::string &message)
     {
-        std::ostringstream oss;
-        ((oss << args), ...); // Fold expression to concatenate all arguments
-        std::string message = oss.str();
-
         if (level == LogLevel::FATAL)
         {
             throw narclog::FatalException(message);
@@ -115,27 +103,6 @@ namespace narclog {
         }
 
         g_logger->log(level, message);
-        // if constexpr (MessageConcept<TMsg>)
-        // {
-        //     g_logger->log(level, message);
-        //     return;
-        // }
-
-        // if constexpr (ArithmeticConcept<TMsg>)
-        // {
-        //     g_logger->log(level, message);
-        // }
-
-        // NARCLOG_FATAL("Message type " + std::string(typeid(message).name()) + " not supported.");
-#endif 
+#endif
     }
-
-    // template void log<const char*>(LogLevel, const char*);
-    // template void log<const std::string&>(LogLevel, const std::string&);
-    // template void log<std::string>(LogLevel, std::string);
-    // template void log<std::string&>(LogLevel, std::string&);
-    // template void log<size_t>(LogLevel, size_t);
-    // template void log<uint32_t>(LogLevel, uint32_t);
-    // template void log<uint16_t>(LogLevel, uint16_t);
-    // template void log<bool>(LogLevel, bool);
 }

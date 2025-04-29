@@ -10,6 +10,9 @@
 #define NARCLOG_INFO(message) narclog::log(INFO, message)
 #define NARCLOG_DEBUG(message) narclog::log(DEBUG, message)
 
+#define NARCLOG_INIT() narclog::createLogger(); \
+    std::set_terminate(narclog::terminate) \
+
 #include "keywords/KeyWords.h"
 #include "keywords/LogLevel.h"
 
@@ -21,7 +24,14 @@ namespace narclog
     NARCLOG_API void createLogger();
     NARCLOG_API void destroyLogger();
 
-    // template <LogConcept TMsg>
+    NARCLOG_API void logString(LogLevel level, const std::string &message);
+    NARCLOG_API void terminate();
+
     template <typename... Args>
-    NARCLOG_API void log(LogLevel level, const Args&... args);
+    NARCLOG_API inline void log(LogLevel level, const Args&...args)
+    {
+        std::ostringstream oss;
+        (oss << ... << args);
+        logString(level, oss.str());
+    }
 }

@@ -17,12 +17,11 @@ namespace narc
     Application::Application()
     {
         m_engine = narc_engine::createEngine();
-        NARCLOG_ERROR("Engine created successfully.");
+        NARCLOG_FATAL("Engine eee successfully.");
     }
 
     Application::~Application()
     {
-        NARCLOG_FATAL("Engine eee successfully.");
         delete m_engine;
     }
 

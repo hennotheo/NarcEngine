@@ -18,9 +18,9 @@ namespace narc_engine
         DeviceHandler(const EngineBuilder* builder);
         ~DeviceHandler();
 
-        GETTER const inline VkDevice &getDevice() const { return m_device; }
-        GETTER const inline VkPhysicalDevice &getPhysicalDevice() const { return m_physicalDevice.get()->getPhysicalDevice(); }
-        GETTER const inline VkPhysicalDeviceProperties &getPhysicalDeviceProperties() const { return m_physicalDeviceProperties; }
+        GETTER const inline VkDevice& getDevice() const { return m_logicalDevice->getVkDevice(); }
+        GETTER const inline VkPhysicalDevice& getPhysicalDevice() const { return m_physicalDevice.get()->getPhysicalDevice(); }
+        GETTER const inline VkPhysicalDeviceProperties& getPhysicalDeviceProperties() const { return m_physicalDeviceProperties; }
         GETTER const inline SwapChainSupportDetails getSwapChainSupportDetails() const { return m_physicalDevice.get()->getSwapChainSupport(); }
 
         void createSwapChain(VkSwapchainCreateInfoKHR &createInfo, VkSwapchainKHR *swapchain) const;
@@ -39,15 +39,15 @@ namespace narc_engine
 
     private:
         std::unique_ptr<PhysicalDevice> m_physicalDevice;
-        VkDevice m_device;
+        std::unique_ptr<LogicalDevice> m_logicalDevice;
 
         VkQueue m_presentQueue;
         VkQueue m_graphicsQueue;
 
         VkPhysicalDeviceProperties m_physicalDeviceProperties{};
 
-        const EngineInstance *m_instance = nullptr;
-        const ISurfaceProvider *m_surface = nullptr;
+        const EngineInstance* m_instance = nullptr;
+        const ISurfaceProvider* m_surface = nullptr;
         LayersPtr m_deviceExtensions;
 
         void createLogicalDevice(const EngineDebugLogger* debugLogger);
