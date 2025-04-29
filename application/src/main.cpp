@@ -12,16 +12,14 @@ narc::Application* g_app = nullptr;
 
 void engineRun()
 {
-    NARCLOG_PREPARE_HANDLER(NarcEngine);
-
-    NARC_EXECUTE_HANDLED(NarcEngine, g_app = new narc::Application());
-    NARC_EXECUTE_HANDLED(NarcEngine, g_app->start());
+    g_app = new narc::Application();
+    g_app->start();
 
     NARCLOG_DEBUG("Engine initialized correctly.");
 
     while (!g_app->shouldClose())
     {
-        NARC_EXECUTE_HANDLED(NarcEngine, g_app->appLoopBody());
+        g_app->appLoopBody();
     }
 }
 
@@ -35,16 +33,39 @@ void engineShutdown()
     NARCLOG_DEBUG("Engine is shutting down");
     g_app->stop();
     delete g_app;
+    
+    narclog::destroyLogger();
 }
 
 int main(int argc, char** argv)
 {
     narclog::createLogger();
 
-    const int result = NARCLOG_EXECUTE_FINALLY_FATAL_SAFE(engineRun(), engineShutdown());
+    try
+    {
+        engineRun();
+    }
+    catch (const narclog::FatalException& e)
+    {
+        NARCLOG_FATAL("Fatal error: " + std::string(e.what()));
+        engineShutdown();
+        return -1;
+    }
+    catch (const narclog::ErrorException& e)
+    {
+        NARCLOG_ERROR("Error: " + std::string(e.what()));
+        engineShutdown();
+        return -1;
+    }
+    catch (const std::exception& e)
+    {
+        NARCLOG_ERROR("Exception: " + std::string(e.what()));
+        engineShutdown();
+        return -1;
+    }
 
-    narclog::destroyLogger();
-    return result;
+    engineShutdown();
+    return 0;
 }
 
 #endif

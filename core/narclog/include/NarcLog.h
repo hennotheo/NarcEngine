@@ -16,14 +16,12 @@
 #include "exceptions/ErrorException.h"
 #include "exceptions/FatalException.h"
 
-#include "exceptions/ExceptionHandlerBuilder.h"
-#include "exceptions/MethodExceptionHandler.h"
-
 namespace narclog
 {
     NARCLOG_API void createLogger();
     NARCLOG_API void destroyLogger();
 
-    template <LogConcept TMsg>
-    NARCLOG_API void log(LogLevel level, TMsg message);
+    // template <LogConcept TMsg>
+    template <typename... Args>
+    NARCLOG_API void log(LogLevel level, const Args&... args);
 }

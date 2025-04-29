@@ -75,8 +75,9 @@ namespace narc_engine {
     {
         if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
         {
-            NARCLOG_PREPARE_HANDLER(NarcEngineCore);
-            NARC_EXECUTE_HANDLED(NarcEngineCore, NARCLOG_ERROR(pCallbackData->pMessage), pCallbackData);
+            // NARCLOG_PREPARE_HANDLER(NarcEngineCore);
+            // NARC_EXECUTE_HANDLED(NarcEngineCore, NARCLOG_ERROR(pCallbackData->pMessage), pCallbackData);
+            NARCLOG_ERROR(pCallbackData->pMessage);
         }
         else if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
         {
