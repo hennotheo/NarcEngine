@@ -20,50 +20,33 @@
 
 namespace narclog
 {
-    Logger *g_logger = nullptr;
+    std::mutex mutex;
+    Logger* g_logger = nullptr;
 
-    void terminate()
+    void setSafeCloseCallback(std::function<void()> callback)
     {
+        g_logger->setSafeCloseCallback(callback);
+    }
+
+    void handleTerminate()
+    {
+        std::lock_guard<std::mutex> lock(mutex);
         if (g_logger == nullptr)
         {
             std::cout << "Logger not created." << std::endl;
             return;
         }
 
-        std::exception_ptr currentException = std::current_exception();
-        if (currentException)
-        {
-            try
-            {
-                // Relancer l'exception pour la capturer
-                std::rethrow_exception(currentException);
-            }
-            catch (const std::exception &e)
-            {
-                // Afficher les informations sur l'exception
-                std::cerr << "Exception non interceptée : " << e.what() << std::endl;
-            }
-            catch (...)
-            {
-                // Gérer les exceptions non dérivées de std::exception
-                std::cerr << "Exception non interceptée : type inconnu" << std::endl;
-            }
-        }
-        else
-        {
-            std::cerr << "Aucune exception courante au moment de terminate" << std::endl;
-        }
+        g_logger->onTerminate();
 
-        if (g_logger != nullptr)
-        {
-            destroyLogger();
-        }
+        destroyLogger();
 
         std::abort();
     }
 
     void createLogger()
     {
+        std::lock_guard<std::mutex> lock(mutex);
         if (g_logger != nullptr)
         {
             throw std::runtime_error("Logger already created.");
@@ -74,6 +57,7 @@ namespace narclog
 
     void destroyLogger()
     {
+        std::lock_guard<std::mutex> lock(mutex);
         if (g_logger == nullptr)
         {
             throw std::runtime_error("Logger already destroyed.");
@@ -83,8 +67,10 @@ namespace narclog
         g_logger = nullptr;
     }
 
-    void logString(LogLevel level, const std::string &message)
+    void logString(LogLevel level, const std::string& message)
     {
+        std::lock_guard<std::mutex> lock(mutex);
+
         if (level == LogLevel::FATAL)
         {
             throw narclog::FatalException(message);

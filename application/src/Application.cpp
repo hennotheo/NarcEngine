@@ -17,7 +17,6 @@ namespace narc
     Application::Application()
     {
         m_engine = narc_engine::createEngine();
-        NARCLOG_FATAL("Engine eee successfully.");
     }
 
     Application::~Application()

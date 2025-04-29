@@ -11,7 +11,10 @@
 #define NARCLOG_DEBUG(message) narclog::log(DEBUG, message)
 
 #define NARCLOG_INIT() narclog::createLogger(); \
-    std::set_terminate(narclog::terminate) \
+    std::set_terminate(narclog::handleTerminate) \
+
+#define NARCLOG_INIT_WITH_CALLBACK(callback) NARCLOG_INIT(); \
+    narclog::setSafeCloseCallback(callback)
 
 #include "keywords/KeyWords.h"
 #include "keywords/LogLevel.h"
@@ -24,8 +27,10 @@ namespace narclog
     NARCLOG_API void createLogger();
     NARCLOG_API void destroyLogger();
 
-    NARCLOG_API void logString(LogLevel level, const std::string &message);
-    NARCLOG_API void terminate();
+    NARCLOG_API void setSafeCloseCallback(std::function<void()> callback);
+
+    NARCLOG_API void logString(LogLevel level, const std::string& message);
+    NARCLOG_API void handleTerminate();
 
     template <typename... Args>
     NARCLOG_API inline void log(LogLevel level, const Args&...args)
