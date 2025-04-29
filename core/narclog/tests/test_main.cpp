@@ -8,55 +8,62 @@
 
 #include "NarcLog.h"
 
-class LogTests : public ::testing::Test
+#define INITIALISATION_TESTS(testName) TEST(NarcLog_Initialisation, testName)
+#define LOG_TESTS(testName) TEST(NarcLog_Logging, testName)
+
+class LogTests
 {
-protected:
+public:
     LogTests()
     {
         narclog::createLogger();
     };
 
-    ~LogTests() override
+    ~LogTests()
     {
         narclog::destroyLogger();
     }
-
-    void SetUp() override
-    {
-    }
-
-    void TearDown() override
-    {
-    }
 };
 
-TEST(LoggerInitialisation, LoggerCreation)
+INITIALISATION_TESTS(LoggerCreation_NoThrow)
 {
-    EXPECT_NO_THROW(narclog::createLogger(););
+    EXPECT_NO_THROW(LogTests log(););
+}
+
+INITIALISATION_TESTS(LoggerDestroy_NoThrow)
+{
+    narclog::createLogger();
     EXPECT_NO_THROW(narclog::destroyLogger(););
 }
 
-TEST_F(LogTests, Log_Infos)
+LOG_TESTS(Log_Infos)
 {
+    LogTests logger;
+
     testing::internal::CaptureStdout();
     NARCLOG_INFO("MESSAGE");
     EXPECT_THAT(testing::internal::GetCapturedStdout(), ::testing::HasSubstr("MESSAGE"));
 }
 
-TEST_F(LogTests, Log_Warning)
+LOG_TESTS(Log_Warning)
 {
+    LogTests logger;
+
     testing::internal::CaptureStdout();
     NARCLOG_WARNING("MESSAGE");
     EXPECT_THAT(testing::internal::GetCapturedStdout(), ::testing::HasSubstr("MESSAGE"));
 }
 
-TEST_F(LogTests, Log_Error)
+LOG_TESTS(Log_Error)
 {
+    LogTests logger;
+
     EXPECT_THROW(NARCLOG_ERROR("MESSAGE");, narclog::ErrorException);
 }
 
-TEST_F(LogTests, Log_Fatal)
+LOG_TESTS(Log_Fatal)
 {
+    LogTests logger;
     EXPECT_THROW(NARCLOG_FATAL("MESSAGE");, narclog::FatalException);
 }
 

@@ -16,7 +16,6 @@
 #define NARCLOG_INIT_WITH_CALLBACK(callback) NARCLOG_INIT(); \
     narclog::setSafeCloseCallback(callback)
 
-#include "keywords/KeyWords.h"
 #include "keywords/LogLevel.h"
 
 #include "exceptions/ErrorException.h"
