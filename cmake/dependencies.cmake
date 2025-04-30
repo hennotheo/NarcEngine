@@ -55,7 +55,7 @@ if(WIN32)
             message("Using bundled Vulkan library version")
         endif()
     endif()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_USE_PLATFORM_WIN32_KHR")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_USE_PLATFORM_WIN32_KHR" CACHE STRING "Vulkan Windows platform flag")
 
 elseif(UNIX)
 

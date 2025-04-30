@@ -236,9 +236,9 @@ namespace narc_engine {
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocInfo.descriptorSetCount = descriptorSetCount;
         allocInfo.pSetLayouts = layouts.data();
-
+        
         m_frameManager->allocateDescriptorSets(allocInfo);
-
+        
         RenderTask* renderer = new RenderTask(&m_swapChain, &m_descriptorSetLayout, material);
         m_rendererTasks.emplace(material->getMaterialID(), renderer);
 
@@ -247,7 +247,6 @@ namespace narc_engine {
 
     void EngineRenderer::onSurfaceFramebufferResized(int width, int height)
     {
-        NARCLOG_INFO("Framebuffer resized to");
         m_framebufferResized = true;
     }
 } // narc_engine

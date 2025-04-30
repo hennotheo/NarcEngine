@@ -25,20 +25,18 @@ void engineRun()
 
 void engineShutdown()
 {
-    NARCLOG_DEBUG("Engine is shutting down");
     g_app->stop();
     delete g_app;
-
-    narclog::destroyLogger();
 }
 
 int main(int argc, char **argv)
 {
-    NARCLOG_INIT_WITH_CALLBACK(engineShutdown);
-
+    NARCLOG_INIT(engineShutdown);
+    
     engineRun();
-
+    
     engineShutdown();
+    narclog::destroyLogger();
     return 0;
 }
 

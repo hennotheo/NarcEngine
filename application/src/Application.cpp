@@ -36,7 +36,7 @@ namespace narc
         const narc_io::Model3D model2 = narc_io::FileReader::load3DModel(g_model2Path);
         m_renderMaterial = new narc_engine::Material(g_texturePath.c_str());
         m_renderMaterial2 = new narc_engine::Material(g_texture2Path.c_str());
-
+        
         m_renderer = new narc_engine::Renderer(&model, m_renderMaterial, m_transform);
         m_renderer2 = new narc_engine::Renderer(&model2, m_renderMaterial2, m_transform);
     }
@@ -56,7 +56,6 @@ namespace narc
     {
         // PRE-UPDATE ENGINE LOGIC
         m_engine->pollEvents();
-
 
         double newTime = 0;//m_engine->window()->getWindowTime();
         double deltaTime = 0.0166666666666667;

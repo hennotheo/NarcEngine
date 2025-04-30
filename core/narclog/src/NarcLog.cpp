@@ -20,17 +20,13 @@
 
 namespace narclog
 {
-    std::mutex mutex;
-    Logger* g_logger = nullptr;
-
-    void setSafeCloseCallback(std::function<void()> callback)
-    {
-        g_logger->setSafeCloseCallback(callback);
-    }
+    std::mutex loggingMutex;
+    std::mutex terminateMutex;
+    Logger *g_logger = nullptr;
 
     void handleTerminate()
     {
-        std::lock_guard<std::mutex> lock(mutex);
+        std::lock_guard<std::mutex> lock(terminateMutex);
         if (g_logger == nullptr)
         {
             std::cout << "Logger not created." << std::endl;
@@ -44,20 +40,31 @@ namespace narclog
         std::abort();
     }
 
+    void setSafeCloseCallback(std::function<void()> callback)
+    {
+        g_logger->setSafeCloseCallback(callback);
+    }
+
     void createLogger()
     {
-        std::lock_guard<std::mutex> lock(mutex);
         if (g_logger != nullptr)
         {
             throw std::runtime_error("Logger already created.");
         }
 
-        g_logger = CREATE_LOGGER();
+        try
+        {
+            g_logger = CREATE_LOGGER();
+            std::set_terminate(handleTerminate);
+        }
+        catch (const std::exception &e)
+        {
+            throw std::runtime_error("Failed to create logger: " + std::string(e.what()));
+        }
     }
 
     void destroyLogger()
     {
-        std::lock_guard<std::mutex> lock(mutex);
         if (g_logger == nullptr)
         {
             throw std::runtime_error("Logger already destroyed.");
@@ -67,9 +74,9 @@ namespace narclog
         g_logger = nullptr;
     }
 
-    void logString(LogLevel level, const std::string& message)
+    void logString(LogLevel level, const std::string &message)
     {
-        std::lock_guard<std::mutex> lock(mutex);
+        std::lock_guard<std::mutex> lock(loggingMutex);
 
         if (level == LogLevel::FATAL)
         {

@@ -92,9 +92,12 @@ namespace narclog {
             }
             catch (...)
             {
-                // Gérer les exceptions non dérivées de std::exception
                 log(LogLevel::FATAL, "Exception non interceptée : type inconnu");
             }
+        }
+        else
+        {
+            log(LogLevel::INFO, "Logger terminated without exception.");
         }
 
         m_safeCloseCallback();
