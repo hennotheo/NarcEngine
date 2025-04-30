@@ -27,7 +27,7 @@ public:
 
 INITIALISATION_TESTS(LoggerCreation_NoThrow)
 {
-    EXPECT_NO_THROW(LogTests log(););
+    EXPECT_NO_THROW(LogTests log{};);
 }
 
 INITIALISATION_TESTS(LoggerDestroy_NoThrow)
@@ -42,7 +42,8 @@ LOG_TESTS(Log_Infos)
 
     testing::internal::CaptureStdout();
     NARCLOG_INFO("MESSAGE");
-    EXPECT_THAT(testing::internal::GetCapturedStdout(), ::testing::HasSubstr("MESSAGE"));
+    std::string output = testing::internal::GetCapturedStdout();
+    EXPECT_THAT(output, ::testing::HasSubstr("MESSAGE"));
 }
 
 LOG_TESTS(Log_Warning)
@@ -51,7 +52,8 @@ LOG_TESTS(Log_Warning)
 
     testing::internal::CaptureStdout();
     NARCLOG_WARNING("MESSAGE");
-    EXPECT_THAT(testing::internal::GetCapturedStdout(), ::testing::HasSubstr("MESSAGE"));
+    std::string output = testing::internal::GetCapturedStdout();
+    EXPECT_THAT(output, ::testing::HasSubstr("MESSAGE"));
 }
 
 LOG_TESTS(Log_Error)

@@ -34,7 +34,7 @@ INITIALISATION_TESTS(Device_NoThrow)
     builder.setDeviceExtensions(&g_deviceExtensions);
     PhysicalDevice physicalDevice(&builder);
 
-    EXPECT_NO_THROW(LogicalDevice logicalDevice(&builder););
+    EXPECT_NO_THROW(LogicalDevice logicalDevice(&builder, &physicalDevice););
 }
 
 INITIALISATION_TESTS(DeviceHandler_NoThrow)

@@ -23,7 +23,6 @@
             "binaryDir": "${sourceDir}/build_tests",
             "cacheVariables": {
                 "ENABLE_TESTS": "ON",
-                "BUILD_TESTS ": "ON",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
         }
@@ -32,7 +31,7 @@
         {
             "name": "dev-editor",
             "configurePreset": "dev",
-            "targets":[
+            "targets": [
                 "NarcEngineEditor"
             ],
             "cleanFirst": false
@@ -40,7 +39,7 @@
         {
             "name": "release",
             "configurePreset": "release",
-            "targets":[
+            "targets": [
                 "all"
             ],
             "cleanFirst": true

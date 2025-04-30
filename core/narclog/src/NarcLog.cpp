@@ -22,7 +22,7 @@ namespace narclog
 {
     std::mutex loggingMutex;
     std::mutex terminateMutex;
-    Logger *g_logger = nullptr;
+    Logger* g_logger = nullptr;
 
     void handleTerminate()
     {
@@ -57,7 +57,7 @@ namespace narclog
             g_logger = CREATE_LOGGER();
             std::set_terminate(handleTerminate);
         }
-        catch (const std::exception &e)
+        catch (const std::exception& e)
         {
             throw std::runtime_error("Failed to create logger: " + std::string(e.what()));
         }
@@ -74,7 +74,7 @@ namespace narclog
         g_logger = nullptr;
     }
 
-    void logString(LogLevel level, const std::string &message)
+    void logString(LogLevel level, const std::string& message)
     {
         std::lock_guard<std::mutex> lock(loggingMutex);
 
@@ -88,7 +88,7 @@ namespace narclog
             throw narclog::ErrorException(message);
         }
 
-#ifndef NARC_TEST_BUILD
+#if !defined(NARC_TEST_BUILD) || (defined(NARC_TEST_BUILD) && defined(NARCLOG_BUILD_DLL))
         if (g_logger == nullptr)
         {
             std::cout << "Logger not created : " << message << std::endl;
