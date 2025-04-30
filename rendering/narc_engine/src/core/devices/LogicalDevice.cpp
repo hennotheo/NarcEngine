@@ -9,28 +9,10 @@ namespace narc_engine
 {
     LogicalDevice::LogicalDevice(const EngineBuilder* builder, const PhysicalDevice* physicalDevice)
     {
-        const EngineDebugLogger* debugLogger = builder->getDebugLogger();
-        LayersPtr deviceExtensions = builder->getDeviceExtensions();
         m_physicalDevice = physicalDevice;
 
         QueueFamilyIndices indices = m_physicalDevice->getQueueFamilyIndices();
-
-        NARCLOG_DEBUG("Creating logical device...");
-        std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-        std::set<uint32_t> uniqueQueueFamilies = { indices.GraphicsFamily.value(), indices.PresentFamily.value() };
-
-        NARCLOG_DEBUG("Creating queue families...");
-        float queuePriority = 1.0f;
-        for (uint32_t queueFamily : uniqueQueueFamilies)
-        {
-            VkDeviceQueueCreateInfo queueCreateInfo{};
-            queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-            queueCreateInfo.queueFamilyIndex = queueFamily;
-            queueCreateInfo.queueCount = 1;
-            queueCreateInfo.pQueuePriorities = &queuePriority;
-            queueCreateInfos.push_back(queueCreateInfo);
-        }
-        NARCLOG_DEBUG("Creating device features...");
+        std::vector<VkDeviceQueueCreateInfo> queueCreateInfos = createQueueCreateInfos(indices);
 
         VkPhysicalDeviceAccelerationStructureFeaturesKHR accelStructFeatures{};
         accelStructFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR;
@@ -48,11 +30,11 @@ namespace narc_engine
         createInfo.pQueueCreateInfos = queueCreateInfos.data();
         createInfo.pNext = &deviceFeatures2;
 
+        const KeywordList* deviceExtensions = builder->getDeviceExtensions();
         createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions->size());
         createInfo.ppEnabledExtensionNames = deviceExtensions->data();
 
-        NARCLOG_DEBUG("Creating device layers...");
-        debugLogger->linkToDevice(createInfo);
+        builder->getDebugLogger()->linkToDevice(createInfo);
 
         if (vkCreateDevice(m_physicalDevice->getPhysicalDevice(), &createInfo, nullptr, &m_device) != VK_SUCCESS)
         {
@@ -63,5 +45,24 @@ namespace narc_engine
     LogicalDevice::~LogicalDevice()
     {
         vkDestroyDevice(m_device, nullptr);
+    }
+
+    std::vector<VkDeviceQueueCreateInfo> LogicalDevice::createQueueCreateInfos(const QueueFamilyIndices& indices)
+    {
+        std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+        std::set<uint32_t> uniqueQueueFamilies = { indices.GraphicsFamily.value(), indices.PresentFamily.value() };
+
+        float queuePriority = 1.0f;
+        for (uint32_t queueFamily : uniqueQueueFamilies)
+        {
+            VkDeviceQueueCreateInfo queueCreateInfo{};
+            queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            queueCreateInfo.queueFamilyIndex = queueFamily;
+            queueCreateInfo.queueCount = 1;
+            queueCreateInfo.pQueuePriorities = &queuePriority;
+            queueCreateInfos.push_back(queueCreateInfo);
+        }
+
+        return queueCreateInfos;
     }
 }

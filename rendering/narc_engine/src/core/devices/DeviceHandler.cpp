@@ -20,23 +20,17 @@ namespace narc_engine
         m_surface = builder->getSurfaceProvider();
         m_deviceExtensions = builder->getDeviceExtensions();
 
-        NARCLOG_DEBUG("Creating device handler...");
         m_physicalDevice = std::make_unique<PhysicalDevice>(builder);
-        NARCLOG_DEBUG("Creating logical device...");
         m_logicalDevice = std::make_unique<LogicalDevice>(builder, m_physicalDevice.get());
 
-        NARCLOG_DEBUG("Creating device properties...");
-        vkGetPhysicalDeviceProperties(m_physicalDevice->getPhysicalDevice(), &m_physicalDeviceProperties);
-        NARCLOG_DEBUG("Creating device queues...");
         QueueFamilyIndices indices = m_physicalDevice->getQueueFamilyIndices();
         vkGetDeviceQueue(m_logicalDevice->getVkDevice(), indices.GraphicsFamily.value(), 0, &m_graphicsQueue);
         vkGetDeviceQueue(m_logicalDevice->getVkDevice(), indices.PresentFamily.value(), 0, &m_presentQueue);
-
     }
 
     DeviceHandler::~DeviceHandler()
     {
-        // vkDestroyDevice(m_device, nullptr);
+        
     }
 
     void DeviceHandler::setupImGui(ImGui_ImplVulkan_InitInfo* initInfo) const

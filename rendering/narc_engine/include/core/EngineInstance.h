@@ -25,7 +25,7 @@ namespace narc_engine {
     private:
         VkApplicationInfo createAppInfo();
         uint32_t getInstanceVersion();
-        void checkValidationLayerSupport(LayersPtr validationLayers);
+        void checkValidationLayerSupport(const KeywordList* validationLayers);
         VkInstanceCreateInfo getInstanceCreateInfo(VkApplicationInfo* appinfos);
         std::vector<const char*> getRequiredExtensions();
     };

@@ -6,6 +6,7 @@ namespace narc_engine
 {
     class EngineBuilder;
     class PhysicalDevice;
+    struct QueueFamilyIndices;
 
     class LogicalDevice
     {
@@ -19,5 +20,8 @@ namespace narc_engine
         VkDevice m_device;
 
         const PhysicalDevice* m_physicalDevice = nullptr;
+
+    private:
+        std::vector<VkDeviceQueueCreateInfo> createQueueCreateInfos(const QueueFamilyIndices& indices);
     };
 }

@@ -20,7 +20,7 @@ namespace narc_engine
 
         GETTER const inline VkDevice& getDevice() const { return m_logicalDevice->getVkDevice(); }
         GETTER const inline VkPhysicalDevice& getPhysicalDevice() const { return m_physicalDevice.get()->getPhysicalDevice(); }
-        GETTER const inline VkPhysicalDeviceProperties& getPhysicalDeviceProperties() const { return m_physicalDeviceProperties; }
+        GETTER const inline VkPhysicalDeviceProperties& getPhysicalDeviceProperties() const { return m_physicalDevice->getPhysicalDeviceProperties(); }
         GETTER const inline SwapChainSupportDetails getSwapChainSupportDetails() const { return m_physicalDevice.get()->getSwapChainSupport(); }
 
         void createSwapChain(VkSwapchainCreateInfoKHR &createInfo, VkSwapchainKHR *swapchain) const;
@@ -44,11 +44,9 @@ namespace narc_engine
         VkQueue m_presentQueue;
         VkQueue m_graphicsQueue;
 
-        VkPhysicalDeviceProperties m_physicalDeviceProperties{};
-
         const EngineInstance* m_instance = nullptr;
         const ISurfaceProvider* m_surface = nullptr;
-        LayersPtr m_deviceExtensions;
+        const KeywordList* m_deviceExtensions = nullptr;
 
         void createLogicalDevice(const EngineDebugLogger* debugLogger);
     };

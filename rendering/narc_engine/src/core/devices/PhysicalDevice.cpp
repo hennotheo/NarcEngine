@@ -10,19 +10,19 @@ namespace narc_engine
         m_surface = builder->getSurfaceProvider();
         m_instance = builder->getInstance();
         m_deviceExtensions = builder->getDeviceExtensions();
-        
+
         uint32_t deviceCount = 0;
         getAllPhysicalDevices(&deviceCount, nullptr);
         std::vector<VkPhysicalDevice> devices(deviceCount);
         getAllPhysicalDevices(&deviceCount, devices.data());
-        
+
         if (deviceCount == 0)
         {
             NARCLOG_FATAL("Failed to find GPUs with Vulkan Support!");
         }
-        
+
         std::multimap<int, VkPhysicalDevice> candidates;
-        for (const auto &device : devices)
+        for (const auto& device : devices)
         {
             int score = rateDeviceSuitability(device);
             candidates.insert(std::make_pair(score, device));
@@ -31,15 +31,17 @@ namespace narc_engine
         if (candidates.rbegin()->first > 0)
         {
             m_physicalDevice = candidates.rbegin()->second;
-            m_queueFamilyIndices = findQueueFamilies(m_physicalDevice);
         }
         else
         {
             NARCLOG_FATAL("Failed to find a suitable GPU!");
         }
+
+        m_queueFamilyIndices = findQueueFamilies(m_physicalDevice);
+        vkGetPhysicalDeviceProperties(m_physicalDevice, &m_physicalDeviceProperties);
     }
 
-    void PhysicalDevice::getAllPhysicalDevices(uint32_t *pPhysicalDeviceCount, VkPhysicalDevice *pPhysicalDevices) const
+    void PhysicalDevice::getAllPhysicalDevices(uint32_t* pPhysicalDeviceCount, VkPhysicalDevice* pPhysicalDevices) const
     {
         if (vkEnumeratePhysicalDevices(m_instance->getvkInstance(), pPhysicalDeviceCount, pPhysicalDevices) != VK_SUCCESS)
         {
