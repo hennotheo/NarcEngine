@@ -17,6 +17,7 @@ namespace narc_engine
         explicit Window(const EngineInstance* engineInstance, IEngineCallbacks* engine);
         ~Window();
 
+        GETTER const void* getSurfaceHandler() const override { return m_window; }
         GETTER VkSurfaceKHR getVkSurfaceKHR() const override { return m_surface; }
         void getValidFramebufferSize(int* width, int* height) const override;
         void getFramebufferSize(int* width, int* height) const override;

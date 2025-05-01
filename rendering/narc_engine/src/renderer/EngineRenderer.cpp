@@ -17,7 +17,7 @@ namespace narc_engine {
         m_swapChain.create(surfaceProvider);
         createDescriptorSetLayout();
         m_swapChain.createFramebuffers();
-        m_uiRenderer = std::make_unique<UiRenderer>(instance, multiFrameManager, &m_swapChain);
+        m_uiRenderer = std::make_unique<UiRenderer>(instance, multiFrameManager, &m_swapChain, surfaceProvider);
     }
 
     EngineRenderer::~EngineRenderer()
@@ -74,7 +74,7 @@ namespace narc_engine {
         submitInfo.waitSemaphoreCount = 1;
         submitInfo.pWaitSemaphores = waitSemaphores;
         submitInfo.pWaitDstStageMask = waitStages;
-        submitInfo.commandBufferCount = 1;
+        submitInfo.commandBufferCount = commandBuffers.size();
         submitInfo.pCommandBuffers = commandBuffers.data();
 
         const std::vector<VkSemaphore> signalSemaphores = { frameHandler->getRenderFinishedSemaphore() };
@@ -210,7 +210,7 @@ namespace narc_engine {
         }
 
         m_uiRenderer->beginFrame();
-        m_uiRenderer->render(commandBuffer);
+        m_uiRenderer->render(commandBuffer);//TODO CHANGE TO CUSTOM RENDER PASS
 
         commandBuffer->cmdEndRenderPass();
 

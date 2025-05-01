@@ -6,11 +6,12 @@ namespace narc_engine
     class MultiFrameManager;
     class SwapChain;
     class CommandBuffer;
+    class ISurfaceProvider;
 
     class UiRenderer
     {
     public:
-        UiRenderer(const EngineInstance* instance, const MultiFrameManager* frameManager, const SwapChain* swapChain);
+        UiRenderer(const EngineInstance* instance, const MultiFrameManager* frameManager, const SwapChain* swapChain, const ISurfaceProvider* surface);
         ~UiRenderer();
 
         void beginFrame();

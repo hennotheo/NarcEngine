@@ -6,6 +6,8 @@
 #include "core/EngineInstance.h"
 #include "core/interfaces/IEngineCallbacks.h"
 
+#include <backends/imgui_impl_glfw.h>
+
 namespace narc_engine
 {
     constexpr uint32_t g_width = 800;
