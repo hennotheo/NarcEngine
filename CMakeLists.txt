@@ -8,20 +8,23 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_C_COMPILER gcc)
+set(CMAKE_CXX_FLAGS -std=c++20)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if (NOT DEFINED CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release")
+set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release")
 endif ()
 
 project(NarcEngineEditor
-    VERSION ${NARC_VERSION}
-    LANGUAGES CXX C)
+VERSION ${NARC_VERSION}
+LANGUAGES CXX)
 
 include(cmake/helpers.cmake)
 include(cmake/dependencies.cmake)
 include(cmake/tests.cmake)
+
+narc_set_shared_lib()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS "NARC_BUILD_DEBUG" APPEND)

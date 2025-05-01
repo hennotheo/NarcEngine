@@ -3,8 +3,28 @@
 #include "models/Vertex.h"
 #include "buffers/StagingBuffer.h"
 #include "core/Window.h"
+#include "core/EngineBuilder.h"
+
+#define CREATE_ENGINE_UNIQUE_COMPONENT(type, ...) std::make_unique<type>(__VA_ARGS__);\
+    NARCLOG_DEBUG("Created engine component: " #type); \
 
 namespace narc_engine {
+    const std::vector<const char*> g_validationLayers =
+    {
+        "VK_LAYER_KHRONOS_validation"
+    };
+
+    const std::vector<const char*> g_deviceExtensions =
+    {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+        VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
+        VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
+        VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
+        VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
+    };
+
+    constexpr uint32_t g_maxFramesInFlight = 2;
+
     static Engine* s_instance;
 
     IEngine* getEngine()
@@ -26,23 +46,36 @@ namespace narc_engine {
     Engine::Engine()
     {
         s_instance = this;
-        m_window = std::make_unique<Window>();
-        m_instance = std::make_unique<EngineInstance>();
-        m_window->init(m_instance.get());
 
-        if (m_instance == nullptr || m_window == nullptr)
+        EngineBuilder builder;
+        builder.setValidationLayers(&g_validationLayers);
+        builder.setDeviceExtensions(&g_deviceExtensions);
+
+        m_instance = CREATE_ENGINE_UNIQUE_COMPONENT(EngineInstance, &builder);
+        builder.m_instance = m_instance.get();
+        m_surfaceProvider = CREATE_ENGINE_UNIQUE_COMPONENT(Window, m_instance.get(), this);
+        builder.m_surface = m_surfaceProvider.get();
+
+        if (m_instance == nullptr || m_surfaceProvider == nullptr)
         {
             NARCLOG_FATAL("Failed to initialize Engine: m_instance or m_window is null");
         }
 
-        m_debugLogger = std::make_unique<EngineDebugLogger>(m_instance.get());
-        m_deviceHandler = std::make_unique<DeviceHandler>(m_window.get(), m_instance.get(), m_debugLogger.get());
+        m_debugLogger = CREATE_ENGINE_UNIQUE_COMPONENT(EngineDebugLogger, m_instance.get());
+        builder.m_debugLogger = m_debugLogger.get();
+        m_deviceHandler = CREATE_ENGINE_UNIQUE_COMPONENT(DeviceHandler, &builder);
+        builder.m_physicalDevice = m_deviceHandler->getPhysicalDevice();
+        builder.m_logicalDevice = m_deviceHandler->getLogicalDevice();
 
-        m_commandPool = std::make_unique<CommandPool>();
-        m_renderer = std::make_unique<EngineRenderer>(m_instance.get());
+        m_graphicsQueue = CREATE_ENGINE_UNIQUE_COMPONENT(GraphicsQueue, &builder);
+        m_presentQueue = CREATE_ENGINE_UNIQUE_COMPONENT(PresentQueue, &builder);
 
-        m_engineBinder = std::make_unique<EngineBinder>(this);
-        m_resourcesManager = std::make_unique<EngineResourcesManager>();
+        m_commandPool = CREATE_ENGINE_UNIQUE_COMPONENT(CommandPool);
+        m_frameManager = CREATE_ENGINE_UNIQUE_COMPONENT(MultiFrameManager, g_maxFramesInFlight);
+        m_renderer = CREATE_ENGINE_UNIQUE_COMPONENT(EngineRenderer, m_instance.get(), m_surfaceProvider.get(), m_frameManager.get());
+
+        m_engineBinder = CREATE_ENGINE_UNIQUE_COMPONENT(EngineBinder, this);
+        m_resourcesManager = CREATE_ENGINE_UNIQUE_COMPONENT(EngineResourcesManager);
     }
 
     Engine::~Engine() = default;
@@ -64,22 +97,30 @@ namespace narc_engine {
 
     void Engine::pollEvents()
     {
-        m_window->update();
-    }
-
-    bool Engine::shouldClose() const
-    {
-        return m_window->shouldClose();
+        m_surfaceProvider->pollEvents();
     }
 
     void Engine::render()
     {
-        m_renderer->drawFrame();
+        const FrameHandler* frameHandler = m_frameManager->getCurrentFrameHandler();
+        VkDevice device = m_deviceHandler->getLogicalDevice()->getVkDevice();
+
+        const std::vector<VkFence> inFlightFencesToWait = { frameHandler->getInFlightFence() };
+        vkWaitForFences(device, 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
+
+        m_renderer->prepareFrame(frameHandler);
+
+        vkResetFences(device, 1, inFlightFencesToWait.data());
+
+        SignalSemaphores signalSemaphores = m_renderer->drawFrame(frameHandler);
+        m_renderer->presentFrame(signalSemaphores);
+
+        m_frameManager->nextFrame();
     }
 
     void Engine::waitDeviceIdle()
     {
-        m_deviceHandler->waitDeviceIdle();
+        m_deviceHandler->getLogicalDevice()->waitDeviceIdle();
     }
 
     bool Engine::hasStencilComponent(VkFormat format)
@@ -215,25 +256,25 @@ namespace narc_engine {
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageInfo.flags = 0; // Optional
 
-        if (vkCreateImage(m_deviceHandler->getDevice(), &imageInfo, nullptr, &image) != VK_SUCCESS)
+        if (vkCreateImage(m_deviceHandler->getLogicalDevice()->getVkDevice(), &imageInfo, nullptr, &image) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create image!");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetImageMemoryRequirements(m_deviceHandler->getDevice(), image, &memRequirements);
+        vkGetImageMemoryRequirements(m_deviceHandler->getLogicalDevice()->getVkDevice(), image, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = m_deviceHandler->findMemoryType(memRequirements.memoryTypeBits, properties);
+        allocInfo.memoryTypeIndex = m_deviceHandler->getPhysicalDevice()->findMemoryType(memRequirements.memoryTypeBits, properties);
 
-        if (vkAllocateMemory(m_deviceHandler->getDevice(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
+        if (vkAllocateMemory(m_deviceHandler->getLogicalDevice()->getVkDevice(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to allocate image memory!");
         }
 
-        vkBindImageMemory(m_deviceHandler->getDevice(), image, imageMemory, 0);
+        vkBindImageMemory(m_deviceHandler->getLogicalDevice()->getVkDevice(), image, imageMemory, 0);
     }
 
     void Engine::createImage(const narc_io::Image& imageData, VkFormat format, VkImageTiling tiling,
@@ -248,9 +289,5 @@ namespace narc_engine {
             properties,
             image,
             imageMemory);
-    }
-    IWindow* Engine::window() const
-    {
-        return m_window.get();
     }
 }

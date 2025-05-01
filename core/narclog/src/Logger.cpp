@@ -51,12 +51,12 @@ namespace narclog {
     {
         switch (level)
         {
-            case FATAL: return CONSOLE_MESSAGE_PREFIX_FATAL;
-            case ERROR: return CONSOLE_MESSAGE_PREFIX_ERROR;
-            case WARNING: return CONSOLE_MESSAGE_PREFIX_WARNING;
-            case INFO: return CONSOLE_MESSAGE_PREFIX_INFO;
-            case DEBUG: return CONSOLE_MESSAGE_PREFIX_DEBUG;
-            default: return "UNKNOWN";
+        case FATAL: return CONSOLE_MESSAGE_PREFIX_FATAL;
+        case ERROR: return CONSOLE_MESSAGE_PREFIX_ERROR;
+        case WARNING: return CONSOLE_MESSAGE_PREFIX_WARNING;
+        case INFO: return CONSOLE_MESSAGE_PREFIX_INFO;
+        case DEBUG: return CONSOLE_MESSAGE_PREFIX_DEBUG;
+        default: return "UNKNOWN";
         }
     }
 
@@ -64,12 +64,49 @@ namespace narclog {
     {
         switch (level)
         {
-            case FATAL: return CONSOLE_TEXT_COLOR_RED;
-            case ERROR: return CONSOLE_TEXT_COLOR_RED;
-            case WARNING: return CONSOLE_TEXT_COLOR_YELLOW;
-            case INFO: return CONSOLE_TEXT_COLOR_WHITE;
-            case DEBUG: return CONSOLE_TEXT_COLOR_CYAN;
-            default: return CONSOLE_TEXT_COLOR_DEFAULT;
+        case FATAL: return CONSOLE_TEXT_COLOR_RED;
+        case ERROR: return CONSOLE_TEXT_COLOR_RED;
+        case WARNING: return CONSOLE_TEXT_COLOR_YELLOW;
+        case INFO: return CONSOLE_TEXT_COLOR_WHITE;
+        case DEBUG: return CONSOLE_TEXT_COLOR_CYAN;
+        default: return CONSOLE_TEXT_COLOR_DEFAULT;
         }
+    }
+
+    void Logger::onTerminate()
+    {
+        std::exception_ptr currentException = std::current_exception();
+        if (currentException)
+        {
+            try
+            {
+                std::rethrow_exception(currentException);
+            }
+            catch (const narclog::ErrorException& e)
+            {
+                log(LogLevel::ERROR, e.what());
+            }
+            catch (const std::exception& e)
+            {
+                log(LogLevel::FATAL, e.what());
+            }
+            catch (...)
+            {
+                log(LogLevel::FATAL, "Exception non interceptée : type inconnu");
+            }
+        }
+        else
+        {
+            log(LogLevel::INFO, "Logger terminated without exception.");
+        }
+
+        m_safeCloseCallback();
+        m_fileLogger->writeFile(true);
+    }
+
+
+    void Logger::setSafeCloseCallback(std::function<void()> callback)
+    {
+        m_safeCloseCallback = callback;
     }
 } // narclog

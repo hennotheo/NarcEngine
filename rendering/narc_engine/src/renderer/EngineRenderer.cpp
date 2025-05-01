@@ -5,18 +5,19 @@
 
 #include "Engine.h"
 #include "gui/UiRenderer.h"
+#include "core/interfaces/ISurfaceProvider.h"
 
 namespace narc_engine {
-    constexpr uint32_t g_maxFramesInFlight = 2;
-
-    EngineRenderer::EngineRenderer(const EngineInstance* instance) : DeviceComponent()
+    EngineRenderer::EngineRenderer(const EngineInstance* instance, ISurfaceProvider* surfaceProvider, MultiFrameManager* multiFrameManager) : DeviceComponent()
     {
-        m_swapChain.create();
-        m_frameManager = std::make_unique<MultiFrameManager>(g_maxFramesInFlight);
+        m_frameManager = multiFrameManager;
+
+        surfaceProvider->attach(this);
+
+        m_swapChain.create(surfaceProvider);
         createDescriptorSetLayout();
         m_swapChain.createFramebuffers();
-
-        m_uiRenderer = std::make_unique<UiRenderer>(instance, m_frameManager.get(), &m_swapChain);
+        m_uiRenderer = std::make_unique<UiRenderer>(instance, multiFrameManager, &m_swapChain, surfaceProvider);
     }
 
     EngineRenderer::~EngineRenderer()
@@ -37,16 +38,9 @@ namespace narc_engine {
         m_swapChain.cleanRenderPass();
     }
 
-    void EngineRenderer::drawFrame()
+    void EngineRenderer::prepareFrame(const FrameHandler* frameHandler)
     {
-        const FrameHandler* frameHandler = m_frameManager->getCurrentFrameHandler();
-
-        const std::vector<VkFence> inFlightFencesToWait = { frameHandler->getInFlightFence() };
-        vkWaitForFences(getVkDevice(), 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
-
-        uint32_t imageIndex;
-        m_swapChain.acquireNextImage(frameHandler->getImageAvailableSemaphore(), &imageIndex);
-
+        m_swapChain.acquireNextImage(frameHandler->getImageAvailableSemaphore(), &m_currentImageIndex);
 
         uint32_t materialID = 0;
         for (const auto& [id, rendererTask] : m_rendererTasks)
@@ -56,14 +50,15 @@ namespace narc_engine {
             rendererTask->updateDescriptorSet(frameHandler->getDescriptorSets()[materialID], frameHandler->getUniformBuffer());
             materialID++;
         }
+    }
 
-        vkResetFences(getVkDevice(), 1, inFlightFencesToWait.data());
-
+    SignalSemaphores EngineRenderer::drawFrame(const FrameHandler* frameHandler)
+    {
         CommandBuffer* bufferForObjects = frameHandler->getCommandPool()->getCommandBuffer(0);
         bufferForObjects->reset(0);
 
         const std::array<VkCommandBuffer, 1> commandBuffers = { bufferForObjects->getVkCommandBuffer() };
-        recordCommandBuffer(bufferForObjects, imageIndex, frameHandler->getDescriptorSets());
+        recordCommandBuffer(bufferForObjects, m_currentImageIndex, frameHandler->getDescriptorSets());
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -79,42 +74,44 @@ namespace narc_engine {
         submitInfo.waitSemaphoreCount = 1;
         submitInfo.pWaitSemaphores = waitSemaphores;
         submitInfo.pWaitDstStageMask = waitStages;
-        submitInfo.commandBufferCount = 1;
+        submitInfo.commandBufferCount = commandBuffers.size();
         submitInfo.pCommandBuffers = commandBuffers.data();
 
-        const VkSemaphore signalSemaphores[] = { frameHandler->getRenderFinishedSemaphore() };
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = signalSemaphores;
+        const std::vector<VkSemaphore> signalSemaphores = { frameHandler->getRenderFinishedSemaphore() };
+        submitInfo.signalSemaphoreCount = signalSemaphores.size();
+        submitInfo.pSignalSemaphores = signalSemaphores.data();
 
-        if (getDeviceHandler()->submitGraphicsQueue(1, &submitInfo, frameHandler->getInFlightFence()) != VK_SUCCESS)
+        const GraphicsQueue* graphicsQueue = Engine::getInstance()->getGraphicsQueue();
+        if (graphicsQueue->submit(1, &submitInfo, frameHandler->getInFlightFence()) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to submit draw command buffer!");
         }
 
+        return signalSemaphores;
+    }
+
+    void EngineRenderer::presentFrame(SignalSemaphores& signalSemaphores)
+    {
         const VkSwapchainKHR swapChains[] = { m_swapChain.getSwapChain() };
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = signalSemaphores;
+        presentInfo.pWaitSemaphores = signalSemaphores.data();
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = swapChains;
-        presentInfo.pImageIndices = &imageIndex;
+        presentInfo.pImageIndices = &m_currentImageIndex;
         presentInfo.pResults = nullptr;
 
-        const VkResult result = getDeviceHandler()->presentKHR(&presentInfo);
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || Engine::getInstance()->getWindow()->
-            isFramebufferResized())
+        const VkResult result = Engine::getInstance()->getPresentQueue()->presentKHR(&presentInfo);
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebufferResized)
         {
-            Engine::getInstance()->getWindow()->setFramebufferResized(false);
-            //after vkQueuePresentKHR to ensure that the semaphores are in a consistent state
+            m_framebufferResized = false;
             m_swapChain.reCreate();
         }
         else if (result != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to present swap chain image!");
         }
-
-        m_frameManager->nextFrame();
     }
 
     void EngineRenderer::updateUniformBuffer(UniformBuffer* buffer, RenderTask* rendererTask) const
@@ -213,7 +210,7 @@ namespace narc_engine {
         }
 
         m_uiRenderer->beginFrame();
-        m_uiRenderer->render(commandBuffer);
+        m_uiRenderer->render(commandBuffer);//TODO CHANGE TO CUSTOM RENDER PASS
 
         commandBuffer->cmdEndRenderPass();
 
@@ -243,5 +240,10 @@ namespace narc_engine {
         m_rendererTasks.emplace(material->getMaterialID(), renderer);
 
         return renderer;
+    }
+
+    void EngineRenderer::onSurfaceFramebufferResized(int width, int height)
+    {
+        m_framebufferResized = true;
     }
 } // narc_engine

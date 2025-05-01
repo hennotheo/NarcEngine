@@ -1,3 +1,8 @@
+if(ENABLE_TESTS)
+    return()
+endif()
+    
+
 set(CMAKE_INSTALL_MESSAGE LAZY)
 
 install(TARGETS

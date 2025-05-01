@@ -5,18 +5,45 @@
 
 #include "Logger.h"
 
+#include "exceptions/ErrorException.h"
+#include "exceptions/FatalException.h"
+
 #ifdef NARC_ENGINE_PLATFORM_WINDOWS
 
 #include "platform/windows/WindowsLogger.h"
-#define CREATE_LOGGER new WindowsLogger
+#define CREATE_LOGGER new narclog::WindowsLogger
 
 #else
 #error Unsupported platform.
 
 #endif
 
-namespace narclog {
+namespace narclog
+{
+    std::mutex loggingMutex;
+    std::mutex terminateMutex;
     Logger* g_logger = nullptr;
+
+    void handleTerminate()
+    {
+        std::lock_guard<std::mutex> lock(terminateMutex);
+        if (g_logger == nullptr)
+        {
+            std::cout << "Logger not created." << std::endl;
+            return;
+        }
+
+        g_logger->onTerminate();
+
+        destroyLogger();
+
+        std::abort();
+    }
+
+    void setSafeCloseCallback(std::function<void()> callback)
+    {
+        g_logger->setSafeCloseCallback(callback);
+    }
 
     void createLogger()
     {
@@ -25,7 +52,15 @@ namespace narclog {
             throw std::runtime_error("Logger already created.");
         }
 
-        g_logger = CREATE_LOGGER();
+        try
+        {
+            g_logger = CREATE_LOGGER();
+            std::set_terminate(handleTerminate);
+        }
+        catch (const std::exception& e)
+        {
+            throw std::runtime_error("Failed to create logger: " + std::string(e.what()));
+        }
     }
 
     void destroyLogger()
@@ -39,35 +74,28 @@ namespace narclog {
         g_logger = nullptr;
     }
 
-    template<LogConcept TMsg>
-    void log(LogLevel level, TMsg message)
+    void logString(LogLevel level, const std::string& message)
     {
+        std::lock_guard<std::mutex> lock(loggingMutex);
+
+        if (level == LogLevel::FATAL)
+        {
+            throw narclog::FatalException(message);
+        }
+
+        if (level == LogLevel::ERROR)
+        {
+            throw narclog::ErrorException(message);
+        }
+
+#if !defined(NARC_TEST_BUILD)
         if (g_logger == nullptr)
         {
             std::cout << "Logger not created : " << message << std::endl;
             throw std::runtime_error("Logger not created.");
         }
 
-        if constexpr (MessageConcept<TMsg>)
-        {
-            g_logger->log(level, message);
-            return;
-        }
-
-        if constexpr (ArithmeticConcept<TMsg>)
-        {
-            g_logger->log(level, std::to_string(message));
-        }
-
-        NARCLOG_FATAL("Message type " + std::string(typeid(message).name()) + " not supported.");
+        g_logger->log(level, message);
+#endif
     }
-
-    template void log<const char*>(LogLevel, const char*);
-    template void log<const std::string&>(LogLevel, const std::string&);
-    template void log<std::string>(LogLevel, std::string);
-    template void log<std::string&>(LogLevel, std::string&);
-    template void log<size_t>(LogLevel, size_t);
-    template void log<uint32_t>(LogLevel, uint32_t);
-    template void log<uint16_t>(LogLevel, uint16_t);
-    template void log<bool>(LogLevel, bool);
 }

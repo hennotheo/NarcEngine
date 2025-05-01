@@ -38,7 +38,7 @@ namespace narc_engine
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = getDeviceHandler()->findMemoryType(memRequirements.memoryTypeBits, properties);
+        allocInfo.memoryTypeIndex = getDeviceHandler()->getPhysicalDevice()->findMemoryType(memRequirements.memoryTypeBits, properties);
 
         if (vkAllocateMemory(getVkDevice(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
         {

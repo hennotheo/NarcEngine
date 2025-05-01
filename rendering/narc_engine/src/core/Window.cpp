@@ -4,15 +4,18 @@
 #include <NarcCore.h>
 
 #include "core/EngineInstance.h"
+#include "core/interfaces/IEngineCallbacks.h"
+
+#include <backends/imgui_impl_glfw.h>
 
 namespace narc_engine
 {
     constexpr uint32_t g_width = 800;
     constexpr uint32_t g_height = 600;
 
-    Window::Window()
+    Window::Window(const EngineInstance* engineInstance, IEngineCallbacks* engine) : m_engine(engine)
     {
-        glfwInit();
+        m_engineInstance = engineInstance;
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -22,28 +25,30 @@ namespace narc_engine
         glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback);
         glfwSetKeyCallback(m_window, onKeyboardInputPerformed);
         glfwSetMouseButtonCallback(m_window, onMouseInputPerformed);
+
+        if (glfwCreateWindowSurface(m_engineInstance->getvkInstance(), m_window, nullptr, &m_surface) != VK_SUCCESS)
+        {
+            NARCLOG_FATAL("Failed to create window surface!");
+        }
     }
 
     Window::~Window()
     {
-        if (m_initialized)
-            m_engineInstance->destroyGLFWSurface(m_surface, nullptr);
+        vkDestroySurfaceKHR(m_engineInstance->getvkInstance(), m_surface, nullptr);
 
         glfwDestroyWindow(m_window);
         glfwTerminate();
     }
 
-    void Window::init(const EngineInstance* engineInstance)
-    {
-        m_initialized = true;
-        m_engineInstance = engineInstance;
-        m_engineInstance->createGLFWSurface(m_window, &m_surface, nullptr);
-    }
-
-    void Window::update()
+    void Window::pollEvents()
     {
         glfwPollEvents();
-        m_shouldClose = glfwWindowShouldClose(m_window);
+
+        bool shouldClose = glfwWindowShouldClose(m_window);
+        if (shouldClose)
+        {
+            m_engine->stop();
+        }
 
         glfwGetCursorPos(m_window, &m_mouseXpos, &m_mouseYpos);
         m_time = glfwGetTime();
@@ -52,33 +57,6 @@ namespace narc_engine
     const char** Window::getRequiredInstanceExtensions(uint32_t* glfwExtensionCount)
     {
         return glfwGetRequiredInstanceExtensions(glfwExtensionCount);
-    }
-
-    SwapChainSupportDetails Window::querySwapChainSupport(VkPhysicalDevice device) const
-    {
-        SwapChainSupportDetails details;
-
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_surface, &details.Capabilities);
-
-        uint32_t formatCount;
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, nullptr);
-
-        if (formatCount != 0)
-        {
-            details.Formats.resize(formatCount);
-            vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, details.Formats.data());
-        }
-
-        uint32_t presentModeCount;
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &presentModeCount, nullptr);
-
-        if (presentModeCount != 0)
-        {
-            details.PresentModes.resize(presentModeCount);
-            vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &presentModeCount, details.PresentModes.data());
-        }
-
-        return details;
     }
 
     void Window::getValidFramebufferSize(int* width, int* height) const
@@ -96,17 +74,10 @@ namespace narc_engine
         glfwGetFramebufferSize(m_window, width, height);
     }
 
-    VkBool32 Window::isPhysicalDeviceSupported(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) const
-    {
-        VkBool32 supported = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_surface, &supported);
-        return supported;
-    }
-
     void Window::framebufferResizeCallback(GLFWwindow* window, int width, int height)
     {
         auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-        app->m_framebufferResized = true;
+        app->notifyFramebufferResized(width, height);
     }
 
     void Window::onKeyboardInputPerformed(GLFWwindow* window, int key, int scancode, int action, int mods)

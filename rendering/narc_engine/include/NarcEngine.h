@@ -15,4 +15,3 @@
 #include "resources/GraphicResourceHandler.h"
 
 #include "interfaces/IEngine.h"
-#include "interfaces/IWindow.h"

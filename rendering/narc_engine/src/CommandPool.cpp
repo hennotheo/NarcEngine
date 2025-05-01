@@ -2,8 +2,6 @@
 
 #include "Engine.h"
 
-#include "core/DeviceHandler.h"
-
 namespace narc_engine {
     CommandPool::CommandPool() : DeviceComponent()
     {
@@ -11,7 +9,14 @@ namespace narc_engine {
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-        getDeviceHandler()->createCommandPool(&m_commandPool, poolInfo);
+        QueueFamilyIndices queueFamilyIndices = getDeviceHandler()->getPhysicalDevice()->getQueueFamilyIndices();
+
+        poolInfo.queueFamilyIndex = queueFamilyIndices.GraphicsFamily.value();
+
+        if (vkCreateCommandPool(getDeviceHandler()->getLogicalDevice()->getVkDevice(), &poolInfo, nullptr, &m_commandPool) != VK_SUCCESS)
+        {
+            NARCLOG_FATAL("failed to create command pool!");
+        }
     }
 
     CommandPool::~CommandPool()
@@ -66,8 +71,9 @@ namespace narc_engine {
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = commandBuffers.data();
 
-        getDeviceHandler()->submitGraphicsQueue(1, &submitInfo, VK_NULL_HANDLE);
-        getDeviceHandler()->waitGraphicsQueueIdle();
+        const GraphicsQueue* graphicsQueue = Engine::getInstance()->getGraphicsQueue();
+        graphicsQueue->submit(1, &submitInfo, VK_NULL_HANDLE);
+        graphicsQueue->waitIdle();
 
         commandBuffer.release(getDeviceHandler(), m_commandPool);
     }

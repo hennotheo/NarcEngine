@@ -21,7 +21,6 @@ namespace narc
 
         const narc_engine::Material* m_renderMaterial = nullptr;
         const narc_engine::Material* m_renderMaterial2 = nullptr;
-        const narc_engine::Mesh* m_mesh = nullptr;
 
         narc_math::Transform* m_transform;
 

@@ -5,6 +5,7 @@
 #include "CommandBuffer.h"
 #include "renderer/MultiFrameManager.h"
 #include "renderer/SwapChain.h"
+#include "core/interfaces/ISurfaceProvider.h"
 
 #include "imgui.h"
 #include "backends/imgui_impl_vulkan.h"
@@ -12,7 +13,7 @@
 
 namespace narc_engine
 {
-    UiRenderer::UiRenderer(const EngineInstance* instance, const MultiFrameManager* frameManager, const SwapChain* swapChain)
+    UiRenderer::UiRenderer(const EngineInstance* instance, const MultiFrameManager* frameManager, const SwapChain* swapChain, const ISurfaceProvider* surface)
     {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -24,7 +25,10 @@ namespace narc_engine
 
         ImGui_ImplVulkan_InitInfo initInfo = {};
         initInfo.Instance = instance->getvkInstance();
-        device->setupImGui(&initInfo);
+        initInfo.PhysicalDevice = device->getPhysicalDevice()->getVkPhysicalDevice();
+        initInfo.Device = device->getLogicalDevice()->getVkDevice();
+        initInfo.QueueFamily = device->getPhysicalDevice()->getQueueFamilyIndices().GraphicsFamily.value();
+        initInfo.Queue = engine->getGraphicsQueue()->getVkQueue();
         initInfo.MinImageCount = 2;
         initInfo.ImageCount = frameManager->getMaxFrameInFlight();
         initInfo.DescriptorPool = frameManager->getDescriptorPool()->getVkDescriptorPool();
@@ -38,7 +42,7 @@ namespace narc_engine
             };
 
         ImGui_ImplVulkan_Init(&initInfo);
-        ImGui_ImplGlfw_InitForVulkan(engine->getWindow()->getWindow(), true);
+        ImGui_ImplGlfw_InitForVulkan((GLFWwindow*)surface->getSurfaceHandler(), true);
     }
 
     UiRenderer::~UiRenderer()

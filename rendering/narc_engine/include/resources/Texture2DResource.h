@@ -7,6 +7,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "GraphicResource.h"
+#include "resources/ImageView.h"
 
 namespace narc_engine
 {
@@ -16,13 +17,13 @@ namespace narc_engine
         explicit Texture2DResource(const char* path, const uint32_t resourceID);
         ~Texture2DResource() override;
 
-        const VkImageView& getImageView() const { return m_textureImageView; }
+        const VkImageView getImageView() const { return m_textureImageView.getVkImageView(); }
         const VkSampler& getSampler() const { return m_textureSampler; }
 
     private:
         VkImage m_textureImage;
         VkDeviceMemory m_textureImageMemory;
-        VkImageView m_textureImageView;
+        ImageView m_textureImageView;
         VkSampler m_textureSampler;
 
         void createTextureImage(const narc_io::Image& sourceImage);

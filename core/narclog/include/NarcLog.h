@@ -10,20 +10,28 @@
 #define NARCLOG_INFO(message) narclog::log(INFO, message)
 #define NARCLOG_DEBUG(message) narclog::log(DEBUG, message)
 
-#include "keywords/KeyWords.h"
+#define NARCLOG_INIT(callback) narclog::createLogger(); \
+    narclog::setSafeCloseCallback(callback)
+
 #include "keywords/LogLevel.h"
 
 #include "exceptions/ErrorException.h"
 #include "exceptions/FatalException.h"
-
-#include "exceptions/ExceptionHandlerBuilder.h"
-#include "exceptions/MethodExceptionHandler.h"
 
 namespace narclog
 {
     NARCLOG_API void createLogger();
     NARCLOG_API void destroyLogger();
 
-    template <LogConcept TMsg>
-    NARCLOG_API void log(LogLevel level, TMsg message);
+    NARCLOG_API void setSafeCloseCallback(std::function<void()> callback);
+
+    NARCLOG_API void logString(LogLevel level, const std::string& message);
+
+    template <typename... Args>
+    NARCLOG_API inline void log(LogLevel level, const Args&...args)
+    {
+        std::ostringstream oss;
+        (oss << ... << args);
+        logString(level, oss.str());
+    }
 }
