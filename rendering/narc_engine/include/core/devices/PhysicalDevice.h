@@ -3,7 +3,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "core/EngineBuilder.h"
-#include "core/QueueFamilyIndices.h"
+#include "core/queues/QueueFamilyIndices.h"
 #include "renderer/SwapChainSupportDetails.h"
 #include "core/devices/PhysicalDevice.h"
 

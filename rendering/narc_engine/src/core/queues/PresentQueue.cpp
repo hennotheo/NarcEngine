@@ -1,7 +1,7 @@
 #include "core/queues/PresentQueue.h"
 
 #include "core/EngineBuilder.h"
-#include "core/QueueFamilyIndices.h"
+#include "core/queues/QueueFamilyIndices.h"
 #include "core/devices/LogicalDevice.h"
 #include "core/devices/PhysicalDevice.h"
 

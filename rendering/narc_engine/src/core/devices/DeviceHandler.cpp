@@ -5,7 +5,7 @@
 #include "core/EngineBuilder.h"
 #include "core/EngineInstance.h"
 #include "core/interfaces/ISurfaceProvider.h"
-#include "core/QueueFamilyIndices.h"
+#include "core/queues/QueueFamilyIndices.h"
 #include "core/EngineDebugLogger.h"
 
 #include "imgui.h"

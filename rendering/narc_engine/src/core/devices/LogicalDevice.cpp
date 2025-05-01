@@ -3,7 +3,7 @@
 #include "core/EngineDebugLogger.h"
 
 #include "core/devices/PhysicalDevice.h"
-#include "core/QueueFamilyIndices.h"
+#include "core/queues/QueueFamilyIndices.h"
 
 namespace narc_engine
 {
