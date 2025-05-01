@@ -13,6 +13,8 @@
 #include "core/interfaces/ISurfaceObserver.h"
 
 namespace narc_engine {
+    typedef const std::vector<VkSemaphore> SignalSemaphores;
+
     class Material;
     class UniformBuffer;
 
@@ -25,8 +27,9 @@ namespace narc_engine {
         EngineRenderer(const EngineInstance* instance, ISurfaceProvider* surfaceProvider, MultiFrameManager* multiFrameManager);
         ~EngineRenderer();
 
-        void drawFrame(const FrameHandler* frameHandler);
-        void updateUniformBuffer(UniformBuffer* buffer, RenderTask* rendererTask) const;
+        void prepareFrame(const FrameHandler* frameHandler);
+        QUERY SignalSemaphores drawFrame(const FrameHandler* frameHandler);
+        void presentFrame(SignalSemaphores& signalSemaphores);
 
         void attachRenderer(const Renderer* renderer);
 
@@ -38,13 +41,15 @@ namespace narc_engine {
         std::unique_ptr<UiRenderer> m_uiRenderer;
         std::map<uint32_t, RenderTask*> m_rendererTasks;
 
+        uint32_t m_currentImageIndex = 0;
         bool m_framebufferResized = false;
 
         VkDescriptorSetLayout m_descriptorSetLayout;
 
-        MultiFrameManager* m_frameManager = nullptr;
+        MultiFrameManager* m_frameManager = nullptr;//TODO remove this dependency
 
         void createDescriptorSetLayout();
+        void updateUniformBuffer(UniformBuffer* buffer, RenderTask* rendererTask) const;
         void recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex, const std::vector<VkDescriptorSet>& descriptorSets);
         RenderTask* createRenderTask(const Material* material);
     };

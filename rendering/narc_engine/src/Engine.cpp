@@ -103,8 +103,17 @@ namespace narc_engine {
     void Engine::render()
     {
         const FrameHandler* frameHandler = m_frameManager->getCurrentFrameHandler();
+        VkDevice device = m_deviceHandler->getLogicalDevice()->getVkDevice();
 
-        m_renderer->drawFrame(frameHandler);
+        const std::vector<VkFence> inFlightFencesToWait = { frameHandler->getInFlightFence() };
+        vkWaitForFences(device, 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
+
+        m_renderer->prepareFrame(frameHandler);
+
+        vkResetFences(device, 1, inFlightFencesToWait.data());
+
+        SignalSemaphores signalSemaphores = m_renderer->drawFrame(frameHandler);
+        m_renderer->presentFrame(signalSemaphores);
 
         m_frameManager->nextFrame();
     }

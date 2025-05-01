@@ -10,19 +10,12 @@
 namespace narc_engine {
     void SwapChain::create(ISurfaceProvider* surface)
     {
-        const Engine* engine = Engine::getInstance();
         m_surface = surface;
-        // m_window = engine->getWindow();
 
-        NARCLOG_DEBUG("Creating swapchain...");
         createSwapChain();
-        NARCLOG_DEBUG("Creating image views...");
         createImageViews();
-        NARCLOG_DEBUG("Creating renderpass...");
         m_renderPass = std::make_unique<RenderPass>(m_swapChainImageFormat);
-        NARCLOG_DEBUG("Creating depthresources...");
         m_depthResources = std::make_unique<DepthResources>();
-        NARCLOG_DEBUG("Creating depthresources with swapchain...");
         m_depthResources->create(m_swapChainExtent.width, m_swapChainExtent.height);
     }
 
@@ -76,8 +69,6 @@ namespace narc_engine {
             NARCLOG_FATAL("Window size is 0!");
         }
 
-        NARCLOG_INFO(std::string("Recreating swapchain...") + std::to_string(width) + "x" + std::to_string(height));
-
         getDeviceHandler()->getLogicalDevice()->waitDeviceIdle();
 
         cleanSwapChain();
@@ -86,8 +77,6 @@ namespace narc_engine {
         createImageViews();
         m_depthResources->create(m_swapChainExtent.width, m_swapChainExtent.height);
         createFramebuffers();
-
-        NARCLOG_INFO("Swapchain recreated!");
     }
 
     void SwapChain::createFramebuffers()
@@ -132,9 +121,9 @@ namespace narc_engine {
     void SwapChain::createSwapChain()
     {
         SwapChainSupportDetails swapChainSupport = getDeviceHandler()->getPhysicalDevice()->getSwapChainSupport();
-        VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.Formats);
-        VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.PresentModes);
-        VkExtent2D extent = chooseSwapExtent(swapChainSupport.Capabilities);
+        VkSurfaceFormatKHR surfaceFormat = swapChainSupport.chooseSwapSurfaceFormat();
+        VkPresentModeKHR presentMode = swapChainSupport.chooseSwapPresentMode();
+        VkExtent2D extent = swapChainSupport.chooseSwapExtent(m_surface);
 
         uint32_t imageCount = swapChainSupport.Capabilities.minImageCount + 1; //Au moins une en plus pour eviter des erreurs
 
@@ -195,61 +184,5 @@ namespace narc_engine {
         {
             m_swapChainImageViews[i].create(m_swapChainImages[i], m_swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
         }
-    }
-
-    VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
-    {
-        if (availableFormats.empty())
-        {
-            NARCLOG_FATAL("No available formats for swapchain!");
-        }
-        for (const auto& availableFormat : availableFormats)
-        {
-            if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-            {
-                return availableFormat;
-            }
-        }
-
-        return availableFormats[0];
-    }
-
-    VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
-    {
-        if (availablePresentModes.empty())
-        {
-            NARCLOG_FATAL("No available present modes for swapchain!");
-        }
-        for (const auto& availablePresentMode : availablePresentModes)
-        {
-            if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
-            {
-                return availablePresentMode;
-            }
-        }
-
-        return VK_PRESENT_MODE_FIFO_KHR;
-    }
-
-    VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const
-    {
-        if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
-        {
-            return capabilities.currentExtent;
-        }
-
-        int width, height;
-        m_surface->getFramebufferSize(&width, &height);
-
-        VkExtent2D actualExtent =
-        {
-            static_cast<uint32_t>(width),
-            static_cast<uint32_t>(height)
-        };
-
-        actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
-        actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
-
-        return actualExtent;
     }
 }

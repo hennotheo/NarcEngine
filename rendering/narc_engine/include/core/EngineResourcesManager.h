@@ -19,7 +19,7 @@ namespace narc_engine
 
         const GraphicResourceHandler& createTexture2D(const char* path);
 
-        GETTER const GraphicResource* getResource(const GraphicResourceHandler& resourceHandler) const;
+        QUERY const GraphicResource* getResource(const GraphicResourceHandler& resourceHandler) const;
     private:
         uint32_t m_resourceIDCounter = 0;
         std::map<uint32_t, GraphicResource*> m_resources;

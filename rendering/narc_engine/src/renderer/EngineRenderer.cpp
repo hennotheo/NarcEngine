@@ -10,8 +10,10 @@
 namespace narc_engine {
     EngineRenderer::EngineRenderer(const EngineInstance* instance, ISurfaceProvider* surfaceProvider, MultiFrameManager* multiFrameManager) : DeviceComponent()
     {
-        m_frameManager = multiFrameManager;        
+        m_frameManager = multiFrameManager;
+
         surfaceProvider->attach(this);
+
         m_swapChain.create(surfaceProvider);
         createDescriptorSetLayout();
         m_swapChain.createFramebuffers();
@@ -36,14 +38,9 @@ namespace narc_engine {
         m_swapChain.cleanRenderPass();
     }
 
-    void EngineRenderer::drawFrame(const FrameHandler* frameHandler)
+    void EngineRenderer::prepareFrame(const FrameHandler* frameHandler)
     {
-        const std::vector<VkFence> inFlightFencesToWait = { frameHandler->getInFlightFence() };
-        vkWaitForFences(getVkDevice(), 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
-
-        uint32_t imageIndex;
-        m_swapChain.acquireNextImage(frameHandler->getImageAvailableSemaphore(), &imageIndex);
-
+        m_swapChain.acquireNextImage(frameHandler->getImageAvailableSemaphore(), &m_currentImageIndex);
 
         uint32_t materialID = 0;
         for (const auto& [id, rendererTask] : m_rendererTasks)
@@ -53,14 +50,15 @@ namespace narc_engine {
             rendererTask->updateDescriptorSet(frameHandler->getDescriptorSets()[materialID], frameHandler->getUniformBuffer());
             materialID++;
         }
+    }
 
-        vkResetFences(getVkDevice(), 1, inFlightFencesToWait.data());
-
+    SignalSemaphores EngineRenderer::drawFrame(const FrameHandler* frameHandler)
+    {
         CommandBuffer* bufferForObjects = frameHandler->getCommandPool()->getCommandBuffer(0);
         bufferForObjects->reset(0);
 
         const std::array<VkCommandBuffer, 1> commandBuffers = { bufferForObjects->getVkCommandBuffer() };
-        recordCommandBuffer(bufferForObjects, imageIndex, frameHandler->getDescriptorSets());
+        recordCommandBuffer(bufferForObjects, m_currentImageIndex, frameHandler->getDescriptorSets());
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -79,9 +77,9 @@ namespace narc_engine {
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = commandBuffers.data();
 
-        const VkSemaphore signalSemaphores[] = { frameHandler->getRenderFinishedSemaphore() };
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = signalSemaphores;
+        const std::vector<VkSemaphore> signalSemaphores = { frameHandler->getRenderFinishedSemaphore() };
+        submitInfo.signalSemaphoreCount = signalSemaphores.size();
+        submitInfo.pSignalSemaphores = signalSemaphores.data();
 
         const GraphicsQueue* graphicsQueue = Engine::getInstance()->getGraphicsQueue();
         if (graphicsQueue->submit(1, &submitInfo, frameHandler->getInFlightFence()) != VK_SUCCESS)
@@ -89,14 +87,19 @@ namespace narc_engine {
             NARCLOG_FATAL("failed to submit draw command buffer!");
         }
 
+        return signalSemaphores;
+    }
+
+    void EngineRenderer::presentFrame(SignalSemaphores& signalSemaphores)
+    {
         const VkSwapchainKHR swapChains[] = { m_swapChain.getSwapChain() };
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = signalSemaphores;
+        presentInfo.pWaitSemaphores = signalSemaphores.data();
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = swapChains;
-        presentInfo.pImageIndices = &imageIndex;
+        presentInfo.pImageIndices = &m_currentImageIndex;
         presentInfo.pResults = nullptr;
 
         const VkResult result = Engine::getInstance()->getPresentQueue()->presentKHR(&presentInfo);
@@ -230,9 +233,9 @@ namespace narc_engine {
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocInfo.descriptorSetCount = descriptorSetCount;
         allocInfo.pSetLayouts = layouts.data();
-        
+
         m_frameManager->allocateDescriptorSets(allocInfo);
-        
+
         RenderTask* renderer = new RenderTask(&m_swapChain, &m_descriptorSetLayout, material);
         m_rendererTasks.emplace(material->getMaterialID(), renderer);
 

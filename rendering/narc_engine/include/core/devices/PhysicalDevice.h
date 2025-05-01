@@ -18,10 +18,10 @@ namespace narc_engine
     public:
         PhysicalDevice(const EngineBuilder* builder);
 
-        GETTER const inline VkPhysicalDevice& getVkPhysicalDevice() const { return m_physicalDevice; }
-        GETTER const inline QueueFamilyIndices& getQueueFamilyIndices() const { return m_queueFamilyIndices; }
-        GETTER const inline SwapChainSupportDetails getSwapChainSupport() const { return querySwapChainSupport(m_physicalDevice); }
-        GETTER const inline VkPhysicalDeviceProperties& getPhysicalDeviceProperties() const { return m_physicalDeviceProperties; }
+        GETTER const VkPhysicalDevice& getVkPhysicalDevice() const { return m_physicalDevice; }
+        GETTER const QueueFamilyIndices& getQueueFamilyIndices() const { return m_queueFamilyIndices; }
+        GETTER const SwapChainSupportDetails getSwapChainSupport() const { return querySwapChainSupport(m_physicalDevice); }
+        GETTER const VkPhysicalDeviceProperties& getPhysicalDeviceProperties() const { return m_physicalDeviceProperties; }
 
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
         VkFormat findDepthFormat() const;

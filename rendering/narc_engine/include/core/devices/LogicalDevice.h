@@ -14,7 +14,7 @@ namespace narc_engine
         LogicalDevice(const EngineBuilder* builder, const PhysicalDevice* physicalDevice);
         ~LogicalDevice();
 
-        GETTER const inline VkDevice& getVkDevice() const { return m_device; }
+        GETTER const VkDevice& getVkDevice() const { return m_device; }
 
         void waitDeviceIdle() const;
 

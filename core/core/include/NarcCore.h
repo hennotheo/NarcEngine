@@ -4,7 +4,8 @@
 
 #pragma once
 
-#define GETTER [[nodiscard]]
+#define QUERY [[nodiscard]]
+#define GETTER [[nodiscard]] inline
 
 #define DEPRECATED [[deprecated]]
 #define TEMP_CODE [[deprecated("Temporary code just for testing purposes")]]

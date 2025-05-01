@@ -27,7 +27,6 @@ namespace narc_engine {
         void cleanSwapChain();
         void cleanRenderPass();
 
-
     private:
         VkSwapchainKHR m_swapChain;
         std::vector<VkImage> m_swapChainImages;
@@ -43,8 +42,5 @@ namespace narc_engine {
 
         void createSwapChain();
         void createImageViews();
-        static VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-        static VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const;
     };
 }
