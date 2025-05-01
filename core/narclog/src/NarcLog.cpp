@@ -88,7 +88,7 @@ namespace narclog
             throw narclog::ErrorException(message);
         }
 
-#if !defined(NARC_TEST_BUILD) || (defined(NARC_TEST_BUILD) && defined(NARCLOG_BUILD_DLL))
+#if !defined(NARC_TEST_BUILD)
         if (g_logger == nullptr)
         {
             std::cout << "Logger not created : " << message << std::endl;

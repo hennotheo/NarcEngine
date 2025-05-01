@@ -16,6 +16,9 @@
 #include "core/devices/DeviceHandler.h"
 #include "core/devices/LogicalDevice.h"
 
+#include "core/queues/GraphicsQueue.h"
+#include "core/queues/PresentQueue.h"
+
 using namespace narc_engine;
 
 #define INITIALISATION_TESTS(testName) TEST(NarcEngine_Initialisation, testName)
