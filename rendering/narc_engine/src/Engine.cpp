@@ -62,6 +62,11 @@ namespace narc_engine {
         m_debugLogger = CREATE_ENGINE_UNIQUE_COMPONENT(EngineDebugLogger, m_instance.get());
         builder.m_debugLogger = m_debugLogger.get();
         m_deviceHandler = CREATE_ENGINE_UNIQUE_COMPONENT(DeviceHandler, &builder);
+        builder.m_physicalDevice = m_deviceHandler->getPhysicalDevice();
+        builder.m_logicalDevice = m_deviceHandler->getLogicalDevice();
+
+        m_graphicsQueue = CREATE_ENGINE_UNIQUE_COMPONENT(GraphicsQueue, &builder);
+        m_presentQueue = CREATE_ENGINE_UNIQUE_COMPONENT(PresentQueue, &builder);
 
         m_commandPool = CREATE_ENGINE_UNIQUE_COMPONENT(CommandPool);
         m_renderer = CREATE_ENGINE_UNIQUE_COMPONENT(EngineRenderer, m_instance.get(), m_surfaceProvider.get());

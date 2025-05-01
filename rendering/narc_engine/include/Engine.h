@@ -13,6 +13,9 @@
 #include "core/EngineInstance.h"
 #include "core/interfaces/ISurfaceProvider.h"
 
+#include "core/queues/GraphicsQueue.h"
+#include "core/queues/PresentQueue.h"
+
 #include "renderer/EngineRenderer.h"
 
 namespace narc_engine {
@@ -36,7 +39,9 @@ namespace narc_engine {
         EngineBinder* binder() const override;
         EngineResourcesManager* resourceManager() const override;
 
-        GETTER const DeviceHandler* getDevice() const { return m_deviceHandler.get(); }
+        TEMP_CODE GETTER const DeviceHandler* getDevice() const { return m_deviceHandler.get(); }
+        TEMP_CODE GETTER const GraphicsQueue* getGraphicsQueue() const { return m_graphicsQueue.get(); }
+        TEMP_CODE GETTER const PresentQueue* getPresentQueue() const { return m_presentQueue.get(); }
 
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
@@ -54,6 +59,9 @@ namespace narc_engine {
         std::unique_ptr<ISurfaceProvider> m_surfaceProvider;
         std::unique_ptr<EngineDebugLogger> m_debugLogger;
         std::unique_ptr<DeviceHandler> m_deviceHandler;
+
+        std::unique_ptr<GraphicsQueue> m_graphicsQueue;
+        std::unique_ptr<PresentQueue> m_presentQueue;
 
         std::unique_ptr<CommandPool> m_commandPool;
         std::unique_ptr<EngineRenderer> m_renderer;

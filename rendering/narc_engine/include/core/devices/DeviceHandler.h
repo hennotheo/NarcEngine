@@ -21,16 +21,9 @@ namespace narc_engine
         GETTER const inline PhysicalDevice* getPhysicalDevice() const { return m_physicalDevice.get(); }
         GETTER const inline LogicalDevice* getLogicalDevice() const { return m_logicalDevice.get(); }
 
-        void waitGraphicsQueueIdle() const;
-        VkResult submitGraphicsQueue(uint32_t submitCount, const VkSubmitInfo *submitInfo, VkFence fence) const;
-        VkResult presentKHR(const VkPresentInfoKHR *presentInfo) const;
-
     private:
         std::unique_ptr<PhysicalDevice> m_physicalDevice;
         std::unique_ptr<LogicalDevice> m_logicalDevice;
-
-        VkQueue m_presentQueue;
-        VkQueue m_graphicsQueue;
 
         const EngineInstance* m_instance = nullptr;
         const ISurfaceProvider* m_surface = nullptr;

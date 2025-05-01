@@ -88,7 +88,8 @@ namespace narc_engine {
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
 
-        if (getDeviceHandler()->submitGraphicsQueue(1, &submitInfo, frameHandler->getInFlightFence()) != VK_SUCCESS)
+        const GraphicsQueue* graphicsQueue = Engine::getInstance()->getGraphicsQueue();
+        if (graphicsQueue->submit(1, &submitInfo, frameHandler->getInFlightFence()) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to submit draw command buffer!");
         }
@@ -103,7 +104,7 @@ namespace narc_engine {
         presentInfo.pImageIndices = &imageIndex;
         presentInfo.pResults = nullptr;
 
-        const VkResult result = getDeviceHandler()->presentKHR(&presentInfo);
+        const VkResult result = Engine::getInstance()->getPresentQueue()->presentKHR(&presentInfo);
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebufferResized)
         {
             m_framebufferResized = false;

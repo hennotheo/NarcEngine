@@ -71,8 +71,9 @@ namespace narc_engine {
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = commandBuffers.data();
 
-        getDeviceHandler()->submitGraphicsQueue(1, &submitInfo, VK_NULL_HANDLE);
-        getDeviceHandler()->waitGraphicsQueueIdle();
+        const GraphicsQueue* graphicsQueue = Engine::getInstance()->getGraphicsQueue();
+        graphicsQueue->submit(1, &submitInfo, VK_NULL_HANDLE);
+        graphicsQueue->waitIdle();
 
         commandBuffer.release(getDeviceHandler(), m_commandPool);
     }
