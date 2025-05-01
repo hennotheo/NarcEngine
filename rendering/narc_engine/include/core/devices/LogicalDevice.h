@@ -16,6 +16,8 @@ namespace narc_engine
 
         GETTER const inline VkDevice& getVkDevice() const { return m_device; }
 
+        void waitDeviceIdle() const;
+
     private:
         VkDevice m_device;
 

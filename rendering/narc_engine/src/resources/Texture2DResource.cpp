@@ -22,7 +22,7 @@ namespace narc_engine {
 
     Texture2DResource::~Texture2DResource()
     {
-        const VkDevice device = getDeviceHandler()->getDevice();
+        const VkDevice device = getDeviceHandler()->getLogicalDevice()->getVkDevice();
         vkDestroySampler(device, m_textureSampler, nullptr);
         vkDestroyImageView(device, m_textureImageView, nullptr);
         vkDestroyImage(device, m_textureImage, nullptr);
@@ -62,7 +62,7 @@ namespace narc_engine {
         samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 
-        VkPhysicalDeviceProperties properties = Engine::getInstance()->getDevice()->getPhysicalDeviceProperties();
+        VkPhysicalDeviceProperties properties = Engine::getInstance()->getDevice()->getPhysicalDevice()->getPhysicalDeviceProperties();
         samplerInfo.anisotropyEnable = VK_TRUE;
         samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
 
@@ -75,7 +75,7 @@ namespace narc_engine {
         samplerInfo.minLod = 0.0f;
         samplerInfo.maxLod = 0.0f;
 
-        if (vkCreateSampler(getDeviceHandler()->getDevice(), &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
+        if (vkCreateSampler(getDeviceHandler()->getLogicalDevice()->getVkDevice(), &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create texture sampler!");
         }

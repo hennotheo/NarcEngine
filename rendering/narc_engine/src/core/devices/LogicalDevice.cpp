@@ -36,7 +36,7 @@ namespace narc_engine
 
         builder->getDebugLogger()->linkToDevice(createInfo);
 
-        if (vkCreateDevice(m_physicalDevice->getPhysicalDevice(), &createInfo, nullptr, &m_device) != VK_SUCCESS)
+        if (vkCreateDevice(m_physicalDevice->getVkPhysicalDevice(), &createInfo, nullptr, &m_device) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create logical device!");
         }
@@ -45,6 +45,14 @@ namespace narc_engine
     LogicalDevice::~LogicalDevice()
     {
         vkDestroyDevice(m_device, nullptr);
+    }
+
+    void LogicalDevice::waitDeviceIdle() const
+    {
+        if (vkDeviceWaitIdle(m_device) != VK_SUCCESS)
+        {
+            NARCLOG_FATAL("failed to wait for device idle!");
+        }
     }
 
     std::vector<VkDeviceQueueCreateInfo> LogicalDevice::createQueueCreateInfos(const QueueFamilyIndices& indices)

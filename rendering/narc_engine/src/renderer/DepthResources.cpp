@@ -13,7 +13,7 @@ namespace narc_engine {
 
     void DepthResources::create(uint32_t width, uint32_t height)
     {
-        const VkFormat depthFormat = getDeviceHandler()->findDepthFormat();
+        const VkFormat depthFormat = getDeviceHandler()->getPhysicalDevice()->findDepthFormat();
 
         Engine::getInstance()->createImage(width, height,
                                            depthFormat, VK_IMAGE_TILING_OPTIMAL,

@@ -101,6 +101,7 @@ namespace narclog {
         }
 
         m_safeCloseCallback();
+        m_fileLogger->writeFile(true);
     }
 
 

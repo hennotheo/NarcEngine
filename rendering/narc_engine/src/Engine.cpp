@@ -99,7 +99,7 @@ namespace narc_engine {
 
     void Engine::waitDeviceIdle()
     {
-        m_deviceHandler->waitDeviceIdle();
+        m_deviceHandler->getLogicalDevice()->waitDeviceIdle();
     }
 
     bool Engine::hasStencilComponent(VkFormat format)
@@ -235,25 +235,25 @@ namespace narc_engine {
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageInfo.flags = 0; // Optional
 
-        if (vkCreateImage(m_deviceHandler->getDevice(), &imageInfo, nullptr, &image) != VK_SUCCESS)
+        if (vkCreateImage(m_deviceHandler->getLogicalDevice()->getVkDevice(), &imageInfo, nullptr, &image) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create image!");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetImageMemoryRequirements(m_deviceHandler->getDevice(), image, &memRequirements);
+        vkGetImageMemoryRequirements(m_deviceHandler->getLogicalDevice()->getVkDevice(), image, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = m_deviceHandler->findMemoryType(memRequirements.memoryTypeBits, properties);
+        allocInfo.memoryTypeIndex = m_deviceHandler->getPhysicalDevice()->findMemoryType(memRequirements.memoryTypeBits, properties);
 
-        if (vkAllocateMemory(m_deviceHandler->getDevice(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
+        if (vkAllocateMemory(m_deviceHandler->getLogicalDevice()->getVkDevice(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to allocate image memory!");
         }
 
-        vkBindImageMemory(m_deviceHandler->getDevice(), image, imageMemory, 0);
+        vkBindImageMemory(m_deviceHandler->getLogicalDevice()->getVkDevice(), image, imageMemory, 0);
     }
 
     void Engine::createImage(const narc_io::Image& imageData, VkFormat format, VkImageTiling tiling,

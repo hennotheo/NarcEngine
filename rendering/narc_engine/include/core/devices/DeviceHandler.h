@@ -15,27 +15,17 @@ namespace narc_engine
     class DeviceHandler
     {
     public:
-        DeviceHandler(const EngineBuilder* builder);
+        explicit DeviceHandler(const EngineBuilder* builder);
         ~DeviceHandler();
 
-        GETTER const inline VkDevice& getDevice() const { return m_logicalDevice->getVkDevice(); }
-        GETTER const inline VkPhysicalDevice& getPhysicalDevice() const { return m_physicalDevice.get()->getPhysicalDevice(); }
-        GETTER const inline VkPhysicalDeviceProperties& getPhysicalDeviceProperties() const { return m_physicalDevice->getPhysicalDeviceProperties(); }
-        GETTER const inline SwapChainSupportDetails getSwapChainSupportDetails() const { return m_physicalDevice.get()->getSwapChainSupport(); }
+        GETTER const inline PhysicalDevice* getPhysicalDevice() const { return m_physicalDevice.get(); }
+        GETTER const inline LogicalDevice* getLogicalDevice() const { return m_logicalDevice.get(); }
 
-        void createSwapChain(VkSwapchainCreateInfoKHR &createInfo, VkSwapchainKHR *swapchain) const;
-        void createCommandPool(VkCommandPool *commandPool, VkCommandPoolCreateInfo poolInfo) const;
         VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const;
-        void setupImGui(ImGui_ImplVulkan_InitInfo* initInfo) const;
 
-        void waitDeviceIdle() const;
         void waitGraphicsQueueIdle() const;
         VkResult submitGraphicsQueue(uint32_t submitCount, const VkSubmitInfo *submitInfo, VkFence fence) const;
         VkResult presentKHR(const VkPresentInfoKHR *presentInfo) const;
-
-        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
-        VkFormat findDepthFormat() const;
-        VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
 
     private:
         std::unique_ptr<PhysicalDevice> m_physicalDevice;
@@ -47,7 +37,5 @@ namespace narc_engine
         const EngineInstance* m_instance = nullptr;
         const ISurfaceProvider* m_surface = nullptr;
         const KeywordList* m_deviceExtensions = nullptr;
-
-        void createLogicalDevice(const EngineDebugLogger* debugLogger);
     };
 }

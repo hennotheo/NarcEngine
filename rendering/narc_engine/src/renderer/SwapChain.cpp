@@ -78,7 +78,7 @@ namespace narc_engine {
 
         NARCLOG_INFO(std::string("Recreating swapchain...") + std::to_string(width) + "x" + std::to_string(height));
 
-        getDeviceHandler()->waitDeviceIdle();
+        getDeviceHandler()->getLogicalDevice()->waitDeviceIdle();
 
         cleanSwapChain();
 
@@ -131,7 +131,7 @@ namespace narc_engine {
 
     void SwapChain::createSwapChain()
     {
-        SwapChainSupportDetails swapChainSupport = getDeviceHandler()->getSwapChainSupportDetails();
+        SwapChainSupportDetails swapChainSupport = getDeviceHandler()->getPhysicalDevice()->getSwapChainSupport();
         VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.Formats);
         VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.PresentModes);
         VkExtent2D extent = chooseSwapExtent(swapChainSupport.Capabilities);
@@ -158,7 +158,26 @@ namespace narc_engine {
         createInfo.clipped = VK_TRUE;
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-        getDeviceHandler()->createSwapChain(createInfo, &m_swapChain);
+        QueueFamilyIndices indices = getDeviceHandler()->getPhysicalDevice()->getQueueFamilyIndices();
+        uint32_t queueFamilyIndices[] = { indices.GraphicsFamily.value(), indices.PresentFamily.value() };
+
+        if (indices.GraphicsFamily != indices.PresentFamily)
+        {
+            createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT; // Multiple queue family without explicit ownership
+            createInfo.queueFamilyIndexCount = 2;
+            createInfo.pQueueFamilyIndices = queueFamilyIndices;
+        }
+        else
+        {
+            createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE; // Best perf : one queue family ownership
+            createInfo.queueFamilyIndexCount = 0;                    // Optional
+            createInfo.pQueueFamilyIndices = nullptr;                // Optional
+        }
+
+        if (vkCreateSwapchainKHR(getDeviceHandler()->getLogicalDevice()->getVkDevice(), &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
+        {
+            NARCLOG_FATAL("failed to create swap chain!");
+        }
 
         vkGetSwapchainImagesKHR(getVkDevice(), m_swapChain, &imageCount, nullptr);
         m_swapChainImages.resize(imageCount);
