@@ -54,7 +54,7 @@ namespace narc_engine {
 
         for (auto imageView : m_swapChainImageViews)
         {
-            vkDestroyImageView(getVkDevice(), imageView, nullptr);
+            imageView.release();
         }
 
         vkDestroySwapchainKHR(getVkDevice(), m_swapChain, nullptr);
@@ -97,7 +97,7 @@ namespace narc_engine {
         for (size_t i = 0; i < m_swapChainImageViews.size(); i++)
         {
             std::array<VkImageView, 2> attachments = {
-                m_swapChainImageViews[i],
+                m_swapChainImageViews[i].getVkImageView(),
                 m_depthResources->getImageView()
             };
 
@@ -193,7 +193,7 @@ namespace narc_engine {
 
         for (size_t i = 0; i < m_swapChainImages.size(); i++)
         {
-            m_swapChainImageViews[i] = getDeviceHandler()->createImageView(m_swapChainImages[i], m_swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+            m_swapChainImageViews[i].create(m_swapChainImages[i], m_swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
         }
     }
 

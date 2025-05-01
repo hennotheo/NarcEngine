@@ -21,8 +21,6 @@ namespace narc_engine
         GETTER const inline PhysicalDevice* getPhysicalDevice() const { return m_physicalDevice.get(); }
         GETTER const inline LogicalDevice* getLogicalDevice() const { return m_logicalDevice.get(); }
 
-        VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const;
-
         void waitGraphicsQueueIdle() const;
         VkResult submitGraphicsQueue(uint32_t submitCount, const VkSubmitInfo *submitInfo, VkFence fence) const;
         VkResult presentKHR(const VkPresentInfoKHR *presentInfo) const;

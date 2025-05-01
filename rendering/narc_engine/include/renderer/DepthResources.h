@@ -7,6 +7,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "core/DeviceComponent.h"
+#include "resources/ImageView.h"
 
 namespace narc_engine {
     class DeviceHandler;
@@ -17,7 +18,7 @@ namespace narc_engine {
         DepthResources() = default;
         ~DepthResources();
 
-        VkImageView getImageView() const { return m_depthImageView; }
+        VkImageView getImageView() const { return m_depthImageView.getVkImageView(); }
 
         void create(uint32_t width, uint32_t height);
         void release();
@@ -25,6 +26,6 @@ namespace narc_engine {
     private:
         VkImage m_depthImage;
         VkDeviceMemory m_depthImageMemory;
-        VkImageView m_depthImageView;
+        ImageView m_depthImageView;
     };
 }

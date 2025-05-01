@@ -33,7 +33,7 @@ namespace narc_engine {
         std::vector<VkImage> m_swapChainImages;
         VkFormat m_swapChainImageFormat;
         VkExtent2D m_swapChainExtent;
-        std::vector<VkImageView> m_swapChainImageViews;
+        std::vector<ImageView> m_swapChainImageViews;
         std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
         std::unique_ptr<DepthResources> m_depthResources;
