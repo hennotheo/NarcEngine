@@ -23,6 +23,8 @@ namespace narc_engine {
         VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
     };
 
+    constexpr uint32_t g_maxFramesInFlight = 2;
+
     static Engine* s_instance;
 
     IEngine* getEngine()
@@ -69,7 +71,8 @@ namespace narc_engine {
         m_presentQueue = CREATE_ENGINE_UNIQUE_COMPONENT(PresentQueue, &builder);
 
         m_commandPool = CREATE_ENGINE_UNIQUE_COMPONENT(CommandPool);
-        m_renderer = CREATE_ENGINE_UNIQUE_COMPONENT(EngineRenderer, m_instance.get(), m_surfaceProvider.get());
+        m_frameManager = CREATE_ENGINE_UNIQUE_COMPONENT(MultiFrameManager, g_maxFramesInFlight);
+        m_renderer = CREATE_ENGINE_UNIQUE_COMPONENT(EngineRenderer, m_instance.get(), m_surfaceProvider.get(), m_frameManager.get());
 
         m_engineBinder = CREATE_ENGINE_UNIQUE_COMPONENT(EngineBinder, this);
         m_resourcesManager = CREATE_ENGINE_UNIQUE_COMPONENT(EngineResourcesManager);
@@ -99,7 +102,11 @@ namespace narc_engine {
 
     void Engine::render()
     {
-        m_renderer->drawFrame();
+        const FrameHandler* frameHandler = m_frameManager->getCurrentFrameHandler();
+
+        m_renderer->drawFrame(frameHandler);
+
+        m_frameManager->nextFrame();
     }
 
     void Engine::waitDeviceIdle()

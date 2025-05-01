@@ -8,17 +8,14 @@
 #include "core/interfaces/ISurfaceProvider.h"
 
 namespace narc_engine {
-    constexpr uint32_t g_maxFramesInFlight = 2;
-
-    EngineRenderer::EngineRenderer(const EngineInstance* instance, ISurfaceProvider* surfaceProvider) : DeviceComponent()
+    EngineRenderer::EngineRenderer(const EngineInstance* instance, ISurfaceProvider* surfaceProvider, MultiFrameManager* multiFrameManager) : DeviceComponent()
     {
+        m_frameManager = multiFrameManager;        
         surfaceProvider->attach(this);
-
         m_swapChain.create(surfaceProvider);
-        m_frameManager = std::make_unique<MultiFrameManager>(g_maxFramesInFlight);
         createDescriptorSetLayout();
         m_swapChain.createFramebuffers();
-        m_uiRenderer = std::make_unique<UiRenderer>(instance, m_frameManager.get(), &m_swapChain);
+        m_uiRenderer = std::make_unique<UiRenderer>(instance, multiFrameManager, &m_swapChain);
     }
 
     EngineRenderer::~EngineRenderer()
@@ -39,10 +36,8 @@ namespace narc_engine {
         m_swapChain.cleanRenderPass();
     }
 
-    void EngineRenderer::drawFrame()
+    void EngineRenderer::drawFrame(const FrameHandler* frameHandler)
     {
-        const FrameHandler* frameHandler = m_frameManager->getCurrentFrameHandler();
-
         const std::vector<VkFence> inFlightFencesToWait = { frameHandler->getInFlightFence() };
         vkWaitForFences(getVkDevice(), 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
 
@@ -114,8 +109,6 @@ namespace narc_engine {
         {
             NARCLOG_FATAL("failed to present swap chain image!");
         }
-
-        m_frameManager->nextFrame();
     }
 
     void EngineRenderer::updateUniformBuffer(UniformBuffer* buffer, RenderTask* rendererTask) const

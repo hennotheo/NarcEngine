@@ -64,6 +64,7 @@ namespace narc_engine {
         std::unique_ptr<PresentQueue> m_presentQueue;
 
         std::unique_ptr<CommandPool> m_commandPool;
+        std::unique_ptr<MultiFrameManager> m_frameManager;
         std::unique_ptr<EngineRenderer> m_renderer;
 
         std::unique_ptr<EngineBinder> m_engineBinder;

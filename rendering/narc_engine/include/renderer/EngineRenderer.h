@@ -22,10 +22,10 @@ namespace narc_engine {
         friend class Engine;
 
     public:
-        EngineRenderer(const EngineInstance* instance, ISurfaceProvider* surfaceProvider);
+        EngineRenderer(const EngineInstance* instance, ISurfaceProvider* surfaceProvider, MultiFrameManager* multiFrameManager);
         ~EngineRenderer();
 
-        void drawFrame();
+        void drawFrame(const FrameHandler* frameHandler);
         void updateUniformBuffer(UniformBuffer* buffer, RenderTask* rendererTask) const;
 
         void attachRenderer(const Renderer* renderer);
@@ -35,13 +35,14 @@ namespace narc_engine {
 
     private:
         SwapChain m_swapChain;
-        std::unique_ptr<MultiFrameManager> m_frameManager;
         std::unique_ptr<UiRenderer> m_uiRenderer;
         std::map<uint32_t, RenderTask*> m_rendererTasks;
 
         bool m_framebufferResized = false;
 
         VkDescriptorSetLayout m_descriptorSetLayout;
+
+        MultiFrameManager* m_frameManager = nullptr;
 
         void createDescriptorSetLayout();
         void recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex, const std::vector<VkDescriptorSet>& descriptorSets);
