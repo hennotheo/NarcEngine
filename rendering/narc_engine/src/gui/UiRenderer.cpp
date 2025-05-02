@@ -6,6 +6,8 @@
 #include "renderer/MultiFrameManager.h"
 #include "renderer/SwapChain.h"
 #include "core/interfaces/ISurfaceProvider.h"
+#include "interfaces/IGuiHandle.h"
+#include "gui/GuiWindow.h"
 
 #include "imgui.h"
 #include "backends/imgui_impl_vulkan.h"
@@ -61,9 +63,10 @@ namespace narc_engine
 
     void UiRenderer::render(const CommandBuffer* commandBuffer)
     {
-        ImGui::Begin("Hello, Vulkan!");
-        ImGui::Text("Ceci est une interface ImGui avec Vulkan.");
-        ImGui::End();
+        for (const auto& component : m_guiComponents)
+        {
+            component->render();
+        }
 
         ImGui::Render();
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer->getVkCommandBuffer());
