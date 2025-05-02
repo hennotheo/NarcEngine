@@ -4,7 +4,7 @@
 
 namespace narc_engine
 {
-    class GuiWindow : public GuiComponent
+    class NARC_ENGINE_API GuiWindow : public GuiComponent
     {
     public:
         GuiWindow(const std::string& name) : m_name(name) {}

@@ -4,7 +4,7 @@
 
 namespace narc_engine
 {
-    class GuiComponent : public IGuiHandle
+    class NARC_ENGINE_API GuiComponent : public IGuiHandle
     {
     public:
         GuiComponent() = default;

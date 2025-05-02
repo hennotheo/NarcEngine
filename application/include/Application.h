@@ -5,6 +5,18 @@
 
 namespace narc
 {
+    class TestWindow : public narc_engine::GuiWindow
+    {
+    public:
+        TestWindow() : GuiWindow("Test Window") {}
+        ~TestWindow() override = default;
+
+    protected:
+        inline void renderContent() const override final
+        {
+        }
+    };
+
     class Application final
     {
     public:
@@ -18,6 +30,7 @@ namespace narc
 
     private:
         narc_engine::IEngine* m_engine;
+        TestWindow m_testWindow;
 
         const narc_engine::Material* m_renderMaterial = nullptr;
         const narc_engine::Material* m_renderMaterial2 = nullptr;
