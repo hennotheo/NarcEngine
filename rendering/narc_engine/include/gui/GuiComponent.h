@@ -2,9 +2,9 @@
 
 #include "interfaces/IGuiHandle.h"
 
-namespace narc_engine
+namespace narc_gui
 {
-    class NARC_ENGINE_API GuiComponent : public IGuiHandle
+    class NARC_ENGINE_API GuiComponent : public narc_engine::IGuiHandle
     {
     public:
         GuiComponent() = default;
@@ -22,4 +22,4 @@ namespace narc_engine
     private:
         bool m_visible = true;
     };
-} // namespace narc_engine
+} // namespace narc_gui

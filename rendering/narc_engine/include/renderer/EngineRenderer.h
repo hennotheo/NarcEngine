@@ -38,7 +38,7 @@ namespace narc_engine {
 
     private:
         SwapChain m_swapChain;
-        std::unique_ptr<UiRenderer> m_uiRenderer;
+        std::unique_ptr<narc_gui::UiRenderer> m_uiRenderer;
         std::map<uint32_t, RenderTask*> m_rendererTasks;
 
         uint32_t m_currentImageIndex = 0;

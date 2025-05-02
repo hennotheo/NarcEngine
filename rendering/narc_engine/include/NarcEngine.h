@@ -17,4 +17,4 @@
 #include "interfaces/IEngine.h"
 #include "interfaces/IGuiHandle.h"
 
-#include "gui/GuiWindow.h"
+#include "gui/NarcGui.h"

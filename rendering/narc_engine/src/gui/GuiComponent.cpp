@@ -1,6 +1,6 @@
 #include "gui/GuiComponent.h"
 
-namespace narc_engine
+namespace narc_gui
 {
     void GuiComponent::show()
     {
@@ -19,4 +19,4 @@ namespace narc_engine
 
         onRender();
     }
-} // namespace narc_engine
+} // namespace narc_gui

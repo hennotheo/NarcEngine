@@ -8,19 +8,22 @@ namespace narc_engine
     class CommandBuffer;
     class ISurfaceProvider;
     class IGuiHandle;
+}
 
+namespace narc_gui
+{
     class UiRenderer
     {
     public:
-        UiRenderer(const EngineInstance* instance, const MultiFrameManager* frameManager, const SwapChain* swapChain, const ISurfaceProvider* surface);
+        UiRenderer(const narc_engine::EngineInstance* instance, const narc_engine::MultiFrameManager* frameManager, const narc_engine::SwapChain* swapChain, const narc_engine::ISurfaceProvider* surface);
         ~UiRenderer();
 
-        void addGuiComponent(const IGuiHandle* component) { m_guiComponents.push_back(component); }
+        void addGuiComponent(const narc_engine::IGuiHandle* component) { m_guiComponents.push_back(component); }
 
         void beginFrame();
-        void render(const CommandBuffer* commandBuffer);
+        void render(const narc_engine::CommandBuffer* commandBuffer);
 
     private: 
-        std::vector<const IGuiHandle*> m_guiComponents;
+        std::vector<const narc_engine::IGuiHandle*> m_guiComponents;
     };
 }

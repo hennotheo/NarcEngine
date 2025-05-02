@@ -5,15 +5,22 @@
 
 namespace narc
 {
-    class TestWindow : public narc_engine::GuiWindow
+    class TestWindow : public narc_gui::GuiWindow
     {
     public:
-        TestWindow() : GuiWindow("Test Window") {}
+        TestWindow() : GuiWindow("Test Window") {
+            setPosition(0.0f, 0.0f);
+            setSize(300.0f, 200.0f);
+        }
         ~TestWindow() override = default;
 
     protected:
         inline void renderContent() const override final
         {
+            narc_gui::text("Hello, world!");
+            narc_gui::text("This is a test window.");
+            narc_gui::text("You can add more content here.");
+            narc_gui::text("This is a test of the GUI system.");
         }
     };
 

@@ -18,7 +18,7 @@ namespace narc_engine {
         createDescriptorSetLayout();
         m_swapChain.createFramebuffers();
 
-        m_uiRenderer = std::make_unique<UiRenderer>(instance, multiFrameManager, &m_swapChain, surfaceProvider);
+        m_uiRenderer = std::make_unique<narc_gui::UiRenderer>(instance, multiFrameManager, &m_swapChain, surfaceProvider);
         NARCLOG_WARNING("Gui renderer must be independent from the engine renderer!");
     }
 
