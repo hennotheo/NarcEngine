@@ -18,31 +18,22 @@ namespace narc_engine {
     class Material;
     class UniformBuffer;
 
-    class EngineRenderer : public DeviceComponent //, public ISurfaceObserver
+    class EngineRenderer : public DeviceComponent
     {
         friend class EngineBinder;
         friend class Engine;
 
     public:
-        EngineRenderer(const SwapChain* swapchain, ISurfaceProvider* surfaceProvider, MultiFrameManager* multiFrameManager);
+        EngineRenderer(const SwapChain* swapchain, MultiFrameManager* multiFrameManager);
         ~EngineRenderer();
 
         void prepareFrame(const FrameHandler* frameHandler);
         QUERY SignalSemaphores drawFrame(const FrameHandler* frameHandler, uint32_t imageIndex);
-        void presentFrame(SignalSemaphores& signalSemaphores);
 
         void attachRenderer(const Renderer* renderer);
         
-        protected:
-        // void onSurfaceFramebufferResized(int width, int height) override;
-        
         private:
-        // SwapChain m_swapChain;
-        // std::unique_ptr<narc_gui::UiRenderer> m_uiRenderer;
         std::map<uint32_t, RenderTask*> m_rendererTasks;
-        
-        // uint32_t m_currentImageIndex = 0;
-        // bool m_framebufferResized = false;
         
         VkDescriptorSetLayout m_descriptorSetLayout;
         

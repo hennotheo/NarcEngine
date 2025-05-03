@@ -8,16 +8,12 @@
 #include "core/interfaces/ISurfaceProvider.h"
 
 namespace narc_engine {
-    EngineRenderer::EngineRenderer(const SwapChain* swapchain, ISurfaceProvider* surfaceProvider, MultiFrameManager* multiFrameManager) : DeviceComponent()
+    EngineRenderer::EngineRenderer(const SwapChain* swapchain, MultiFrameManager* multiFrameManager) : DeviceComponent()
     {
         m_frameManager = multiFrameManager;
         m_swapchain = swapchain;
 
-        // surfaceProvider->attach(this);
-
-        // m_swapChain.create(surfaceProvider);
         createDescriptorSetLayout();
-        // m_swapChain.createFramebuffers();
 
         // m_uiRenderer = std::make_unique<narc_gui::UiRenderer>(instance, multiFrameManager, &m_swapChain, surfaceProvider);
         // NARCLOG_WARNING("Gui renderer must be independent from the engine renderer!");
@@ -25,8 +21,6 @@ namespace narc_engine {
 
     EngineRenderer::~EngineRenderer()
     {
-        // m_swapChain.cleanSwapChain();
-
         vkDestroyDescriptorSetLayout(getVkDevice(), m_descriptorSetLayout, nullptr);
 
         for (auto& [id, rendererTask] : m_rendererTasks)
@@ -37,14 +31,10 @@ namespace narc_engine {
                 rendererTask = nullptr;
             }
         }
-
-        // m_swapChain.cleanRenderPass();
     }
 
     void EngineRenderer::prepareFrame(const FrameHandler* frameHandler)
     {
-        // m_swapChain.acquireNextImage(frameHandler->getImageAvailableSemaphore(), &m_currentImageIndex);
-
         uint32_t materialID = 0;
         for (const auto& [id, rendererTask] : m_rendererTasks)
         {
@@ -91,30 +81,6 @@ namespace narc_engine {
         }
 
         return signalSemaphores;
-    }
-
-    void EngineRenderer::presentFrame(SignalSemaphores& signalSemaphores)
-    {
-        // const VkSwapchainKHR swapChains[] = { m_swapchain->getSwapChain() };
-        // VkPresentInfoKHR presentInfo{};
-        // presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-        // presentInfo.waitSemaphoreCount = 1;
-        // presentInfo.pWaitSemaphores = signalSemaphores.data();
-        // presentInfo.swapchainCount = 1;
-        // presentInfo.pSwapchains = swapChains;
-        // presentInfo.pImageIndices = &m_currentImageIndex;
-        // presentInfo.pResults = nullptr;
-
-        // const VkResult result = Engine::getInstance()->getPresentQueue()->presentKHR(&presentInfo);
-        // if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebufferResized)
-        // {
-        //     m_framebufferResized = false;
-        //     m_swapchain->reCreate();
-        // }
-        // else if (result != VK_SUCCESS)
-        // {
-        //     NARCLOG_FATAL("failed to present swap chain image!");
-        // }
     }
 
     void EngineRenderer::updateUniformBuffer(UniformBuffer* buffer, RenderTask* rendererTask) const
@@ -244,9 +210,4 @@ namespace narc_engine {
 
         return renderer;
     }
-
-    // void EngineRenderer::onSurfaceFramebufferResized(int width, int height)
-    // {
-    //     m_framebufferResized = true;
-    // }
 } // narc_engine

@@ -20,7 +20,7 @@ namespace narc_engine {
         FrameHandler();
         ~FrameHandler();
 
-        GETTER CommandPool* getCommandPool() const { return m_commandPool.get(); }
+        DEPRECATED GETTER CommandPool* getCommandPool() const { return m_commandPool.get(); }
 
         GETTER VkSemaphore getImageAvailableSemaphore() const { return m_imageAvailableSemaphore; }
         GETTER VkSemaphore getRenderFinishedSemaphore() const { return m_renderFinishedSemaphore; }

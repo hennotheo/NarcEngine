@@ -63,6 +63,9 @@ namespace narc_engine
         const LogicalDevice* m_logicalDevice;
 
     private:
+        void prepareFrame(const FrameHandler* frameHandler, uint32_t* currentImageIndex);
+        void present(const SignalSemaphores& signalSemaphores, uint32_t currentImageIndex);
+
         static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
         static void onKeyboardInputPerformed(GLFWwindow* window, int key, int scancode, int action, int mods);
         static void onMouseInputPerformed(GLFWwindow* window, int button, int action, int mods);

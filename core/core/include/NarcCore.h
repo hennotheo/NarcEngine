@@ -8,7 +8,7 @@
 #define GETTER [[nodiscard]] inline
 #define SETTER inline
 
-#define DEPRECATED [[deprecated]]
+#define DEPRECATED [[deprecated("Deprecated. This code will be removed in the future.")]]
 #define TEMP_CODE [[deprecated("Temporary code just for testing purposes")]]
 
 #ifdef NARC_TEST_BUILD
