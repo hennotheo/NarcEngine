@@ -5,15 +5,28 @@ set(CMAKE_POLICY_WARNING_CMP0000 OFF)
 set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS 1 CACHE INTERNAL "No dev warnings")
 
 include(FetchContent)
+message(STATUS "Fetching dependencies...")
 
-FetchContent_Declare(
-    glm
-    GIT_REPOSITORY https://github.com/g-truc/glm.git
-    GIT_TAG 1.0.1
-    SOURCE_DIR ${VENDOR_DIR}/glm
-    EXCLUDE_FROM_ALL
-)
-FetchContent_MakeAvailable(glm)
+# --- GLM ---
+
+set(GLM_VERSION 1.0.1)
+
+find_package(glm ${GLM_VERSION} QUIET)
+if(glm_FOUND)
+    message(STATUS "GLM ${GLM_VERSION} found on system.")
+    add_library(glm INTERFACE IMPORTED GLOBAL)
+    target_link_libraries(glm INTERFACE glm::glm)
+else()
+    message(STATUS "GLM ${GLM_VERSION} not found, fetching from repository...")
+    FetchContent_Declare(
+        glm
+        GIT_REPOSITORY https://github.com/g-truc/glm.git
+        GIT_TAG ${GLM_VERSION}
+        SOURCE_DIR ${VENDOR_DIR}/glm
+        EXCLUDE_FROM_ALL
+    )
+    FetchContent_MakeAvailable(glm)
+endif()
 
 FetchContent_Declare(
     stb
@@ -44,22 +57,16 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(glfw)
 
 # --- VULKAN ---
-find_package(Vulkan)
 
+
+find_package(Vulkan REQUIRED)
 if(WIN32)
 
-    if(NOT Vulkan_FOUND)
-        find_library(Vulkan_LIBRARY NAMES vulkan-1 vulkan PATHS ${CMAKE_SOURCE_DIR}/libs/vulkan)
-        if(Vulkan_LIBRARY)
-            set(Vulkan_FOUND ON)
-            message("Using bundled Vulkan library version")
-        endif()
-    endif()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_USE_PLATFORM_WIN32_KHR" CACHE STRING "Vulkan Windows platform flag")
 
 elseif(UNIX)
 
-    message(FATAL_ERROR "Apple platform is not supported yet.")
+    message(FATAL_ERROR "Unix platform is not supported yet.")
 
 elseif(APPLE)
 
@@ -68,6 +75,8 @@ elseif(APPLE)
 endif(WIN32)
 
 if(Vulkan_FOUND)
+    message(STATUS "Vulkan found on system.")
+
     set(VULKAN_INCLUDE_DIRS ${Vulkan_INCLUDE_DIRS})
     set(VULKAN_LIBRARIES ${Vulkan_LIBRARIES})
     set(VULKAN_FOUND ${Vulkan_FOUND})

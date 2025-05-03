@@ -11,6 +11,7 @@ set(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_FLAGS -std=c++20)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_RULE_MESSAGES OFF)
 
 if (NOT DEFINED CMAKE_BUILD_TYPE)
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release")
