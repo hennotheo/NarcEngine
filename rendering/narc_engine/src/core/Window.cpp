@@ -5,6 +5,8 @@
 
 #include "core/EngineInstance.h"
 #include "core/interfaces/IEngineCallbacks.h"
+#include "core/EngineBuilder.h"
+#include "core/devices/DeviceHandler.h"
 
 #include <backends/imgui_impl_glfw.h>
 
@@ -34,10 +36,41 @@ namespace narc_engine
 
     Window::~Window()
     {
+        //Destroy before the window is destroyed
+        m_renderer.reset();
+        m_frameManager.reset();
+
         vkDestroySurfaceKHR(m_engineInstance->getvkInstance(), m_surface, nullptr);
 
         glfwDestroyWindow(m_window);
         glfwTerminate();
+    }
+
+    void Window::initRenderingSystem(const EngineBuilder* builder)
+    {
+        m_physicalDevice = builder->getPhysicalDevice();
+        m_logicalDevice = builder->getLogicalDevice();
+        
+        m_frameManager = std::make_unique<MultiFrameManager>(builder->getFrameInFlightCount());
+        m_renderer = std::make_unique<EngineRenderer>(m_engineInstance, this, m_frameManager.get());
+    }
+
+    void Window::render()
+    {
+        const FrameHandler* frameHandler = m_frameManager->getCurrentFrameHandler();
+        VkDevice device = m_logicalDevice->getVkDevice();
+
+        const std::vector<VkFence> inFlightFencesToWait = { frameHandler->getInFlightFence() };
+        vkWaitForFences(device, 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
+
+        m_renderer->prepareFrame(frameHandler);
+
+        vkResetFences(device, 1, inFlightFencesToWait.data());
+
+        SignalSemaphores signalSemaphores = m_renderer->drawFrame(frameHandler);
+        m_renderer->presentFrame(signalSemaphores);
+
+        m_frameManager->nextFrame();
     }
 
     void Window::pollEvents()

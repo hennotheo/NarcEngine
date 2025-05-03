@@ -3,6 +3,10 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include "renderer/EngineRenderer.h"
+#include "renderer/MultiFrameManager.h"
+#include "EngineBinder.h"
+
 #include "interfaces/ISurfaceProvider.h"
 #include "renderer/SwapChainSupportDetails.h"
 
@@ -10,9 +14,14 @@ namespace narc_engine
 {
     class EngineInstance;
     class IEngineCallbacks;
+    class EngineBuilder;
+    class PhysicalDevice;
+    class LogicalDevice;
 
     class Window : public ISurfaceProvider
     {
+        friend class EngineBinder;
+
     public:
         explicit Window(const EngineInstance* engineInstance, IEngineCallbacks* engine);
         ~Window();
@@ -22,13 +31,17 @@ namespace narc_engine
         void getValidFramebufferSize(int* width, int* height) const override;
         void getFramebufferSize(int* width, int* height) const override;
 
+        void initRenderingSystem(const EngineBuilder* builder);
         void pollEvents();
+        void render();
 
         static const char** getRequiredInstanceExtensions(uint32_t* glfwExtensionCount);
 
     private:
         GLFWwindow* m_window;
         VkSurfaceKHR m_surface;
+        std::unique_ptr<MultiFrameManager> m_frameManager;
+        std::unique_ptr<EngineRenderer> m_renderer;
 
         narc_core::Event<int, int, int, int> m_onKeyboardEvent;
         narc_core::Event<int, int, int> m_onMouseEvent;
@@ -39,6 +52,8 @@ namespace narc_engine
         double m_time = 0.0;
 
         const EngineInstance* m_engineInstance;
+        const PhysicalDevice* m_physicalDevice;
+        const LogicalDevice* m_logicalDevice;
         IEngineCallbacks* m_engine;
 
     private:

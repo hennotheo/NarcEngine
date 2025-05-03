@@ -53,16 +53,18 @@ namespace narc_engine {
 
         m_instance = CREATE_ENGINE_UNIQUE_COMPONENT(EngineInstance, &builder);
         builder.m_instance = m_instance.get();
-        m_surfaceProvider = CREATE_ENGINE_UNIQUE_COMPONENT(Window, m_instance.get(), this);
-        builder.m_surface = m_surfaceProvider.get();
 
-        if (m_instance == nullptr || m_surfaceProvider == nullptr)
+        m_debugLogger = CREATE_ENGINE_UNIQUE_COMPONENT(EngineDebugLogger, m_instance.get());
+        builder.m_debugLogger = m_debugLogger.get();
+
+        m_windows = CREATE_ENGINE_UNIQUE_COMPONENT(Window, m_instance.get(), this);
+        builder.m_surface = m_windows.get();
+
+        if (m_instance == nullptr || m_windows == nullptr)
         {
             NARCLOG_FATAL("Failed to initialize Engine: m_instance or m_window is null");
         }
 
-        m_debugLogger = CREATE_ENGINE_UNIQUE_COMPONENT(EngineDebugLogger, m_instance.get());
-        builder.m_debugLogger = m_debugLogger.get();
         m_deviceHandler = CREATE_ENGINE_UNIQUE_COMPONENT(DeviceHandler, &builder);
         builder.m_physicalDevice = m_deviceHandler->getPhysicalDevice();
         builder.m_logicalDevice = m_deviceHandler->getLogicalDevice();
@@ -71,8 +73,7 @@ namespace narc_engine {
         m_presentQueue = CREATE_ENGINE_UNIQUE_COMPONENT(PresentQueue, &builder);
 
         m_commandPool = CREATE_ENGINE_UNIQUE_COMPONENT(CommandPool);
-        m_frameManager = CREATE_ENGINE_UNIQUE_COMPONENT(MultiFrameManager, g_maxFramesInFlight);
-        m_renderer = CREATE_ENGINE_UNIQUE_COMPONENT(EngineRenderer, m_instance.get(), m_surfaceProvider.get(), m_frameManager.get());
+        m_windows->initRenderingSystem(&builder);
 
         m_engineBinder = CREATE_ENGINE_UNIQUE_COMPONENT(EngineBinder, this);
         m_resourcesManager = CREATE_ENGINE_UNIQUE_COMPONENT(EngineResourcesManager);
@@ -97,25 +98,12 @@ namespace narc_engine {
 
     void Engine::pollEvents()
     {
-        m_surfaceProvider->pollEvents();
+        m_windows->pollEvents();
     }
 
     void Engine::render()
     {
-        const FrameHandler* frameHandler = m_frameManager->getCurrentFrameHandler();
-        VkDevice device = m_deviceHandler->getLogicalDevice()->getVkDevice();
-
-        const std::vector<VkFence> inFlightFencesToWait = { frameHandler->getInFlightFence() };
-        vkWaitForFences(device, 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
-
-        m_renderer->prepareFrame(frameHandler);
-
-        vkResetFences(device, 1, inFlightFencesToWait.data());
-
-        SignalSemaphores signalSemaphores = m_renderer->drawFrame(frameHandler);
-        m_renderer->presentFrame(signalSemaphores);
-
-        m_frameManager->nextFrame();
+        m_windows->render();
     }
 
     void Engine::waitDeviceIdle()

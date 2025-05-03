@@ -6,11 +6,11 @@ namespace narc_engine
 {
     void EngineBinder::attachRenderer(const Renderer* renderer) const
     {
-        static_cast<Engine*>(m_engine)->m_renderer->attachRenderer(renderer);
+        static_cast<Engine*>(m_engine)->m_windows->m_renderer->attachRenderer(renderer);
     }
 
     void EngineBinder::attachGuiComponent(const IGuiHandle* component) const
     {
-        static_cast<Engine*>(m_engine)->m_renderer->m_uiRenderer->addGuiComponent(component);
+        static_cast<Engine*>(m_engine)->m_windows->m_renderer->m_uiRenderer->addGuiComponent(component);
     }
 }
