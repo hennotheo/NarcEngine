@@ -57,7 +57,7 @@ namespace narc_engine {
         m_debugLogger = CREATE_ENGINE_UNIQUE_COMPONENT(EngineDebugLogger, m_instance.get());
         builder.m_debugLogger = m_debugLogger.get();
 
-        m_windows = CREATE_ENGINE_UNIQUE_COMPONENT(Window, m_instance.get(), this);
+        m_windows = CREATE_ENGINE_UNIQUE_COMPONENT(Window, m_instance.get());
         builder.m_surface = m_windows.get();
 
         if (m_instance == nullptr || m_windows == nullptr)
@@ -99,6 +99,11 @@ namespace narc_engine {
     void Engine::pollEvents()
     {
         m_windows->pollEvents();
+
+        if (m_windows->shouldClose())
+        {
+            m_shouldClose = true;
+        }
     }
 
     void Engine::render()

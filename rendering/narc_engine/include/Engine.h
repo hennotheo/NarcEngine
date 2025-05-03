@@ -3,7 +3,6 @@
 #include "core/EngineBuilder.h"
 
 #include "interfaces/IEngine.h"
-#include "core/interfaces/IEngineCallbacks.h"
 
 #include "CommandPool.h"
 
@@ -20,7 +19,7 @@
 
 namespace narc_engine {
 
-    class Engine : public IEngine, public IEngineCallbacks
+    class Engine : public IEngine
     {
         friend EngineBinder;
 
@@ -32,7 +31,6 @@ namespace narc_engine {
 
         GETTER bool shouldClose() const override { return m_shouldClose; }
 
-        void stop() override { m_shouldClose = true; }
         void pollEvents() override;
         void render() override;
         void waitDeviceIdle() override;
@@ -58,15 +56,13 @@ namespace narc_engine {
         std::unique_ptr<EngineInstance> m_instance;
         std::unique_ptr<EngineDebugLogger> m_debugLogger;
         std::unique_ptr<DeviceHandler> m_deviceHandler;
-        
-        std::unique_ptr<Window> m_windows;
+
+        std::unique_ptr<Window> m_windows;//TODO enhance to multiwindow
 
         std::unique_ptr<GraphicsQueue> m_graphicsQueue;
         std::unique_ptr<PresentQueue> m_presentQueue;
 
         std::unique_ptr<CommandPool> m_commandPool;
-        // std::unique_ptr<MultiFrameManager> m_frameManager;
-        // std::unique_ptr<EngineRenderer> m_renderer;
 
         std::unique_ptr<EngineBinder> m_engineBinder;
         std::unique_ptr<EngineResourcesManager> m_resourcesManager;

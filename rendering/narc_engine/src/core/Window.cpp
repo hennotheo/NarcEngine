@@ -4,18 +4,15 @@
 #include <NarcCore.h>
 
 #include "core/EngineInstance.h"
-#include "core/interfaces/IEngineCallbacks.h"
 #include "core/EngineBuilder.h"
 #include "core/devices/DeviceHandler.h"
-
-#include <backends/imgui_impl_glfw.h>
 
 namespace narc_engine
 {
     constexpr uint32_t g_width = 800;
     constexpr uint32_t g_height = 600;
 
-    Window::Window(const EngineInstance* engineInstance, IEngineCallbacks* engine) : m_engine(engine)
+    Window::Window(const EngineInstance* engineInstance)
     {
         m_engineInstance = engineInstance;
 
@@ -77,11 +74,7 @@ namespace narc_engine
     {
         glfwPollEvents();
 
-        bool shouldClose = glfwWindowShouldClose(m_window);
-        if (shouldClose)
-        {
-            m_engine->stop();
-        }
+        m_shouldClose = glfwWindowShouldClose(m_window);
 
         glfwGetCursorPos(m_window, &m_mouseXpos, &m_mouseYpos);
         m_time = glfwGetTime();

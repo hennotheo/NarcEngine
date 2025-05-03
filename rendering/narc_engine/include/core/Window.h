@@ -23,11 +23,13 @@ namespace narc_engine
         friend class EngineBinder;
 
     public:
-        explicit Window(const EngineInstance* engineInstance, IEngineCallbacks* engine);
+        explicit Window(const EngineInstance* engineInstance);
         ~Window();
 
         GETTER const void* getSurfaceHandler() const override { return m_window; }
         GETTER VkSurfaceKHR getVkSurfaceKHR() const override { return m_surface; }
+        GETTER bool shouldClose() const { return m_shouldClose; }
+
         void getValidFramebufferSize(int* width, int* height) const override;
         void getFramebufferSize(int* width, int* height) const override;
 
@@ -50,11 +52,11 @@ namespace narc_engine
         double m_mouseXpos = 0.0;
         double m_mouseYpos = 0.0;
         double m_time = 0.0;
+        bool m_shouldClose = false;
 
         const EngineInstance* m_engineInstance;
         const PhysicalDevice* m_physicalDevice;
         const LogicalDevice* m_logicalDevice;
-        IEngineCallbacks* m_engine;
 
     private:
         static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
