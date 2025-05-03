@@ -39,6 +39,8 @@ namespace narc
         
         m_renderer = new narc_engine::Renderer(&model, m_renderMaterial, m_transform);
         m_renderer2 = new narc_engine::Renderer(&model2, m_renderMaterial2, m_transform);
+
+        m_engine->binder()->attachGuiComponent(&m_testWindow);
     }
 
     void Application::stop()

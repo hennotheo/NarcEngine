@@ -9,6 +9,7 @@ namespace narc_engine
 {
     class Renderer;
     class IEngine;
+    class IGuiHandle;
 
     class NARC_ENGINE_API EngineBinder
     {
@@ -18,6 +19,7 @@ namespace narc_engine
         }
 
         void attachRenderer(const Renderer* renderer) const;
+        void attachGuiComponent(const IGuiHandle* component) const;
 
     private:
         IEngine* m_engine;

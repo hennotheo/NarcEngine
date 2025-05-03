@@ -44,6 +44,6 @@ add_subdirectory(core/narcio)
 add_subdirectory(rendering/shaders)
 add_subdirectory(rendering/narc_engine)
 
-add_subdirectory(application)
+add_subdirectory(editor/application)
 
 include(cmake/installation.cmake)
