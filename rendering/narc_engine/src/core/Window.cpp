@@ -3,6 +3,8 @@
 #include <NarcLog.h>
 #include <NarcCore.h>
 
+#include "Engine.h"
+
 #include "core/EngineInstance.h"
 #include "core/EngineBuilder.h"
 #include "core/devices/DeviceHandler.h"
@@ -34,7 +36,12 @@ namespace narc_engine
     Window::~Window()
     {
         //Destroy before the window is destroyed
+        m_swapchain->cleanSwapChain();
+
         m_renderer.reset();
+
+        m_swapchain->cleanRenderPass();
+
         m_frameManager.reset();
 
         vkDestroySurfaceKHR(m_engineInstance->getvkInstance(), m_surface, nullptr);
@@ -47,9 +54,14 @@ namespace narc_engine
     {
         m_physicalDevice = builder->getPhysicalDevice();
         m_logicalDevice = builder->getLogicalDevice();
-        
+
         m_frameManager = std::make_unique<MultiFrameManager>(builder->getFrameInFlightCount());
-        m_renderer = std::make_unique<EngineRenderer>(m_engineInstance, this, m_frameManager.get());
+
+        m_swapchain = std::make_unique<SwapChain>();
+        m_swapchain->create(this);
+        m_swapchain->createFramebuffers();
+
+        m_renderer = std::make_unique<EngineRenderer>(m_swapchain.get(), this, m_frameManager.get());
     }
 
     void Window::render()
@@ -60,12 +72,34 @@ namespace narc_engine
         const std::vector<VkFence> inFlightFencesToWait = { frameHandler->getInFlightFence() };
         vkWaitForFences(device, 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
 
+        uint32_t currentImageIndex = 0;
+        m_swapchain->acquireNextImage(frameHandler->getImageAvailableSemaphore(), &currentImageIndex);
         m_renderer->prepareFrame(frameHandler);
 
         vkResetFences(device, 1, inFlightFencesToWait.data());
 
-        SignalSemaphores signalSemaphores = m_renderer->drawFrame(frameHandler);
-        m_renderer->presentFrame(signalSemaphores);
+        SignalSemaphores signalSemaphores = m_renderer->drawFrame(frameHandler, currentImageIndex);
+        const VkSwapchainKHR swapChains[] = { m_swapchain->getSwapChain() };
+        VkPresentInfoKHR presentInfo{};
+        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        presentInfo.waitSemaphoreCount = 1;
+        presentInfo.pWaitSemaphores = signalSemaphores.data();
+        presentInfo.swapchainCount = 1;
+        presentInfo.pSwapchains = swapChains;
+        presentInfo.pImageIndices = &currentImageIndex;
+        presentInfo.pResults = nullptr;
+
+        const VkResult result = Engine::getInstance()->getPresentQueue()->presentKHR(&presentInfo);
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebufferResized)
+        {
+            m_framebufferResized = false;
+            m_swapchain->reCreate();
+        }
+        else if (result != VK_SUCCESS)
+        {
+            NARCLOG_FATAL("failed to present swap chain image!");
+        }
+        // m_renderer->presentFrame(signalSemaphores);
 
         m_frameManager->nextFrame();
     }
@@ -102,19 +136,21 @@ namespace narc_engine
 
     void Window::framebufferResizeCallback(GLFWwindow* window, int width, int height)
     {
-        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-        app->notifyFramebufferResized(width, height);
+        Window* windowObject = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+        windowObject->notifyFramebufferResized(width, height);
+
+        windowObject->m_framebufferResized = true;
     }
 
     void Window::onKeyboardInputPerformed(GLFWwindow* window, int key, int scancode, int action, int mods)
     {
-        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-        app->m_onKeyboardEvent.trigger(key, scancode, action, mods);
+        Window* windowObject = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+        windowObject->m_onKeyboardEvent.trigger(key, scancode, action, mods);
     }
 
     void Window::onMouseInputPerformed(GLFWwindow* window, int button, int action, int mods)
     {
-        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-        app->m_onMouseEvent.trigger(button, action, mods);
+        Window* windowObject = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+        windowObject->m_onMouseEvent.trigger(button, action, mods);
     }
 }

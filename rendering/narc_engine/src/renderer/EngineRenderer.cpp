@@ -8,23 +8,24 @@
 #include "core/interfaces/ISurfaceProvider.h"
 
 namespace narc_engine {
-    EngineRenderer::EngineRenderer(const EngineInstance* instance, ISurfaceProvider* surfaceProvider, MultiFrameManager* multiFrameManager) : DeviceComponent()
+    EngineRenderer::EngineRenderer(const SwapChain* swapchain, ISurfaceProvider* surfaceProvider, MultiFrameManager* multiFrameManager) : DeviceComponent()
     {
         m_frameManager = multiFrameManager;
+        m_swapchain = swapchain;
 
-        surfaceProvider->attach(this);
+        // surfaceProvider->attach(this);
 
-        m_swapChain.create(surfaceProvider);
+        // m_swapChain.create(surfaceProvider);
         createDescriptorSetLayout();
-        m_swapChain.createFramebuffers();
+        // m_swapChain.createFramebuffers();
 
-        m_uiRenderer = std::make_unique<narc_gui::UiRenderer>(instance, multiFrameManager, &m_swapChain, surfaceProvider);
-        NARCLOG_WARNING("Gui renderer must be independent from the engine renderer!");
+        // m_uiRenderer = std::make_unique<narc_gui::UiRenderer>(instance, multiFrameManager, &m_swapChain, surfaceProvider);
+        // NARCLOG_WARNING("Gui renderer must be independent from the engine renderer!");
     }
 
     EngineRenderer::~EngineRenderer()
     {
-        m_swapChain.cleanSwapChain();
+        // m_swapChain.cleanSwapChain();
 
         vkDestroyDescriptorSetLayout(getVkDevice(), m_descriptorSetLayout, nullptr);
 
@@ -37,12 +38,12 @@ namespace narc_engine {
             }
         }
 
-        m_swapChain.cleanRenderPass();
+        // m_swapChain.cleanRenderPass();
     }
 
     void EngineRenderer::prepareFrame(const FrameHandler* frameHandler)
     {
-        m_swapChain.acquireNextImage(frameHandler->getImageAvailableSemaphore(), &m_currentImageIndex);
+        // m_swapChain.acquireNextImage(frameHandler->getImageAvailableSemaphore(), &m_currentImageIndex);
 
         uint32_t materialID = 0;
         for (const auto& [id, rendererTask] : m_rendererTasks)
@@ -54,13 +55,13 @@ namespace narc_engine {
         }
     }
 
-    SignalSemaphores EngineRenderer::drawFrame(const FrameHandler* frameHandler)
+    SignalSemaphores EngineRenderer::drawFrame(const FrameHandler* frameHandler, uint32_t imageIndex)
     {
         CommandBuffer* bufferForObjects = frameHandler->getCommandPool()->getCommandBuffer(0);
         bufferForObjects->reset(0);
 
         const std::array<VkCommandBuffer, 1> commandBuffers = { bufferForObjects->getVkCommandBuffer() };
-        recordCommandBuffer(bufferForObjects, m_currentImageIndex, frameHandler->getDescriptorSets());
+        recordCommandBuffer(bufferForObjects, imageIndex, frameHandler->getDescriptorSets());
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -94,26 +95,26 @@ namespace narc_engine {
 
     void EngineRenderer::presentFrame(SignalSemaphores& signalSemaphores)
     {
-        const VkSwapchainKHR swapChains[] = { m_swapChain.getSwapChain() };
-        VkPresentInfoKHR presentInfo{};
-        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-        presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = signalSemaphores.data();
-        presentInfo.swapchainCount = 1;
-        presentInfo.pSwapchains = swapChains;
-        presentInfo.pImageIndices = &m_currentImageIndex;
-        presentInfo.pResults = nullptr;
+        // const VkSwapchainKHR swapChains[] = { m_swapchain->getSwapChain() };
+        // VkPresentInfoKHR presentInfo{};
+        // presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        // presentInfo.waitSemaphoreCount = 1;
+        // presentInfo.pWaitSemaphores = signalSemaphores.data();
+        // presentInfo.swapchainCount = 1;
+        // presentInfo.pSwapchains = swapChains;
+        // presentInfo.pImageIndices = &m_currentImageIndex;
+        // presentInfo.pResults = nullptr;
 
-        const VkResult result = Engine::getInstance()->getPresentQueue()->presentKHR(&presentInfo);
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebufferResized)
-        {
-            m_framebufferResized = false;
-            m_swapChain.reCreate();
-        }
-        else if (result != VK_SUCCESS)
-        {
-            NARCLOG_FATAL("failed to present swap chain image!");
-        }
+        // const VkResult result = Engine::getInstance()->getPresentQueue()->presentKHR(&presentInfo);
+        // if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebufferResized)
+        // {
+        //     m_framebufferResized = false;
+        //     m_swapchain->reCreate();
+        // }
+        // else if (result != VK_SUCCESS)
+        // {
+        //     NARCLOG_FATAL("failed to present swap chain image!");
+        // }
     }
 
     void EngineRenderer::updateUniformBuffer(UniformBuffer* buffer, RenderTask* rendererTask) const
@@ -123,7 +124,7 @@ namespace narc_engine {
         ubo.Model = renderer->getModelMatrix();
         ubo.View = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.Proj = glm::perspective(glm::radians(45.0f),
-            m_swapChain.getSwapChainExtent().width / (float)m_swapChain.getSwapChainExtent().
+            m_swapchain->getSwapChainExtent().width / (float)m_swapchain->getSwapChainExtent().
             height, 0.1f, 10.0f);
         ubo.Proj[1][1] *= -1;
 
@@ -179,8 +180,8 @@ namespace narc_engine {
 
         commandBuffer->begin(beginInfo);
 
-        VkRenderPassBeginInfo renderPassInfo = m_swapChain.getRenderPassBeginInfos(imageIndex);
-        const VkExtent2D swapChainExtent = m_swapChain.getSwapChainExtent();
+        VkRenderPassBeginInfo renderPassInfo = m_swapchain->getRenderPassBeginInfos(imageIndex);
+        const VkExtent2D swapChainExtent = m_swapchain->getSwapChainExtent();
 
         std::array<VkClearValue, 2> clearValues{};
         clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
@@ -211,8 +212,8 @@ namespace narc_engine {
             materialID++;
         }
 
-        m_uiRenderer->beginFrame();
-        m_uiRenderer->render(commandBuffer);//TODO CHANGE TO CUSTOM RENDER PASS
+        // m_uiRenderer->beginFrame();
+        // m_uiRenderer->render(commandBuffer);//TODO CHANGE TO CUSTOM RENDER PASS
 
         commandBuffer->cmdEndRenderPass();
 
@@ -238,14 +239,14 @@ namespace narc_engine {
 
         m_frameManager->allocateDescriptorSets(allocInfo);
 
-        RenderTask* renderer = new RenderTask(&m_swapChain, &m_descriptorSetLayout, material);
+        RenderTask* renderer = new RenderTask(m_swapchain, &m_descriptorSetLayout, material);
         m_rendererTasks.emplace(material->getMaterialID(), renderer);
 
         return renderer;
     }
 
-    void EngineRenderer::onSurfaceFramebufferResized(int width, int height)
-    {
-        m_framebufferResized = true;
-    }
+    // void EngineRenderer::onSurfaceFramebufferResized(int width, int height)
+    // {
+    //     m_framebufferResized = true;
+    // }
 } // narc_engine

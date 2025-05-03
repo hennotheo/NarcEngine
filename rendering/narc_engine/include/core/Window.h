@@ -6,6 +6,7 @@
 #include "renderer/EngineRenderer.h"
 #include "renderer/MultiFrameManager.h"
 #include "EngineBinder.h"
+#include "renderer/SwapChain.h"
 
 #include "interfaces/ISurfaceProvider.h"
 #include "renderer/SwapChainSupportDetails.h"
@@ -42,6 +43,8 @@ namespace narc_engine
     private:
         GLFWwindow* m_window;
         VkSurfaceKHR m_surface;
+
+        std::unique_ptr<SwapChain> m_swapchain;
         std::unique_ptr<MultiFrameManager> m_frameManager;
         std::unique_ptr<EngineRenderer> m_renderer;
 
@@ -53,6 +56,7 @@ namespace narc_engine
         double m_mouseYpos = 0.0;
         double m_time = 0.0;
         bool m_shouldClose = false;
+        bool m_framebufferResized = false;
 
         const EngineInstance* m_engineInstance;
         const PhysicalDevice* m_physicalDevice;

@@ -8,6 +8,13 @@
 #include "core/interfaces/ISurfaceProvider.h"
 
 namespace narc_engine {
+    SwapChain::SwapChain() : DeviceComponent()
+    {
+    }
+
+    SwapChain::~SwapChain()
+    {
+    }
     void SwapChain::create(ISurfaceProvider* surface)
     {
         m_surface = surface;

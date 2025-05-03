@@ -13,6 +13,9 @@ namespace narc_engine {
     class SwapChain : public DeviceComponent
     {
     public:
+        SwapChain();
+        ~SwapChain() override;
+
         GETTER const VkExtent2D& getSwapChainExtent() const { return m_swapChainExtent; }
         GETTER const RenderPass* getRenderPass() const { return m_renderPass.get(); }
         GETTER const VkSwapchainKHR& getSwapChain() const { return m_swapChain; }

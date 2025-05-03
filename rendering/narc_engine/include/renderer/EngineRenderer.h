@@ -18,37 +18,38 @@ namespace narc_engine {
     class Material;
     class UniformBuffer;
 
-    class EngineRenderer : public DeviceComponent, public ISurfaceObserver
+    class EngineRenderer : public DeviceComponent //, public ISurfaceObserver
     {
         friend class EngineBinder;
         friend class Engine;
 
     public:
-        EngineRenderer(const EngineInstance* instance, ISurfaceProvider* surfaceProvider, MultiFrameManager* multiFrameManager);
+        EngineRenderer(const SwapChain* swapchain, ISurfaceProvider* surfaceProvider, MultiFrameManager* multiFrameManager);
         ~EngineRenderer();
 
         void prepareFrame(const FrameHandler* frameHandler);
-        QUERY SignalSemaphores drawFrame(const FrameHandler* frameHandler);
+        QUERY SignalSemaphores drawFrame(const FrameHandler* frameHandler, uint32_t imageIndex);
         void presentFrame(SignalSemaphores& signalSemaphores);
 
         void attachRenderer(const Renderer* renderer);
-
-    protected:
-        void onSurfaceFramebufferResized(int width, int height) override;
-
-    private:
-        SwapChain m_swapChain;
-        std::unique_ptr<narc_gui::UiRenderer> m_uiRenderer;
+        
+        protected:
+        // void onSurfaceFramebufferResized(int width, int height) override;
+        
+        private:
+        // SwapChain m_swapChain;
+        // std::unique_ptr<narc_gui::UiRenderer> m_uiRenderer;
         std::map<uint32_t, RenderTask*> m_rendererTasks;
-
-        uint32_t m_currentImageIndex = 0;
-        bool m_framebufferResized = false;
-
+        
+        // uint32_t m_currentImageIndex = 0;
+        // bool m_framebufferResized = false;
+        
         VkDescriptorSetLayout m_descriptorSetLayout;
-
+        
         MultiFrameManager* m_frameManager = nullptr;//TODO remove this dependency
-
-        void createDescriptorSetLayout();
+        const SwapChain* m_swapchain = nullptr;//TODO remove this dependency
+        
+        TEMP_CODE void createDescriptorSetLayout();
         void updateUniformBuffer(UniformBuffer* buffer, RenderTask* rendererTask) const;
         void recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex, const std::vector<VkDescriptorSet>& descriptorSets);
         RenderTask* createRenderTask(const Material* material);

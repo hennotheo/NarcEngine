@@ -11,6 +11,6 @@ namespace narc_engine
 
     void EngineBinder::attachGuiComponent(const IGuiHandle* component) const
     {
-        static_cast<Engine*>(m_engine)->m_windows->m_renderer->m_uiRenderer->addGuiComponent(component);
+        // static_cast<Engine*>(m_engine)->m_windows->m_renderer->m_uiRenderer->addGuiComponent(component);
     }
 }
