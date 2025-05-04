@@ -12,7 +12,8 @@ namespace narc_engine {
     class NARC_ENGINE_API Mesh
     {
     public:
-        Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
+        explicit Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
+        Mesh(const Mesh&) = delete;
         ~Mesh();
 
         const VertexBuffer* getVertexBuffer() const { return m_vertexBuffer.get(); }

@@ -29,7 +29,7 @@ namespace narc_engine
             indices.push_back(modelIndice);
         }
 
-        m_mesh = std::make_unique<Mesh>(vertices, indices);
+        m_mesh = new Mesh(vertices, indices);//TODO: REMOVE MEM ALLOC, MOVE IT IN RESOURCE MANAGER
         m_material = material;
         m_transform = transform;
 
@@ -38,5 +38,6 @@ namespace narc_engine
 
     Renderer::~Renderer()
     {
+        delete m_mesh;
     }
 } // narc_engine

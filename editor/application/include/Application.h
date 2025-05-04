@@ -39,14 +39,9 @@ namespace narc
         narc_engine::IEngine* m_engine;
         TestWindow m_testWindow;
 
-        const narc_engine::Material* m_renderMaterial = nullptr;
-        const narc_engine::Material* m_renderMaterial2 = nullptr;
-
-        narc_math::Transform* m_transform;
-        narc_math::Transform* m_transform2;
-
-        narc_engine::Renderer* m_renderer = nullptr;
-        narc_engine::Renderer* m_renderer2 = nullptr;
+        std::vector<narc_math::Transform*> m_transforms;
+        std::vector<const narc_engine::Material*> m_materials;
+        std::vector<narc_engine::Renderer*> m_renderers;
 
         double m_currentTime = 0.0;
     };

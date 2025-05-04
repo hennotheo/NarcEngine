@@ -31,29 +31,45 @@ namespace narc
 
     void Application::start()
     {
-        m_transform = new narc_math::Transform();
-        m_transform2 = new narc_math::Transform();
+        m_transforms.push_back(new narc_math::Transform());
+        m_transforms.push_back(new narc_math::Transform());
+        m_transforms.push_back(new narc_math::Transform());
         const narc_io::Model3D model = narc_io::FileReader::load3DModel(g_modelPath);
         const narc_io::Model3D model2 = narc_io::FileReader::load3DModel(g_model2Path);
-        m_renderMaterial = new narc_engine::Material(g_texturePath.c_str());
-        m_renderMaterial2 = new narc_engine::Material(g_texture2Path.c_str());
+
+        m_materials.push_back(new narc_engine::Material(g_texturePath.c_str()));
+        m_materials.push_back(new narc_engine::Material(g_texture2Path.c_str()));
         
-        m_renderer = new narc_engine::Renderer(&model, m_renderMaterial, m_transform);
-        m_renderer2 = new narc_engine::Renderer(&model2, m_renderMaterial2, m_transform2);
+        m_renderers.push_back(new narc_engine::Renderer(&model, m_materials[0], m_transforms[0]));
+        m_renderers.push_back(new narc_engine::Renderer(&model2, m_materials[1], m_transforms[1]));
+        m_renderers.push_back(new narc_engine::Renderer(&model, m_materials[1], m_transforms[2]));
 
         m_engine->binder()->attachGuiComponent(&m_testWindow);
+
+        m_transforms[2]->setWorldScale(glm::vec3(0.5f, 0.5f, 0.5f));
     }
 
     void Application::stop()
     {
         m_engine->waitDeviceIdle();
 
-        delete m_transform;
-        delete m_transform2;
-        delete m_renderer;
-        delete m_renderer2;
-        delete m_renderMaterial;
-        delete m_renderMaterial2;
+        for (auto& renderer : m_renderers)
+        {
+            delete renderer;
+        }
+        m_renderers.clear();
+
+        for (auto& material : m_materials)
+        {
+            delete material;
+        }
+        m_materials.clear();
+
+        for (auto& transform : m_transforms)
+        {
+            delete transform;
+        }
+        m_transforms.clear();
     }
 
     void Application::appLoopBody()
@@ -66,8 +82,10 @@ namespace narc
         m_currentTime += deltaTime;
 
         // UPDATE ENGINE LOGIC
-        m_transform->rotateZ(10.0 * deltaTime);
-        m_transform2->rotateZ(-5.0 * deltaTime);
+        m_transforms[0]->rotateZ(10.0 * deltaTime);
+        m_transforms[1]->rotateZ(-5.0 * deltaTime);
+        m_transforms[2]->rotateY(-15.0 * deltaTime);
+        m_transforms[2]->setWorldPosition(glm::vec3(0.5f, 0.0f, glm::sin(m_currentTime / 10.0) * 0.5));
 
         // RENDER ENGINE
         m_engine->render();

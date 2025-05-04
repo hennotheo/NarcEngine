@@ -112,10 +112,18 @@ namespace narc_engine {
 
     UniformBufferObject EngineRenderer::updateUniformBuffer(UniformBuffer* buffer, RenderTask* rendererTask) const
     {
-        const Renderer* renderer = rendererTask->getRenderers()->data()[0];//TODO change to multiobject
-
         UniformBufferObject ubo{};
-        ubo.Model = renderer->getModelMatrix();
+        auto renderers = rendererTask->getRenderers();
+        uint16_t maxObjCount = glm::min((uint16_t)renderers->size(), UNIFORM_BUFFER_OBJECT_MAX_INSTANCES);
+        for (uint16_t i = 0; i < maxObjCount; i++)
+        {
+            const Renderer* renderer = rendererTask->getRenderers()->data()[i];
+            ubo.Model[i] = renderer->getModelMatrix();
+
+            glm::vec3 worldPosition = glm::vec3(renderer->getModelMatrix()[3]);
+            glm::vec3 worldRotation = glm::eulerAngles(glm::quat_cast(renderer->getModelMatrix()));
+        }
+
         ubo.View = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.Proj = glm::perspective(glm::radians(45.0f),
             m_swapchain->getSwapChainExtent().width / (float)m_swapchain->getSwapChainExtent().

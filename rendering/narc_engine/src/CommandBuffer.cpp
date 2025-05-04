@@ -130,4 +130,8 @@ namespace narc_engine {
             commandBuffers[i].m_allocated = true;
         }
     }
+    void CommandBuffer::cmdPushConstants(VkPipelineLayout layout, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size, const void* pValues) const
+    {
+        vkCmdPushConstants(m_commandBuffer, layout, stageFlags, offset, size, pValues);
+    }
 }

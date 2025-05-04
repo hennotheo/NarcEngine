@@ -22,7 +22,7 @@ namespace narc_engine {
         VkPipelineColorBlendAttachmentState createColorBlendAttachmentState();
         VkPipelineColorBlendStateCreateInfo createColorBlendStateInfo(const VkPipelineColorBlendAttachmentState& colorBlendAttachment);
         VkPipelineDynamicStateCreateInfo createDynamicStateInfo(const std::vector<VkDynamicState>& dynamicStates);
-        VkPipelineLayoutCreateInfo createLayoutInfo(const VkDescriptorSetLayout* descriptorSetLayout);
+        VkPipelineLayoutCreateInfo createLayoutInfo(const VkDescriptorSetLayout* descriptorSetLayout, const VkPushConstantRange* pushConstantRange);
         explicit GraphicsPipeline(const SwapChain* swapChain, const VkDescriptorSetLayout* descriptorSetLayout);
         ~GraphicsPipeline();
 
