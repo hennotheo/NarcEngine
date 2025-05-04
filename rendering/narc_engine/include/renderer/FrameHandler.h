@@ -9,6 +9,8 @@
 #include "DescriptorPool.h"
 #include "buffers/UniformBuffer.h"
 
+#include "sync/Semaphore.h"
+
 namespace narc_engine {
     class DeviceHandler;
 
@@ -22,8 +24,8 @@ namespace narc_engine {
 
         DEPRECATED GETTER CommandPool* getCommandPool() const { return m_commandPool.get(); }
 
-        GETTER VkSemaphore getImageAvailableSemaphore() const { return m_imageAvailableSemaphore; }
-        GETTER VkSemaphore getRenderFinishedSemaphore() const { return m_renderFinishedSemaphore; }
+        GETTER const Semaphore* getImageAvailableSemaphore() const { return m_imageAvailableSemaphore.get(); }
+        GETTER const Semaphore* getRenderFinishedSemaphore() const { return m_renderFinishedSemaphore.get(); }
         GETTER VkFence getInFlightFence() const { return m_inFlightFence; }
 
         GETTER UniformBuffer* getUniformBuffer() const { return m_uniformBuffer.get(); }
@@ -32,8 +34,8 @@ namespace narc_engine {
     private:
         std::unique_ptr<CommandPool> m_commandPool;
 
-        VkSemaphore m_imageAvailableSemaphore;
-        VkSemaphore m_renderFinishedSemaphore;
+        std::unique_ptr<Semaphore> m_imageAvailableSemaphore;
+        std::unique_ptr<Semaphore> m_renderFinishedSemaphore;
         VkFence m_inFlightFence;
 
         std::unique_ptr<UniformBuffer> m_uniformBuffer;

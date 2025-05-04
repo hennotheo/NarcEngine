@@ -12,7 +12,7 @@ namespace narc_engine
     class DeviceComponent
     {
     public:
-        DeviceComponent();
+        DEPRECATED DeviceComponent();
         virtual ~DeviceComponent() = default;
 
     protected:

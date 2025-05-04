@@ -9,6 +9,7 @@ namespace narc_engine {
     class ISurfaceProvider;
     class DeviceHandler;
     class Window;
+    class Semaphore;
 
     class SwapChain : public DeviceComponent
     {
@@ -24,7 +25,7 @@ namespace narc_engine {
         void createFramebuffers();
 
         VkRenderPassBeginInfo getRenderPassBeginInfos(uint32_t imageIndex) const;
-        VkResult acquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex);
+        VkResult acquireNextImage(const Semaphore* semaphore, uint32_t* imageIndex);
         void reCreate();
 
         void cleanSwapChain();

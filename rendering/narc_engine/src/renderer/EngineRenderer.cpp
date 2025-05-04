@@ -85,7 +85,7 @@ namespace narc_engine {
 
         const VkSemaphore waitSemaphores[] =
         {
-            frameHandler->getImageAvailableSemaphore()
+            frameHandler->getImageAvailableSemaphore()->getVkSemaphore()
         };
         constexpr VkPipelineStageFlags waitStages[] =
         {
@@ -97,7 +97,7 @@ namespace narc_engine {
         submitInfo.commandBufferCount = commandBuffers.size();
         submitInfo.pCommandBuffers = commandBuffers.data();
 
-        const std::vector<VkSemaphore> signalSemaphores = { frameHandler->getRenderFinishedSemaphore() };
+        const std::vector<VkSemaphore> signalSemaphores = { frameHandler->getRenderFinishedSemaphore()->getVkSemaphore() };
         submitInfo.signalSemaphoreCount = signalSemaphores.size();
         submitInfo.pSignalSemaphores = signalSemaphores.data();
 

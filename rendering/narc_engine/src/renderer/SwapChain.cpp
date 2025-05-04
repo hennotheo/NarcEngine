@@ -7,6 +7,8 @@
 #include "renderer/DepthResources.h"
 #include "core/interfaces/ISurfaceProvider.h"
 
+#include "sync/Semaphore.h"
+
 namespace narc_engine {
     SwapChain::SwapChain() : DeviceComponent()
     {
@@ -26,9 +28,9 @@ namespace narc_engine {
         m_depthResources->create(m_swapChainExtent.width, m_swapChainExtent.height);
     }
 
-    VkResult SwapChain::acquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex)
+    VkResult SwapChain::acquireNextImage(const Semaphore* semaphore, uint32_t* imageIndex)
     {
-        const VkResult result = vkAcquireNextImageKHR(getVkDevice(), m_swapChain, UINT64_MAX, semaphore, VK_NULL_HANDLE, imageIndex);
+        const VkResult result = vkAcquireNextImageKHR(getVkDevice(), m_swapChain, UINT64_MAX, semaphore->getVkSemaphore(), VK_NULL_HANDLE, imageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) //OUT DUE TO WINDOW RESIZE FOR EXAMPLE
         {

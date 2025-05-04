@@ -14,16 +14,14 @@ namespace narc_engine {
         m_commandPool = std::make_unique<CommandPool>();
         m_commandPool->createCommandBuffers(10);
 
-        VkSemaphoreCreateInfo semaphoreInfo{};
-        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        m_renderFinishedSemaphore = std::make_unique<Semaphore>();
+        m_imageAvailableSemaphore = std::make_unique<Semaphore>();
 
         VkFenceCreateInfo fenceInfo{};
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        if (vkCreateSemaphore(getVkDevice(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphore) != VK_SUCCESS ||
-            vkCreateSemaphore(getVkDevice(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphore) != VK_SUCCESS ||
-            vkCreateFence(getVkDevice(), &fenceInfo, nullptr, &m_inFlightFence) != VK_SUCCESS)
+        if (vkCreateFence(getVkDevice(), &fenceInfo, nullptr, &m_inFlightFence) != VK_SUCCESS)
         {
             NARCLOG_FATAL("Failed to create semaphores!");
         }
@@ -33,8 +31,6 @@ namespace narc_engine {
 
     FrameHandler::~FrameHandler()
     {
-        vkDestroySemaphore(getVkDevice(), m_renderFinishedSemaphore, nullptr);
-        vkDestroySemaphore(getVkDevice(), m_imageAvailableSemaphore, nullptr);
         vkDestroyFence(getVkDevice(), m_inFlightFence, nullptr);
     }
 } // narc_engine
