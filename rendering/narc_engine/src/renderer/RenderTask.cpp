@@ -7,7 +7,7 @@
 
 namespace narc_engine {
     RenderTask::RenderTask(const SwapChain* swapChain, const VkDescriptorSetLayout* descriptorSetLayout,
-                           const Material* material) : DeviceComponent()
+        const Material* material) : DeviceComponent()
     {
         m_material = material;
 
@@ -22,13 +22,13 @@ namespace narc_engine {
     {
         m_pipeline->bindPipeline(commandBuffer);
         commandBuffer->cmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline->getLayout(), 0, 1,
-                                             m_descriptorSet, 0, nullptr);
+            m_descriptorSet, 0, nullptr);
 
-        for (const auto renderer: m_renderers)
+        for (const auto renderer : m_renderers)
         {
             const Mesh* mesh = renderer->getMesh();
-            VkBuffer vertexBuffers[] = {mesh->getVertexBuffer()->getBuffer()};
-            VkDeviceSize offsets[] = {0};
+            VkBuffer vertexBuffers[] = { mesh->getVertexBuffer()->getBuffer() };
+            VkDeviceSize offsets[] = { 0 };
             commandBuffer->cmdBindVertexBuffers(0, 1, vertexBuffers, offsets);
             commandBuffer->cmdBindIndexBuffer(mesh->getIndexBuffer()->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
@@ -36,13 +36,8 @@ namespace narc_engine {
         }
     }
 
-    void RenderTask::updateDescriptorSet(const VkDescriptorSet descriptorSet, const UniformBuffer* uniformBuffers) const
+    void RenderTask::updateDescriptorSet(const VkDescriptorSet descriptorSet, const VkDescriptorBufferInfo* uniformBuffersInfo) const
     {
-        VkDescriptorBufferInfo bufferInfo{};
-        bufferInfo.buffer = uniformBuffers->getBuffer();
-        bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(UniformBufferObject);
-
         GraphicResourceHandler textureHandler = m_material->getMainTexture();
         const Texture2DResource* texture = dynamic_cast<const Texture2DResource*>(Engine::getInstance()->resourceManager()->getResource(textureHandler));
         VkDescriptorImageInfo imageInfo{};
@@ -58,7 +53,7 @@ namespace narc_engine {
         descriptorWrites[0].dstArrayElement = 0;
         descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         descriptorWrites[0].descriptorCount = 1;
-        descriptorWrites[0].pBufferInfo = &bufferInfo;
+        descriptorWrites[0].pBufferInfo = uniformBuffersInfo;
 
         descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrites[1].dstSet = descriptorSet;
@@ -69,6 +64,6 @@ namespace narc_engine {
         descriptorWrites[1].pImageInfo = &imageInfo;
 
         vkUpdateDescriptorSets(getVkDevice(), static_cast<uint32_t>(descriptorWrites.size()),
-                               descriptorWrites.data(), 0, nullptr);
+            descriptorWrites.data(), 0, nullptr);
     }
 } // narc_engine

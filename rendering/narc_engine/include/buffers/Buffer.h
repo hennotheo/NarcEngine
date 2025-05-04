@@ -10,7 +10,7 @@ namespace narc_engine
     class Buffer : public DeviceComponent
     {
     public:
-        Buffer();
+        Buffer(VkBufferUsageFlags usage);
         virtual ~Buffer();
 
         VkBuffer getBuffer() const { return m_buffer; }
@@ -18,8 +18,9 @@ namespace narc_engine
     protected:
         VkBuffer m_buffer;
         VkDeviceMemory m_bufferMemory;
+        VkBufferUsageFlags m_usage; 
 
-        void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+        void createBuffer(VkDeviceSize size, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
         virtual void release();
     };
 }

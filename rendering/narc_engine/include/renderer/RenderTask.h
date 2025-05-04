@@ -18,8 +18,10 @@ namespace narc_engine
                    const Material* material);
         ~RenderTask();
 
+        GETTER VkDeviceSize getUniformBufferSize() const { return sizeof(UniformBufferObject); }
+
         void recordTask(const CommandBuffer* commandBuffer, const VkDescriptorSet* m_descriptorSet) const;
-        void updateDescriptorSet(VkDescriptorSet descriptorSets, const UniformBuffer* uniformBuffers) const;
+        void updateDescriptorSet(VkDescriptorSet descriptorSets, const VkDescriptorBufferInfo* uniformBuffersInfo) const;
 
         void bindRenderer(const Renderer* renderer) { m_renderers.push_back(renderer); }
         void unbindRenderer(const Renderer* renderer) { std::erase(m_renderers, renderer); }

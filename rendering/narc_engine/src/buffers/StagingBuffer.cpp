@@ -7,7 +7,7 @@ namespace narc_engine
     void StagingBuffer::create(VkDeviceSize bufferSize)
     {
         m_bufferSize = bufferSize;
-        this->createBuffer(m_bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, this->m_buffer, this->m_bufferMemory);
+        this->createBuffer(m_bufferSize, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, this->m_buffer, this->m_bufferMemory);
     }
 
     void StagingBuffer::input(const void* input)

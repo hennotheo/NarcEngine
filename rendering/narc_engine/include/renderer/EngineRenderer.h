@@ -41,7 +41,7 @@ namespace narc_engine {
         const SwapChain* m_swapchain = nullptr;//TODO remove this dependency
         
         TEMP_CODE void createDescriptorSetLayout();
-        void updateUniformBuffer(UniformBuffer* buffer, RenderTask* rendererTask) const;
+        UniformBufferObject updateUniformBuffer(UniformBuffer* buffer, RenderTask* rendererTask) const;
         void recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex, const std::vector<VkDescriptorSet>& descriptorSets);
         RenderTask* createRenderTask(const Material* material);
     };

@@ -35,13 +35,40 @@ namespace narc_engine {
 
     void EngineRenderer::prepareFrame(const FrameHandler* frameHandler)
     {
-        uint32_t materialID = 0;
+        UniformBuffer* uniformBuffer = frameHandler->getUniformBuffer();
+
+        VkDeviceSize bufferSize = 0;
         for (const auto& [id, rendererTask] : m_rendererTasks)
         {
-            updateUniformBuffer(frameHandler->getUniformBuffer(), rendererTask);
+            VkDeviceSize size = rendererTask->getUniformBufferSize();
+            bufferSize += uniformBuffer->getValidUniformBufferSize(size);
+        }
 
-            rendererTask->updateDescriptorSet(frameHandler->getDescriptorSets()[materialID], frameHandler->getUniformBuffer());
+        uniformBuffer->beginRegister(bufferSize);
+
+        for (const auto& [id, rendererTask] : m_rendererTasks)
+        {
+            UniformBufferObject ubo = updateUniformBuffer(uniformBuffer, rendererTask);//TODO change to multiobject
+            uniformBuffer->registerBufferObject(&ubo, sizeof(UniformBufferObject));
+        }
+
+        uniformBuffer->endRegister();
+
+        uint32_t materialID = 0;
+        VkDeviceSize offset = 0;
+        for (const auto& [id, rendererTask] : m_rendererTasks)
+        {
+            VkDeviceSize size = uniformBuffer->getUniformBufferSize(materialID);
+
+            VkDescriptorBufferInfo bufferInfo{};
+            bufferInfo.buffer = uniformBuffer->getBuffer();
+            bufferInfo.offset = offset;
+            bufferInfo.range = size;
+
+            rendererTask->updateDescriptorSet(frameHandler->getDescriptorSets()[materialID], &bufferInfo);
+
             materialID++;
+            offset += size;
         }
     }
 
@@ -83,9 +110,10 @@ namespace narc_engine {
         return signalSemaphores;
     }
 
-    void EngineRenderer::updateUniformBuffer(UniformBuffer* buffer, RenderTask* rendererTask) const
+    UniformBufferObject EngineRenderer::updateUniformBuffer(UniformBuffer* buffer, RenderTask* rendererTask) const
     {
         const Renderer* renderer = rendererTask->getRenderers()->data()[0];//TODO change to multiobject
+
         UniformBufferObject ubo{};
         ubo.Model = renderer->getModelMatrix();
         ubo.View = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -94,7 +122,7 @@ namespace narc_engine {
             height, 0.1f, 10.0f);
         ubo.Proj[1][1] *= -1;
 
-        buffer->setData(ubo);
+        return ubo;
     }
 
     void EngineRenderer::attachRenderer(const Renderer* renderer)

@@ -28,7 +28,7 @@ namespace narc_engine {
             NARCLOG_FATAL("Failed to create semaphores!");
         }
 
-        m_uniformBuffer = std::make_unique<UniformBuffer>(sizeof(UniformBufferObject));
+        m_uniformBuffer = std::make_unique<UniformBuffer>();
     }
 
     FrameHandler::~FrameHandler()

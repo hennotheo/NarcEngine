@@ -5,7 +5,10 @@
 
 namespace narc_engine
 {
-    Buffer::Buffer() = default;
+    Buffer::Buffer(VkBufferUsageFlags usage) : DeviceComponent(), m_usage(usage)
+    {
+
+    };
 
     Buffer::~Buffer()
     {
@@ -18,13 +21,12 @@ namespace narc_engine
         vkFreeMemory(getVkDevice(), m_bufferMemory, nullptr);
     }
 
-    void Buffer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
-                              VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+    void Buffer::createBuffer(VkDeviceSize size, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
     {
         VkBufferCreateInfo bufferInfo{};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         bufferInfo.size = size;
-        bufferInfo.usage = usage;
+        bufferInfo.usage = m_usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
         if (vkCreateBuffer(getVkDevice(), &bufferInfo, nullptr, &buffer) != VK_SUCCESS)

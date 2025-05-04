@@ -32,13 +32,14 @@ namespace narc
     void Application::start()
     {
         m_transform = new narc_math::Transform();
+        m_transform2 = new narc_math::Transform();
         const narc_io::Model3D model = narc_io::FileReader::load3DModel(g_modelPath);
         const narc_io::Model3D model2 = narc_io::FileReader::load3DModel(g_model2Path);
         m_renderMaterial = new narc_engine::Material(g_texturePath.c_str());
         m_renderMaterial2 = new narc_engine::Material(g_texture2Path.c_str());
         
         m_renderer = new narc_engine::Renderer(&model, m_renderMaterial, m_transform);
-        m_renderer2 = new narc_engine::Renderer(&model2, m_renderMaterial2, m_transform);
+        m_renderer2 = new narc_engine::Renderer(&model2, m_renderMaterial2, m_transform2);
 
         m_engine->binder()->attachGuiComponent(&m_testWindow);
     }
@@ -48,6 +49,7 @@ namespace narc
         m_engine->waitDeviceIdle();
 
         delete m_transform;
+        delete m_transform2;
         delete m_renderer;
         delete m_renderer2;
         delete m_renderMaterial;
@@ -65,6 +67,7 @@ namespace narc
 
         // UPDATE ENGINE LOGIC
         m_transform->rotateZ(10.0 * deltaTime);
+        m_transform2->rotateZ(-5.0 * deltaTime);
 
         // RENDER ENGINE
         m_engine->render();
