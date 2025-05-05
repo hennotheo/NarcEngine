@@ -14,7 +14,7 @@ set(GLM_VERSION 1.0.1)
 find_package(glm ${GLM_VERSION} QUIET)
 if(glm_FOUND)
     message(STATUS "GLM ${GLM_VERSION} found on system.")
-    add_library(glm INTERFACE IMPORTED GLOBAL)
+    add_library(glm_lib INTERFACE IMPORTED GLOBAL)
     target_link_libraries(glm INTERFACE glm::glm)
 else()
     message(STATUS "GLM ${GLM_VERSION} not found, fetching from repository...")
@@ -26,6 +26,10 @@ else()
         EXCLUDE_FROM_ALL
     )
     FetchContent_MakeAvailable(glm)
+
+    add_library(glm_lib INTERFACE IMPORTED GLOBAL)
+    target_include_directories(glm_lib INTERFACE ${VENDOR_DIR}/glm)
+
 endif()
 
 FetchContent_Declare(

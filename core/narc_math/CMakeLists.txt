@@ -11,5 +11,4 @@ target_precompile_headers(NarcMath PRIVATE "include/pch.h")
 target_include_directories(NarcMath PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-target_link_libraries(NarcMath PUBLIC NarcCore)
-target_link_libraries(NarcMath PRIVATE glm)
+target_link_libraries(NarcMath PUBLIC NarcCore glm_lib)
