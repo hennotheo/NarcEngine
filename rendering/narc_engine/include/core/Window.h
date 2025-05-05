@@ -27,8 +27,8 @@ namespace narc_engine
         explicit Window(const EngineInstance* engineInstance);
         ~Window();
 
+        NARC_IMPL_IGETTER(VkSurfaceKHR, m_surface)
         GETTER const void* getSurfaceHandler() const override { return m_window; }
-        GETTER VkSurfaceKHR getVkSurfaceKHR() const override { return m_surface; }
         GETTER bool shouldClose() const { return m_shouldClose; }
 
         void getValidFramebufferSize(int* width, int* height) const override;

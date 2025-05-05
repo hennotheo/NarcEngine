@@ -27,7 +27,7 @@ namespace narc_engine
         glfwSetKeyCallback(m_window, onKeyboardInputPerformed);
         glfwSetMouseButtonCallback(m_window, onMouseInputPerformed);
 
-        if (glfwCreateWindowSurface(m_engineInstance->getvkInstance(), m_window, nullptr, &m_surface) != VK_SUCCESS)
+        if (glfwCreateWindowSurface(m_engineInstance->get(), m_window, nullptr, &m_surface) != VK_SUCCESS)
         {
             NARCLOG_FATAL("Failed to create window surface!");
         }
@@ -44,7 +44,7 @@ namespace narc_engine
 
         m_frameManager.reset();
 
-        vkDestroySurfaceKHR(m_engineInstance->getvkInstance(), m_surface, nullptr);
+        vkDestroySurfaceKHR(m_engineInstance->get(), m_surface, nullptr);
 
         glfwDestroyWindow(m_window);
         glfwTerminate();
@@ -110,9 +110,9 @@ namespace narc_engine
 
     void Window::prepareFrame(const FrameHandler* frameHandler, uint32_t* currentImageIndex)
     {
-        VkDevice device = m_logicalDevice->getVkDevice();
+        VkDevice device = m_logicalDevice->get();
 
-        const std::vector<VkFence> inFlightFencesToWait = { frameHandler->getInFlightFence()->getVkFence() };
+        const std::vector<VkFence> inFlightFencesToWait = { frameHandler->getInFlightFence()->get() };
         vkWaitForFences(device, 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
 
         m_swapchain->acquireNextImage(frameHandler->getImageAvailableSemaphore(), currentImageIndex);
@@ -123,7 +123,7 @@ namespace narc_engine
 
     void Window::present(const SignalSemaphores& signalSemaphores, uint32_t currentImageIndex)
     {
-        const VkSwapchainKHR swapChains[] = { m_swapchain->getSwapChain() };
+        const VkSwapchainKHR swapChains[] = { m_swapchain->get() };
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;

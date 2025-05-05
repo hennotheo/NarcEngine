@@ -17,7 +17,7 @@ namespace narc_engine
 
     protected:
         GETTER const DeviceHandler* getDeviceHandler() const { return m_device; }
-        GETTER VkDevice getVkDevice() const { return m_device->getLogicalDevice()->getVkDevice(); }
+        GETTER VkDevice getVkDevice() const { return m_device->getLogicalDevice()->get(); }
 
     private:
         const DeviceHandler* m_device;

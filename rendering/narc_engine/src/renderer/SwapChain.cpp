@@ -30,7 +30,7 @@ namespace narc_engine {
 
     VkResult SwapChain::acquireNextImage(const Semaphore* semaphore, uint32_t* imageIndex)
     {
-        const VkResult result = vkAcquireNextImageKHR(getVkDevice(), m_swapChain, UINT64_MAX, semaphore->getVkSemaphore(), VK_NULL_HANDLE, imageIndex);
+        const VkResult result = vkAcquireNextImageKHR(getVkDevice(), m_swapChain, UINT64_MAX, semaphore->get(), VK_NULL_HANDLE, imageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) //OUT DUE TO WINDOW RESIZE FOR EXAMPLE
         {
@@ -95,7 +95,7 @@ namespace narc_engine {
         for (size_t i = 0; i < m_swapChainImageViews.size(); i++)
         {
             std::array<VkImageView, 2> attachments = {
-                m_swapChainImageViews[i].getVkImageView(),
+                m_swapChainImageViews[i].get(),
                 m_depthResources->getImageView()
             };
 
@@ -143,7 +143,7 @@ namespace narc_engine {
 
         VkSwapchainCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = m_surface->getVkSurfaceKHR();
+        createInfo.surface = m_surface->get();
         createInfo.minImageCount = imageCount;
         createInfo.imageFormat = surfaceFormat.format;
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -172,7 +172,7 @@ namespace narc_engine {
             createInfo.pQueueFamilyIndices = nullptr;                // Optional
         }
 
-        if (vkCreateSwapchainKHR(getDeviceHandler()->getLogicalDevice()->getVkDevice(), &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
+        if (vkCreateSwapchainKHR(getDeviceHandler()->getLogicalDevice()->get(), &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create swap chain!");
         }

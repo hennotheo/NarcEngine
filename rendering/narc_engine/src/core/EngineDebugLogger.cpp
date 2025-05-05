@@ -17,7 +17,7 @@ namespace narc_engine {
         VkDebugUtilsMessengerCreateInfoEXT createInfo;
         populateDebugMessengerCreateInfo(createInfo);
 
-        if (createDebugUtilsMessengerEXT(m_instance->getvkInstance(), &createInfo, nullptr, &m_debugMessenger) != VK_SUCCESS)
+        if (createDebugUtilsMessengerEXT(m_instance->get(), &createInfo, nullptr, &m_debugMessenger) != VK_SUCCESS)
         {
             NARCLOG_FATAL("Failed to set up debug messenger!");
         }
@@ -27,7 +27,7 @@ namespace narc_engine {
     EngineDebugLogger::~EngineDebugLogger()
     {
 #ifdef ENABLE_VALIDATION_LAYERS
-        destroyDebugUtilsMessengerEXT(m_instance->getvkInstance(), m_debugMessenger, nullptr);
+        destroyDebugUtilsMessengerEXT(m_instance->get(), m_debugMessenger, nullptr);
 #endif
     }
 

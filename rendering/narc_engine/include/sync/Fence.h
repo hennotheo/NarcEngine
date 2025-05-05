@@ -6,7 +6,7 @@
 
 namespace narc_engine
 {
-    class Fence : public DeviceComponent
+    class Fence : public DeviceComponent, public narc_core::IGetter<VkFence>
     {
     public:
         Fence();
@@ -15,7 +15,7 @@ namespace narc_engine
         Fence(const Fence&) = delete;
         Fence& operator=(const Fence&) = delete;
 
-        GETTER VkFence getVkFence() const { return m_fence; }
+        NARC_IMPL_IGETTER(VkFence, m_fence)
 
     private:
         VkFence m_fence;

@@ -85,7 +85,7 @@ namespace narc_engine {
 
         const VkSemaphore waitSemaphores[] =
         {
-            frameHandler->getImageAvailableSemaphore()->getVkSemaphore()
+            frameHandler->getImageAvailableSemaphore()->get()
         };
         constexpr VkPipelineStageFlags waitStages[] =
         {
@@ -97,12 +97,12 @@ namespace narc_engine {
         submitInfo.commandBufferCount = commandBuffers.size();
         submitInfo.pCommandBuffers = commandBuffers.data();
 
-        const std::vector<VkSemaphore> signalSemaphores = { frameHandler->getRenderFinishedSemaphore()->getVkSemaphore() };
+        const std::vector<VkSemaphore> signalSemaphores = { frameHandler->getRenderFinishedSemaphore()->get() };
         submitInfo.signalSemaphoreCount = signalSemaphores.size();
         submitInfo.pSignalSemaphores = signalSemaphores.data();
 
         const GraphicsQueue* graphicsQueue = Engine::getInstance()->getGraphicsQueue();
-        if (graphicsQueue->submit(1, &submitInfo, frameHandler->getInFlightFence()->getVkFence()) != VK_SUCCESS)
+        if (graphicsQueue->submit(1, &submitInfo, frameHandler->getInFlightFence()->get()) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to submit draw command buffer!");
         }

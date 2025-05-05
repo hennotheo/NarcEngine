@@ -7,14 +7,14 @@
 #include "core/devices/DeviceHandler.h"
 
 namespace narc_engine {
-    class DescriptorPool : public DeviceComponent
+    class DescriptorPool : public DeviceComponent, public narc_core::IGetter<VkDescriptorPool>
     {
     public:
         explicit DescriptorPool(uint32_t poolCount);
         ~DescriptorPool();
 
+        NARC_IMPL_IGETTER(VkDescriptorPool, m_descriptorPool)
         GETTER DescriptorPoolBuilder* builder() const { return m_builder.get(); }
-        GETTER VkDescriptorPool getVkDescriptorPool() const { return m_descriptorPool; }
 
         void create();
 

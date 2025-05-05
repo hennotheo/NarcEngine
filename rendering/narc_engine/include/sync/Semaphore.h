@@ -6,18 +6,16 @@
 
 namespace narc_engine
 {
-    class Semaphore : public DeviceComponent
+    class Semaphore : public DeviceComponent, public narc_core::IGetter<VkSemaphore>
     {
     public:
         Semaphore();
         ~Semaphore();
 
-        operator VkSemaphore() const { return m_semaphore; }
-
         Semaphore(const Semaphore&) = delete;
         Semaphore& operator=(const Semaphore&) = delete;
 
-        GETTER VkSemaphore getVkSemaphore() const { return m_semaphore; }
+        NARC_IMPL_IGETTER(VkSemaphore, m_semaphore)
 
     private:
         VkSemaphore m_semaphore;

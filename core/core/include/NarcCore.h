@@ -26,3 +26,5 @@
 #include "pch.h"
 
 #include "Events.h"
+
+#include "interfaces/IGetter.h"

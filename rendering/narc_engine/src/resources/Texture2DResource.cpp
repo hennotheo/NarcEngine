@@ -22,7 +22,7 @@ namespace narc_engine {
 
     Texture2DResource::~Texture2DResource()
     {
-        const VkDevice device = getDeviceHandler()->getLogicalDevice()->getVkDevice();
+        const VkDevice device = getDeviceHandler()->getLogicalDevice()->get();
         vkDestroySampler(device, m_textureSampler, nullptr);
         m_textureImageView.release();
         vkDestroyImage(device, m_textureImage, nullptr);
@@ -75,7 +75,7 @@ namespace narc_engine {
         samplerInfo.minLod = 0.0f;
         samplerInfo.maxLod = 0.0f;
 
-        if (vkCreateSampler(getDeviceHandler()->getLogicalDevice()->getVkDevice(), &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
+        if (vkCreateSampler(getDeviceHandler()->getLogicalDevice()->get(), &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create texture sampler!");
         }
