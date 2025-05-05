@@ -31,15 +31,15 @@ namespace narc_engine {
         QUERY SignalSemaphores drawFrame(const FrameHandler* frameHandler, uint32_t imageIndex);
 
         void attachRenderer(const Renderer* renderer);
-        
-        private:
+
+    private:
         std::map<uint32_t, RenderTask*> m_rendererTasks;
-        
+
         VkDescriptorSetLayout m_descriptorSetLayout;
-        
+
         MultiFrameManager* m_frameManager = nullptr;//TODO remove this dependency
         const SwapChain* m_swapchain = nullptr;//TODO remove this dependency
-        
+
         TEMP_CODE void createDescriptorSetLayout();
         UniformBufferObject updateUniformBuffer(UniformBuffer* buffer, RenderTask* rendererTask) const;
         void recordCommandBuffer(CommandBuffer* commandBuffer, uint32_t imageIndex, const std::vector<VkDescriptorSet>& descriptorSets);
