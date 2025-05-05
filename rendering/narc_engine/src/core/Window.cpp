@@ -112,7 +112,7 @@ namespace narc_engine
     {
         VkDevice device = m_logicalDevice->getVkDevice();
 
-        const std::vector<VkFence> inFlightFencesToWait = { frameHandler->getInFlightFence() };
+        const std::vector<VkFence> inFlightFencesToWait = { frameHandler->getInFlightFence()->getVkFence() };
         vkWaitForFences(device, 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
 
         m_swapchain->acquireNextImage(frameHandler->getImageAvailableSemaphore(), currentImageIndex);

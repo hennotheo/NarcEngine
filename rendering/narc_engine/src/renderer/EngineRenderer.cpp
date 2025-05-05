@@ -102,7 +102,7 @@ namespace narc_engine {
         submitInfo.pSignalSemaphores = signalSemaphores.data();
 
         const GraphicsQueue* graphicsQueue = Engine::getInstance()->getGraphicsQueue();
-        if (graphicsQueue->submit(1, &submitInfo, frameHandler->getInFlightFence()) != VK_SUCCESS)
+        if (graphicsQueue->submit(1, &submitInfo, frameHandler->getInFlightFence()->getVkFence()) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to submit draw command buffer!");
         }

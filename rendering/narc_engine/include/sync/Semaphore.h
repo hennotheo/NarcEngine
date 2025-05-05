@@ -12,6 +12,8 @@ namespace narc_engine
         Semaphore();
         ~Semaphore();
 
+        operator VkSemaphore() const { return m_semaphore; }
+
         Semaphore(const Semaphore&) = delete;
         Semaphore& operator=(const Semaphore&) = delete;
 

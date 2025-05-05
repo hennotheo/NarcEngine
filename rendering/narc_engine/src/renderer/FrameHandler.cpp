@@ -16,21 +16,13 @@ namespace narc_engine {
 
         m_renderFinishedSemaphore = std::make_unique<Semaphore>();
         m_imageAvailableSemaphore = std::make_unique<Semaphore>();
-
-        VkFenceCreateInfo fenceInfo{};
-        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-        fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-        if (vkCreateFence(getVkDevice(), &fenceInfo, nullptr, &m_inFlightFence) != VK_SUCCESS)
-        {
-            NARCLOG_FATAL("Failed to create semaphores!");
-        }
+        m_inFlightFence = std::make_unique<Fence>();
 
         m_uniformBuffer = std::make_unique<UniformBuffer>();
     }
 
     FrameHandler::~FrameHandler()
     {
-        vkDestroyFence(getVkDevice(), m_inFlightFence, nullptr);
+        
     }
 } // narc_engine
