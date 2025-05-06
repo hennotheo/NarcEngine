@@ -20,7 +20,7 @@ namespace narc_engine
     class RenderGraph
     {
     public:
-        RenderGraph(const SwapChain* swapchain, std::vector<const Renderer*>& renderers) : m_swapchain(swapchain) {};
+        RenderGraph(const SwapChain* swapchain) : m_swapchain(swapchain) {};
         ~RenderGraph();
 
         void addNode(RenderNode* node);

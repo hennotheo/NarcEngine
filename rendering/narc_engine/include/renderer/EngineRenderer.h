@@ -14,8 +14,6 @@
 #include "renderer/render_graph/RenderGraph.h"
 
 namespace narc_engine {
-
-
     class Material;
     class UniformBuffer;
 

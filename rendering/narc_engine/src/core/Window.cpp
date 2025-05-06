@@ -160,7 +160,7 @@ namespace narc_engine
     }
 
 #warning "TODO: REMOVE THIS"
-    bool firstTime = true;
+    // bool firstTime = true;
     void Window::addRenderer(const Renderer* renderer)
     {
         bool materialAlreadyUsed = std::any_of(m_renderGraph->m_renderers.begin(), m_renderGraph->m_renderers.end(), [&](const Renderer* r) {
@@ -171,10 +171,10 @@ namespace narc_engine
         {
             if (std::find(m_renderGraph->m_renderers.begin(), m_renderGraph->m_renderers.end(), renderer) == m_renderGraph->m_renderers.end())
             {
-                if (firstTime)
+                // if (firstTime)
                 {
                     m_renderGraph->addNode(new RenderNode(m_swapchain->getRenderPass(), renderer->getMaterial()->getVertShader(), renderer->getMaterial()->getFragShader()));
-                    firstTime = false;
+                    // firstTime = false;
                 }
                 std::vector<VkDescriptorSetLayout> layouts =
                 {

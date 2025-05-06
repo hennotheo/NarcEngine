@@ -198,11 +198,10 @@ namespace narc_engine
             drawId++;
             offset += size;
         }
-        NARCLOG_DEBUG("A");
     }
+    
     void RenderGraph::recordCommandBuffer(CommandBuffer* commandBuffer, const FrameHandler* frameHandler, const uint32_t imageIndex)
     {
-        NARCLOG_DEBUG("Recording command buffer");
         RenderContext ctx{};
         fillRenderContext(&ctx, frameHandler);
 

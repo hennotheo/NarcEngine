@@ -20,6 +20,5 @@ layout (location = 1) out vec2 fragTexcoord;
 void main()
 {
     gl_Position = ubo.Proj * ubo.View * ubo.Model[pc.objectIndex] * vec4(inPosition, 1.0);
-    fragColor = pc.objectIndex == 0 ? vec3(1.0, 0.0, 0.0) : vec3(0.0, 1.0, 0.0);
     fragTexcoord = inTexcoord;
 }
