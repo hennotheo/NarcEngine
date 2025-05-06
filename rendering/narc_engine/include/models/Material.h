@@ -6,6 +6,8 @@
 
 #include "resources/GraphicResourceHandler.h"
 
+#include "models/Shader.h"
+
 namespace narc_engine
 {
     class NARC_ENGINE_API Material
@@ -22,6 +24,8 @@ namespace narc_engine
 
         uint32_t m_materialID;
 
+        const Shader* m_vertShaderModule;
+        const Shader* m_fragShaderModule;
         GraphicResourceHandler m_mainTexture;
     };
 } // narc_engine

@@ -2,7 +2,7 @@
 
 #include "Engine.h"
 #include "buffers/GraphicsBuffer.h"
-#include "models/ShaderModule.h"
+#include "models/Shader.h"
 #include "resources/Texture2DResource.h"
 #include "models/PushConstants.h"
 
@@ -12,7 +12,7 @@ namespace narc_engine {
     {
         m_material = material;
 
-        m_pipeline = std::make_unique<GraphicsPipeline>(swapChain, descriptorSetLayout);
+        // m_pipeline = std::make_unique<GraphicsPipeline>(swapChain, &vertShaderModule, &fragShaderModule);
     }
 
     RenderTask::~RenderTask()

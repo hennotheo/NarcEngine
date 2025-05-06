@@ -11,7 +11,6 @@ namespace narc_engine
     public:
         Fence();
         ~Fence();
-
         Fence(const Fence&) = delete;
         Fence& operator=(const Fence&) = delete;
 

@@ -10,10 +10,14 @@
 
 namespace narc_engine {
     class CommandBuffer;
+    class Shader;
 
     class GraphicsPipeline : public DeviceComponent
     {
     public:
+        explicit GraphicsPipeline(const SwapChain* swapChain, const Shader* vertShader, const Shader* fragShader);
+        ~GraphicsPipeline();
+
         VkPipelineInputAssemblyStateCreateInfo createInputAssemblyStateInfo();
         VkPipelineViewportStateCreateInfo createViewportStateInfo();
         VkPipelineDepthStencilStateCreateInfo createDepthStencilStateInfo();
@@ -22,9 +26,6 @@ namespace narc_engine {
         VkPipelineColorBlendAttachmentState createColorBlendAttachmentState();
         VkPipelineColorBlendStateCreateInfo createColorBlendStateInfo(const VkPipelineColorBlendAttachmentState& colorBlendAttachment);
         VkPipelineDynamicStateCreateInfo createDynamicStateInfo(const std::vector<VkDynamicState>& dynamicStates);
-        VkPipelineLayoutCreateInfo createLayoutInfo(const VkDescriptorSetLayout* descriptorSetLayout, const VkPushConstantRange* pushConstantRange);
-        explicit GraphicsPipeline(const SwapChain* swapChain, const VkDescriptorSetLayout* descriptorSetLayout);
-        ~GraphicsPipeline();
 
         GETTER VkPipelineLayout getLayout() const { return m_pipelineLayout; }
 

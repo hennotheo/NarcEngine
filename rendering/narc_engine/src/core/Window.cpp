@@ -68,9 +68,14 @@ namespace narc_engine
     {
         const FrameHandler* frameHandler = m_frameManager->getCurrentFrameHandler();
 
+        const std::vector<VkFence> inFlightFencesToWait = { frameHandler->getInFlightFence()->get() };
+        vkWaitForFences(m_logicalDevice->get(), 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
+        vkResetFences(m_logicalDevice->get(), 1, inFlightFencesToWait.data());
+        
         uint32_t currentImageIndex = 0;
-        prepareFrame(frameHandler, &currentImageIndex);
-
+        m_swapchain->acquireNextImage(frameHandler->getImageAvailableSemaphore(), &currentImageIndex);
+        
+        m_renderer->prepareFrame(frameHandler);
         SignalSemaphores signalSemaphores = m_renderer->drawFrame(frameHandler, currentImageIndex);
 
         present(signalSemaphores, currentImageIndex);
@@ -106,19 +111,6 @@ namespace narc_engine
     void Window::getFramebufferSize(int* width, int* height) const
     {
         glfwGetFramebufferSize(m_window, width, height);
-    }
-
-    void Window::prepareFrame(const FrameHandler* frameHandler, uint32_t* currentImageIndex)
-    {
-        VkDevice device = m_logicalDevice->get();
-
-        const std::vector<VkFence> inFlightFencesToWait = { frameHandler->getInFlightFence()->get() };
-        vkWaitForFences(device, 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
-
-        m_swapchain->acquireNextImage(frameHandler->getImageAvailableSemaphore(), currentImageIndex);
-        m_renderer->prepareFrame(frameHandler);
-
-        vkResetFences(device, 1, inFlightFencesToWait.data());
     }
 
     void Window::present(const SignalSemaphores& signalSemaphores, uint32_t currentImageIndex)

@@ -63,7 +63,6 @@ namespace narc_engine
         const LogicalDevice* m_logicalDevice;
 
     private:
-        void prepareFrame(const FrameHandler* frameHandler, uint32_t* currentImageIndex);
         void present(const SignalSemaphores& signalSemaphores, uint32_t currentImageIndex);
 
         static void framebufferResizeCallback(GLFWwindow* window, int width, int height);

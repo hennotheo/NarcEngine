@@ -7,8 +7,6 @@
 
 namespace narc_engine
 {
-    class DeviceHandler;
-
     class DeviceComponent
     {
     public:

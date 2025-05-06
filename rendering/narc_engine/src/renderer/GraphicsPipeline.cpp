@@ -5,7 +5,7 @@
 #include "renderer/GraphicsPipeline.h"
 
 #include "CommandBuffer.h"
-#include "models/ShaderModule.h"
+#include "models/Shader.h"
 #include "models/Vertex.h"
 #include "models/PushConstants.h"
 
@@ -13,15 +13,13 @@
 
 namespace narc_engine {
     GraphicsPipeline::GraphicsPipeline(const SwapChain* swapChain,
-        const VkDescriptorSetLayout* descriptorSetLayout)
+        const Shader* vertShader, const Shader* fragShader)
         : DeviceComponent()
     {
-        const ShaderModule vertShaderModule("shaders/shader_vert.spv");
-        const ShaderModule fragShaderModule("shaders/shader_frag.spv");
 
         std::vector<VkPipelineShaderStageCreateInfo> m_shaderStages = {
-            vertShaderModule.configureShaderStage("main", VK_SHADER_STAGE_VERTEX_BIT),
-            fragShaderModule.configureShaderStage("main", VK_SHADER_STAGE_FRAGMENT_BIT)
+            // vertShader->configureShaderStage("main", VK_SHADER_STAGE_VERTEX_BIT),
+            // vertShader->configureShaderStage("main", VK_SHADER_STAGE_FRAGMENT_BIT)
         };
 
         const auto vertexDescriptions = Vertex::getBindingDescription();
@@ -48,7 +46,18 @@ namespace narc_engine {
         pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
         pushConstantRange.offset = 0;
         pushConstantRange.size = sizeof(PushConstants);
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo = createLayoutInfo(descriptorSetLayout, &pushConstantRange);
+
+        std::vector<VkDescriptorSetLayout> descriptorSetLayouts = 
+        { 
+            // vertShader->getDescriptorSetLayout(), 
+            // fragShader->getDescriptorSetLayout() 
+        };
+        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        pipelineLayoutInfo.setLayoutCount = descriptorSetLayouts.size();
+        pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
+        pipelineLayoutInfo.pushConstantRangeCount = 1;
+        pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
         if (vkCreatePipelineLayout(getVkDevice(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
         {
@@ -202,18 +211,6 @@ namespace narc_engine {
         dynamicState.pDynamicStates = dynamicStates.data();
 
         return dynamicState;
-    }
-
-    VkPipelineLayoutCreateInfo GraphicsPipeline::createLayoutInfo(const VkDescriptorSetLayout* descriptorSetLayout, const VkPushConstantRange* pushConstantRange)
-    {
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = 1; // SET LAYOUTS HERE
-        pipelineLayoutInfo.pSetLayouts = { descriptorSetLayout }; // SET LAYOUTS HERE
-        pipelineLayoutInfo.pushConstantRangeCount = 1;
-        pipelineLayoutInfo.pPushConstantRanges = pushConstantRange;
-
-        return pipelineLayoutInfo;
     }
 
     void GraphicsPipeline::bindPipeline(const CommandBuffer* commandBuffer) const

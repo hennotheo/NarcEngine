@@ -13,7 +13,7 @@ namespace narc_engine {
         m_frameManager = multiFrameManager;
         m_swapchain = swapchain;
 
-        createDescriptorSetLayout();
+        // createDescriptorSetLayout();
 
         // m_uiRenderer = std::make_unique<narc_gui::UiRenderer>(instance, multiFrameManager, &m_swapChain, surfaceProvider);
         // NARCLOG_WARNING("Gui renderer must be independent from the engine renderer!");
@@ -21,7 +21,7 @@ namespace narc_engine {
 
     EngineRenderer::~EngineRenderer()
     {
-        vkDestroyDescriptorSetLayout(getVkDevice(), m_descriptorSetLayout, nullptr);
+        // vkDestroyDescriptorSetLayout(getVkDevice(), m_descriptorSetLayout, nullptr);
 
         for (auto& [id, rendererTask] : m_rendererTasks)
         {
@@ -144,34 +144,6 @@ namespace narc_engine {
         renderTask->bindRenderer(renderer);
     }
 
-    void EngineRenderer::createDescriptorSetLayout()
-    {
-        VkDescriptorSetLayoutBinding uboLayoutBinding{};
-        uboLayoutBinding.binding = 0;
-        uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        uboLayoutBinding.descriptorCount = 1;
-        uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-        uboLayoutBinding.pImmutableSamplers = nullptr;
-
-        VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-        samplerLayoutBinding.binding = 1;
-        samplerLayoutBinding.descriptorCount = 1;
-        samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        samplerLayoutBinding.pImmutableSamplers = nullptr;
-        samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-        std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
-        VkDescriptorSetLayoutCreateInfo layoutInfo{};
-        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-        layoutInfo.pBindings = bindings.data();
-
-        if (vkCreateDescriptorSetLayout(getVkDevice(), &layoutInfo, nullptr, &m_descriptorSetLayout) !=
-            VK_SUCCESS)
-        {
-            NARCLOG_FATAL("failed to create descriptor set layout!");
-        }
-    }
 
     void EngineRenderer::recordCommandBuffer(CommandBuffer* commandBuffer, const uint32_t imageIndex, const std::vector<VkDescriptorSet>& descriptorSets)
     {
@@ -233,7 +205,8 @@ namespace narc_engine {
         }
 
         constexpr uint32_t descriptorSetCount = 1;
-        const std::vector<VkDescriptorSetLayout> layouts(descriptorSetCount, m_descriptorSetLayout);
+        // const std::vector<VkDescriptorSetLayout> layouts(descriptorSetCount, m_descriptorSetLayout);
+        const std::vector<VkDescriptorSetLayout> layouts(0);
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocInfo.descriptorSetCount = descriptorSetCount;
@@ -241,7 +214,7 @@ namespace narc_engine {
 
         m_frameManager->allocateDescriptorSets(allocInfo);
 
-        RenderTask* renderer = new RenderTask(m_swapchain, &m_descriptorSetLayout, material);
+        RenderTask* renderer = new RenderTask(m_swapchain, layouts.data(), material);
         m_rendererTasks.emplace(material->getMaterialID(), renderer);
 
         return renderer;
