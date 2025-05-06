@@ -239,7 +239,7 @@ namespace narc_engine
     void RenderGraph::fillRenderContext(RenderContext* ctx, const FrameHandler* frameHandler)
     {
         ctx->SwapChainExtent = m_swapchain->getSwapChainExtent();
-        ctx->Renderers = m_renderers.data();
+        ctx->Renderers = &m_renderers;
         ctx->RenderersCount = static_cast<uint32_t>(m_renderers.size());
         ctx->DescriptorSets = &frameHandler->getDescriptorSets();
     }

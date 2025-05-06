@@ -10,7 +10,7 @@ namespace narc_engine
     {
         VkExtent2D SwapChainExtent;
         
-        const Renderer** Renderers;
+        const std::vector<const Renderer*>* Renderers;
         uint32_t RenderersCount;
 
         const std::vector<VkDescriptorSet>* DescriptorSets;
