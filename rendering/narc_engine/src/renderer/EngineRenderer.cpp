@@ -7,6 +7,8 @@
 #include "gui/UiRenderer.h"
 #include "core/interfaces/ISurfaceProvider.h"
 
+#include "models/Shader.h"
+
 namespace narc_engine {
     EngineRenderer::EngineRenderer(const SwapChain* swapchain, MultiFrameManager* multiFrameManager) : DeviceComponent()
     {
@@ -204,9 +206,11 @@ namespace narc_engine {
             NARCLOG_FATAL("Can't create render task for the same material twice!");
         }
 
-        constexpr uint32_t descriptorSetCount = 1;
-        // const std::vector<VkDescriptorSetLayout> layouts(descriptorSetCount, m_descriptorSetLayout);
-        const std::vector<VkDescriptorSetLayout> layouts(0);
+        constexpr uint32_t descriptorSetCount = 2;
+        const std::vector<VkDescriptorSetLayout> layouts = {
+            material->getVertShader()->getDescriptorSetLayout(),
+            material->getFragShader()->getDescriptorSetLayout()
+        };
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocInfo.descriptorSetCount = descriptorSetCount;
@@ -214,7 +218,7 @@ namespace narc_engine {
 
         m_frameManager->allocateDescriptorSets(allocInfo);
 
-        RenderTask* renderer = new RenderTask(m_swapchain, layouts.data(), material);
+        RenderTask* renderer = new RenderTask(m_swapchain, material);
         m_rendererTasks.emplace(material->getMaterialID(), renderer);
 
         return renderer;

@@ -5,11 +5,12 @@
 #include "renderer/GraphicsPipeline.h"
 
 #include "CommandBuffer.h"
-#include "models/Shader.h"
 #include "models/Vertex.h"
 #include "models/PushConstants.h"
 
 #include "renderer/SwapChain.h"
+
+#include "models/Shader.h"
 
 namespace narc_engine {
     GraphicsPipeline::GraphicsPipeline(const SwapChain* swapChain,
@@ -18,8 +19,8 @@ namespace narc_engine {
     {
 
         std::vector<VkPipelineShaderStageCreateInfo> m_shaderStages = {
-            // vertShader->configureShaderStage("main", VK_SHADER_STAGE_VERTEX_BIT),
-            // vertShader->configureShaderStage("main", VK_SHADER_STAGE_FRAGMENT_BIT)
+            vertShader->configureShaderStage("main", VK_SHADER_STAGE_VERTEX_BIT),
+            fragShader->configureShaderStage("main", VK_SHADER_STAGE_FRAGMENT_BIT)
         };
 
         const auto vertexDescriptions = Vertex::getBindingDescription();
@@ -47,10 +48,10 @@ namespace narc_engine {
         pushConstantRange.offset = 0;
         pushConstantRange.size = sizeof(PushConstants);
 
-        std::vector<VkDescriptorSetLayout> descriptorSetLayouts = 
-        { 
-            // vertShader->getDescriptorSetLayout(), 
-            // fragShader->getDescriptorSetLayout() 
+        std::vector<VkDescriptorSetLayout> descriptorSetLayouts =
+        {
+            vertShader->getDescriptorSetLayout(),
+            fragShader->getDescriptorSetLayout()
         };
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;

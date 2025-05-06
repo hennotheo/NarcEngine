@@ -6,10 +6,10 @@
 
 #include "resources/GraphicResourceHandler.h"
 
-#include "models/Shader.h"
-
 namespace narc_engine
 {
+    class Shader;
+
     class NARC_ENGINE_API Material
     {
     public:
@@ -18,6 +18,9 @@ namespace narc_engine
 
         GETTER const uint32_t& getMaterialID() const { return m_materialID; }
         GETTER const GraphicResourceHandler& getMainTexture() const { return m_mainTexture; }
+
+        GETTER const Shader* getVertShader() const { return m_vertShaderModule; }
+        GETTER const Shader* getFragShader() const { return m_fragShaderModule; }
 
     private:
         static uint32_t s_materialCounter;

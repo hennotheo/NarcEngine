@@ -2,17 +2,16 @@
 
 #include "Engine.h"
 #include "buffers/GraphicsBuffer.h"
-#include "models/Shader.h"
 #include "resources/Texture2DResource.h"
 #include "models/PushConstants.h"
 
 namespace narc_engine {
-    RenderTask::RenderTask(const SwapChain* swapChain, const VkDescriptorSetLayout* descriptorSetLayout,
+    RenderTask::RenderTask(const SwapChain* swapChain,
         const Material* material) : DeviceComponent()
     {
         m_material = material;
 
-        // m_pipeline = std::make_unique<GraphicsPipeline>(swapChain, &vertShaderModule, &fragShaderModule);
+        m_pipeline = std::make_unique<GraphicsPipeline>(swapChain, material->getVertShader(), material->getFragShader());
     }
 
     RenderTask::~RenderTask()

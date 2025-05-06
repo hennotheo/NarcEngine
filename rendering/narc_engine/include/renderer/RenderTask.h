@@ -14,8 +14,7 @@ namespace narc_engine
     class RenderTask : public DeviceComponent
     {
     public:
-        RenderTask(const SwapChain* swapChain, const VkDescriptorSetLayout* descriptorSetLayout,
-                   const Material* material);
+        RenderTask(const SwapChain* swapChain, const Material* material);
         ~RenderTask();
 
         GETTER VkDeviceSize getUniformBufferSize() const { return sizeof(UniformBufferObject); }

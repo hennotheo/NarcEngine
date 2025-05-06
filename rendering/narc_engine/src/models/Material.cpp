@@ -5,6 +5,7 @@
 #include "models/Material.h"
 
 #include "Engine.h"
+#include "models/Shader.h"
 
 namespace narc_engine
 {
@@ -16,9 +17,13 @@ namespace narc_engine
         m_materialID = s_materialCounter;
         s_materialCounter++;
 
-        // m_vertShaderModule("shaders/shader_vert.spv");
-        // m_fragShaderModule("shaders/shader_frag.spv");
+        m_vertShaderModule = new Shader("shaders/shader_vert.spv");
+        m_fragShaderModule = new Shader("shaders/shader_frag.spv");
     }
 
-    Material::~Material() = default;
+    Material::~Material()
+    {
+        delete m_vertShaderModule;
+        delete m_fragShaderModule;
+    }
 } // narc_engine
