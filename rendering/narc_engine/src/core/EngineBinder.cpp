@@ -6,7 +6,7 @@ namespace narc_engine
 {
     void EngineBinder::attachRenderer(const Renderer* renderer) const
     {
-        static_cast<Engine*>(m_engine)->m_windows->m_renderer->attachRenderer(renderer);
+        static_cast<Engine*>(m_engine)->m_windows->addRenderer(renderer);
     }
 
     void EngineBinder::attachGuiComponent(const IGuiHandle* component) const

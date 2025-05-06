@@ -8,6 +8,8 @@
 #include "core/EngineInstance.h"
 #include "core/EngineBuilder.h"
 #include "core/devices/DeviceHandler.h"
+#include "models/Shader.h"
+#include "renderer/render_graph/RenderNode.h"
 
 namespace narc_engine
 {
@@ -38,7 +40,7 @@ namespace narc_engine
         //Destroy before the window is destroyed
         m_swapchain->cleanSwapChain();
 
-        m_renderer.reset();
+        m_renderGraph.reset();
 
         m_swapchain->cleanRenderPass();
 
@@ -61,7 +63,7 @@ namespace narc_engine
         m_swapchain->create(this);
         m_swapchain->createFramebuffers();
 
-        m_renderer = std::make_unique<EngineRenderer>(m_swapchain.get(), m_frameManager.get());
+        m_renderGraph = std::make_unique<RenderGraph>(m_swapchain.get());
     }
 
     void Window::render()
@@ -71,12 +73,12 @@ namespace narc_engine
         const std::vector<VkFence> inFlightFencesToWait = { frameHandler->getInFlightFence()->get() };
         vkWaitForFences(m_logicalDevice->get(), 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
         vkResetFences(m_logicalDevice->get(), 1, inFlightFencesToWait.data());
-        
+
         uint32_t currentImageIndex = 0;
         m_swapchain->acquireNextImage(frameHandler->getImageAvailableSemaphore(), &currentImageIndex);
-        
-        m_renderer->prepareFrame(frameHandler);
-        SignalSemaphores signalSemaphores = m_renderer->drawFrame(frameHandler, currentImageIndex);
+
+        m_renderGraph->buildGraph();
+        SignalSemaphores signalSemaphores = m_renderGraph->executeGraph(frameHandler, currentImageIndex);
 
         present(signalSemaphores, currentImageIndex);
 
@@ -155,5 +157,47 @@ namespace narc_engine
     {
         Window* windowObject = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
         windowObject->m_onMouseEvent.trigger(button, action, mods);
+    }
+
+#warning "TODO: REMOVE THIS"
+    bool firstTime = true;
+    void Window::addRenderer(const Renderer* renderer)
+    {
+        bool materialAlreadyUsed = std::any_of(m_renderGraph->m_renderers.begin(), m_renderGraph->m_renderers.end(), [&](const Renderer* r) {
+            return r->getMaterial() == renderer->getMaterial();
+            });
+
+        if (!materialAlreadyUsed)
+        {
+            if (std::find(m_renderGraph->m_renderers.begin(), m_renderGraph->m_renderers.end(), renderer) == m_renderGraph->m_renderers.end())
+            {
+                if (firstTime)
+                {
+                    m_renderGraph->addNode(new RenderNode(m_swapchain->getRenderPass(), renderer->getMaterial()->getVertShader(), renderer->getMaterial()->getFragShader()));
+                    firstTime = false;
+                }
+                std::vector<VkDescriptorSetLayout> layouts =
+                {
+                    renderer->getMaterial()->getVertShader()->getDescriptorSetLayout(),
+                    renderer->getMaterial()->getFragShader()->getDescriptorSetLayout()
+                };
+                VkDescriptorSetAllocateInfo allocInfo{};
+                allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+                allocInfo.descriptorSetCount = 2;
+                allocInfo.pSetLayouts = layouts.data();
+
+                m_frameManager->allocateDescriptorSets(allocInfo);
+            }
+            else
+            {
+                NARCLOG_DEBUG("Renderer already in the graph");
+            }
+        }
+        else
+        {
+            NARCLOG_DEBUG("Renderer with the same material already exists in the graph");
+        }
+
+        m_renderGraph->m_renderers.push_back(renderer);
     }
 }

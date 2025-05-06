@@ -8,12 +8,12 @@
 #include "models/Vertex.h"
 #include "models/PushConstants.h"
 
-#include "renderer/SwapChain.h"
+#include "renderer/RenderPass.h"
 
 #include "models/Shader.h"
 
 namespace narc_engine {
-    GraphicsPipeline::GraphicsPipeline(const SwapChain* swapChain,
+    GraphicsPipeline::GraphicsPipeline(const RenderPass* renderPass,
         const Shader* vertShader, const Shader* fragShader)
         : DeviceComponent()
     {
@@ -79,7 +79,7 @@ namespace narc_engine {
         pipelineInfo.pColorBlendState = &colorBlending;
         pipelineInfo.pDynamicState = &dynamicState;
         pipelineInfo.layout = m_pipelineLayout;
-        pipelineInfo.renderPass = swapChain->getRenderPass()->getRenderPass();
+        pipelineInfo.renderPass = renderPass->getRenderPass();
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
         pipelineInfo.basePipelineIndex = -1; // Optional

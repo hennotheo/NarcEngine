@@ -11,9 +11,10 @@
 #include "gui/UiRenderer.h"
 
 #include "core/interfaces/ISurfaceObserver.h"
+#include "renderer/render_graph/RenderGraph.h"
 
 namespace narc_engine {
-    typedef const std::vector<VkSemaphore> SignalSemaphores;
+
 
     class Material;
     class UniformBuffer;

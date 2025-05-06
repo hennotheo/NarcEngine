@@ -26,5 +26,6 @@
 #include <vector>
 #include <atomic>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "NarcCore.h"

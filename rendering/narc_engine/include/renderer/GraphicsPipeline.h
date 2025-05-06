@@ -5,17 +5,17 @@
 #pragma once
 #include <vulkan/vulkan_core.h>
 
-#include "SwapChain.h"
 #include "core/DeviceComponent.h"
 
 namespace narc_engine {
     class CommandBuffer;
     class Shader;
+    class RenderPass;
 
     class GraphicsPipeline : public DeviceComponent
     {
     public:
-        explicit GraphicsPipeline(const SwapChain* swapChain, const Shader* vertShader, const Shader* fragShader);
+        explicit GraphicsPipeline(const RenderPass* renderPass, const Shader* vertShader, const Shader* fragShader);
         ~GraphicsPipeline();
 
         VkPipelineInputAssemblyStateCreateInfo createInputAssemblyStateInfo();

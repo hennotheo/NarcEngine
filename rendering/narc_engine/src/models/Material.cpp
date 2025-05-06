@@ -7,6 +7,8 @@
 #include "Engine.h"
 #include "models/Shader.h"
 
+#include "resources/Texture2DResource.h"
+
 namespace narc_engine
 {
     uint32_t Material::s_materialCounter = 0;

@@ -3,7 +3,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include "renderer/EngineRenderer.h"
+#include "renderer/render_graph/RenderGraph.h"
 #include "renderer/MultiFrameManager.h"
 #include "EngineBinder.h"
 #include "renderer/SwapChain.h"
@@ -38,6 +38,8 @@ namespace narc_engine
         void pollEvents();
         void render();
 
+        void addRenderer(const Renderer* renderer);
+
         static const char** getRequiredInstanceExtensions(uint32_t* glfwExtensionCount);
 
     private:
@@ -46,7 +48,7 @@ namespace narc_engine
 
         std::unique_ptr<SwapChain> m_swapchain;
         std::unique_ptr<MultiFrameManager> m_frameManager;
-        std::unique_ptr<EngineRenderer> m_renderer;
+        std::unique_ptr<RenderGraph> m_renderGraph;
 
         narc_core::Event<int, int, int, int> m_onKeyboardEvent;
         narc_core::Event<int, int, int> m_onMouseEvent;

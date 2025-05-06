@@ -37,113 +37,79 @@ namespace narc_engine {
 
     void EngineRenderer::prepareFrame(const FrameHandler* frameHandler)
     {
-        UniformBuffer* uniformBuffer = frameHandler->getUniformBuffer();
 
-        VkDeviceSize bufferSize = 0;
-        for (const auto& [id, rendererTask] : m_rendererTasks)
-        {
-            VkDeviceSize size = rendererTask->getUniformBufferSize();
-            bufferSize += uniformBuffer->getValidUniformBufferSize(size);
-        }
-
-        uniformBuffer->beginRegister(bufferSize);
-
-        for (const auto& [id, rendererTask] : m_rendererTasks)
-        {
-            UniformBufferObject ubo = updateUniformBuffer(uniformBuffer, rendererTask);//TODO change to multiobject
-            uniformBuffer->registerBufferObject(&ubo, sizeof(UniformBufferObject));
-        }
-
-        uniformBuffer->endRegister();
-
-        uint32_t materialID = 0;
-        VkDeviceSize offset = 0;
-        for (const auto& [id, rendererTask] : m_rendererTasks)
-        {
-            VkDeviceSize size = uniformBuffer->getUniformBufferSize(materialID);
-
-            VkDescriptorBufferInfo bufferInfo{};
-            bufferInfo.buffer = uniformBuffer->getBuffer();
-            bufferInfo.offset = offset;
-            bufferInfo.range = size;
-
-            rendererTask->updateDescriptorSet(frameHandler->getDescriptorSets()[materialID], &bufferInfo);
-
-            materialID++;
-            offset += size;
-        }
     }
 
     SignalSemaphores EngineRenderer::drawFrame(const FrameHandler* frameHandler, uint32_t imageIndex)
     {
-        CommandBuffer* bufferForObjects = frameHandler->getCommandPool()->getCommandBuffer(0);
-        bufferForObjects->reset(0);
+        // CommandBuffer* bufferForObjects = frameHandler->getCommandPool()->getCommandBuffer(0);
+        // bufferForObjects->reset(0);
 
-        const std::array<VkCommandBuffer, 1> commandBuffers = { bufferForObjects->getVkCommandBuffer() };
-        recordCommandBuffer(bufferForObjects, imageIndex, frameHandler->getDescriptorSets());
+        // const std::array<VkCommandBuffer, 1> commandBuffers = { bufferForObjects->getVkCommandBuffer() };
+        // recordCommandBuffer(bufferForObjects, imageIndex, frameHandler->getDescriptorSets());
 
-        VkSubmitInfo submitInfo{};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        // VkSubmitInfo submitInfo{};
+        // submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-        const VkSemaphore waitSemaphores[] =
-        {
-            frameHandler->getImageAvailableSemaphore()->get()
-        };
-        constexpr VkPipelineStageFlags waitStages[] =
-        {
-            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
-        };
-        submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = waitSemaphores;
-        submitInfo.pWaitDstStageMask = waitStages;
-        submitInfo.commandBufferCount = commandBuffers.size();
-        submitInfo.pCommandBuffers = commandBuffers.data();
+        // const VkSemaphore waitSemaphores[] =
+        // {
+        //     frameHandler->getImageAvailableSemaphore()->get()
+        // };
+        // constexpr VkPipelineStageFlags waitStages[] =
+        // {
+        //     VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
+        // };
+        // submitInfo.waitSemaphoreCount = 1;
+        // submitInfo.pWaitSemaphores = waitSemaphores;
+        // submitInfo.pWaitDstStageMask = waitStages;
+        // submitInfo.commandBufferCount = commandBuffers.size();
+        // submitInfo.pCommandBuffers = commandBuffers.data();
 
-        const std::vector<VkSemaphore> signalSemaphores = { frameHandler->getRenderFinishedSemaphore()->get() };
-        submitInfo.signalSemaphoreCount = signalSemaphores.size();
-        submitInfo.pSignalSemaphores = signalSemaphores.data();
+        // const std::vector<VkSemaphore> signalSemaphores = { frameHandler->getRenderFinishedSemaphore()->get() };
+        // submitInfo.signalSemaphoreCount = signalSemaphores.size();
+        // submitInfo.pSignalSemaphores = signalSemaphores.data();
 
-        const GraphicsQueue* graphicsQueue = Engine::getInstance()->getGraphicsQueue();
-        if (graphicsQueue->submit(1, &submitInfo, frameHandler->getInFlightFence()->get()) != VK_SUCCESS)
-        {
-            NARCLOG_FATAL("failed to submit draw command buffer!");
-        }
+        // const GraphicsQueue* graphicsQueue = Engine::getInstance()->getGraphicsQueue();
+        // if (graphicsQueue->submit(1, &submitInfo, frameHandler->getInFlightFence()->get()) != VK_SUCCESS)
+        // {
+        //     NARCLOG_FATAL("failed to submit draw command buffer!");
+        // }
 
-        return signalSemaphores;
+        // return signalSemaphores;
     }
 
     UniformBufferObject EngineRenderer::updateUniformBuffer(UniformBuffer* buffer, RenderTask* rendererTask) const
     {
-        UniformBufferObject ubo{};
-        auto renderers = rendererTask->getRenderers();
-        uint16_t maxObjCount = glm::min((uint16_t)renderers->size(), UNIFORM_BUFFER_OBJECT_MAX_INSTANCES);
-        for (uint16_t i = 0; i < maxObjCount; i++)
-        {
-            const Renderer* renderer = rendererTask->getRenderers()->data()[i];
-            ubo.Model[i] = renderer->getModelMatrix();
+        // UniformBufferObject ubo{};
+        // auto renderers = rendererTask->getRenderers();
+        // uint16_t maxObjCount = glm::min((uint16_t)renderers->size(), UNIFORM_BUFFER_OBJECT_MAX_INSTANCES);
+        // for (uint16_t i = 0; i < maxObjCount; i++)
+        // {
+        //     const Renderer* renderer = rendererTask->getRenderers()->data()[i];
+        //     ubo.Model[i] = renderer->getModelMatrix();
 
-            glm::vec3 worldPosition = glm::vec3(renderer->getModelMatrix()[3]);
-            glm::vec3 worldRotation = glm::eulerAngles(glm::quat_cast(renderer->getModelMatrix()));
-        }
+        //     glm::vec3 worldPosition = glm::vec3(renderer->getModelMatrix()[3]);
+        //     glm::vec3 worldRotation = glm::eulerAngles(glm::quat_cast(renderer->getModelMatrix()));
+        // }
 
-        ubo.View = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.Proj = glm::perspective(glm::radians(45.0f),
-            m_swapchain->getSwapChainExtent().width / (float)m_swapchain->getSwapChainExtent().
-            height, 0.1f, 10.0f);
-        ubo.Proj[1][1] *= -1;
+        // ubo.View = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        // ubo.Proj = glm::perspective(glm::radians(45.0f),
+        //     m_swapchain->getSwapChainExtent().width / (float)m_swapchain->getSwapChainExtent().
+        //     height, 0.1f, 10.0f);
+        // ubo.Proj[1][1] *= -1;
 
-        return ubo;
+        // return ubo;
     }
 
     void EngineRenderer::attachRenderer(const Renderer* renderer)
     {
-        //TODO change to multimaterial renderer task
-        const uint32_t materialID = renderer->getMaterial()->getMaterialID();
-        RenderTask* renderTask = m_rendererTasks.contains(materialID)
-            ? m_rendererTasks[materialID]
-            : createRenderTask(renderer->getMaterial());
+        // //TODO change to multimaterial renderer task
+        // const uint32_t materialID = renderer->getMaterial()->getMaterialID();
+        // RenderTask* renderTask = m_rendererTasks.contains(materialID)
+        //     ? m_rendererTasks[materialID]
+        //     : createRenderTask(renderer->getMaterial());
 
-        renderTask->bindRenderer(renderer);
+        // renderTask->bindRenderer(renderer);
     }
 
 
