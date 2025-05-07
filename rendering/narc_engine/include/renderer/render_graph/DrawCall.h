@@ -16,12 +16,12 @@ namespace narc_engine
         DrawCall(const Material* material, const GraphicsPipeline* pipeline);
         ~DrawCall() = default;
 
-        void setMeshes(const std::vector<const Mesh*> meshes) { m_meshes = meshes; }
+        void setMeshes(const std::vector<const Mesh*>& meshes) { m_meshes = meshes; }
         void record(const CommandBuffer* cmd, const RenderContext* ctx);
 
     private:
         const Material* m_material;
         const GraphicsPipeline* m_pipeline;
-        const std::vector<const Mesh*> m_meshes;
+        std::vector<const Mesh*> m_meshes;
     };
 } // namespace narc_engine

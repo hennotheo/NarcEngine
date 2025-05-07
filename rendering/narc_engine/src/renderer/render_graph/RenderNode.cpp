@@ -9,6 +9,8 @@
 #include "buffers/GraphicsBuffer.h"
 #include "renderer/render_graph/DrawCall.h"
 
+#include <NarcLog.h>
+
 namespace narc_engine
 {
     RenderNode::RenderNode(const RenderPass* renderPass, const Shader* vertShader, const Shader* fragShader)
@@ -60,35 +62,12 @@ namespace narc_engine
             std::vector<const Mesh*> meshes(it.begin(), it.end());
 
             drawCall.setMeshes(meshes);
+            drawCalls.push_back(drawCall);
         }
 
-        for (const auto& drawCall : drawCalls)
+        for (DrawCall& drawCall : drawCalls)
         {
             drawCall.record(cmd, ctx);
         }
-
-        // for (const auto& [mat, renderers] : uniqueMaterials)
-        // {
-        //     cmd->cmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline->getLayout(), 0, 1,
-        //         &ctx->DescriptorSets->data()[mat->getMaterialID()], 0, nullptr);
-
-        //     uint32_t drawCallIndex = 0;
-        //     for (const auto& renderer : renderers)
-        //     {
-        //         PushConstants pushConstants{};
-        //         pushConstants.objectIndex = drawCallIndex;
-
-        //         const Mesh* mesh = renderer->getMesh();
-        //         VkBuffer vertexBuffers[] = { mesh->getVertexBuffer()->getBuffer() };
-        //         VkDeviceSize offsets[] = { 0 };
-        //         cmd->cmdBindVertexBuffers(0, 1, vertexBuffers, offsets);
-        //         cmd->cmdBindIndexBuffer(mesh->getIndexBuffer()->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
-
-        //         cmd->cmdPushConstants(m_pipeline->getLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstants), &pushConstants);
-
-        //         cmd->cmdDrawIndexed(mesh->getIndexCount(), 1, 0, 0, 0);
-        //         drawCallIndex++;
-        //     }
-        // }
     }
 } // namespace narc_engine
