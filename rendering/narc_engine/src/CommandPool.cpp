@@ -13,7 +13,7 @@ namespace narc_engine {
 
         poolInfo.queueFamilyIndex = queueFamilyIndices.GraphicsFamily.value();
 
-        if (vkCreateCommandPool(getDeviceHandler()->getLogicalDevice()->getVkDevice(), &poolInfo, nullptr, &m_commandPool) != VK_SUCCESS)
+        if (vkCreateCommandPool(getDeviceHandler()->getLogicalDevice()->get(), &poolInfo, nullptr, &m_commandPool) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create command pool!");
         }

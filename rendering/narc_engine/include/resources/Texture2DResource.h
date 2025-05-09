@@ -17,7 +17,7 @@ namespace narc_engine
         explicit Texture2DResource(const char* path, const uint32_t resourceID);
         ~Texture2DResource() override;
 
-        const VkImageView getImageView() const { return m_textureImageView.getVkImageView(); }
+        const VkImageView getImageView() const { return m_textureImageView.get(); }
         const VkSampler& getSampler() const { return m_textureSampler; }
 
     private:

@@ -8,13 +8,13 @@ namespace narc_engine
     class PhysicalDevice;
     struct QueueFamilyIndices;
 
-    class LogicalDevice
+    class LogicalDevice : public narc_core::IGetter<VkDevice>
     {
     public:
         LogicalDevice(const EngineBuilder* builder, const PhysicalDevice* physicalDevice);
         ~LogicalDevice();
 
-        GETTER const VkDevice& getVkDevice() const { return m_device; }
+        NARC_IMPL_IGETTER(VkDevice, m_device)
 
         void waitDeviceIdle() const;
 

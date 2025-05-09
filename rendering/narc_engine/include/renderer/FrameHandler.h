@@ -9,6 +9,9 @@
 #include "DescriptorPool.h"
 #include "buffers/UniformBuffer.h"
 
+#include "sync/Semaphore.h"
+#include "sync/Fence.h"
+
 namespace narc_engine {
     class DeviceHandler;
 
@@ -20,11 +23,11 @@ namespace narc_engine {
         FrameHandler();
         ~FrameHandler();
 
-        GETTER CommandPool* getCommandPool() const { return m_commandPool.get(); }
+        DEPRECATED GETTER CommandPool* getCommandPool() const { return m_commandPool.get(); }
 
-        GETTER VkSemaphore getImageAvailableSemaphore() const { return m_imageAvailableSemaphore; }
-        GETTER VkSemaphore getRenderFinishedSemaphore() const { return m_renderFinishedSemaphore; }
-        GETTER VkFence getInFlightFence() const { return m_inFlightFence; }
+        GETTER const Semaphore* getImageAvailableSemaphore() const { return m_imageAvailableSemaphore.get(); }
+        GETTER const Semaphore* getRenderFinishedSemaphore() const { return m_renderFinishedSemaphore.get(); }
+        GETTER const Fence* getInFlightFence() const { return m_inFlightFence.get(); }
 
         GETTER UniformBuffer* getUniformBuffer() const { return m_uniformBuffer.get(); }
         GETTER const std::vector<VkDescriptorSet>& getDescriptorSets() const { return m_descriptorSets; }
@@ -32,9 +35,9 @@ namespace narc_engine {
     private:
         std::unique_ptr<CommandPool> m_commandPool;
 
-        VkSemaphore m_imageAvailableSemaphore;
-        VkSemaphore m_renderFinishedSemaphore;
-        VkFence m_inFlightFence;
+        std::unique_ptr<Semaphore> m_imageAvailableSemaphore;
+        std::unique_ptr<Semaphore> m_renderFinishedSemaphore;
+        std::unique_ptr<Fence> m_inFlightFence;
 
         std::unique_ptr<UniformBuffer> m_uniformBuffer;
 

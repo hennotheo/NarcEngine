@@ -7,10 +7,26 @@ namespace narc_engine
     class UniformBuffer final : public Buffer
     {
     public:
-        explicit UniformBuffer(const VkDeviceSize& bufferSize);
+        UniformBuffer();
+        ~UniformBuffer() override = default;
 
-        void setData(const UniformBufferObject& ubo);
+        GETTER const VkDeviceSize getUniformBufferSize(uint32_t index) const { return m_bufferSizes[index]; }
+        QUERY const VkDeviceSize getValidUniformBufferSize(VkDeviceSize size) const;
+
+        void beginRegister(VkDeviceSize totalSize);
+        void registerBufferObject(void* data, VkDeviceSize size);
+        void endRegister();
+
     private:
-        void* uniformBuffersMapped = nullptr;
+        void* m_uniformBuffersMapped = nullptr;
+        VkDeviceSize m_size;
+        VkDeviceSize m_minBufferObjectSize;
+
+        std::vector<VkDeviceSize> m_bufferSizes;
+        VkDeviceSize m_currentRegisteredSize = 0;
+
+    private:
+        void grow(VkDeviceSize newSize);
+        void recreate();
     };
 }

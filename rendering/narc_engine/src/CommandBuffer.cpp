@@ -5,7 +5,7 @@
 namespace narc_engine {
     void CommandBuffer::allocate(const DeviceHandler* deviceHandler, const VkCommandBufferAllocateInfo* allocInfo)
     {
-        if (vkAllocateCommandBuffers(deviceHandler->getLogicalDevice()->getVkDevice(), allocInfo, &m_commandBuffer) != VK_SUCCESS)
+        if (vkAllocateCommandBuffers(deviceHandler->getLogicalDevice()->get(), allocInfo, &m_commandBuffer) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to allocate command buffers!");
         }
@@ -34,7 +34,7 @@ namespace narc_engine {
 
     void CommandBuffer::release(const DeviceHandler* deviceHandler, const VkCommandPool& commandPool)
     {
-        vkFreeCommandBuffers(deviceHandler->getLogicalDevice()->getVkDevice(), commandPool, 1, &m_commandBuffer);
+        vkFreeCommandBuffers(deviceHandler->getLogicalDevice()->get(), commandPool, 1, &m_commandBuffer);
     }
 
     void CommandBuffer::cmdBeginRenderPass(const VkRenderPassBeginInfo* renderPassInfo, VkSubpassContents contents) const
@@ -119,7 +119,7 @@ namespace narc_engine {
         }
 
         std::vector<VkCommandBuffer> vkCommandBuffers(commandBuffers.size());
-        if (vkAllocateCommandBuffers(deviceHandler->getLogicalDevice()->getVkDevice(), allocInfo, vkCommandBuffers.data()) != VK_SUCCESS)
+        if (vkAllocateCommandBuffers(deviceHandler->getLogicalDevice()->get(), allocInfo, vkCommandBuffers.data()) != VK_SUCCESS)
         {
             NARCLOG_FATAL("Failed to allocate command buffers!");
         }
@@ -129,5 +129,9 @@ namespace narc_engine {
             commandBuffers[i].m_commandBuffer = vkCommandBuffers[i];
             commandBuffers[i].m_allocated = true;
         }
+    }
+    void CommandBuffer::cmdPushConstants(VkPipelineLayout layout, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size, const void* pValues) const
+    {
+        vkCmdPushConstants(m_commandBuffer, layout, stageFlags, offset, size, pValues);
     }
 }

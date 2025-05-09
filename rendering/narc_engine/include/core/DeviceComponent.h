@@ -7,17 +7,15 @@
 
 namespace narc_engine
 {
-    class DeviceHandler;
-
     class DeviceComponent
     {
     public:
-        DeviceComponent();
+        DEPRECATED DeviceComponent();
         virtual ~DeviceComponent() = default;
 
     protected:
         GETTER const DeviceHandler* getDeviceHandler() const { return m_device; }
-        GETTER VkDevice getVkDevice() const { return m_device->getLogicalDevice()->getVkDevice(); }
+        GETTER VkDevice getVkDevice() const { return m_device->getLogicalDevice()->get(); }
 
     private:
         const DeviceHandler* m_device;

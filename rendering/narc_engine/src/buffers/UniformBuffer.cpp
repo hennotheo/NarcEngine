@@ -2,15 +2,58 @@
 
 namespace narc_engine
 {
-    UniformBuffer::UniformBuffer(const VkDeviceSize& bufferSize)
+    UniformBuffer::UniformBuffer() : Buffer(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
     {
-        this->createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, this->m_buffer, this->m_bufferMemory);
-
-        vkMapMemory(getVkDevice(), this->m_bufferMemory, 0, bufferSize, 0, &uniformBuffersMapped);
+        m_minBufferObjectSize = getDeviceHandler()->getPhysicalDevice()->getPhysicalDeviceProperties().limits.minUniformBufferOffsetAlignment;
+        m_size = m_minBufferObjectSize;
+        this->createBuffer(m_size, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, this->m_buffer, this->m_bufferMemory);
     }
 
-    void UniformBuffer::setData(const UniformBufferObject& ubo)
+    void UniformBuffer::beginRegister(VkDeviceSize totalSize)
     {
-        memcpy(uniformBuffersMapped, &ubo, sizeof(ubo));
+        if (totalSize > m_size)
+        {
+            NARCLOG_DEBUG("Uniform buffer size exceeded!");
+            grow(totalSize);
+        }
+
+        vkMapMemory(getVkDevice(), m_bufferMemory, 0, m_size, 0, &m_uniformBuffersMapped);
+        m_bufferSizes.clear();
+        m_currentRegisteredSize = 0;
+    }
+
+    void UniformBuffer::registerBufferObject(void* data, VkDeviceSize size)
+    {
+        uint32_t objectSize = getValidUniformBufferSize(size);
+        m_bufferSizes.push_back(objectSize);
+
+        memcpy(static_cast<char*>(m_uniformBuffersMapped) + m_currentRegisteredSize, data, size);
+        m_currentRegisteredSize += objectSize;
+    }
+
+    void UniformBuffer::endRegister()
+    {
+        vkUnmapMemory(getVkDevice(), m_bufferMemory);
+    }
+
+    void UniformBuffer::grow(VkDeviceSize newSize)
+    {
+        while (newSize > m_size)
+        {
+            m_size *= 2;
+        }
+
+        this->recreate();
+    }
+
+    void UniformBuffer::recreate()
+    {
+        release();
+        this->createBuffer(m_size, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, this->m_buffer, this->m_bufferMemory);
+    }
+
+    const VkDeviceSize UniformBuffer::getValidUniformBufferSize(VkDeviceSize size) const
+    {
+        return ((size + m_minBufferObjectSize - 1) / m_minBufferObjectSize) * m_minBufferObjectSize;
     }
 }

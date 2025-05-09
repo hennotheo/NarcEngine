@@ -6,10 +6,10 @@
 
 namespace narc_engine
 {
-    class ImageView : public DeviceComponent
+    class ImageView : public DeviceComponent, public narc_core::IGetter<VkImageView>
     {
     public:
-        GETTER const VkImageView getVkImageView() const { return m_imageView; }
+        NARC_IMPL_IGETTER(VkImageView, m_imageView)
 
         void create(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
         void release();

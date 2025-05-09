@@ -9,19 +9,23 @@ namespace narc_engine {
     class ISurfaceProvider;
     class DeviceHandler;
     class Window;
+    class Semaphore;
 
-    class SwapChain : public DeviceComponent
+    class SwapChain : public DeviceComponent, public narc_core::IGetter<VkSwapchainKHR>
     {
     public:
+        SwapChain();
+        ~SwapChain() override;
+
+        NARC_IMPL_IGETTER(VkSwapchainKHR, m_swapChain)
         GETTER const VkExtent2D& getSwapChainExtent() const { return m_swapChainExtent; }
         GETTER const RenderPass* getRenderPass() const { return m_renderPass.get(); }
-        GETTER const VkSwapchainKHR& getSwapChain() const { return m_swapChain; }
 
         void create(ISurfaceProvider* surface);
         void createFramebuffers();
 
         VkRenderPassBeginInfo getRenderPassBeginInfos(uint32_t imageIndex) const;
-        VkResult acquireNextImage(const VkSemaphore& semaphore, uint32_t* imageIndex);
+        VkResult acquireNextImage(const Semaphore* semaphore, uint32_t* imageIndex);
         void reCreate();
 
         void cleanSwapChain();
