@@ -15,7 +15,7 @@ find_package(glm ${GLM_VERSION} QUIET)
 if(glm_FOUND)
     message(STATUS "GLM ${GLM_VERSION} found on system.")
     add_library(glm_lib INTERFACE IMPORTED GLOBAL)
-    target_link_libraries(glm INTERFACE glm::glm)
+    target_link_libraries(glm_lib INTERFACE glm::glm)
 else()
     message(STATUS "GLM ${GLM_VERSION} not found, fetching from repository...")
     FetchContent_Declare(
