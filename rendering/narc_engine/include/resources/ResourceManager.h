@@ -13,6 +13,7 @@ namespace narc_engine
         template <typename T, typename... Args>
         inline ResourceId createResource(Args&&... args)
         {
+            
             static_assert(std::is_base_of<Resource, T>::value, "T must be derived from Resource");
 
             const char* typeName = typeid(T).name();

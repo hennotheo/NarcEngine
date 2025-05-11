@@ -2,7 +2,7 @@
 
 namespace narc_engine
 {
-    Resource::Resource(ResourceType type) : m_type(type), m_id(0)
+    Resource::Resource(ResourceType type) : m_type(type), m_id("")
     {
         
     }
