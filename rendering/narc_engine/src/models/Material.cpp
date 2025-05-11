@@ -13,10 +13,9 @@ namespace narc_engine
 {
     uint32_t Material::s_materialCounter = 0;
 
-    Material::Material(const char* texturePath) : //TODO not create texture in material
-        m_mainTexture(Engine::getInstance()->resourceManager()->createTexture2D(texturePath))
+    Material::Material(const char* texturePath) : Resource(ResourceType::Material), //TODO not create texture in material
+        m_mainTexture(Engine::getInstance()->resourceManager()->createResource<Texture2DResource>(texturePath))
     {
-        m_materialID = s_materialCounter;
         s_materialCounter++;
 
         m_vertShaderModule = new Shader("shaders/shader_vert.spv");

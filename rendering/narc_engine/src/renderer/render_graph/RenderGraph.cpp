@@ -19,8 +19,9 @@ namespace narc_engine
     void updateDescriptorSet(const Material* mat, const VkDescriptorSet descriptorSet, const VkDescriptorBufferInfo* uniformBuffersInfo)
     {
 #warning TODO: remove this temporary code, this is just for testing purposes
-        GraphicResourceHandler textureHandler = mat->getMainTexture();
-        const Texture2DResource* texture = dynamic_cast<const Texture2DResource*>(Engine::getInstance()->resourceManager()->getResource(textureHandler));
+        ResourceId textureId = mat->getMainTexture();
+        const Texture2DResource* texture = dynamic_cast<const Texture2DResource*>(Engine::getInstance()->resourceManager()->getResource(textureId));
+        
         VkDescriptorImageInfo imageInfo{};
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         imageInfo.imageView = texture->getImageView();
@@ -146,11 +147,11 @@ namespace narc_engine
 
     void RenderGraph::allocateResources(const FrameHandler* frameHandler)
     {
-        std::unordered_map<uint32_t, const Material*> uniqueMaterials{};
+        std::unordered_map<ResourceId, const Material*> uniqueMaterials{};
         for (const auto& renderer : m_renderers)
         {
             const Material* material = renderer->getMaterial();
-            uniqueMaterials[material->getMaterialID()] = material;
+            uniqueMaterials[material->getId()] = material;
         }
 
         //UNIFORM BUFFER ALLOCATION
@@ -192,7 +193,7 @@ namespace narc_engine
             bufferInfo.offset = offset;
             bufferInfo.range = size;
 
-            VkDescriptorSet descriptorSet = frameHandler->getDescriptorSets()[id];
+            VkDescriptorSet descriptorSet = frameHandler->getDescriptorSet(id);
             updateDescriptorSet(mat, descriptorSet, &bufferInfo);
 
             drawId++;
@@ -241,6 +242,6 @@ namespace narc_engine
         ctx->SwapChainExtent = m_swapchain->getSwapChainExtent();
         ctx->Renderers = &m_renderers;
         ctx->RenderersCount = static_cast<uint32_t>(m_renderers.size());
-        ctx->DescriptorSets = &frameHandler->getDescriptorSets();
+        ctx->FrameHandler = frameHandler;
     }
 } // namespace narc_engine

@@ -11,7 +11,7 @@
 #include "buffers/StagingBuffer.h"
 
 namespace narc_engine {
-    Texture2DResource::Texture2DResource(const char* path, const uint32_t resourceID) : GraphicResource(GraphicResourceType::TEXTURE_2D, resourceID)
+    Texture2DResource::Texture2DResource(const char* path) : Resource(ResourceType::Texture)
     {
         const narc_io::Image image = narc_io::FileReader::readImage(path);
 
@@ -22,7 +22,7 @@ namespace narc_engine {
 
     Texture2DResource::~Texture2DResource()
     {
-        const VkDevice device = getDeviceHandler()->getLogicalDevice()->get();
+        const VkDevice device = Engine::getInstance()->getDevice()->getLogicalDevice()->get();
         vkDestroySampler(device, m_textureSampler, nullptr);
         m_textureImageView.release();
         vkDestroyImage(device, m_textureImage, nullptr);
@@ -75,7 +75,7 @@ namespace narc_engine {
         samplerInfo.minLod = 0.0f;
         samplerInfo.maxLod = 0.0f;
 
-        if (vkCreateSampler(getDeviceHandler()->getLogicalDevice()->get(), &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
+        if (vkCreateSampler(Engine::getInstance()->getDevice()->getLogicalDevice()->get(), &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create texture sampler!");
         }

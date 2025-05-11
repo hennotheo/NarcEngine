@@ -2,8 +2,6 @@
 
 namespace narc_engine
 {
-    typedef std::vector<const char*> KeywordList;
-
     class EngineInstance;
     class ISurfaceProvider;
     class EngineDebugLogger;

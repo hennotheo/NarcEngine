@@ -30,7 +30,7 @@ namespace narc_engine {
         GETTER const Fence* getInFlightFence() const { return m_inFlightFence.get(); }
 
         GETTER UniformBuffer* getUniformBuffer() const { return m_uniformBuffer.get(); }
-        GETTER const std::vector<VkDescriptorSet>& getDescriptorSets() const { return m_descriptorSets; }
+        GETTER const VkDescriptorSet& getDescriptorSet(ResourceId id) const { return m_descriptorSets.at(id); }
 
     private:
         std::unique_ptr<CommandPool> m_commandPool;
@@ -41,8 +41,9 @@ namespace narc_engine {
 
         std::unique_ptr<UniformBuffer> m_uniformBuffer;
 
-        std::vector<VkDescriptorSet> m_descriptorSets;
+        std::unordered_map<ResourceId, VkDescriptorSet> m_descriptorSets;
 
-        void addDescriptorSets(const VkDescriptorSet descriptorSet) { m_descriptorSets.push_back(descriptorSet); }
+    private:
+        void addDescriptorSets(ResourceId id, const VkDescriptorSet descriptorSet);
     };
 } // narc_engine

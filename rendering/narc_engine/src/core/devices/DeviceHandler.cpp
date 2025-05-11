@@ -2,6 +2,9 @@
 
 #include <NarcLog.h>
 
+#include "core/devices/PhysicalDevice.h"
+#include "core/devices/LogicalDevice.h"
+
 #include "core/EngineBuilder.h"
 #include "core/EngineInstance.h"
 #include "core/interfaces/ISurfaceProvider.h"

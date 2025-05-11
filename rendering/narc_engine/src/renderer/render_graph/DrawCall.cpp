@@ -19,7 +19,7 @@ namespace narc_engine
     {
         cmd->cmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS,
             m_pipeline->getLayout(), 0, 1,
-            &ctx->DescriptorSets->data()[m_material->getMaterialID()], 0, nullptr);
+            &ctx->FrameHandler->getDescriptorSet(m_material->getId()), 0, nullptr);
 
         uint32_t drawCallIndex = 0;
         for (const Mesh* mesh : m_meshes)

@@ -12,7 +12,6 @@ namespace narc_engine
         virtual ~IEngine() = default;
 
         GETTER virtual EngineBinder* binder() const = 0;
-        GETTER virtual EngineResourcesManager* resourceManager() const = 0;
         GETTER virtual bool shouldClose() const = 0;
         virtual void pollEvents() = 0;
         virtual void render() = 0;

@@ -25,4 +25,15 @@ namespace narc_engine {
     {
         
     }
+
+    void FrameHandler::addDescriptorSets(ResourceId id, const VkDescriptorSet descriptorSet)
+    {
+        if (m_descriptorSets.find(id) != m_descriptorSets.end())
+        {
+            NARCLOG_ERROR("Descriptor set with id " + id + " already exists");
+            return;
+        }
+
+        m_descriptorSets[id] = descriptorSet;
+    }
 } // narc_engine

@@ -76,7 +76,7 @@ namespace narc_engine {
         m_windows->initRenderingSystem(&builder);
 
         m_engineBinder = CREATE_ENGINE_UNIQUE_COMPONENT(EngineBinder, this);
-        m_resourcesManager = CREATE_ENGINE_UNIQUE_COMPONENT(EngineResourcesManager);
+        m_resourcesManager = CREATE_ENGINE_UNIQUE_COMPONENT(ResourceManager);
     }
 
     Engine::~Engine() = default;
@@ -89,11 +89,6 @@ namespace narc_engine {
     EngineBinder* Engine::binder() const
     {
         return m_engineBinder.get();
-    }
-
-    EngineResourcesManager* Engine::resourceManager() const
-    {
-        return m_resourcesManager.get();
     }
 
     void Engine::pollEvents()

@@ -16,7 +16,7 @@
 #define NARC_ENGINE_API __declspec(dllimport)
 #define _internal private
 #define _internal_protected protected
-      
+
 #endif
 
 
@@ -27,3 +27,8 @@
 #else
 
 #endif
+
+namespace narc_engine
+{
+    typedef std::string ResourceId;
+}

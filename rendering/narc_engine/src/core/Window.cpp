@@ -178,15 +178,19 @@ namespace narc_engine
                 }
                 std::vector<VkDescriptorSetLayout> layouts =
                 {
-                    renderer->getMaterial()->getVertShader()->getDescriptorSetLayout(),
-                    renderer->getMaterial()->getFragShader()->getDescriptorSetLayout()
+                    renderer->getMaterial()->getVertShader()->getDescriptorSetLayout()//TODO ATM ALL LAOYOUTS ARE THE SAME
+                    // renderer->getMaterial()->getFragShader()->getDescriptorSetLayout()
                 };
                 VkDescriptorSetAllocateInfo allocInfo{};
                 allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-                allocInfo.descriptorSetCount = 2;
+                allocInfo.descriptorSetCount = layouts.size();
                 allocInfo.pSetLayouts = layouts.data();
 
-                m_frameManager->allocateDescriptorSets(allocInfo);
+                std::vector<ResourceId> setIds
+                {
+                    renderer->getMaterial()->getId()
+                };
+                m_frameManager->allocateDescriptorSets(setIds, allocInfo);
             }
             else
             {

@@ -6,20 +6,24 @@
 
 #include <vulkan/vulkan_core.h>
 
-#include "GraphicResource.h"
+#include "resources/Resource.h"
 #include "resources/ImageView.h"
 
 namespace narc_engine
 {
-    class Texture2DResource final : public GraphicResource
+    class Texture2DResource final : public Resource
     {
     public:
-        explicit Texture2DResource(const char* path, const uint32_t resourceID);
+        explicit Texture2DResource(const char* path);
         ~Texture2DResource() override;
 
         const VkImageView getImageView() const { return m_textureImageView.get(); }
         const VkSampler& getSampler() const { return m_textureSampler; }
 
+    protected:
+        void onLoad() override {};
+        void onUnload() override {};
+        
     private:
         VkImage m_textureImage;
         VkDeviceMemory m_textureImageMemory;
