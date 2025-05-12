@@ -11,19 +11,23 @@
 
 namespace narc_engine
 {
+    class ResourceManager;
+    
     class Texture2DResource final : public Resource
     {
+        friend class ResourceManager;
     public:
-        explicit Texture2DResource(const char* path);
         ~Texture2DResource() override;
 
         const VkImageView getImageView() const { return m_textureImageView.get(); }
         const VkSampler& getSampler() const { return m_textureSampler; }
 
     protected:
+        explicit Texture2DResource(const char* path);
+
         void onLoad() override {};
         void onUnload() override {};
-        
+
     private:
         VkImage m_textureImage;
         VkDeviceMemory m_textureImageMemory;

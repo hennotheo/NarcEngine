@@ -1,5 +1,7 @@
 #include "resources/Resource.h"
 
+#include "Engine.h"
+
 namespace narc_engine
 {
     Resource::Resource(ResourceType type) : m_type(type), m_id("")
@@ -31,5 +33,8 @@ namespace narc_engine
         onUnload();
     }
 
-
+    Resource* Resource::getResourceById(ResourceId id)
+    {
+        return Engine::getInstance()->resourceManager()->getResource(id);
+    }
 } // namespace narc_engine

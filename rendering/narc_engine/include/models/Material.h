@@ -8,13 +8,15 @@
 
 namespace narc_engine
 {
+    class ResourceManager;
     class Shader;
 
     class NARC_ENGINE_API Material final : public Resource
     {
+        friend class ResourceManager;
+
     public:
-        explicit Material(const char* texturePath);
-        ~Material();
+        ~Material() override;
 
         GETTER ResourceId getMainTexture() const { return m_mainTexture; }
 
@@ -22,6 +24,8 @@ namespace narc_engine
         GETTER const Shader* getFragShader() const { return m_fragShaderModule; }
 
     protected:
+        explicit Material(const char* texturePath);
+
         void onLoad() override {};
         void onUnload() override {};
 

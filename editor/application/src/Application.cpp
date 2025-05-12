@@ -37,12 +37,13 @@ namespace narc
         const narc_io::Model3D model = narc_io::FileReader::load3DModel(g_modelPath);
         const narc_io::Model3D model2 = narc_io::FileReader::load3DModel(g_model2Path);
 
-        m_materials.push_back(new narc_engine::Material(g_texturePath.c_str()));
-        m_materials.push_back(new narc_engine::Material(g_texture2Path.c_str()));
+        narc_engine::ResourceId mat = narc_engine::createMaterial(g_texturePath.c_str());
+        // m_materials.push_back(new narc_engine::Material(g_texturePath.c_str()));
+        // m_materials.push_back(new narc_engine::Material(g_texture2Path.c_str()));
         
-        m_renderers.push_back(new narc_engine::Renderer(&model, m_materials[0], m_transforms[0]));
-        m_renderers.push_back(new narc_engine::Renderer(&model2, m_materials[1], m_transforms[1]));
-        m_renderers.push_back(new narc_engine::Renderer(&model, m_materials[1], m_transforms[2]));
+        m_renderers.push_back(new narc_engine::Renderer(&model, mat, m_transforms[0]));
+        m_renderers.push_back(new narc_engine::Renderer(&model2, mat, m_transforms[1]));
+        m_renderers.push_back(new narc_engine::Renderer(&model, mat, m_transforms[2]));
 
         m_engine->binder()->attachGuiComponent(&m_testWindow);
 
@@ -58,12 +59,6 @@ namespace narc
             delete renderer;
         }
         m_renderers.clear();
-
-        for (auto& material : m_materials)
-        {
-            delete material;
-        }
-        m_materials.clear();
 
         for (auto& transform : m_transforms)
         {

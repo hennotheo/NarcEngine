@@ -20,4 +20,7 @@ namespace narc_engine
 
     NARC_ENGINE_API IEngine* getEngine();
     NARC_ENGINE_API IEngine* createEngine();
+    
+    #pragma warning "temporary resource functions"
+    NARC_ENGINE_API ResourceId createMaterial(const char* texturePath);
 }

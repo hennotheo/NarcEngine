@@ -1,11 +1,15 @@
 #pragma once
 
+namespace narc_engine
+{
+    typedef std::string ResourceId;
+}
+
 #ifdef NARC_ENGINE_BUILD_DLL
 
 #define NARC_ENGINE_API __declspec(dllexport)
 #define _internal public
 #define _internal_protected public
-
 
 #elif defined(TESTING_BUILD_DLL)
 
@@ -28,7 +32,3 @@
 
 #endif
 
-namespace narc_engine
-{
-    typedef std::string ResourceId;
-}

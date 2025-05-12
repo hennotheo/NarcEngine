@@ -43,6 +43,11 @@ namespace narc_engine {
         NARCLOG_FATAL("Engine not implemented for this platform!");
     }
 
+    ResourceId createMaterial(const char* texturePath)
+    {
+        return Engine::getInstance()->resourceManager()->createResource<Material>(texturePath);
+    }
+
     Engine::Engine()
     {
         s_instance = this;

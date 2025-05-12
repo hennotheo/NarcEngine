@@ -13,7 +13,6 @@ namespace narc_engine
         template <typename T, typename... Args>
         inline ResourceId createResource(Args&&... args)
         {
-            
             static_assert(std::is_base_of<Resource, T>::value, "T must be derived from Resource");
 
             const char* typeName = typeid(T).name();
@@ -26,7 +25,8 @@ namespace narc_engine
             std::string combinedArgs = (std::string(typeName) + ... + std::to_string(std::hash<std::string>{}(std::string(args))));
             ResourceId id = std::to_string(hasher(combinedArgs));
 
-            m_resources[id] = std::make_unique<T>(std::forward<Args>(args)...);
+            auto ptr = new T(std::forward<Args>(args)...);
+            m_resources[id] = std::unique_ptr<T>(ptr);
             m_resources[id]->setId(id);
             m_resources[id]->load();
 

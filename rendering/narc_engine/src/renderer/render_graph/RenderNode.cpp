@@ -38,25 +38,26 @@ namespace narc_engine
         m_pipeline->bindPipeline(cmd);
 
         //ALL MAT MUST HAVE SAME SHADERS FOR NOW
-        std::unordered_map<const Material*, std::vector<const Renderer*>> uniqueMaterials;
+        std::unordered_map<ResourceId, std::vector<const Renderer*>> uniqueMaterials;
         for (size_t i = 0; i < ctx->RenderersCount; i++)
         {
             const Renderer* renderer = ctx->Renderers->at(i);
-            const Material* material = renderer->getMaterial();
-            if (uniqueMaterials.find(material) == uniqueMaterials.end())
+            ResourceId resourceId = renderer->getMaterial();
+            if (uniqueMaterials.find(resourceId) == uniqueMaterials.end())
             {
-                uniqueMaterials[material] = std::vector<const Renderer*>(1, renderer);
+                uniqueMaterials[resourceId] = std::vector<const Renderer*>(1, renderer);
             }
             else
             {
-                uniqueMaterials[material].push_back(renderer);
+                uniqueMaterials[resourceId].push_back(renderer);
             }
         }
 
         std::vector<DrawCall> drawCalls;
-        for (const auto& [mat, renderers] : uniqueMaterials)
+        for (const auto& [id, renderers] : uniqueMaterials)
         {
-            DrawCall drawCall(mat, m_pipeline.get());
+            const Material* material = NARC_GET_RESOURCE_BY_ID(const Material*, id);
+            DrawCall drawCall(material, m_pipeline.get());
             auto it = renderers
                 | std::views::transform([](const Renderer* renderer) { return renderer->getMesh(); });
             std::vector<const Mesh*> meshes(it.begin(), it.end());

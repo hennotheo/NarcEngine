@@ -8,7 +8,7 @@
 
 namespace narc_engine
 {
-    Renderer::Renderer(const narc_io::Model3D* model, const Material* material, const narc_math::Transform* transform)
+    Renderer::Renderer(const narc_io::Model3D* model, ResourceId material, const narc_math::Transform* transform)
     {
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;

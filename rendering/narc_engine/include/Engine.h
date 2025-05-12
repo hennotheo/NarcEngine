@@ -19,6 +19,8 @@
 
 namespace narc_engine {
 
+    class IResourceManager;
+
     class Engine : public IEngine
     {
         friend EngineBinder;

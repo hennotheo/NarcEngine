@@ -3,12 +3,17 @@
 #include "resources/ResourceType.h"
 #include "resources/ResourceState.h"
 
+#define NARC_GET_RESOURCE_BY_ID(type, id) reinterpret_cast<type>(narc_engine::Resource::getResourceById(id));
+
 namespace narc_engine
 {
+    class ResourceManager;
+
     class Resource
     {
+        friend class ResourceManager;
+
     public:
-        Resource(ResourceType type);
         virtual ~Resource() = default;
 
         GETTER ResourceId getId() const { return m_id; };
@@ -17,7 +22,11 @@ namespace narc_engine
         void load();
         void unload();
 
+        QUERY static Resource* getResourceById(ResourceId id);
+
     protected:
+        Resource(ResourceType type);
+
         virtual void onLoad() = 0;
         virtual void onUnload() = 0;
 

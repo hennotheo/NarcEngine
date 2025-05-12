@@ -21,7 +21,7 @@ namespace narc_engine
 #warning TODO: remove this temporary code, this is just for testing purposes
         ResourceId textureId = mat->getMainTexture();
         const Texture2DResource* texture = dynamic_cast<const Texture2DResource*>(Engine::getInstance()->resourceManager()->getResource(textureId));
-        
+
         VkDescriptorImageInfo imageInfo{};
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         imageInfo.imageView = texture->getImageView();
@@ -147,11 +147,10 @@ namespace narc_engine
 
     void RenderGraph::allocateResources(const FrameHandler* frameHandler)
     {
-        std::unordered_map<ResourceId, const Material*> uniqueMaterials{};
+        std::set<ResourceId> uniqueMaterials{};
         for (const auto& renderer : m_renderers)
         {
-            const Material* material = renderer->getMaterial();
-            uniqueMaterials[material->getId()] = material;
+            uniqueMaterials.insert(renderer->getMaterial());
         }
 
         //UNIFORM BUFFER ALLOCATION
@@ -166,12 +165,12 @@ namespace narc_engine
 
         uniformBuffer->beginRegister(bufferSize);
 
-        for (const auto& material : uniqueMaterials)
+        for (const auto& materialId : uniqueMaterials)
         {
             std::vector<const Renderer*> matchingRenderers;
             for (const auto& renderer : m_renderers)
             {
-                if (renderer->getMaterial() == material.second)
+                if (renderer->getMaterial() == materialId)
                 {
                     matchingRenderers.push_back(renderer);
                 }
@@ -184,7 +183,7 @@ namespace narc_engine
 
         uint32_t drawId = 0;
         VkDeviceSize offset = 0;
-        for (const auto& [id, mat] : uniqueMaterials)
+        for (const auto& materialId : uniqueMaterials)
         {
             VkDeviceSize size = uniformBuffer->getUniformBufferSize(drawId);
 
@@ -193,14 +192,15 @@ namespace narc_engine
             bufferInfo.offset = offset;
             bufferInfo.range = size;
 
-            VkDescriptorSet descriptorSet = frameHandler->getDescriptorSet(id);
+            VkDescriptorSet descriptorSet = frameHandler->getDescriptorSet(materialId);
+            const Material* mat = NARC_GET_RESOURCE_BY_ID(const Material*, materialId);
             updateDescriptorSet(mat, descriptorSet, &bufferInfo);
 
             drawId++;
             offset += size;
         }
     }
-    
+
     void RenderGraph::recordCommandBuffer(CommandBuffer* commandBuffer, const FrameHandler* frameHandler, const uint32_t imageIndex)
     {
         RenderContext ctx{};
