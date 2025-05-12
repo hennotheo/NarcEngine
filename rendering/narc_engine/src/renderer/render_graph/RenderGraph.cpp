@@ -2,7 +2,7 @@
 
 #include "renderer/FrameHandler.h"
 #include "models/Renderer.h"
-#include "renderer/SwapChain.h"
+#include "platform/vulkan/SwapChain.h"
 
 
 #include "renderer/render_graph/RenderNode.h"

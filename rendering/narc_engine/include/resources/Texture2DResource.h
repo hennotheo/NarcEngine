@@ -7,7 +7,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "resources/Resource.h"
-#include "resources/ImageView.h"
+#include "platform/vulkan/ImageView.h"
 
 namespace narc_engine
 {

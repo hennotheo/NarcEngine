@@ -1,4 +1,4 @@
-#include "sync/Semaphore.h"
+#include "platform/vulkan/sync/Semaphore.h"
 
 namespace narc_engine
 {

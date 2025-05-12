@@ -1,4 +1,4 @@
-#include "sync/Fence.h"
+#include "platform/vulkan/sync/Fence.h"
 
 namespace narc_engine
 {

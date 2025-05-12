@@ -1,4 +1,4 @@
-#include "renderer/SwapChain.h"
+#include "platform/vulkan/SwapChain.h"
 
 #include <NarcLog.h>
 
@@ -7,7 +7,7 @@
 #include "renderer/DepthResources.h"
 #include "core/interfaces/ISurfaceProvider.h"
 
-#include "sync/Semaphore.h"
+#include "platform/vulkan/sync/Semaphore.h"
 
 namespace narc_engine {
     SwapChain::SwapChain() : DeviceComponent()
@@ -17,6 +17,7 @@ namespace narc_engine {
     SwapChain::~SwapChain()
     {
     }
+    
     void SwapChain::create(ISurfaceProvider* surface)
     {
         m_surface = surface;

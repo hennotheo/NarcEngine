@@ -4,11 +4,11 @@
 
 #include "renderer/GraphicsPipeline.h"
 
-#include "CommandBuffer.h"
+#include "platform/vulkan/CommandBuffer.h"
 #include "models/Vertex.h"
 #include "models/PushConstants.h"
 
-#include "renderer/RenderPass.h"
+#include "platform/vulkan/RenderPass.h"
 
 #include "models/Shader.h"
 

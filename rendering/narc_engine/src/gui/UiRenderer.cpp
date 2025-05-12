@@ -2,9 +2,9 @@
 
 #include "Engine.h"
 #include "core/EngineInstance.h"
-#include "CommandBuffer.h"
+#include "platform/vulkan/CommandBuffer.h"
 #include "renderer/MultiFrameManager.h"
-#include "renderer/SwapChain.h"
+#include "platform/vulkan/SwapChain.h"
 #include "core/interfaces/ISurfaceProvider.h"
 #include "interfaces/IGuiHandle.h"
 #include "gui/GuiWindow.h"

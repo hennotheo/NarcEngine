@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include "CommandBuffer.h"
+#include "platform/vulkan/CommandBuffer.h"
 #include "models/Material.h"
 #include "renderer/render_graph/RenderContext.h"
 #include "models/Mesh.h"

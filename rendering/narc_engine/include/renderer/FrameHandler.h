@@ -5,12 +5,12 @@
 
 #include <vulkan/vulkan.h>
 
-#include "CommandPool.h"
-#include "DescriptorPool.h"
+#include "platform/vulkan/CommandPool.h"
+#include "platform/vulkan/DescriptorPool.h"
 #include "buffers/UniformBuffer.h"
 
-#include "sync/Semaphore.h"
-#include "sync/Fence.h"
+#include "platform/vulkan/sync/Semaphore.h"
+#include "platform/vulkan/sync/Fence.h"
 
 namespace narc_engine {
     class DeviceHandler;

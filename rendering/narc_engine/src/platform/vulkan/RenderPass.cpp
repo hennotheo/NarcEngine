@@ -2,7 +2,7 @@
 // Created by theoh on 3/2/2025.
 //
 
-#include "renderer/RenderPass.h"
+#include "platform/vulkan/RenderPass.h"
 
 #include <NarcLog.h>
 

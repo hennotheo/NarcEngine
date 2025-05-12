@@ -45,7 +45,7 @@ namespace narc_engine {
 
     ResourceId createMaterial(const char* texturePath)
     {
-        return Engine::getInstance()->resourceManager()->createResource<Material>(texturePath);
+        return s_instance->resourceManager()->createResource<Material>(texturePath);
     }
 
     Engine::Engine()

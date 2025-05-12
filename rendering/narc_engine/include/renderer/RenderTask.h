@@ -1,9 +1,9 @@
 #pragma once
 
-#include "CommandBuffer.h"
-#include "DescriptorPool.h"
+#include "platform/vulkan/CommandBuffer.h"
+#include "platform/vulkan/DescriptorPool.h"
 #include "GraphicsPipeline.h"
-#include "SwapChain.h"
+#include "platform/vulkan/SwapChain.h"
 #include "buffers/UniformBuffer.h"
 #include "models/Material.h"
 

@@ -4,7 +4,7 @@
 
 #include "interfaces/IEngine.h"
 
-#include "CommandPool.h"
+#include "platform/vulkan/CommandPool.h"
 
 #include "core/devices/DeviceHandler.h"
 #include "core/EngineBinder.h"

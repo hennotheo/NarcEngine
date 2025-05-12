@@ -6,7 +6,7 @@
 #include "renderer/render_graph/RenderGraph.h"
 #include "renderer/MultiFrameManager.h"
 #include "EngineBinder.h"
-#include "renderer/SwapChain.h"
+#include "platform/vulkan/SwapChain.h"
 
 #include "interfaces/ISurfaceProvider.h"
 #include "renderer/SwapChainSupportDetails.h"
