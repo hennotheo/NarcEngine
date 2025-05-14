@@ -19,6 +19,7 @@
 
 namespace narc_engine {
 
+    class DeviceMemory;
     class IResourceManager;
 
     class Engine : public IEngine
@@ -49,10 +50,10 @@ namespace narc_engine {
         void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
         void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
             VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
-            VkDeviceMemory& imageMemory) const;
+            DeviceMemory* imageMemory) const;
         void createImage(const narc_io::Image& imageData, VkFormat format, VkImageTiling tiling,
             VkImageUsageFlags usage,
-            VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) const;
+            VkMemoryPropertyFlags properties, VkImage& image, DeviceMemory* imageMemory) const;
 
     private:
         std::unique_ptr<EngineInstance> m_instance;

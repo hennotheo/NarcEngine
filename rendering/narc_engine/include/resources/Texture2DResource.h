@@ -8,6 +8,7 @@
 
 #include "resources/Resource.h"
 #include "platform/vulkan/ImageView.h"
+#include "platform/vulkan/DeviceMemory.h"
 
 namespace narc_engine
 {
@@ -30,7 +31,7 @@ namespace narc_engine
 
     private:
         VkImage m_textureImage;
-        VkDeviceMemory m_textureImageMemory;
+        DeviceMemory m_textureImageMemory;
         ImageView m_textureImageView;
         VkSampler m_textureSampler;
 

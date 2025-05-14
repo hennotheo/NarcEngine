@@ -13,6 +13,7 @@
 namespace narc_engine {
     Texture2DResource::Texture2DResource(const char* path) : Resource(ResourceType::Texture)
     {
+        m_textureImageMemory = DeviceMemory();
         const narc_io::Image image = narc_io::FileReader::readImage(path);
 
         createTextureImage(image);
@@ -26,7 +27,7 @@ namespace narc_engine {
         vkDestroySampler(device, m_textureSampler, nullptr);
         m_textureImageView.release();
         vkDestroyImage(device, m_textureImage, nullptr);
-        vkFreeMemory(device, m_textureImageMemory, nullptr);
+        m_textureImageMemory.release();
     }
 
     void Texture2DResource::createTextureImage(const narc_io::Image& sourceImage)
@@ -37,10 +38,11 @@ namespace narc_engine {
         staggingBuffer.create(imageSize);
         staggingBuffer.input(sourceImage.getData());
 
-        Engine::getInstance()->createImage(sourceImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
+        Engine::getInstance()->createImage(
+            sourceImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
             VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-            m_textureImage, m_textureImageMemory);
+            m_textureImage, &m_textureImageMemory);
 
         Engine::getInstance()->transitionImageLayout(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);

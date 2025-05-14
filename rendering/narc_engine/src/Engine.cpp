@@ -5,6 +5,8 @@
 #include "core/Window.h"
 #include "core/EngineBuilder.h"
 
+#include "platform/vulkan/DeviceMemory.h"
+
 #define CREATE_ENGINE_UNIQUE_COMPONENT(type, ...) std::make_unique<type>(__VA_ARGS__);\
     NARCLOG_DEBUG("Created engine component: " #type); \
 
@@ -231,7 +233,7 @@ namespace narc_engine {
 
     void Engine::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
         VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
-        VkDeviceMemory& imageMemory) const
+        DeviceMemory* imageMemory) const
     {
         VkImageCreateInfo imageInfo{};
         imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -257,22 +259,19 @@ namespace narc_engine {
         VkMemoryRequirements memRequirements;
         vkGetImageMemoryRequirements(m_deviceHandler->getLogicalDevice()->get(), image, &memRequirements);
 
-        VkMemoryAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = m_deviceHandler->getPhysicalDevice()->findMemoryType(memRequirements.memoryTypeBits, properties);
+        imageMemory->release();
 
-        if (vkAllocateMemory(m_deviceHandler->getLogicalDevice()->get(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
-        {
-            NARCLOG_FATAL("failed to allocate image memory!");
-        }
+        imageMemory->setSize(memRequirements.size);
+        imageMemory->setMemoryTypeIndex(m_deviceHandler->getPhysicalDevice()->findMemoryType(memRequirements.memoryTypeBits, properties));
+        
+        imageMemory->allocate();
 
-        vkBindImageMemory(m_deviceHandler->getLogicalDevice()->get(), image, imageMemory, 0);
+        vkBindImageMemory(m_deviceHandler->getLogicalDevice()->get(), image, imageMemory->get(), 0);
     }
 
     void Engine::createImage(const narc_io::Image& imageData, VkFormat format, VkImageTiling tiling,
         VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
-        VkDeviceMemory& imageMemory) const
+        DeviceMemory* imageMemory) const
     {
         createImage(imageData.getWidth(),
             imageData.getHeight(),

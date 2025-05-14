@@ -8,6 +8,7 @@
 
 #include "core/DeviceComponent.h"
 #include "platform/vulkan/ImageView.h"
+#include "platform/vulkan/DeviceMemory.h"
 
 namespace narc_engine {
     class DeviceHandler;
@@ -25,7 +26,7 @@ namespace narc_engine {
 
     private:
         VkImage m_depthImage;
-        VkDeviceMemory m_depthImageMemory;
+        DeviceMemory m_depthImageMemory;
         ImageView m_depthImageView;
     };
 }
