@@ -5,6 +5,8 @@
 #include "core/DeviceComponent.h"
 #include "core/devices/DeviceHandler.h"
 
+#include "platform/vulkan/DeviceMemory.h"
+
 namespace narc_engine
 {
     class Buffer : public DeviceComponent
@@ -17,10 +19,10 @@ namespace narc_engine
 
     protected:
         VkBuffer m_buffer;
-        VkDeviceMemory m_bufferMemory;
+        DeviceMemory m_bufferMemory;
         VkBufferUsageFlags m_usage; 
 
-        void createBuffer(VkDeviceSize size, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+        void createBuffer(VkDeviceSize size, VkMemoryPropertyFlags properties, VkBuffer& buffer, DeviceMemory& bufferMemory);
         virtual void release();
     };
 }

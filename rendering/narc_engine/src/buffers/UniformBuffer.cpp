@@ -17,7 +17,7 @@ namespace narc_engine
             grow(totalSize);
         }
 
-        vkMapMemory(getVkDevice(), m_bufferMemory, 0, m_size, 0, &m_uniformBuffersMapped);
+        m_bufferMemory.map(0, m_size, &m_uniformBuffersMapped);
         m_bufferSizes.clear();
         m_currentRegisteredSize = 0;
     }
@@ -33,7 +33,7 @@ namespace narc_engine
 
     void UniformBuffer::endRegister()
     {
-        vkUnmapMemory(getVkDevice(), m_bufferMemory);
+        m_bufferMemory.unmap();
     }
 
     void UniformBuffer::grow(VkDeviceSize newSize)

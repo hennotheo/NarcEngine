@@ -7,7 +7,8 @@ namespace narc_engine
 {
     Buffer::Buffer(VkBufferUsageFlags usage) : DeviceComponent(), m_usage(usage)
     {
-
+        m_bufferMemory = DeviceMemory();
+        NARCLOG_DEBUG("Buffer");
     };
 
     Buffer::~Buffer()
@@ -18,10 +19,10 @@ namespace narc_engine
     void Buffer::release()
     {
         vkDestroyBuffer(getVkDevice(), m_buffer, nullptr);
-        vkFreeMemory(getVkDevice(), m_bufferMemory, nullptr);
+        m_bufferMemory.release();
     }
 
-    void Buffer::createBuffer(VkDeviceSize size, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+    void Buffer::createBuffer(VkDeviceSize size, VkMemoryPropertyFlags properties, VkBuffer& buffer, DeviceMemory& bufferMemory)
     {
         VkBufferCreateInfo bufferInfo{};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -37,16 +38,10 @@ namespace narc_engine
         VkMemoryRequirements memRequirements;
         vkGetBufferMemoryRequirements(getVkDevice(), buffer, &memRequirements);
 
-        VkMemoryAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = getDeviceHandler()->getPhysicalDevice()->findMemoryType(memRequirements.memoryTypeBits, properties);
+        bufferMemory.setSize(memRequirements.size);
+        bufferMemory.setMemoryTypeIndex(getDeviceHandler()->getPhysicalDevice()->findMemoryType(memRequirements.memoryTypeBits, properties));
+        bufferMemory.allocate();
 
-        if (vkAllocateMemory(getVkDevice(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
-        {
-            NARCLOG_FATAL("failed to allocate buffer memory!");
-        }
-
-        vkBindBufferMemory(getVkDevice(), buffer, bufferMemory, 0);
+        vkBindBufferMemory(getVkDevice(), buffer, bufferMemory.get(), 0);
     }
 }
