@@ -2,8 +2,6 @@
 
 namespace narc_engine
 {
-    typedef std::vector<const char*> KeywordList;
-
     class EngineInstance;
     class ISurfaceProvider;
     class EngineDebugLogger;
@@ -23,6 +21,7 @@ namespace narc_engine
         GETTER const LogicalDevice* getLogicalDevice() const { return m_logicalDevice; }
         GETTER const KeywordList* getValidationLayers() const { return m_validationLayers; }
         GETTER const KeywordList* getDeviceExtensions() const { return m_deviceExtensions; }
+        GETTER uint32_t getFrameInFlightCount() const { return m_frameInFlightCount; }
 
         inline void setValidationLayers(const KeywordList* validationLayers) { m_validationLayers = validationLayers; }
         inline void setDeviceExtensions(const KeywordList* extensions) { m_deviceExtensions = extensions; }
@@ -30,6 +29,8 @@ namespace narc_engine
     PRIVATE_TESTABLE:
         const KeywordList* m_validationLayers;
         const KeywordList* m_deviceExtensions;
+
+        const uint32_t m_frameInFlightCount = 2;
 
         const EngineInstance* m_instance = nullptr;
         const ISurfaceProvider* m_surface = nullptr;

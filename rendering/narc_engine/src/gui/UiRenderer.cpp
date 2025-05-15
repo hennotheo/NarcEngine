@@ -2,9 +2,9 @@
 
 #include "Engine.h"
 #include "core/EngineInstance.h"
-#include "CommandBuffer.h"
+#include "platform/vulkan/CommandBuffer.h"
 #include "renderer/MultiFrameManager.h"
-#include "renderer/SwapChain.h"
+#include "platform/vulkan/SwapChain.h"
 #include "core/interfaces/ISurfaceProvider.h"
 #include "interfaces/IGuiHandle.h"
 #include "gui/GuiWindow.h"
@@ -26,14 +26,14 @@ namespace narc_gui
         const narc_engine::DeviceHandler* device = engine->getDevice();
 
         ImGui_ImplVulkan_InitInfo initInfo = {};
-        initInfo.Instance = instance->getvkInstance();
+        initInfo.Instance = instance->get();
         initInfo.PhysicalDevice = device->getPhysicalDevice()->getVkPhysicalDevice();
-        initInfo.Device = device->getLogicalDevice()->getVkDevice();
+        initInfo.Device = device->getLogicalDevice()->get();
         initInfo.QueueFamily = device->getPhysicalDevice()->getQueueFamilyIndices().GraphicsFamily.value();
         initInfo.Queue = engine->getGraphicsQueue()->getVkQueue();
         initInfo.MinImageCount = 2;
         initInfo.ImageCount = frameManager->getMaxFrameInFlight();
-        initInfo.DescriptorPool = frameManager->getDescriptorPool()->getVkDescriptorPool();
+        initInfo.DescriptorPool = frameManager->getDescriptorPool()->get();
         initInfo.RenderPass = swapChain->getRenderPass()->getRenderPass();
         initInfo.CheckVkResultFn = [](VkResult err)
             {

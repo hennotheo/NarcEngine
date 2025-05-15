@@ -5,6 +5,8 @@
 #include "core/Window.h"
 #include "core/EngineBuilder.h"
 
+#include "platform/vulkan/DeviceMemory.h"
+
 #define CREATE_ENGINE_UNIQUE_COMPONENT(type, ...) std::make_unique<type>(__VA_ARGS__);\
     NARCLOG_DEBUG("Created engine component: " #type); \
 
@@ -43,6 +45,11 @@ namespace narc_engine {
         NARCLOG_FATAL("Engine not implemented for this platform!");
     }
 
+    ResourceId createMaterial(const char* texturePath)
+    {
+        return s_instance->resourceManager()->createResource<Material>(texturePath);
+    }
+
     Engine::Engine()
     {
         s_instance = this;
@@ -53,16 +60,18 @@ namespace narc_engine {
 
         m_instance = CREATE_ENGINE_UNIQUE_COMPONENT(EngineInstance, &builder);
         builder.m_instance = m_instance.get();
-        m_surfaceProvider = CREATE_ENGINE_UNIQUE_COMPONENT(Window, m_instance.get(), this);
-        builder.m_surface = m_surfaceProvider.get();
 
-        if (m_instance == nullptr || m_surfaceProvider == nullptr)
+        m_debugLogger = CREATE_ENGINE_UNIQUE_COMPONENT(EngineDebugLogger, m_instance.get());
+        builder.m_debugLogger = m_debugLogger.get();
+
+        m_windows = CREATE_ENGINE_UNIQUE_COMPONENT(Window, m_instance.get());
+        builder.m_surface = m_windows.get();
+
+        if (m_instance == nullptr || m_windows == nullptr)
         {
             NARCLOG_FATAL("Failed to initialize Engine: m_instance or m_window is null");
         }
 
-        m_debugLogger = CREATE_ENGINE_UNIQUE_COMPONENT(EngineDebugLogger, m_instance.get());
-        builder.m_debugLogger = m_debugLogger.get();
         m_deviceHandler = CREATE_ENGINE_UNIQUE_COMPONENT(DeviceHandler, &builder);
         builder.m_physicalDevice = m_deviceHandler->getPhysicalDevice();
         builder.m_logicalDevice = m_deviceHandler->getLogicalDevice();
@@ -71,11 +80,10 @@ namespace narc_engine {
         m_presentQueue = CREATE_ENGINE_UNIQUE_COMPONENT(PresentQueue, &builder);
 
         m_commandPool = CREATE_ENGINE_UNIQUE_COMPONENT(CommandPool);
-        m_frameManager = CREATE_ENGINE_UNIQUE_COMPONENT(MultiFrameManager, g_maxFramesInFlight);
-        m_renderer = CREATE_ENGINE_UNIQUE_COMPONENT(EngineRenderer, m_instance.get(), m_surfaceProvider.get(), m_frameManager.get());
+        m_windows->initRenderingSystem(&builder);
 
         m_engineBinder = CREATE_ENGINE_UNIQUE_COMPONENT(EngineBinder, this);
-        m_resourcesManager = CREATE_ENGINE_UNIQUE_COMPONENT(EngineResourcesManager);
+        m_resourcesManager = CREATE_ENGINE_UNIQUE_COMPONENT(ResourceManager);
     }
 
     Engine::~Engine() = default;
@@ -90,32 +98,19 @@ namespace narc_engine {
         return m_engineBinder.get();
     }
 
-    EngineResourcesManager* Engine::resourceManager() const
-    {
-        return m_resourcesManager.get();
-    }
-
     void Engine::pollEvents()
     {
-        m_surfaceProvider->pollEvents();
+        m_windows->pollEvents();
+
+        if (m_windows->shouldClose())
+        {
+            m_shouldClose = true;
+        }
     }
 
     void Engine::render()
     {
-        const FrameHandler* frameHandler = m_frameManager->getCurrentFrameHandler();
-        VkDevice device = m_deviceHandler->getLogicalDevice()->getVkDevice();
-
-        const std::vector<VkFence> inFlightFencesToWait = { frameHandler->getInFlightFence() };
-        vkWaitForFences(device, 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
-
-        m_renderer->prepareFrame(frameHandler);
-
-        vkResetFences(device, 1, inFlightFencesToWait.data());
-
-        SignalSemaphores signalSemaphores = m_renderer->drawFrame(frameHandler);
-        m_renderer->presentFrame(signalSemaphores);
-
-        m_frameManager->nextFrame();
+        m_windows->render();
     }
 
     void Engine::waitDeviceIdle()
@@ -238,7 +233,7 @@ namespace narc_engine {
 
     void Engine::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
         VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
-        VkDeviceMemory& imageMemory) const
+        DeviceMemory* imageMemory) const
     {
         VkImageCreateInfo imageInfo{};
         imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -256,30 +251,27 @@ namespace narc_engine {
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageInfo.flags = 0; // Optional
 
-        if (vkCreateImage(m_deviceHandler->getLogicalDevice()->getVkDevice(), &imageInfo, nullptr, &image) != VK_SUCCESS)
+        if (vkCreateImage(m_deviceHandler->getLogicalDevice()->get(), &imageInfo, nullptr, &image) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create image!");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetImageMemoryRequirements(m_deviceHandler->getLogicalDevice()->getVkDevice(), image, &memRequirements);
+        vkGetImageMemoryRequirements(m_deviceHandler->getLogicalDevice()->get(), image, &memRequirements);
 
-        VkMemoryAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = m_deviceHandler->getPhysicalDevice()->findMemoryType(memRequirements.memoryTypeBits, properties);
+        imageMemory->release();
 
-        if (vkAllocateMemory(m_deviceHandler->getLogicalDevice()->getVkDevice(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
-        {
-            NARCLOG_FATAL("failed to allocate image memory!");
-        }
+        imageMemory->setSize(memRequirements.size);
+        imageMemory->setMemoryTypeIndex(m_deviceHandler->getPhysicalDevice()->findMemoryType(memRequirements.memoryTypeBits, properties));
+        
+        imageMemory->allocate();
 
-        vkBindImageMemory(m_deviceHandler->getLogicalDevice()->getVkDevice(), image, imageMemory, 0);
+        vkBindImageMemory(m_deviceHandler->getLogicalDevice()->get(), image, imageMemory->get(), 0);
     }
 
     void Engine::createImage(const narc_io::Image& imageData, VkFormat format, VkImageTiling tiling,
         VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
-        VkDeviceMemory& imageMemory) const
+        DeviceMemory* imageMemory) const
     {
         createImage(imageData.getWidth(),
             imageData.getHeight(),

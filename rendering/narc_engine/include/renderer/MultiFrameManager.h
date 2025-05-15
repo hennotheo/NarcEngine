@@ -19,7 +19,7 @@ namespace narc_engine
         GETTER const FrameHandler *getCurrentFrameHandler() const { return m_frames[m_currentFrame].get(); }
 
         void nextFrame();
-        void allocateDescriptorSets(VkDescriptorSetAllocateInfo &allocInfo);
+        void allocateDescriptorSets(const std::vector<ResourceId>& setIds, VkDescriptorSetAllocateInfo& allocInfo);
 
     private:
         const uint32_t m_maxFrameInFlight;

@@ -5,7 +5,7 @@ import os
 def compile_shader(shader_path, output_path):
     result = subprocess.run(['glslc', shader_path, '-o', output_path], capture_output=True, text=True)
     if result.returncode != 0:
-        print(f"Error compiling shader {shader_path}: {result.stderr}")
+        raise RuntimeError(f"Error compiling shader {shader_path}: {result.stderr}")
     else:
         print(f"Compiled {shader_path} to {output_path}")
 

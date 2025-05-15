@@ -8,7 +8,7 @@
 
 namespace narc_engine
 {
-    Renderer::Renderer(const narc_io::Model3D* model, const Material* material, const narc_math::Transform* transform)
+    Renderer::Renderer(const narc_io::Model3D* model, ResourceId material, const narc_math::Transform* transform)
     {
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
@@ -29,7 +29,7 @@ namespace narc_engine
             indices.push_back(modelIndice);
         }
 
-        m_mesh = std::make_unique<Mesh>(vertices, indices);
+        m_mesh = new Mesh(vertices, indices);//TODO: REMOVE MEM ALLOC, MOVE IT IN RESOURCE MANAGER
         m_material = material;
         m_transform = transform;
 
@@ -38,5 +38,6 @@ namespace narc_engine
 
     Renderer::~Renderer()
     {
+        delete m_mesh;
     }
 } // narc_engine
