@@ -192,6 +192,7 @@ namespace narc_engine
                 {
                     renderer->getMaterial()
                 };
+                
                 m_frameManager->allocateDescriptorSets(setIds, allocInfo);
             }
             else

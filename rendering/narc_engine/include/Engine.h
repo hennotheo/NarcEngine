@@ -39,12 +39,11 @@ namespace narc_engine {
         void waitDeviceIdle() override;
         EngineBinder* binder() const override;
         ResourceManager* resourceManager() const { return m_resourcesManager.get(); }
-
+        
+        GETTER CommandPool* getCommandPool() const { return m_commandPool.get(); }
         TEMP_CODE GETTER const DeviceHandler* getDevice() const { return m_deviceHandler.get(); }
         TEMP_CODE GETTER const GraphicsQueue* getGraphicsQueue() const { return m_graphicsQueue.get(); }
         TEMP_CODE GETTER const PresentQueue* getPresentQueue() const { return m_presentQueue.get(); }
-
-        void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
         void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
         void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
@@ -73,8 +72,6 @@ namespace narc_engine {
         bool m_shouldClose = false;
 
     private:
-        GETTER CommandPool* getCommandPool() const { return m_commandPool.get(); }
-
         static bool hasStencilComponent(VkFormat format);
     };
 }

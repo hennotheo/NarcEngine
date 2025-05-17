@@ -9,18 +9,20 @@
 
 namespace narc_engine
 {
-    class Buffer : public DeviceComponent
+    class Buffer : public DeviceComponent, narc_core::IGetter<const VkBuffer>
     {
+
     public:
         Buffer(VkBufferUsageFlags usage);
         virtual ~Buffer();
 
+        NARC_IMPL_IGETTER(const VkBuffer, m_buffer);
         VkBuffer getBuffer() const { return m_buffer; }
 
     protected:
         VkBuffer m_buffer;
         DeviceMemory m_bufferMemory;
-        VkBufferUsageFlags m_usage; 
+        VkBufferUsageFlags m_usage;
 
         void createBuffer(VkDeviceSize size, VkMemoryPropertyFlags properties, VkBuffer& buffer, DeviceMemory& bufferMemory);
         virtual void release();

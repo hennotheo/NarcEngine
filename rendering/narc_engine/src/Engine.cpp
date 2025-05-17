@@ -1,5 +1,7 @@
 #include "Engine.h"
 
+#include "utils/Utils.h"
+
 #include "models/Vertex.h"
 #include "buffers/StagingBuffer.h"
 #include "core/Window.h"
@@ -214,19 +216,6 @@ namespace narc_engine {
         };
 
         commandBuffer.cmdCopyBufferImage(buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-
-        getCommandPool()->endSingleTimeCommands(commandBuffer);
-    }
-
-    void Engine::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
-    {
-        CommandBuffer commandBuffer = getCommandPool()->beginSingleTimeCommands();
-
-        VkBufferCopy copyRegion{};
-        copyRegion.srcOffset = 0; // Optional
-        copyRegion.dstOffset = 0; // Optional
-        copyRegion.size = size;
-        commandBuffer.cmdCopyBuffer(srcBuffer, dstBuffer, 1, &copyRegion);
 
         getCommandPool()->endSingleTimeCommands(commandBuffer);
     }

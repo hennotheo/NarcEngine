@@ -5,3 +5,5 @@
 #include <NarcMath.h>
 
 #include "Core.h"
+
+#include "utils/PublicTypedefs.h"

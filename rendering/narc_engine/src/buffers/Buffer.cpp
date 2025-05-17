@@ -1,6 +1,5 @@
 #include "buffers/Buffer.h"
 
-#include <NarcLog.h>
 #include "Engine.h"
 
 namespace narc_engine
@@ -8,7 +7,6 @@ namespace narc_engine
     Buffer::Buffer(VkBufferUsageFlags usage) : DeviceComponent(), m_usage(usage)
     {
         m_bufferMemory = DeviceMemory();
-        NARCLOG_DEBUG("Buffer");
     };
 
     Buffer::~Buffer()

@@ -13,4 +13,3 @@ namespace narc_core
         GETTER virtual T get() const noexcept = 0;
     };
 } // namespace 
- 

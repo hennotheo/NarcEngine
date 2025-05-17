@@ -1,10 +1,5 @@
 #pragma once
 
-namespace narc_engine
-{
-    typedef std::string ResourceId;
-}
-
 #ifdef NARC_ENGINE_BUILD_DLL
 
 #define NARC_ENGINE_API __declspec(dllexport)
@@ -31,4 +26,3 @@ namespace narc_engine
 #else
 
 #endif
-

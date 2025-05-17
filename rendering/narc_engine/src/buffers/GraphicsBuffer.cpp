@@ -3,6 +3,7 @@
 #include "Engine.h"
 #include "buffers/StagingBuffer.h"
 #include "models/Vertex.h"
+#include "utils/Utils.h"
 
 namespace narc_engine {
     template class GraphicsBuffer<Vertex>;
@@ -17,9 +18,8 @@ namespace narc_engine {
         stagingBuffer.create(bufferSize);
         stagingBuffer.input(input.data());
 
-
         this->createBuffer(bufferSize, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->m_buffer, this->m_bufferMemory);
 
-        Engine::getInstance()->copyBuffer(stagingBuffer.getBuffer(), this->m_buffer, bufferSize);
+        NARC_COPY_BUFFER(&stagingBuffer, this, bufferSize);
     }
 }
