@@ -1,8 +1,5 @@
 #include "core/Window.h"
 
-#include <NarcLog.h>
-#include <NarcCore.h>
-
 #include "Engine.h"
 
 #include "core/EngineInstance.h"
@@ -192,7 +189,7 @@ namespace narc_engine
                 {
                     renderer->getMaterial()
                 };
-                
+
                 m_frameManager->allocateDescriptorSets(setIds, allocInfo);
             }
             else

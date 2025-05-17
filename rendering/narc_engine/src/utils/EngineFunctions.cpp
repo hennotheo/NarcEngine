@@ -6,6 +6,10 @@
 
 #include "utils/EngineMacros.h"
 
+#include "Engine.h"
+#include "core/devices/LogicalDevice.h"
+#include "core/devices/PhysicalDevice.h"
+
 namespace narc_engine
 {
     void copyBuffer(const Buffer* srcBuffer, const Buffer* dstBuffer, DeviceSize size)
@@ -19,5 +23,20 @@ namespace narc_engine
         commandBuffer.cmdCopyBuffer(srcBuffer->get(), dstBuffer->get(), 1, &copyRegion);
 
         NARC_END_SINGLE_TIME_COMMANDS(commandBuffer);
+    }
+
+    const CommandPool* getCommandPool()
+    {
+        return Engine::getInstance()->getCommandPool();
+    }
+    
+    const PhysicalDevice* getPhysicalDevice()
+    {
+        return Engine::getInstance()->getDevice()->getPhysicalDevice();
+    }
+
+    const LogicalDevice* getLogicalDevice()
+    {
+        return Engine::getInstance()->getDevice()->getLogicalDevice();
     }
 } // namespace narc_engine
