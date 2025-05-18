@@ -1,6 +1,7 @@
 #include "core/EngineBinder.h"
 
 #include "Engine.h"
+#include "renderer/render_graph/RenderNode.h"
 
 namespace narc_engine
 {
@@ -9,8 +10,8 @@ namespace narc_engine
         static_cast<Engine*>(m_engine)->m_windows->addRenderer(renderer);
     }
 
-    void EngineBinder::attachGuiComponent(const IGuiHandle* component) const
+    void EngineBinder::attachRenderNode(RenderNode* node) const
     {
-        // static_cast<Engine*>(m_engine)->m_windows->m_renderer->m_uiRenderer->addGuiComponent(component);
+        Engine::getInstance()->m_windows->m_renderGraph->addNode(node);
     }
 }

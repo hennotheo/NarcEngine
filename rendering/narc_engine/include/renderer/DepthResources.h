@@ -18,7 +18,7 @@ namespace narc_engine {
         DepthResources() = default;
         ~DepthResources();
 
-        VkImageView getImageView() const { return m_depthImageView.get(); }
+        const ImageView* getImageView() const { return &m_depthImageView; }
 
         void create(uint32_t width, uint32_t height);
         void release();

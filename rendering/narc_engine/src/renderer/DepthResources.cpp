@@ -20,6 +20,7 @@ namespace narc_engine {
             depthFormat, VK_IMAGE_TILING_OPTIMAL,
             VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_depthImage, &m_depthImageMemory);
+            
         m_depthImageView.create(m_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 
         Engine::getInstance()->transitionImageLayout(m_depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED,

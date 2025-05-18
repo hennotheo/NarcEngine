@@ -3,10 +3,8 @@
 #include <vulkan/vulkan_core.h>
 
 #include "ISurfaceObserver.h"
-#include "gui/UiRenderer.h"
 
 namespace narc_engine {
-    // template<typename T>
     class ISurfaceProvider : public narc_core::IGetter<VkSurfaceKHR>
     {
         friend class UiRenderer;

@@ -4,9 +4,6 @@
 
 #include "Application.h"
 
-#include <NarcIO.h>
-#include <NarcLog.h>
-
 namespace narc
 {
     const std::string g_modelPath = "models/test.obj";
@@ -43,8 +40,6 @@ namespace narc
         m_renderers.push_back(new narc_engine::Renderer(&model, mat, m_transforms[0]));
         m_renderers.push_back(new narc_engine::Renderer(&model2, mat2, m_transforms[1]));
         m_renderers.push_back(new narc_engine::Renderer(&model, mat, m_transforms[2]));
-
-        m_engine->binder()->attachGuiComponent(&m_testWindow);
 
         m_transforms[2]->setWorldScale(glm::vec3(0.5f, 0.5f, 0.5f));
     }

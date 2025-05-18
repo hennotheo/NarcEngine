@@ -95,7 +95,7 @@ namespace narc_engine {
         {
             std::array<VkImageView, 2> attachments = {
                 m_swapChainImageViews[i].get(),
-                m_depthResources->getImageView()
+                m_depthResources->getImageView()->get()
             };
 
             VkFramebufferCreateInfo framebufferInfo{};
