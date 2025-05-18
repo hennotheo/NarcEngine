@@ -168,16 +168,16 @@ namespace narc_engine
         {
             if (std::find(m_renderGraph->m_renderers.begin(), m_renderGraph->m_renderers.end(), renderer) == m_renderGraph->m_renderers.end())
             {
-                Material* material = reinterpret_cast<Material*>(Engine::getInstance()->resourceManager()->getResource(renderer->getMaterial()));
+                Material* material = NARC_GET_RESOURCE_BY_ID(Material*, renderer->getMaterial());
                 // if (firstTime)
                 {
-                    m_renderGraph->addNode(new RenderNode(m_swapchain->getRenderPass(), material->getVertShader(), material->getFragShader()));
+                    m_renderGraph->addNode(new RenderNode(m_swapchain->getRenderPass(), material->getShader()));
                     // firstTime = false;
                 }
 
                 std::vector<VkDescriptorSetLayout> layouts =
                 {
-                    material->getVertShader()->getDescriptorSetLayout()//TODO ATM ALL LAOYOUTS ARE THE SAME
+                    material->getShader()->getDescriptorSetLayout()//TODO ATM ALL LAOYOUTS ARE THE SAME
                     // renderer->getMaterial()->getFragShader()->getDescriptorSetLayout()
                 };
                 VkDescriptorSetAllocateInfo allocInfo{};

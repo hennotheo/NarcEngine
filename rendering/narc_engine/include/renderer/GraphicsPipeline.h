@@ -13,7 +13,7 @@ namespace narc_engine {
     class GraphicsPipeline
     {
     public:
-        explicit GraphicsPipeline(const RenderPass* renderPass, const Shader* vertShader, const Shader* fragShader);
+        explicit GraphicsPipeline(const RenderPass* renderPass, const Shader* shader);
         ~GraphicsPipeline();
 
         VkPipelineInputAssemblyStateCreateInfo createInputAssemblyStateInfo();

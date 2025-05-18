@@ -11,9 +11,9 @@
 
 namespace narc_engine
 {
-    RenderNode::RenderNode(const RenderPass* renderPass, const Shader* vertShader, const Shader* fragShader)
+    RenderNode::RenderNode(const RenderPass* renderPass, const Shader* shader)
     {
-        m_pipeline = std::make_unique<GraphicsPipeline>(renderPass, vertShader, fragShader);
+        m_pipeline = std::make_unique<GraphicsPipeline>(renderPass, shader);
     }
 
     //TODO change to pure virtual function

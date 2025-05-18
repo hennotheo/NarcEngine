@@ -2,11 +2,13 @@
 
 #include <vulkan/vulkan.h>
 
+#include "platform/vulkan/ShaderModule.h"
+
 namespace narc_engine {
     class Shader
     {
     public:
-        explicit Shader(const std::string& filename);
+        explicit Shader(const std::string& vertexShaderFile, const std::string& fragShaderFile);
         ~Shader();
 
         TEMP_CODE GETTER VkDescriptorSetLayout getDescriptorSetLayout() const { return m_descriptorSetLayout; }
@@ -14,7 +16,8 @@ namespace narc_engine {
         VkPipelineShaderStageCreateInfo configureShaderStage(const char* entryPoint, VkShaderStageFlagBits stage) const;
 
     private:
-        VkShaderModule m_shaderModule;
+        ShaderModule m_fragShaderModule;
+        ShaderModule m_vertexShaderModule;
         VkDescriptorSetLayout m_descriptorSetLayout;
 
     private:

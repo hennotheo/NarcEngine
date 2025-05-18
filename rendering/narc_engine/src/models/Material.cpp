@@ -17,16 +17,13 @@ namespace narc_engine
         Resource(ResourceType::Material), //TODO not create texture in material
         m_mainTexture(Engine::getInstance()->resourceManager()->createResource<Texture2DResource>(texturePath))
     {
-
         s_materialCounter++;
 
-        m_vertShaderModule = new Shader("shaders/shader_vert.spv");
-        m_fragShaderModule = new Shader("shaders/shader_frag.spv");
+        m_shader = new Shader(std::string("shaders/shader_vert.spv"), std::string("shaders/shader_frag.spv"));
     }
 
     Material::~Material()
     {
-        delete m_vertShaderModule;
-        delete m_fragShaderModule;
+        delete m_shader;
     }
 } // narc_engine

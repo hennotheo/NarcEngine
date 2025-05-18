@@ -19,9 +19,7 @@ namespace narc_engine
         ~Material() override;
 
         GETTER ResourceId getMainTexture() const { return m_mainTexture; }
-
-        GETTER const Shader* getVertShader() const { return m_vertShaderModule; }
-        GETTER const Shader* getFragShader() const { return m_fragShaderModule; }
+        GETTER const Shader* getShader() const { return m_shader; }
 
     protected:
         explicit Material(const char* texturePath);
@@ -32,8 +30,7 @@ namespace narc_engine
     private:
         static uint32_t s_materialCounter;
 
-        const Shader* m_vertShaderModule;
-        const Shader* m_fragShaderModule;
+        const Shader* m_shader;
 
         ResourceId m_mainTexture;
     };

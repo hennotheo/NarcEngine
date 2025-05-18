@@ -10,7 +10,7 @@ namespace narc_engine
     class RenderNode
     {
     public:
-        RenderNode(const RenderPass* renderPass, const Shader* vertShader, const Shader* fragShader);
+        RenderNode(const RenderPass* renderPass, const Shader* shader);
         virtual ~RenderNode() = default;
 
         GETTER uint32_t getPriority() const { return 0; }//TODO change to priority system

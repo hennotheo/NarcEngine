@@ -8,35 +8,25 @@
 #include "utils/Utils.h"
 
 namespace narc_engine {
-    Shader::Shader(const std::string& filename)
+    Shader::Shader(const std::string& vertexShaderFile, const std::string& fragShaderFile)
+        : m_vertexShaderModule(vertexShaderFile), m_fragShaderModule(fragShaderFile)
     {
-        const auto code = narc_io::FileReader::readFile(filename);
-
-        VkShaderModuleCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-        createInfo.codeSize = code.size();
-        createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
-
-        if (vkCreateShaderModule(NARC_DEVICE_HANDLE, &createInfo, nullptr, &m_shaderModule) != VK_SUCCESS)
-        {
-            NARCLOG_FATAL("failed to create shader module!");
-        }
-
         createDescriptorSetLayout();
     }
 
     Shader::~Shader()
     {
-        vkDestroyShaderModule(NARC_DEVICE_HANDLE, m_shaderModule, nullptr);
         vkDestroyDescriptorSetLayout(NARC_DEVICE_HANDLE, m_descriptorSetLayout, nullptr);
     }
 
     VkPipelineShaderStageCreateInfo Shader::configureShaderStage(const char* entryPoint, VkShaderStageFlagBits stage) const
     {
+        const ShaderModule* shaderModule = (stage == VK_SHADER_STAGE_VERTEX_BIT) ? &m_vertexShaderModule : &m_fragShaderModule;
+
         VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
         vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         vertShaderStageInfo.stage = stage;
-        vertShaderStageInfo.module = m_shaderModule;
+        vertShaderStageInfo.module = shaderModule->get();
         vertShaderStageInfo.pName = entryPoint;
 
         return vertShaderStageInfo;
@@ -64,8 +54,7 @@ namespace narc_engine {
         layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
         layoutInfo.pBindings = bindings.data();
 
-        if (vkCreateDescriptorSetLayout(NARC_DEVICE_HANDLE, &layoutInfo, nullptr, &m_descriptorSetLayout) !=
-            VK_SUCCESS)
+        if (vkCreateDescriptorSetLayout(NARC_DEVICE_HANDLE, &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create descriptor set layout!");
         }

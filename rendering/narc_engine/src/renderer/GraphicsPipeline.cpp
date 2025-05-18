@@ -13,13 +13,12 @@
 #include "models/Shader.h"
 
 namespace narc_engine {
-    GraphicsPipeline::GraphicsPipeline(const RenderPass* renderPass,
-        const Shader* vertShader, const Shader* fragShader)
+    GraphicsPipeline::GraphicsPipeline(const RenderPass* renderPass, const Shader* shader)
     {
 
         std::vector<VkPipelineShaderStageCreateInfo> m_shaderStages = {
-            vertShader->configureShaderStage("main", VK_SHADER_STAGE_VERTEX_BIT),
-            fragShader->configureShaderStage("main", VK_SHADER_STAGE_FRAGMENT_BIT)
+            shader->configureShaderStage("main", VK_SHADER_STAGE_VERTEX_BIT),
+            shader->configureShaderStage("main", VK_SHADER_STAGE_FRAGMENT_BIT)
         };
 
         const auto vertexDescriptions = Vertex::getBindingDescription();
@@ -47,10 +46,10 @@ namespace narc_engine {
         pushConstantRange.offset = 0;
         pushConstantRange.size = sizeof(PushConstants);
 
-        std::vector<VkDescriptorSetLayout> descriptorSetLayouts =
+        std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts =
         {
-            vertShader->getDescriptorSetLayout(),
-            fragShader->getDescriptorSetLayout()
+            shader->getDescriptorSetLayout(),
+            shader->getDescriptorSetLayout()
         };
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
