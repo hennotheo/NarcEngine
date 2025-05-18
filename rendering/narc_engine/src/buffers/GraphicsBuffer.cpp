@@ -3,7 +3,6 @@
 #include "Engine.h"
 #include "buffers/StagingBuffer.h"
 #include "models/Vertex.h"
-#include "utils/Utils.h"
 
 namespace narc_engine {
     template class GraphicsBuffer<Vertex>;

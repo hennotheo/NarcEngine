@@ -1,7 +1,5 @@
 #include "platform/vulkan/CommandBuffer.h"
 
-#include <NarcLog.h>
-
 namespace narc_engine {
     void CommandBuffer::allocate(const VkCommandBufferAllocateInfo* allocInfo)
     {

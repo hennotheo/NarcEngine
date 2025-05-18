@@ -4,8 +4,6 @@
 
 #include "platform/vulkan/RenderPass.h"
 
-#include <NarcLog.h>
-
 #include "Engine.h"
 
 namespace narc_engine {

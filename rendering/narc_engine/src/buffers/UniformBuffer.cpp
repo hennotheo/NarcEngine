@@ -1,7 +1,5 @@
 #include "buffers/UniformBuffer.h"
 
-#include "utils/Utils.h"
-
 namespace narc_engine
 {
     UniformBuffer::UniformBuffer() : Buffer(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
@@ -15,7 +13,6 @@ namespace narc_engine
     {
         if (totalSize > m_size)
         {
-            NARCLOG_DEBUG("Uniform buffer size exceeded!");
             grow(totalSize);
         }
 

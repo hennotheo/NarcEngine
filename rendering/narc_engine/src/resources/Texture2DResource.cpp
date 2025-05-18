@@ -4,9 +4,6 @@
 
 #include "resources/Texture2DResource.h"
 
-#include <NarcIO.h>
-#include <NarcLog.h>
-
 #include "Engine.h"
 #include "buffers/StagingBuffer.h"
 

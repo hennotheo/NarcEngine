@@ -1,7 +1,5 @@
 #include "platform/vulkan/SwapChain.h"
 
-#include <NarcLog.h>
-
 #include "Engine.h"
 #include "core/devices/DeviceHandler.h"
 #include "renderer/DepthResources.h"

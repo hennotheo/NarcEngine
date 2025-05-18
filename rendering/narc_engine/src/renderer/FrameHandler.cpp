@@ -4,8 +4,6 @@
 
 #include "renderer/FrameHandler.h"
 
-#include <NarcLog.h>
-
 #include "Engine.h"
 
 namespace narc_engine {

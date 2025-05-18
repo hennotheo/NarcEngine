@@ -9,8 +9,8 @@ namespace narc_engine
 {
     PresentQueue::PresentQueue(const EngineBuilder* builder)
     {
-        QueueFamilyIndices indices = builder->getPhysicalDevice()->getQueueFamilyIndices();
-        vkGetDeviceQueue(builder->getLogicalDevice()->get(), indices.PresentFamily.value(), 0, &m_queue);
+        QueueFamilyIndices indices = NARC_PHYSICAL_DEVICE->getQueueFamilyIndices();
+        vkGetDeviceQueue(NARC_DEVICE_HANDLE, indices.PresentFamily.value(), 0, &m_queue);
     }
 
     VkResult PresentQueue::presentKHR(const VkPresentInfoKHR* presentInfo) const

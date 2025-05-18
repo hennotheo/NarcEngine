@@ -7,7 +7,6 @@ namespace narc_engine
     void StagingBuffer::create(VkDeviceSize bufferSize)
     {
         m_bufferSize = bufferSize;
-        NARCLOG_DEBUG("Stagging");
         this->createBuffer(
             m_bufferSize, 
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 

@@ -4,8 +4,6 @@
 
 #include "renderer/MultiFrameManager.h"
 
-#include "NarcLog.h"
-
 namespace narc_engine
 {
     MultiFrameManager::MultiFrameManager(const uint32_t maxFrameInFlight) : m_maxFrameInFlight(maxFrameInFlight)

@@ -19,7 +19,6 @@ add_library(NarcEngine SHARED include/NarcEngine.h ${CPP_FILES} ${HPP_FILES})
 add_dependencies(NarcEngine ${NARC_ENGINE_DEPENDENCIES})
 
 target_compile_definitions(NarcEngine PRIVATE NARC_ENGINE_BUILD_DLL)
-target_compile_options(NarcEngine PRIVATE -include utils/Utils.h)
 
 target_include_directories(NarcEngine PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_include_directories(NarcEngine PRIVATE ${PRIVATE_INCLUDES})

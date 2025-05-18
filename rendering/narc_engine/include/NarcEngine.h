@@ -4,8 +4,6 @@
 
 #include "Core.h"
 
-#include "utils/PublicTypedefs.h"
-
 #include "models/Mesh.h"
 #include "models/Vertex.h"
 #include "models/Material.h"
