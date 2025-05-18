@@ -1,7 +1,7 @@
 #include "core/EngineBinder.h"
 
 #include "Engine.h"
-#include "renderer/render_graph/RenderNode.h"
+#include "render_graph/RenderNode.h"
 
 namespace narc_engine
 {

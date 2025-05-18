@@ -1,13 +1,13 @@
-#include "renderer/render_graph/RenderNode.h"
+#include "render_graph/RenderNode.h"
 
 #include <vulkan/vulkan.h>
 
-#include "renderer/render_graph/contexts/RenderContext.h"
+#include "render_graph/contexts/RenderContext.h"
 #include "platform/vulkan/CommandBuffer.h"
 #include "models/Material.h"
 #include "models/Mesh.h"
 #include "buffers/GraphicsBuffer.h"
-#include "renderer/render_graph/DrawCall.h"
+#include "render_graph/DrawCall.h"
 
 namespace narc_engine
 {

@@ -6,7 +6,7 @@
 #include "core/EngineBuilder.h"
 #include "core/devices/DeviceHandler.h"
 #include "models/Shader.h"
-#include "renderer/render_graph/RenderNode.h"
+#include "render_graph/RenderNode.h"
 
 namespace narc_engine
 {

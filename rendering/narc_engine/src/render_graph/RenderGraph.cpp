@@ -1,11 +1,11 @@
-#include "renderer/render_graph/RenderGraph.h"
+#include "render_graph/RenderGraph.h"
 
 #include "renderer/FrameHandler.h"
 #include "models/Renderer.h"
 #include "platform/vulkan/SwapChain.h"
 
-#include "renderer/render_graph/contexts/RenderContext.h"
-#include "renderer/render_graph/RenderNode.h"
+#include "render_graph/contexts/RenderContext.h"
+#include "render_graph/RenderNode.h"
 #include "buffers/UniformBuffer.h"
 
 #include "models/Material.h"

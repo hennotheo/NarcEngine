@@ -1,10 +1,10 @@
-#include "renderer/render_graph/DrawCall.h"
+#include "render_graph/DrawCall.h"
 
 #include "platform/vulkan/CommandBuffer.h"
 #include "models/Material.h"
 #include "models/PushConstants.h"
 #include "renderer/GraphicsPipeline.h"
-#include "renderer/render_graph/contexts/RenderContext.h"
+#include "render_graph/contexts/RenderContext.h"
 #include "models/Mesh.h"
 #include "buffers/GraphicsBuffer.h"
 
