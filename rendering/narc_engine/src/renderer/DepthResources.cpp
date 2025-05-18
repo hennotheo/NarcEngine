@@ -13,7 +13,7 @@ namespace narc_engine {
 
     void DepthResources::create(uint32_t width, uint32_t height)
     {
-        const VkFormat depthFormat = getDeviceHandler()->getPhysicalDevice()->findDepthFormat();
+        const VkFormat depthFormat = NARC_PHYSICAL_DEVICE->findDepthFormat();
 
         Engine::getInstance()->createImage(
             width, height,
@@ -29,7 +29,7 @@ namespace narc_engine {
     void DepthResources::release()
     {
         m_depthImageView.release();
-        vkDestroyImage(getVkDevice(), m_depthImage, nullptr);
+        vkDestroyImage(NARC_DEVICE_HANDLE, m_depthImage, nullptr);
         m_depthImageMemory.release();
     }
 }

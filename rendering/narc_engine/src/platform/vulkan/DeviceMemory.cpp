@@ -29,7 +29,7 @@ namespace narc_engine
         }
 
         m_allocated = true;
-        if (vkAllocateMemory(getVkDevice(), &m_allocInfo, nullptr, &m_memory) != VK_SUCCESS)
+        if (vkAllocateMemory(NARC_DEVICE_HANDLE, &m_allocInfo, nullptr, &m_memory) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to allocate image memory!");
         }
@@ -44,12 +44,12 @@ namespace narc_engine
         }
 
         m_allocated = false;
-        vkFreeMemory(getVkDevice(), m_memory, nullptr);
+        vkFreeMemory(NARC_DEVICE_HANDLE, m_memory, nullptr);
     }
 
     void DeviceMemory::map(VkDeviceSize offset, VkDeviceSize size, void** data)
     {
-        if (vkMapMemory(getVkDevice(), m_memory, offset, size, 0, data) != VK_SUCCESS)
+        if (vkMapMemory(NARC_DEVICE_HANDLE, m_memory, offset, size, 0, data) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to map device memory!");
         }
@@ -62,6 +62,6 @@ namespace narc_engine
 
     void DeviceMemory::unmap()
     {
-        vkUnmapMemory(getVkDevice(), m_memory);
+        vkUnmapMemory(NARC_DEVICE_HANDLE, m_memory);
     }
 } // namespace narc_engine

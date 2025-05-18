@@ -5,14 +5,12 @@
 #pragma once
 #include <vulkan/vulkan_core.h>
 
-#include "core/DeviceComponent.h"
-
 namespace narc_engine {
     class CommandBuffer;
     class Shader;
     class RenderPass;
 
-    class GraphicsPipeline : public DeviceComponent
+    class GraphicsPipeline
     {
     public:
         explicit GraphicsPipeline(const RenderPass* renderPass, const Shader* vertShader, const Shader* fragShader);

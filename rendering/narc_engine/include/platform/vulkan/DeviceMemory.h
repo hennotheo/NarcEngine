@@ -2,11 +2,9 @@
 
 #include <vulkan/vulkan.h>
 
-#include "core/DeviceComponent.h"
-
 namespace narc_engine
 {
-    class DeviceMemory : public DeviceComponent, public narc_core::IGetter<VkDeviceMemory>
+    class DeviceMemory : public narc_core::IGetter<VkDeviceMemory>
     {
     public:
         DeviceMemory();

@@ -24,7 +24,7 @@ namespace narc_engine {
         colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
         VkAttachmentDescription depthAttachment{};
-        depthAttachment.format = getDeviceHandler()->getPhysicalDevice()->findDepthFormat();
+        depthAttachment.format = NARC_PHYSICAL_DEVICE->findDepthFormat();
         depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
         depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -65,7 +65,7 @@ namespace narc_engine {
         renderPassInfo.dependencyCount = 1;
         renderPassInfo.pDependencies = &dependency;
 
-        if (vkCreateRenderPass(getVkDevice(), &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS)
+        if (vkCreateRenderPass(NARC_DEVICE_HANDLE, &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create render pass!");
         }
@@ -73,6 +73,6 @@ namespace narc_engine {
 
     RenderPass::~RenderPass()
     {
-        vkDestroyRenderPass(getVkDevice(), m_renderPass, nullptr);
+        vkDestroyRenderPass(NARC_DEVICE_HANDLE, m_renderPass, nullptr);
     }
 } // narc_engine

@@ -2,14 +2,13 @@
 
 #include <vulkan/vulkan.h>
 
-#include "core/DeviceComponent.h"
 #include "core/devices/DeviceHandler.h"
 
 #include "platform/vulkan/DeviceMemory.h"
 
 namespace narc_engine
 {
-    class Buffer : public DeviceComponent, narc_core::IGetter<const VkBuffer>
+    class Buffer : public narc_core::IGetter<const VkBuffer>
     {
 
     public:

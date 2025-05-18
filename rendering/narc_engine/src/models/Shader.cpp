@@ -5,9 +5,10 @@
 #include "models/Shader.h"
 
 #include "Engine.h"
+#include "utils/Utils.h"
 
 namespace narc_engine {
-    Shader::Shader(const std::string& filename) : DeviceComponent()
+    Shader::Shader(const std::string& filename)
     {
         const auto code = narc_io::FileReader::readFile(filename);
 
@@ -16,7 +17,7 @@ namespace narc_engine {
         createInfo.codeSize = code.size();
         createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
-        if (vkCreateShaderModule(getVkDevice(), &createInfo, nullptr, &m_shaderModule) != VK_SUCCESS)
+        if (vkCreateShaderModule(NARC_DEVICE_HANDLE, &createInfo, nullptr, &m_shaderModule) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create shader module!");
         }
@@ -26,8 +27,8 @@ namespace narc_engine {
 
     Shader::~Shader()
     {
-        vkDestroyShaderModule(getVkDevice(), m_shaderModule, nullptr);
-        vkDestroyDescriptorSetLayout(getVkDevice(), m_descriptorSetLayout, nullptr);
+        vkDestroyShaderModule(NARC_DEVICE_HANDLE, m_shaderModule, nullptr);
+        vkDestroyDescriptorSetLayout(NARC_DEVICE_HANDLE, m_descriptorSetLayout, nullptr);
     }
 
     VkPipelineShaderStageCreateInfo Shader::configureShaderStage(const char* entryPoint, VkShaderStageFlagBits stage) const
@@ -63,7 +64,7 @@ namespace narc_engine {
         layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
         layoutInfo.pBindings = bindings.data();
 
-        if (vkCreateDescriptorSetLayout(getVkDevice(), &layoutInfo, nullptr, &m_descriptorSetLayout) !=
+        if (vkCreateDescriptorSetLayout(NARC_DEVICE_HANDLE, &layoutInfo, nullptr, &m_descriptorSetLayout) !=
             VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create descriptor set layout!");

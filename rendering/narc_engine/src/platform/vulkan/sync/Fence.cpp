@@ -2,13 +2,13 @@
 
 namespace narc_engine
 {
-    Fence::Fence() : DeviceComponent()
+    Fence::Fence()
     {
         VkFenceCreateInfo fenceInfo{};
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        if (vkCreateFence(getVkDevice(), &fenceInfo, nullptr, &m_fence) != VK_SUCCESS)
+        if (vkCreateFence(NARC_DEVICE_HANDLE, &fenceInfo, nullptr, &m_fence) != VK_SUCCESS)
         {
             NARCLOG_FATAL("Failed to create fence!");
         }
@@ -16,6 +16,6 @@ namespace narc_engine
 
     Fence::~Fence()
     {
-        vkDestroyFence(getVkDevice(), m_fence, nullptr);
+        vkDestroyFence(NARC_DEVICE_HANDLE, m_fence, nullptr);
     }
 } // namespace narc_engine

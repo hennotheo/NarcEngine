@@ -10,7 +10,7 @@
 #include "platform/vulkan/sync/Semaphore.h"
 
 namespace narc_engine {
-    SwapChain::SwapChain() : DeviceComponent()
+    SwapChain::SwapChain()
     {
     }
 
@@ -31,7 +31,7 @@ namespace narc_engine {
 
     VkResult SwapChain::acquireNextImage(const Semaphore* semaphore, uint32_t* imageIndex)
     {
-        const VkResult result = vkAcquireNextImageKHR(getVkDevice(), m_swapChain, UINT64_MAX, semaphore->get(), VK_NULL_HANDLE, imageIndex);
+        const VkResult result = vkAcquireNextImageKHR(NARC_DEVICE_HANDLE, m_swapChain, UINT64_MAX, semaphore->get(), VK_NULL_HANDLE, imageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) //OUT DUE TO WINDOW RESIZE FOR EXAMPLE
         {
@@ -52,7 +52,7 @@ namespace narc_engine {
         m_depthResources->release();
         for (auto framebuffer : m_swapChainFramebuffers)
         {
-            vkDestroyFramebuffer(getVkDevice(), framebuffer, nullptr);
+            vkDestroyFramebuffer(NARC_DEVICE_HANDLE, framebuffer, nullptr);
         }
 
         for (auto imageView : m_swapChainImageViews)
@@ -60,7 +60,7 @@ namespace narc_engine {
             imageView.release();
         }
 
-        vkDestroySwapchainKHR(getVkDevice(), m_swapChain, nullptr);
+        vkDestroySwapchainKHR(NARC_DEVICE_HANDLE, m_swapChain, nullptr);
     }
 
     void SwapChain::cleanRenderPass()
@@ -79,7 +79,7 @@ namespace narc_engine {
             NARCLOG_FATAL("Window size is 0!");
         }
 
-        getDeviceHandler()->getLogicalDevice()->waitDeviceIdle();
+        NARC_DEVICE->waitDeviceIdle();
 
         cleanSwapChain();
 
@@ -109,7 +109,7 @@ namespace narc_engine {
             framebufferInfo.height = m_swapChainExtent.height;
             framebufferInfo.layers = 1;
 
-            if (vkCreateFramebuffer(getVkDevice(), &framebufferInfo, nullptr, &m_swapChainFramebuffers[i]) != VK_SUCCESS)
+            if (vkCreateFramebuffer(NARC_DEVICE_HANDLE, &framebufferInfo, nullptr, &m_swapChainFramebuffers[i]) != VK_SUCCESS)
             {
                 NARCLOG_FATAL("failed to create framebuffer!");
             }
@@ -130,7 +130,7 @@ namespace narc_engine {
 
     void SwapChain::createSwapChain()
     {
-        SwapChainSupportDetails swapChainSupport = getDeviceHandler()->getPhysicalDevice()->getSwapChainSupport();
+        SwapChainSupportDetails swapChainSupport = NARC_PHYSICAL_DEVICE->getSwapChainSupport();
         VkSurfaceFormatKHR surfaceFormat = swapChainSupport.chooseSwapSurfaceFormat();
         VkPresentModeKHR presentMode = swapChainSupport.chooseSwapPresentMode();
         VkExtent2D extent = swapChainSupport.chooseSwapExtent(m_surface);
@@ -157,7 +157,7 @@ namespace narc_engine {
         createInfo.clipped = VK_TRUE;
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-        QueueFamilyIndices indices = getDeviceHandler()->getPhysicalDevice()->getQueueFamilyIndices();
+        QueueFamilyIndices indices = NARC_PHYSICAL_DEVICE->getQueueFamilyIndices();
         uint32_t queueFamilyIndices[] = { indices.GraphicsFamily.value(), indices.PresentFamily.value() };
 
         if (indices.GraphicsFamily != indices.PresentFamily)
@@ -173,14 +173,14 @@ namespace narc_engine {
             createInfo.pQueueFamilyIndices = nullptr;                // Optional
         }
 
-        if (vkCreateSwapchainKHR(getDeviceHandler()->getLogicalDevice()->get(), &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
+        if (vkCreateSwapchainKHR(NARC_DEVICE_HANDLE, &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create swap chain!");
         }
 
-        vkGetSwapchainImagesKHR(getVkDevice(), m_swapChain, &imageCount, nullptr);
+        vkGetSwapchainImagesKHR(NARC_DEVICE_HANDLE, m_swapChain, &imageCount, nullptr);
         m_swapChainImages.resize(imageCount);
-        vkGetSwapchainImagesKHR(getVkDevice(), m_swapChain, &imageCount, m_swapChainImages.data());
+        vkGetSwapchainImagesKHR(NARC_DEVICE_HANDLE, m_swapChain, &imageCount, m_swapChainImages.data());
 
         m_swapChainImageFormat = surfaceFormat.format;
         m_swapChainExtent = extent;

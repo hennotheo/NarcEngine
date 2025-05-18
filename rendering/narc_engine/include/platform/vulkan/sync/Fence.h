@@ -2,11 +2,9 @@
 
 #include <vulkan/vulkan.h>
 
-#include "core/DeviceComponent.h"
-
 namespace narc_engine
 {
-    class Fence : public DeviceComponent, public narc_core::IGetter<VkFence>
+    class Fence : public narc_core::IGetter<VkFence>
     {
     public:
         Fence();

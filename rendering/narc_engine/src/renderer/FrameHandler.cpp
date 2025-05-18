@@ -9,7 +9,7 @@
 #include "Engine.h"
 
 namespace narc_engine {
-    FrameHandler::FrameHandler() : DeviceComponent()
+    FrameHandler::FrameHandler()
     {
         m_commandPool = std::make_unique<CommandPool>();
         m_commandPool->createCommandBuffers(10);

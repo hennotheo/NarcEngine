@@ -13,9 +13,7 @@
 #include "platform/vulkan/sync/Fence.h"
 
 namespace narc_engine {
-    class DeviceHandler;
-
-    class FrameHandler : public DeviceComponent
+    class FrameHandler final
     {
         friend class MultiFrameManager;
 

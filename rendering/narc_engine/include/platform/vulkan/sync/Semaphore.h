@@ -2,11 +2,9 @@
 
 #include <vulkan/vulkan.h>
 
-#include "core/DeviceComponent.h"
-
 namespace narc_engine
 {
-    class Semaphore : public DeviceComponent, public narc_core::IGetter<VkSemaphore>
+    class Semaphore : public narc_core::IGetter<VkSemaphore>
     {
     public:
         Semaphore();

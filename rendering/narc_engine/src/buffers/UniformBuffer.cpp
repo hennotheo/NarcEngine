@@ -1,10 +1,12 @@
 #include "buffers/UniformBuffer.h"
 
+#include "utils/Utils.h"
+
 namespace narc_engine
 {
     UniformBuffer::UniformBuffer() : Buffer(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
     {
-        m_minBufferObjectSize = getDeviceHandler()->getPhysicalDevice()->getPhysicalDeviceProperties().limits.minUniformBufferOffsetAlignment;
+        m_minBufferObjectSize = NARC_PHYSICAL_DEVICE->getPhysicalDeviceProperties().limits.minUniformBufferOffsetAlignment;
         m_size = m_minBufferObjectSize;
         this->createBuffer(m_size, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, this->m_buffer, this->m_bufferMemory);
     }

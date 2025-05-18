@@ -2,10 +2,8 @@
 
 #include <vulkan/vulkan.h>
 
-#include "core/DeviceComponent.h"
-
 namespace narc_engine {
-    class Shader : public DeviceComponent
+    class Shader
     {
     public:
         explicit Shader(const std::string& filename);

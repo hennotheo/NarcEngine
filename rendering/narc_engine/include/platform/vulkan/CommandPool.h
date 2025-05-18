@@ -3,11 +3,9 @@
 #include <vulkan/vulkan_core.h>
 
 #include "CommandBuffer.h"
-#include "core/DeviceComponent.h"
-#include "core/devices/DeviceHandler.h"
 
 namespace narc_engine {
-    class CommandPool : public DeviceComponent
+    class CommandPool
     {
     public:
         CommandPool();

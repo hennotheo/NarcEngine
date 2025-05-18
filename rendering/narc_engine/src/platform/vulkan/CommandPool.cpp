@@ -3,17 +3,17 @@
 #include "Engine.h"
 
 namespace narc_engine {
-    CommandPool::CommandPool() : DeviceComponent()
+    CommandPool::CommandPool()
     {
         VkCommandPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-        QueueFamilyIndices queueFamilyIndices = getDeviceHandler()->getPhysicalDevice()->getQueueFamilyIndices();
+        QueueFamilyIndices queueFamilyIndices = NARC_PHYSICAL_DEVICE->getQueueFamilyIndices();
 
         poolInfo.queueFamilyIndex = queueFamilyIndices.GraphicsFamily.value();
 
-        if (vkCreateCommandPool(getDeviceHandler()->getLogicalDevice()->get(), &poolInfo, nullptr, &m_commandPool) != VK_SUCCESS)
+        if (vkCreateCommandPool(NARC_DEVICE_HANDLE, &poolInfo, nullptr, &m_commandPool) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create command pool!");
         }
@@ -21,7 +21,7 @@ namespace narc_engine {
 
     CommandPool::~CommandPool()
     {
-        vkDestroyCommandPool(getVkDevice(), m_commandPool, nullptr);
+        vkDestroyCommandPool(NARC_DEVICE_HANDLE, m_commandPool, nullptr);
     }
 
     void CommandPool::createCommandBuffers(const uint32_t commandBufferCount)
@@ -39,7 +39,7 @@ namespace narc_engine {
         allocInfo.commandPool = m_commandPool;
         allocInfo.commandBufferCount = commandBufferCount;
 
-        CommandBuffer::allocateBuffers(getDeviceHandler(), &allocInfo, m_commandBuffers);
+        CommandBuffer::allocateBuffers(&allocInfo, m_commandBuffers);
     }
 
     CommandBuffer CommandPool::beginSingleTimeCommands() const
@@ -55,7 +55,7 @@ namespace narc_engine {
         beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
         CommandBuffer commandBuffer;
-        commandBuffer.allocate(getDeviceHandler(), &allocInfo);
+        commandBuffer.allocate(&allocInfo);
         commandBuffer.begin(beginInfo);
 
         return commandBuffer;
@@ -75,6 +75,6 @@ namespace narc_engine {
         graphicsQueue->submit(1, &submitInfo, VK_NULL_HANDLE);
         graphicsQueue->waitIdle();
 
-        commandBuffer.release(getDeviceHandler(), m_commandPool);
+        commandBuffer.release(m_commandPool);
     }
 }

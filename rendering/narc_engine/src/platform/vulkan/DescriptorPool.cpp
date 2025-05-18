@@ -1,11 +1,9 @@
 #include "platform/vulkan/DescriptorPool.h"
 
-#include <NarcLog.h>
-
 #include "Engine.h"
 
 namespace narc_engine {
-    DescriptorPool::DescriptorPool(const uint32_t poolCount) : DeviceComponent()
+    DescriptorPool::DescriptorPool(const uint32_t poolCount)
     {
         m_builder = std::make_unique<DescriptorPoolBuilder>(poolCount);
     }
@@ -18,7 +16,7 @@ namespace narc_engine {
 
     void DescriptorPool::create()
     {
-        if (vkCreateDescriptorPool(getVkDevice(), m_builder->build(), nullptr, &m_descriptorPool) != VK_SUCCESS)
+        if (vkCreateDescriptorPool(NARC_DEVICE_HANDLE, m_builder->build(), nullptr, &m_descriptorPool) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create descriptor pool!");
         }
@@ -30,7 +28,7 @@ namespace narc_engine {
     {
         allocInfo->descriptorPool = m_descriptorPool;
 
-        if (vkAllocateDescriptorSets(getVkDevice(), allocInfo, descriptorSets) != VK_SUCCESS)
+        if (vkAllocateDescriptorSets(NARC_DEVICE_HANDLE, allocInfo, descriptorSets) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to allocate descriptor sets!");
         }
@@ -39,6 +37,6 @@ namespace narc_engine {
     void DescriptorPool::release()
     {
         m_allocated = false;
-        vkDestroyDescriptorPool(getVkDevice(), m_descriptorPool, nullptr);
+        vkDestroyDescriptorPool(NARC_DEVICE_HANDLE, m_descriptorPool, nullptr);
     }
 }

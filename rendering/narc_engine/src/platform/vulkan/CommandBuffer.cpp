@@ -3,9 +3,9 @@
 #include <NarcLog.h>
 
 namespace narc_engine {
-    void CommandBuffer::allocate(const DeviceHandler* deviceHandler, const VkCommandBufferAllocateInfo* allocInfo)
+    void CommandBuffer::allocate(const VkCommandBufferAllocateInfo* allocInfo)
     {
-        if (vkAllocateCommandBuffers(deviceHandler->getLogicalDevice()->get(), allocInfo, &m_commandBuffer) != VK_SUCCESS)
+        if (vkAllocateCommandBuffers(NARC_DEVICE_HANDLE, allocInfo, &m_commandBuffer) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to allocate command buffers!");
         }
@@ -32,9 +32,9 @@ namespace narc_engine {
         return vkEndCommandBuffer(m_commandBuffer);
     }
 
-    void CommandBuffer::release(const DeviceHandler* deviceHandler, const VkCommandPool& commandPool)
+    void CommandBuffer::release(const VkCommandPool& commandPool)
     {
-        vkFreeCommandBuffers(deviceHandler->getLogicalDevice()->get(), commandPool, 1, &m_commandBuffer);
+        vkFreeCommandBuffers(NARC_DEVICE_HANDLE, commandPool, 1, &m_commandBuffer);
     }
 
     void CommandBuffer::cmdBeginRenderPass(const VkRenderPassBeginInfo* renderPassInfo, VkSubpassContents contents) const
@@ -108,7 +108,7 @@ namespace narc_engine {
         vkCmdCopyBuffer(m_commandBuffer, srcBuffer, dstBuffer, regionCount, copyRegion);
     }
 
-    void CommandBuffer::allocateBuffers(const DeviceHandler* deviceHandler, const VkCommandBufferAllocateInfo* allocInfo, std::vector<CommandBuffer>& commandBuffers)
+    void CommandBuffer::allocateBuffers(const VkCommandBufferAllocateInfo* allocInfo, std::vector<CommandBuffer>& commandBuffers)
     {
         for (auto& commandBuffer: commandBuffers)
         {
@@ -119,7 +119,7 @@ namespace narc_engine {
         }
 
         std::vector<VkCommandBuffer> vkCommandBuffers(commandBuffers.size());
-        if (vkAllocateCommandBuffers(deviceHandler->getLogicalDevice()->get(), allocInfo, vkCommandBuffers.data()) != VK_SUCCESS)
+        if (vkAllocateCommandBuffers(NARC_DEVICE_HANDLE, allocInfo, vkCommandBuffers.data()) != VK_SUCCESS)
         {
             NARCLOG_FATAL("Failed to allocate command buffers!");
         }

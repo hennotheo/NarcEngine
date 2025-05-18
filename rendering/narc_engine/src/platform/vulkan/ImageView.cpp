@@ -15,7 +15,7 @@ namespace narc_engine
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 1;
 
-        if (vkCreateImageView(getDeviceHandler()->getLogicalDevice()->get(), &viewInfo, nullptr, &m_imageView) != VK_SUCCESS)
+        if (vkCreateImageView(NARC_DEVICE_HANDLE, &viewInfo, nullptr, &m_imageView) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create texture image view!");
         }
@@ -23,6 +23,6 @@ namespace narc_engine
 
     void ImageView::release()
     {
-        vkDestroyImageView(getDeviceHandler()->getLogicalDevice()->get(), m_imageView, nullptr);
+        vkDestroyImageView(NARC_DEVICE_HANDLE, m_imageView, nullptr);
     }
 } // namespace narc_engine

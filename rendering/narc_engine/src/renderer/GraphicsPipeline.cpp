@@ -15,7 +15,6 @@
 namespace narc_engine {
     GraphicsPipeline::GraphicsPipeline(const RenderPass* renderPass,
         const Shader* vertShader, const Shader* fragShader)
-        : DeviceComponent()
     {
 
         std::vector<VkPipelineShaderStageCreateInfo> m_shaderStages = {
@@ -60,7 +59,7 @@ namespace narc_engine {
         pipelineLayoutInfo.pushConstantRangeCount = 1;
         pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
-        if (vkCreatePipelineLayout(getVkDevice(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
+        if (vkCreatePipelineLayout(NARC_DEVICE_HANDLE, &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create pipeline layout!");
         }
@@ -84,7 +83,7 @@ namespace narc_engine {
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
         pipelineInfo.basePipelineIndex = -1; // Optional
 
-        if (vkCreateGraphicsPipelines(getVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) != VK_SUCCESS)
+        if (vkCreateGraphicsPipelines(NARC_DEVICE_HANDLE, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) != VK_SUCCESS)
         {
             NARCLOG_FATAL("Failed to create graphics pipeline!");
         }
@@ -92,8 +91,8 @@ namespace narc_engine {
 
     GraphicsPipeline::~GraphicsPipeline()
     {
-        vkDestroyPipeline(getVkDevice(), m_pipeline, nullptr);
-        vkDestroyPipelineLayout(getVkDevice(), m_pipelineLayout, nullptr);
+        vkDestroyPipeline(NARC_DEVICE_HANDLE, m_pipeline, nullptr);
+        vkDestroyPipelineLayout(NARC_DEVICE_HANDLE, m_pipelineLayout, nullptr);
     }
 
     VkPipelineVertexInputStateCreateInfo GraphicsPipeline::createPipelineVertexInputInfo(const VkVertexInputBindingDescription vertexDescriptions,

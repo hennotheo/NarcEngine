@@ -3,11 +3,10 @@
 #include <vulkan/vulkan.h>
 
 #include "renderer/DescriptorPoolBuilder.h"
-#include "core/DeviceComponent.h"
 #include "core/devices/DeviceHandler.h"
 
 namespace narc_engine {
-    class DescriptorPool : public DeviceComponent, public narc_core::IGetter<VkDescriptorPool>
+    class DescriptorPool : public narc_core::IGetter<VkDescriptorPool>
     {
     public:
         explicit DescriptorPool(uint32_t poolCount);

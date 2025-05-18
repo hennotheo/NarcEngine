@@ -11,7 +11,7 @@ namespace narc_engine {
     class Window;
     class Semaphore;
 
-    class SwapChain : public DeviceComponent, public narc_core::IGetter<VkSwapchainKHR>
+    class SwapChain : public narc_core::IGetter<VkSwapchainKHR>
     {
     public:
         SwapChain();

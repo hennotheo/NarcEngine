@@ -7,11 +7,11 @@ namespace narc_engine {
     public:
         GETTER VkCommandBuffer getVkCommandBuffer() const { return m_commandBuffer; }
 
-        void allocate(const DeviceHandler* deviceHandler, const VkCommandBufferAllocateInfo* allocInfo);
+        void allocate(const VkCommandBufferAllocateInfo* allocInfo);
         void reset(VkCommandBufferResetFlags flags);
         void begin(VkCommandBufferBeginInfo beginInfo);
         VkResult end();
-        void release(const DeviceHandler* deviceHandler, const VkCommandPool& commandPool);
+        void release(const VkCommandPool& commandPool);
 
         void cmdBeginRenderPass(const VkRenderPassBeginInfo* renderPassInfo, VkSubpassContents contents) const;
         void cmdBindPipeline(VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline) const;
@@ -31,7 +31,7 @@ namespace narc_engine {
         void cmdCopyBufferImage(VkBuffer srcBuffer, VkImage dstImage, VkImageLayout dstImageLayout, uint32_t regionCount, const VkBufferImageCopy* regions) const;
         void cmdCopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, uint32_t regionCount, const VkBufferCopy* copyRegion) const;
 
-        static void allocateBuffers(const DeviceHandler* deviceHandler, const VkCommandBufferAllocateInfo* allocInfo, std::vector<CommandBuffer>& commandBuffers);
+        static void allocateBuffers(const VkCommandBufferAllocateInfo* allocInfo, std::vector<CommandBuffer>& commandBuffers);
 
     private:
         VkCommandBuffer m_commandBuffer;

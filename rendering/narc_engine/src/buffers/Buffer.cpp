@@ -1,10 +1,11 @@
 #include "buffers/Buffer.h"
 
 #include "Engine.h"
+#include "utils/Utils.h"
 
 namespace narc_engine
 {
-    Buffer::Buffer(VkBufferUsageFlags usage) : DeviceComponent(), m_usage(usage)
+    Buffer::Buffer(VkBufferUsageFlags usage) : m_usage(usage)
     {
         m_bufferMemory = DeviceMemory();
     };
@@ -16,7 +17,7 @@ namespace narc_engine
 
     void Buffer::release()
     {
-        vkDestroyBuffer(getVkDevice(), m_buffer, nullptr);
+        vkDestroyBuffer(NARC_DEVICE_HANDLE, m_buffer, nullptr);
         m_bufferMemory.release();
     }
 
@@ -28,18 +29,18 @@ namespace narc_engine
         bufferInfo.usage = m_usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (vkCreateBuffer(getVkDevice(), &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+        if (vkCreateBuffer(NARC_DEVICE_HANDLE, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create buffer!");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetBufferMemoryRequirements(getVkDevice(), buffer, &memRequirements);
+        vkGetBufferMemoryRequirements(NARC_DEVICE_HANDLE, buffer, &memRequirements);
 
         bufferMemory.setSize(memRequirements.size);
-        bufferMemory.setMemoryTypeIndex(getDeviceHandler()->getPhysicalDevice()->findMemoryType(memRequirements.memoryTypeBits, properties));
+        bufferMemory.setMemoryTypeIndex(NARC_PHYSICAL_DEVICE->findMemoryType(memRequirements.memoryTypeBits, properties));
         bufferMemory.allocate();
 
-        vkBindBufferMemory(getVkDevice(), buffer, bufferMemory.get(), 0);
+        vkBindBufferMemory(NARC_DEVICE_HANDLE, buffer, bufferMemory.get(), 0);
     }
 }

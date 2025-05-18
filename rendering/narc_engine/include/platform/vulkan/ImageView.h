@@ -2,11 +2,9 @@
 
 #include <vulkan/vulkan_core.h>
 
-#include "core/DeviceComponent.h"
-
 namespace narc_engine
 {
-    class ImageView : public DeviceComponent, public narc_core::IGetter<VkImageView>
+    class ImageView : public narc_core::IGetter<VkImageView>
     {
     public:
         NARC_IMPL_IGETTER(VkImageView, m_imageView)
