@@ -8,7 +8,7 @@ namespace narc_engine
     {
     public:
         ResourceManager() = default;
-        ~ResourceManager() = default;
+        ~ResourceManager();
 
         template <typename T, typename... Args>
         inline ResourceId createResource(Args&&... args)
@@ -25,10 +25,17 @@ namespace narc_engine
             std::string combinedArgs = (std::string(typeName) + ... + std::to_string(std::hash<std::string>{}(std::string(args))));
             ResourceId id = std::to_string(hasher(combinedArgs));
 
+            if (m_resources.find(id) != m_resources.end())
+            {
+                NARCLOG_DEBUG(("Resource with id already exists: " + id).c_str());
+                return id;
+            }
+
             auto ptr = new T(std::forward<Args>(args)...);
             m_resources[id] = std::unique_ptr<T>(ptr);
             m_resources[id]->setId(id);
             m_resources[id]->load();
+            m_allocationOrder.push_back(id);
 
             return id;
         }
@@ -47,5 +54,6 @@ namespace narc_engine
 
     private:
         std::unordered_map<ResourceId, std::unique_ptr<Resource>> m_resources;
+        std::vector<ResourceId> m_allocationOrder;
     };
 } // namespace narc_engine

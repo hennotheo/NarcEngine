@@ -14,7 +14,7 @@ namespace narc_engine
         friend class ResourceManager;
 
     public:
-        virtual ~Resource() = default;
+        virtual ~Resource();
 
         GETTER ResourceId getId() const { return m_id; };
         GETTER ResourceType getType() const { return m_type; };

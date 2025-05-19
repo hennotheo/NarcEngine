@@ -9,6 +9,14 @@ namespace narc_engine
         
     }
 
+    Resource::~Resource()
+    {
+        if(m_state == ResourceState::Loaded)
+        {
+            unload();
+        }
+    }
+
     void Resource::load()
     {
         if (m_state == ResourceState::Loaded)

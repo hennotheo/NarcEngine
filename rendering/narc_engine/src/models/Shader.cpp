@@ -9,14 +9,21 @@
 
 namespace narc_engine {
     Shader::Shader(const std::string& vertexShaderFile, const std::string& fragShaderFile)
-        : m_vertexShaderModule(vertexShaderFile), m_fragShaderModule(fragShaderFile)
+        :Resource(ResourceType::Shader), m_vertexShaderModule(vertexShaderFile), m_fragShaderModule(fragShaderFile)
+    {
+    }
+
+    Shader::~Shader() = default;
+
+    void Shader::onLoad()
     {
         createDescriptorSetLayout();
     }
 
-    Shader::~Shader()
+    void Shader::onUnload()
     {
         vkDestroyDescriptorSetLayout(NARC_DEVICE_HANDLE, m_descriptorSetLayout, nullptr);
+
     }
 
     VkPipelineShaderStageCreateInfo Shader::configureShaderStage(const char* entryPoint, VkShaderStageFlagBits stage) const

@@ -157,7 +157,6 @@ namespace narc_engine
     }
 
 #warning "TODO: REMOVE THIS"
-    // bool firstTime = true;
     void Window::addRenderer(const Renderer* renderer)
     {
         bool materialAlreadyUsed = std::any_of(m_renderGraph->m_renderers.begin(), m_renderGraph->m_renderers.end(), [&](const Renderer* r) {
@@ -169,15 +168,16 @@ namespace narc_engine
             if (std::find(m_renderGraph->m_renderers.begin(), m_renderGraph->m_renderers.end(), renderer) == m_renderGraph->m_renderers.end())
             {
                 Material* material = NARC_GET_RESOURCE_BY_ID(Material*, renderer->getMaterial());
+                const Shader* shader = NARC_GET_RESOURCE_BY_ID(const Shader*, material->getShader());
                 // if (firstTime)
                 {
-                    m_renderGraph->addNode(new RenderNode(m_swapchain->getRenderPass(), material->getShader()));
+                    m_renderGraph->addNode(new RenderNode(m_swapchain->getRenderPass(), shader));
                     // firstTime = false;
                 }
 
                 std::vector<VkDescriptorSetLayout> layouts =
                 {
-                    material->getShader()->getDescriptorSetLayout()//TODO ATM ALL LAOYOUTS ARE THE SAME
+                    shader->getDescriptorSetLayout()//TODO ATM ALL LAOYOUTS ARE THE SAME
                     // renderer->getMaterial()->getFragShader()->getDescriptorSetLayout()
                 };
                 VkDescriptorSetAllocateInfo allocInfo{};
