@@ -77,7 +77,7 @@ namespace narc_engine {
         pipelineInfo.pColorBlendState = &colorBlending;
         pipelineInfo.pDynamicState = &dynamicState;
         pipelineInfo.layout = m_pipelineLayout;
-        pipelineInfo.renderPass = renderPass->getRenderPass();
+        pipelineInfo.renderPass = renderPass->get();
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
         pipelineInfo.basePipelineIndex = -1; // Optional

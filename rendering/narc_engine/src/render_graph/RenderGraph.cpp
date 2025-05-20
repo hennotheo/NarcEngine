@@ -102,6 +102,20 @@ namespace narc_engine
         std::sort(m_nodes.begin(), m_nodes.end(), [](const RenderNode* a, const RenderNode* b) {
             return a->getPriority() < b->getPriority();
             });
+
+        std::set<ResourceId> uniqueResources{};
+        for (const auto& node : m_nodes)
+        {
+            if (!checkIfInputsAreAvailable(node, uniqueResources))
+            {
+                NARCLOG_FATAL("RenderGraph::buildGraph: Node inputs are not available!");
+            }
+
+            for (const auto& output : node->getOutputs())
+            {
+                uniqueResources.insert(output);
+            }
+        }
     }
 
     SignalSemaphores RenderGraph::executeGraph(const FrameHandler* frameHandler, uint32_t imageIndex)
@@ -213,8 +227,12 @@ namespace narc_engine
         commandBuffer->begin(beginInfo);
 
         //Temp code, this should be done in the render node
-        VkRenderPassBeginInfo renderPassInfo = m_swapchain->getRenderPassBeginInfos(imageIndex);
-        const VkExtent2D swapChainExtent = m_swapchain->getSwapChainExtent();
+        VkRenderPassBeginInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = m_swapchain->getRenderPass()->get();
+        renderPassInfo.framebuffer = m_swapchain->getFrameBuffer(imageIndex);
+        renderPassInfo.renderArea.offset = { 0, 0 };
+        renderPassInfo.renderArea.extent = m_swapchain->getSwapChainExtent();//TODO change to target size
 
         std::array<VkClearValue, 2> clearValues{};
         clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
@@ -236,11 +254,25 @@ namespace narc_engine
             NARCLOG_FATAL("Failed to record command buffer!");
         }
     }
+
     void RenderGraph::fillRenderContext(RenderContext* ctx, const FrameHandler* frameHandler)
     {
         ctx->SwapChainExtent = m_swapchain->getSwapChainExtent();
         ctx->Renderers = &m_renderers;
         ctx->RenderersCount = static_cast<uint32_t>(m_renderers.size());
         ctx->FrameHandler = frameHandler;
+    }
+
+    bool RenderGraph::checkIfInputsAreAvailable(const RenderNode* node, const std::set<ResourceId>& availableResources) const
+    {
+        for (const auto& input : node->getInputs())
+        {
+            if (availableResources.find(input) == availableResources.end())
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 } // namespace narc_engine

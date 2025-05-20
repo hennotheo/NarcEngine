@@ -37,6 +37,7 @@ namespace narc_engine
 
         //ALL MAT MUST HAVE SAME SHADERS FOR NOW
         std::unordered_map<ResourceId, std::vector<const Renderer*>> uniqueMaterials;
+        uniqueMaterials.reserve(ctx->RenderersCount);
         for (size_t i = 0; i < ctx->RenderersCount; i++)
         {
             const Renderer* renderer = ctx->Renderers->at(i);
@@ -52,6 +53,7 @@ namespace narc_engine
         }
 
         std::vector<DrawCall> drawCalls;
+        drawCalls.reserve(uniqueMaterials.size());
         for (const auto& [id, renderers] : uniqueMaterials)
         {
             const Material* material = NARC_GET_RESOURCE_BY_ID(const Material*, id);

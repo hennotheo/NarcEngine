@@ -100,7 +100,7 @@ namespace narc_engine {
 
             VkFramebufferCreateInfo framebufferInfo{};
             framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferInfo.renderPass = getRenderPass()->getRenderPass();
+            framebufferInfo.renderPass = getRenderPass()->get();
             framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
             framebufferInfo.pAttachments = attachments.data();
             framebufferInfo.width = m_swapChainExtent.width;
@@ -112,18 +112,6 @@ namespace narc_engine {
                 NARCLOG_FATAL("failed to create framebuffer!");
             }
         }
-    }
-
-    VkRenderPassBeginInfo SwapChain::getRenderPassBeginInfos(uint32_t imageIndex) const
-    {
-        VkRenderPassBeginInfo renderPassInfo{};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = getRenderPass()->getRenderPass();
-        renderPassInfo.framebuffer = m_swapChainFramebuffers[imageIndex];
-        renderPassInfo.renderArea.offset = { 0, 0 };
-        renderPassInfo.renderArea.extent = m_swapChainExtent;
-
-        return renderPassInfo;
     }
 
     void SwapChain::createSwapChain()
