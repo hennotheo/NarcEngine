@@ -13,12 +13,13 @@ namespace narc_engine
     class EngineBuilder;
     class ISurfaceProvider;
 
-    class PhysicalDevice
+    class PhysicalDevice : public narc_core::IGetter<VkPhysicalDevice>
     {
     public:
         PhysicalDevice(const EngineBuilder* builder);
 
-        GETTER const VkPhysicalDevice& getVkPhysicalDevice() const { return m_physicalDevice; }
+        NARC_IMPL_IGETTER(VkPhysicalDevice, m_physicalDevice);
+
         GETTER const QueueFamilyIndices& getQueueFamilyIndices() const { return m_queueFamilyIndices; }
         GETTER const SwapChainSupportDetails getSwapChainSupport() const { return querySwapChainSupport(m_physicalDevice); }
         GETTER const VkPhysicalDeviceProperties& getPhysicalDeviceProperties() const { return m_physicalDeviceProperties; }

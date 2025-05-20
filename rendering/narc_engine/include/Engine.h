@@ -44,6 +44,7 @@ namespace narc_engine {
         TEMP_CODE GETTER const DeviceHandler* getDevice() const { return m_deviceHandler.get(); }
         TEMP_CODE GETTER const GraphicsQueue* getGraphicsQueue() const { return m_graphicsQueue.get(); }
         TEMP_CODE GETTER const PresentQueue* getPresentQueue() const { return m_presentQueue.get(); }
+        TEMP_CODE GETTER const EngineInstance* getEngineInstance() const { return m_instance.get(); }
 
         void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
         void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);

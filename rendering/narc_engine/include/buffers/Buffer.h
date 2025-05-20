@@ -8,14 +8,14 @@
 
 namespace narc_engine
 {
-    class Buffer : public narc_core::IGetter<const VkBuffer>
+    class Buffer : public narc_core::IGetter<VkBuffer>
     {
 
     public:
         Buffer(VkBufferUsageFlags usage);
         virtual ~Buffer();
 
-        NARC_IMPL_IGETTER(const VkBuffer, m_buffer);
+        NARC_IMPL_IGETTER(VkBuffer, m_buffer);
         VkBuffer getBuffer() const { return m_buffer; }
 
     protected:

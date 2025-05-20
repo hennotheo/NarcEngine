@@ -100,7 +100,7 @@ namespace narc_engine
     void RenderGraph::buildGraph()
     {
         std::sort(m_nodes.begin(), m_nodes.end(), [](const RenderNode* a, const RenderNode* b) {
-            return a->getPriority() < b->getPriority();
+            return a->getOrder() < b->getOrder();
             });
 
         std::set<ResourceId> uniqueResources{};

@@ -7,6 +7,7 @@
 #include "core/devices/DeviceHandler.h"
 #include "resources/Shader.h"
 #include "render_graph/RenderNode.h"
+#include "render_graph/GuiRenderNode.h"
 
 namespace narc_engine
 {
@@ -61,6 +62,9 @@ namespace narc_engine
         m_swapchain->createFramebuffers();
 
         m_renderGraph = std::make_unique<RenderGraph>(m_swapchain.get());
+
+        m_renderGraph->addNode(new GuiRenderNode(
+                m_swapchain->getRenderPass(), m_swapchain.get(), m_frameManager.get(), this));
     }
 
     void Window::render()

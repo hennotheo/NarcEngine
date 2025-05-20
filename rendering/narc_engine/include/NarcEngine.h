@@ -13,5 +13,3 @@
 #include "core/EngineBinder.h"
 
 #include "interfaces/IEngine.h"
-
-#include "render_graph/RenderNode.h"
