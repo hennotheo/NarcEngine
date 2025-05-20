@@ -3,11 +3,9 @@
 #include <vulkan/vulkan_core.h>
 
 #include "ISurfaceObserver.h"
-#include "gui/UiRenderer.h"
 
 namespace narc_engine {
-    // template<typename T>
-    class ISurfaceProvider
+    class ISurfaceProvider : public narc_core::IGetter<VkSurfaceKHR>
     {
         friend class UiRenderer;
 
@@ -15,7 +13,6 @@ namespace narc_engine {
         virtual ~ISurfaceProvider() = default;
 
         GETTER virtual const void* getSurfaceHandler() const = 0;
-        GETTER virtual VkSurfaceKHR getVkSurfaceKHR() const = 0;
         virtual void getValidFramebufferSize(int* width, int* height) const = 0;
         virtual void getFramebufferSize(int* width, int* height) const = 0;
 

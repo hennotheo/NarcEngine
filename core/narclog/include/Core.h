@@ -13,3 +13,5 @@
 #define NARCLOG_API __declspec(dllimport)
 
 #endif
+
+typedef std::vector<const char*> KeywordList;

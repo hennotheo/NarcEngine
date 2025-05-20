@@ -1,19 +1,20 @@
 #include "core/Window.h"
 
-#include <NarcLog.h>
-#include <NarcCore.h>
+#include "Engine.h"
 
 #include "core/EngineInstance.h"
-#include "core/interfaces/IEngineCallbacks.h"
-
-#include <backends/imgui_impl_glfw.h>
+#include "core/EngineBuilder.h"
+#include "core/devices/DeviceHandler.h"
+#include "resources/Shader.h"
+#include "render_graph/RenderNode.h"
+#include "render_graph/GuiRenderNode.h"
 
 namespace narc_engine
 {
     constexpr uint32_t g_width = 800;
     constexpr uint32_t g_height = 600;
 
-    Window::Window(const EngineInstance* engineInstance, IEngineCallbacks* engine) : m_engine(engine)
+    Window::Window(const EngineInstance* engineInstance)
     {
         m_engineInstance = engineInstance;
 
@@ -26,7 +27,7 @@ namespace narc_engine
         glfwSetKeyCallback(m_window, onKeyboardInputPerformed);
         glfwSetMouseButtonCallback(m_window, onMouseInputPerformed);
 
-        if (glfwCreateWindowSurface(m_engineInstance->getvkInstance(), m_window, nullptr, &m_surface) != VK_SUCCESS)
+        if (glfwCreateWindowSurface(m_engineInstance->get(), m_window, nullptr, &m_surface) != VK_SUCCESS)
         {
             NARCLOG_FATAL("Failed to create window surface!");
         }
@@ -34,21 +35,62 @@ namespace narc_engine
 
     Window::~Window()
     {
-        vkDestroySurfaceKHR(m_engineInstance->getvkInstance(), m_surface, nullptr);
+        //Destroy before the window is destroyed
+        m_swapchain->cleanSwapChain();
+
+        m_renderGraph.reset();
+
+        m_swapchain->cleanRenderPass();
+
+        m_frameManager.reset();
+
+        vkDestroySurfaceKHR(m_engineInstance->get(), m_surface, nullptr);
 
         glfwDestroyWindow(m_window);
         glfwTerminate();
+    }
+
+    void Window::initRenderingSystem(const EngineBuilder* builder)
+    {
+        m_physicalDevice = builder->getPhysicalDevice();
+        m_logicalDevice = builder->getLogicalDevice();
+
+        m_frameManager = std::make_unique<MultiFrameManager>(builder->getFrameInFlightCount());
+
+        m_swapchain = std::make_unique<SwapChain>();
+        m_swapchain->create(this);
+        m_swapchain->createFramebuffers();
+
+        m_renderGraph = std::make_unique<RenderGraph>(m_swapchain.get());
+
+        m_renderGraph->addNode(new GuiRenderNode(
+            m_swapchain->getRenderPass(), m_swapchain.get(), m_frameManager.get(), this));
+    }
+
+    void Window::render()
+    {
+        const FrameHandler* frameHandler = m_frameManager->getCurrentFrameHandler();
+
+        const std::vector<VkFence> inFlightFencesToWait = { frameHandler->getInFlightFence()->get() };
+        vkWaitForFences(m_logicalDevice->get(), 1, inFlightFencesToWait.data(), VK_TRUE, UINT64_MAX);
+        vkResetFences(m_logicalDevice->get(), 1, inFlightFencesToWait.data());
+
+        uint32_t currentImageIndex = 0;
+        m_swapchain->acquireNextImage(frameHandler->getImageAvailableSemaphore(), &currentImageIndex);
+
+        m_renderGraph->buildGraph();
+        SignalSemaphores signalSemaphores = m_renderGraph->executeGraph(frameHandler, currentImageIndex);
+
+        present(signalSemaphores, currentImageIndex);
+
+        m_frameManager->nextFrame();
     }
 
     void Window::pollEvents()
     {
         glfwPollEvents();
 
-        bool shouldClose = glfwWindowShouldClose(m_window);
-        if (shouldClose)
-        {
-            m_engine->stop();
-        }
+        m_shouldClose = glfwWindowShouldClose(m_window);
 
         glfwGetCursorPos(m_window, &m_mouseXpos, &m_mouseYpos);
         m_time = glfwGetTime();
@@ -74,21 +116,99 @@ namespace narc_engine
         glfwGetFramebufferSize(m_window, width, height);
     }
 
+    void Window::present(const SignalSemaphores& signalSemaphores, uint32_t currentImageIndex)
+    {
+        const VkSwapchainKHR swapChains[] = { m_swapchain->get() };
+        VkPresentInfoKHR presentInfo{};
+        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        presentInfo.waitSemaphoreCount = 1;
+        presentInfo.pWaitSemaphores = signalSemaphores.data();
+        presentInfo.swapchainCount = 1;
+        presentInfo.pSwapchains = swapChains;
+        presentInfo.pImageIndices = &currentImageIndex;
+        presentInfo.pResults = nullptr;
+
+        const VkResult result = Engine::getInstance()->getPresentQueue()->presentKHR(&presentInfo);
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebufferResized)
+        {
+            m_framebufferResized = false;
+            m_swapchain->reCreate();
+        }
+        else if (result != VK_SUCCESS)
+        {
+            NARCLOG_FATAL("failed to present swap chain image!");
+        }
+    }
+
     void Window::framebufferResizeCallback(GLFWwindow* window, int width, int height)
     {
-        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-        app->notifyFramebufferResized(width, height);
+        Window* windowObject = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+        windowObject->notifyFramebufferResized(width, height);
+
+        windowObject->m_framebufferResized = true;
     }
 
     void Window::onKeyboardInputPerformed(GLFWwindow* window, int key, int scancode, int action, int mods)
     {
-        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-        app->m_onKeyboardEvent.trigger(key, scancode, action, mods);
+        Window* windowObject = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+        windowObject->m_onKeyboardEvent.trigger(key, scancode, action, mods);
     }
 
     void Window::onMouseInputPerformed(GLFWwindow* window, int button, int action, int mods)
     {
-        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-        app->m_onMouseEvent.trigger(button, action, mods);
+        Window* windowObject = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+        windowObject->m_onMouseEvent.trigger(button, action, mods);
+    }
+
+#pragma warning "TODO: REMOVE THIS, windows should not be able to add renderers"
+    void Window::addRenderer(const Renderer* renderer)
+    {
+#pragma warning "TODO: REMOVE THIS, only for testing, only one rendernode for all opaques"
+        Material* rendererMaterial = NARC_GET_RESOURCE_BY_ID(Material*, renderer->getMaterial());
+        bool shaderAlreadyUsed = std::any_of(m_renderGraph->m_renderers.begin(), m_renderGraph->m_renderers.end(), [&](const Renderer* r)
+            {
+                Material* material = NARC_GET_RESOURCE_BY_ID(Material*, r->getMaterial());
+                return material->getShader() == rendererMaterial->getShader();
+            });
+
+        if (!shaderAlreadyUsed)
+        {
+            if (std::find(m_renderGraph->m_renderers.begin(), m_renderGraph->m_renderers.end(), renderer) == m_renderGraph->m_renderers.end())
+            {
+                const Shader* shader = NARC_GET_RESOURCE_BY_ID(const Shader*, rendererMaterial->getShader());
+                // if (firstTime)
+                {
+                    m_renderGraph->addNode(new RenderNode(m_swapchain->getRenderPass(), shader));
+                    // firstTime = false;
+                }
+
+                std::vector<VkDescriptorSetLayout> layouts =
+                {
+                    shader->getDescriptorSetLayout()//TODO ATM ALL LAOYOUTS ARE THE SAME
+                    // renderer->getMaterial()->getFragShader()->getDescriptorSetLayout()
+                };
+                VkDescriptorSetAllocateInfo allocInfo{};
+                allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+                allocInfo.descriptorSetCount = layouts.size();
+                allocInfo.pSetLayouts = layouts.data();
+
+                std::vector<ResourceId> setIds
+                {
+                    renderer->getMaterial()
+                };
+
+                m_frameManager->allocateDescriptorSets(setIds, allocInfo);
+            }
+            else
+            {
+                NARCLOG_DEBUG("Renderer already in the graph");
+            }
+        }
+        else
+        {
+            NARCLOG_DEBUG("Renderer with the same material already exists in the graph");
+        }
+
+        m_renderGraph->m_renderers.push_back(renderer);
     }
 }

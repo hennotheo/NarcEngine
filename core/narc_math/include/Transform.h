@@ -17,11 +17,26 @@ namespace narc_math
         {
         }
 
-        inline glm::mat4 getModelMatrix() const { return m_modelMatrix; }
+        GETTER glm::vec3 getWorldPosition() const { return glm::vec3(m_modelMatrix[3]); }
+        GETTER glm::vec3 getWorldRotation() const { return glm::vec3(m_modelMatrix[0]); } //TODO change to quaternion
+        GETTER glm::vec3 getWorldScale() const { return glm::vec3(m_modelMatrix[0][0], m_modelMatrix[1][1], m_modelMatrix[2][2]); }
+        GETTER glm::mat4 getModelMatrix() const { return m_modelMatrix; }
 
         inline void setWorldPosition(glm::vec3 position)
         {
             m_modelMatrix[3] = glm::vec4(position, 1.0f);
+        }
+
+        inline void translate(glm::vec3 translation)
+        {
+            m_modelMatrix = glm::translate(m_modelMatrix, translation);
+        }
+
+        inline void setWorldScale(glm::vec3 scale)
+        {
+            m_modelMatrix[0][0] = scale.x;
+            m_modelMatrix[1][1] = scale.y;
+            m_modelMatrix[2][2] = scale.z;
         }
 
         inline void rotateAxis(float radians, glm::vec3 axis)

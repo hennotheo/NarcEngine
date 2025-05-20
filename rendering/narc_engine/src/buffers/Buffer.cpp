@@ -1,11 +1,13 @@
 #include "buffers/Buffer.h"
 
-#include <NarcLog.h>
 #include "Engine.h"
 
 namespace narc_engine
 {
-    Buffer::Buffer() = default;
+    Buffer::Buffer(VkBufferUsageFlags usage) : m_usage(usage)
+    {
+        m_bufferMemory = DeviceMemory();
+    };
 
     Buffer::~Buffer()
     {
@@ -14,37 +16,30 @@ namespace narc_engine
 
     void Buffer::release()
     {
-        vkDestroyBuffer(getVkDevice(), m_buffer, nullptr);
-        vkFreeMemory(getVkDevice(), m_bufferMemory, nullptr);
+        vkDestroyBuffer(NARC_DEVICE_HANDLE, m_buffer, nullptr);
+        m_bufferMemory.release();
     }
 
-    void Buffer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
-                              VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+    void Buffer::createBuffer(VkDeviceSize size, VkMemoryPropertyFlags properties, VkBuffer& buffer, DeviceMemory& bufferMemory)
     {
         VkBufferCreateInfo bufferInfo{};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         bufferInfo.size = size;
-        bufferInfo.usage = usage;
+        bufferInfo.usage = m_usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (vkCreateBuffer(getVkDevice(), &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+        if (vkCreateBuffer(NARC_DEVICE_HANDLE, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create buffer!");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetBufferMemoryRequirements(getVkDevice(), buffer, &memRequirements);
+        vkGetBufferMemoryRequirements(NARC_DEVICE_HANDLE, buffer, &memRequirements);
 
-        VkMemoryAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = getDeviceHandler()->getPhysicalDevice()->findMemoryType(memRequirements.memoryTypeBits, properties);
+        bufferMemory.setSize(memRequirements.size);
+        bufferMemory.setMemoryTypeIndex(NARC_PHYSICAL_DEVICE->findMemoryType(memRequirements.memoryTypeBits, properties));
+        bufferMemory.allocate();
 
-        if (vkAllocateMemory(getVkDevice(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
-        {
-            NARCLOG_FATAL("failed to allocate buffer memory!");
-        }
-
-        vkBindBufferMemory(getVkDevice(), buffer, bufferMemory, 0);
+        vkBindBufferMemory(NARC_DEVICE_HANDLE, buffer, bufferMemory.get(), 0);
     }
 }

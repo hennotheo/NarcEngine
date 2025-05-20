@@ -16,4 +16,6 @@
 
 #include "pch.h"
 
+#define NARC_KB_SIZEOF(obj) (static_cast<double>(sizeof(obj)) / 1024.0)
+
 #include "Transform.h"

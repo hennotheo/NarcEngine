@@ -36,7 +36,7 @@ namespace narc_engine
 
         builder->getDebugLogger()->linkToDevice(createInfo);
 
-        if (vkCreateDevice(m_physicalDevice->getVkPhysicalDevice(), &createInfo, nullptr, &m_device) != VK_SUCCESS)
+        if (vkCreateDevice(m_physicalDevice->get(), &createInfo, nullptr, &m_device) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create logical device!");
         }

@@ -9,8 +9,8 @@ namespace narc_engine
 {
     GraphicsQueue::GraphicsQueue(const EngineBuilder* builder)
     {
-        QueueFamilyIndices indices = builder->getPhysicalDevice()->getQueueFamilyIndices();
-        vkGetDeviceQueue(builder->getLogicalDevice()->getVkDevice(), indices.GraphicsFamily.value(), 0, &m_queue);
+        QueueFamilyIndices indices = NARC_PHYSICAL_DEVICE->getQueueFamilyIndices();
+        vkGetDeviceQueue(NARC_DEVICE_HANDLE, indices.GraphicsFamily.value(), 0, &m_queue);
     }
 
     void GraphicsQueue::waitIdle() const

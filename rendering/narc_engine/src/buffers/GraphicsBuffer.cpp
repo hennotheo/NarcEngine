@@ -9,7 +9,7 @@ namespace narc_engine {
     template class GraphicsBuffer<uint32_t>;
 
     template<typename T>
-    void GraphicsBuffer<T>::create(const std::vector<T>& input, VkBufferUsageFlagBits usage) //vertex : VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, index : VK_BUFFER_USAGE_INDEX_BUFFER_BIT
+    void GraphicsBuffer<T>::create(const std::vector<T>& input) //vertex : VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, index : VK_BUFFER_USAGE_INDEX_BUFFER_BIT
     {
         const VkDeviceSize bufferSize = sizeof(input[0]) * input.size();
 
@@ -17,8 +17,8 @@ namespace narc_engine {
         stagingBuffer.create(bufferSize);
         stagingBuffer.input(input.data());
 
-        this->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->m_buffer, this->m_bufferMemory);
+        this->createBuffer(bufferSize, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->m_buffer, this->m_bufferMemory);
 
-        Engine::getInstance()->copyBuffer(stagingBuffer.getBuffer(), this->m_buffer, bufferSize);
+        NARC_COPY_BUFFER(&stagingBuffer, this, bufferSize);
     }
 }

@@ -5,14 +5,15 @@
 
 #include <vulkan/vulkan.h>
 
-#include "CommandPool.h"
-#include "DescriptorPool.h"
+#include "platform/vulkan/CommandPool.h"
+#include "platform/vulkan/DescriptorPool.h"
 #include "buffers/UniformBuffer.h"
 
-namespace narc_engine {
-    class DeviceHandler;
+#include "platform/vulkan/sync/Semaphore.h"
+#include "platform/vulkan/sync/Fence.h"
 
-    class FrameHandler : public DeviceComponent
+namespace narc_engine {
+    class FrameHandler final
     {
         friend class MultiFrameManager;
 
@@ -20,26 +21,27 @@ namespace narc_engine {
         FrameHandler();
         ~FrameHandler();
 
-        GETTER CommandPool* getCommandPool() const { return m_commandPool.get(); }
+        DEPRECATED GETTER CommandPool* getCommandPool() const { return m_commandPool.get(); }
 
-        GETTER VkSemaphore getImageAvailableSemaphore() const { return m_imageAvailableSemaphore; }
-        GETTER VkSemaphore getRenderFinishedSemaphore() const { return m_renderFinishedSemaphore; }
-        GETTER VkFence getInFlightFence() const { return m_inFlightFence; }
+        GETTER const Semaphore* getImageAvailableSemaphore() const { return m_imageAvailableSemaphore.get(); }
+        GETTER const Semaphore* getRenderFinishedSemaphore() const { return m_renderFinishedSemaphore.get(); }
+        GETTER const Fence* getInFlightFence() const { return m_inFlightFence.get(); }
 
         GETTER UniformBuffer* getUniformBuffer() const { return m_uniformBuffer.get(); }
-        GETTER const std::vector<VkDescriptorSet>& getDescriptorSets() const { return m_descriptorSets; }
+        GETTER const VkDescriptorSet& getDescriptorSet(ResourceId id) const { return m_descriptorSets.at(id); }
 
     private:
         std::unique_ptr<CommandPool> m_commandPool;
 
-        VkSemaphore m_imageAvailableSemaphore;
-        VkSemaphore m_renderFinishedSemaphore;
-        VkFence m_inFlightFence;
+        std::unique_ptr<Semaphore> m_imageAvailableSemaphore;
+        std::unique_ptr<Semaphore> m_renderFinishedSemaphore;
+        std::unique_ptr<Fence> m_inFlightFence;
 
         std::unique_ptr<UniformBuffer> m_uniformBuffer;
 
-        std::vector<VkDescriptorSet> m_descriptorSets;
+        std::unordered_map<ResourceId, VkDescriptorSet> m_descriptorSets;
 
-        void addDescriptorSets(const VkDescriptorSet descriptorSet) { m_descriptorSets.push_back(descriptorSet); }
+    private:
+        void addDescriptorSets(ResourceId id, const VkDescriptorSet descriptorSet);
     };
 } // narc_engine

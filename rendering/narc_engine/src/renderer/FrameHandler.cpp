@@ -4,37 +4,34 @@
 
 #include "renderer/FrameHandler.h"
 
-#include <NarcLog.h>
-
 #include "Engine.h"
 
 namespace narc_engine {
-    FrameHandler::FrameHandler() : DeviceComponent()
+    FrameHandler::FrameHandler()
     {
         m_commandPool = std::make_unique<CommandPool>();
         m_commandPool->createCommandBuffers(10);
 
-        VkSemaphoreCreateInfo semaphoreInfo{};
-        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        m_renderFinishedSemaphore = std::make_unique<Semaphore>();
+        m_imageAvailableSemaphore = std::make_unique<Semaphore>();
+        m_inFlightFence = std::make_unique<Fence>();
 
-        VkFenceCreateInfo fenceInfo{};
-        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-        fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-        if (vkCreateSemaphore(getVkDevice(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphore) != VK_SUCCESS ||
-            vkCreateSemaphore(getVkDevice(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphore) != VK_SUCCESS ||
-            vkCreateFence(getVkDevice(), &fenceInfo, nullptr, &m_inFlightFence) != VK_SUCCESS)
-        {
-            NARCLOG_FATAL("Failed to create semaphores!");
-        }
-
-        m_uniformBuffer = std::make_unique<UniformBuffer>(sizeof(UniformBufferObject));
+        m_uniformBuffer = std::make_unique<UniformBuffer>();
     }
 
     FrameHandler::~FrameHandler()
     {
-        vkDestroySemaphore(getVkDevice(), m_renderFinishedSemaphore, nullptr);
-        vkDestroySemaphore(getVkDevice(), m_imageAvailableSemaphore, nullptr);
-        vkDestroyFence(getVkDevice(), m_inFlightFence, nullptr);
+        
+    }
+
+    void FrameHandler::addDescriptorSets(ResourceId id, const VkDescriptorSet descriptorSet)
+    {
+        if (m_descriptorSets.find(id) != m_descriptorSets.end())
+        {
+            NARCLOG_ERROR("Descriptor set with id " + id + " already exists");
+            return;
+        }
+
+        m_descriptorSets[id] = descriptorSet;
     }
 } // narc_engine

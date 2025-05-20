@@ -4,8 +4,6 @@
 
 #include "core/EngineInstance.h"
 
-#include <NarcLog.h>
-
 #include "core/EngineDebugLogger.h"
 
 namespace narc_engine

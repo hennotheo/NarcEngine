@@ -59,7 +59,7 @@ namespace narc_engine
 
     void PhysicalDevice::getAllPhysicalDevices(uint32_t* pPhysicalDeviceCount, VkPhysicalDevice* pPhysicalDevices) const
     {
-        if (vkEnumeratePhysicalDevices(m_instance->getvkInstance(), pPhysicalDeviceCount, pPhysicalDevices) != VK_SUCCESS)
+        if (vkEnumeratePhysicalDevices(m_instance->get(), pPhysicalDeviceCount, pPhysicalDevices) != VK_SUCCESS)
         {
             NARCLOG_FATAL("Failed to get physical devices!");
         }
@@ -120,7 +120,7 @@ namespace narc_engine
     SwapChainSupportDetails PhysicalDevice::querySwapChainSupport(VkPhysicalDevice physicalDevice) const
     {
         SwapChainSupportDetails details;
-        VkSurfaceKHR surface = m_surface->getVkSurfaceKHR();
+        VkSurfaceKHR surface = m_surface->get();
 
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details.Capabilities);
 
@@ -211,7 +211,7 @@ namespace narc_engine
     VkBool32 PhysicalDevice::isPhysicalDeviceSupported(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) const
     {
         VkBool32 supported = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_surface->getVkSurfaceKHR(), &supported);
+        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_surface->get(), &supported);
         return supported;
     }
 

@@ -4,24 +4,33 @@
 
 #pragma once
 
-#include "resources/GraphicResourceHandler.h"
+#include "resources/Resource.h"
 
 namespace narc_engine
 {
-    class NARC_ENGINE_API Material
-    {
-    public:
-        explicit Material(const char* texturePath);
-        ~Material();
+    class ResourceManager;
+    class Shader;
 
-        GETTER const uint32_t& getMaterialID() const { return m_materialID; }
-        GETTER const GraphicResourceHandler& getMainTexture() const { return m_mainTexture; }
+    class NARC_ENGINE_API Material final : public Resource
+    {
+        friend class ResourceManager;
+
+    public:
+        ~Material() override;
+
+        GETTER ResourceId getMainTexture() const { return m_mainTexture; }
+        GETTER ResourceId getShader() const { return m_shader; }
+
+    protected:
+        explicit Material(const char* texturePath);
+
+        void onLoad() override {};
+        void onUnload() override {};
 
     private:
         static uint32_t s_materialCounter;
 
-        uint32_t m_materialID;
-
-        GraphicResourceHandler m_mainTexture;
+        ResourceId m_shader;
+        ResourceId m_mainTexture;
     };
 } // narc_engine

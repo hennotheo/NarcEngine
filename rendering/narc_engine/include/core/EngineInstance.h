@@ -10,13 +10,13 @@
 #include "core/EngineBuilder.h"
 
 namespace narc_engine {
-    class EngineInstance final
+    class EngineInstance final : public narc_core::IGetter<VkInstance>
     {
     public:
         explicit EngineInstance(const EngineBuilder* builder);
         ~EngineInstance();
 
-        GETTER VkInstance getvkInstance() const { return m_instance; }
+        NARC_IMPL_IGETTER(VkInstance, m_instance)
 
     private:
         VkInstance m_instance;

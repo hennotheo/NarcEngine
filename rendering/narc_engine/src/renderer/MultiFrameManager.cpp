@@ -4,8 +4,6 @@
 
 #include "renderer/MultiFrameManager.h"
 
-#include "NarcLog.h"
-
 namespace narc_engine
 {
     MultiFrameManager::MultiFrameManager(const uint32_t maxFrameInFlight) : m_maxFrameInFlight(maxFrameInFlight)
@@ -40,18 +38,19 @@ namespace narc_engine
         m_currentFrame = (m_currentFrame + 1) % m_maxFrameInFlight;
     }
 
-    void MultiFrameManager::allocateDescriptorSets(VkDescriptorSetAllocateInfo &allocInfo)
+    void MultiFrameManager::allocateDescriptorSets(const std::vector<ResourceId>& setIds, VkDescriptorSetAllocateInfo& allocInfo)
     {
         const uint32_t descriptorSetCount = allocInfo.descriptorSetCount;
         std::vector<VkDescriptorSet> descriptorSets(descriptorSetCount);
         for (uint32_t i = 0; i < m_maxFrameInFlight; ++i)
         {
             // descriptorSets.clear();//TODO check if this is needed
-
+            
             m_descriptorPool->allocateDescriptorSets(&allocInfo, descriptorSets.data());
             for (uint32_t j = 0; j < descriptorSetCount; ++j)
             {
-                m_frames[i]->addDescriptorSets(descriptorSets[j]);
+                ResourceId id = setIds[j];
+                m_frames[i]->addDescriptorSets(id, descriptorSets[j]);
             }
         }
     }

@@ -6,7 +6,6 @@
 #define _internal public
 #define _internal_protected public
 
-
 #elif defined(TESTING_BUILD_DLL)
 
 #define NARC_ENGINE_API 
@@ -16,7 +15,7 @@
 #define NARC_ENGINE_API __declspec(dllimport)
 #define _internal private
 #define _internal_protected protected
-      
+
 #endif
 
 
