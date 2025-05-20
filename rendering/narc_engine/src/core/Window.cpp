@@ -64,7 +64,7 @@ namespace narc_engine
         m_renderGraph = std::make_unique<RenderGraph>(m_swapchain.get());
 
         m_renderGraph->addNode(new GuiRenderNode(
-                m_swapchain->getRenderPass(), m_swapchain.get(), m_frameManager.get(), this));
+            m_swapchain->getRenderPass(), m_swapchain.get(), m_frameManager.get(), this));
     }
 
     void Window::render()
@@ -160,19 +160,22 @@ namespace narc_engine
         windowObject->m_onMouseEvent.trigger(button, action, mods);
     }
 
-#warning "TODO: REMOVE THIS"
+#pragma warning "TODO: REMOVE THIS, windows should not be able to add renderers"
     void Window::addRenderer(const Renderer* renderer)
     {
-        bool materialAlreadyUsed = std::any_of(m_renderGraph->m_renderers.begin(), m_renderGraph->m_renderers.end(), [&](const Renderer* r) {
-            return r->getMaterial() == renderer->getMaterial();
+#pragma warning "TODO: REMOVE THIS, only for testing, only one rendernode for all opaques"
+        Material* rendererMaterial = NARC_GET_RESOURCE_BY_ID(Material*, renderer->getMaterial());
+        bool shaderAlreadyUsed = std::any_of(m_renderGraph->m_renderers.begin(), m_renderGraph->m_renderers.end(), [&](const Renderer* r)
+            {
+                Material* material = NARC_GET_RESOURCE_BY_ID(Material*, r->getMaterial());
+                return material->getShader() == rendererMaterial->getShader();
             });
 
-        if (!materialAlreadyUsed)
+        if (!shaderAlreadyUsed)
         {
             if (std::find(m_renderGraph->m_renderers.begin(), m_renderGraph->m_renderers.end(), renderer) == m_renderGraph->m_renderers.end())
             {
-                Material* material = NARC_GET_RESOURCE_BY_ID(Material*, renderer->getMaterial());
-                const Shader* shader = NARC_GET_RESOURCE_BY_ID(const Shader*, material->getShader());
+                const Shader* shader = NARC_GET_RESOURCE_BY_ID(const Shader*, rendererMaterial->getShader());
                 // if (firstTime)
                 {
                     m_renderGraph->addNode(new RenderNode(m_swapchain->getRenderPass(), shader));
