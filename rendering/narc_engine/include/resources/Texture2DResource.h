@@ -25,7 +25,7 @@ namespace narc_engine
 
     protected:
         explicit Texture2DResource(const char* path);
-
+#pragma warning "resource allocation must be in load and unload functions"
         void onLoad() override {};
         void onUnload() override {};
 

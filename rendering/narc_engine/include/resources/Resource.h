@@ -5,22 +5,26 @@
 
 #define NARC_GET_RESOURCE_BY_ID(type, id) reinterpret_cast<type>(narc_engine::Resource::getResourceById(id));
 
+#define NARC_RESOURCE_IMPLEMENTATION(type, ...) \
+    friend class ResourceManager;\
+    explicit type(__VA_ARGS__);\
+    void onLoad() override;\
+    void onUnload() override;\
+
 namespace narc_engine
 {
     class ResourceManager;
 
-    class Resource
+    class Resource : public narc_core::ILoadable
     {
         friend class ResourceManager;
-
     public:
         virtual ~Resource();
 
         GETTER ResourceId getId() const { return m_id; };
         GETTER ResourceType getType() const { return m_type; };
 
-        void load();
-        void unload();
+        NARC_IMPL_ILOADABLE();
 
         QUERY static Resource* getResourceById(ResourceId id);
 

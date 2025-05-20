@@ -5,7 +5,7 @@
 #include "render_graph/contexts/RenderContext.h"
 #include "platform/vulkan/CommandBuffer.h"
 #include "models/Material.h"
-#include "models/Mesh.h"
+#include "resources/Mesh.h"
 #include "buffers/GraphicsBuffer.h"
 #include "render_graph/DrawCall.h"
 
@@ -57,7 +57,7 @@ namespace narc_engine
             const Material* material = NARC_GET_RESOURCE_BY_ID(const Material*, id);
             DrawCall drawCall(material, m_pipeline.get());
             auto it = renderers
-                | std::views::transform([](const Renderer* renderer) { return renderer->getMesh(); });
+                | std::views::transform([](const Renderer* renderer) { return NARC_GET_RESOURCE_BY_ID(const Mesh*, renderer->getMesh()); });
             std::vector<const Mesh*> meshes(it.begin(), it.end());
 
             drawCall.setMeshes(meshes);

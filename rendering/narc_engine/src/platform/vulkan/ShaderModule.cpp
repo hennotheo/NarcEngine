@@ -2,9 +2,17 @@
 
 namespace narc_engine
 {
-    ShaderModule::ShaderModule(const std::string& filename)
+    ShaderModule::ShaderModule(const char* filename) : m_filename(filename)
     {
-        const auto code = narc_io::FileReader::readFile(filename);
+    }
+
+    ShaderModule::~ShaderModule()
+    {
+    }
+
+    void ShaderModule::load()
+    {
+        const auto code = narc_io::FileReader::readFile(m_filename);
 
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -17,7 +25,7 @@ namespace narc_engine
         }
     }
 
-    ShaderModule::~ShaderModule()
+    void ShaderModule::unload()
     {
         vkDestroyShaderModule(NARC_DEVICE_HANDLE, m_shaderModule, nullptr);
     }

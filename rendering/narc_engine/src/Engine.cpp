@@ -52,6 +52,12 @@ namespace narc_engine {
         return s_instance->resourceManager()->createResource<Material>(texturePath);
     }
 
+    NARC_ENGINE_API ResourceId createMesh(const char* modelPath)
+    {
+        narc_io::Model3D model = narc_io::FileReader::load3DModel(modelPath);
+        return s_instance->resourceManager()->createResource<Mesh>(model);
+    }
+
     Engine::Engine()
     {
         s_instance = this;

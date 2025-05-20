@@ -4,10 +4,11 @@
 
 #include "Core.h"
 
-#include "models/Mesh.h"
 #include "models/Vertex.h"
 #include "models/Material.h"
 #include "models/Renderer.h"
+
+#include "resources/Mesh.h"
 
 #include "core/EngineBinder.h"
 

@@ -5,7 +5,7 @@
 #include "models/PushConstants.h"
 #include "renderer/GraphicsPipeline.h"
 #include "render_graph/contexts/RenderContext.h"
-#include "models/Mesh.h"
+#include "resources/Mesh.h"
 #include "buffers/GraphicsBuffer.h"
 
 namespace narc_engine

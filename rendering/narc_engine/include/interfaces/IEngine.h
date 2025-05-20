@@ -23,4 +23,5 @@ namespace narc_engine
     
     #pragma warning "temporary resource functions"
     NARC_ENGINE_API ResourceId createMaterial(const char* texturePath);
+    NARC_ENGINE_API ResourceId createMesh(const char* modelPath);
 }

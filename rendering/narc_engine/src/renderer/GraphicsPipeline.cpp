@@ -10,7 +10,7 @@
 
 #include "platform/vulkan/RenderPass.h"
 
-#include "models/Shader.h"
+#include "resources/Shader.h"
 
 namespace narc_engine {
     GraphicsPipeline::GraphicsPipeline(const RenderPass* renderPass, const Shader* shader)

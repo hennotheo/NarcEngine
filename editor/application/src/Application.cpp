@@ -37,9 +37,9 @@ namespace narc
         narc_engine::ResourceId mat = narc_engine::createMaterial(g_texturePath.c_str());
         narc_engine::ResourceId mat2 = narc_engine::createMaterial(g_texture2Path.c_str());
         
-        m_renderers.push_back(new narc_engine::Renderer(&model, mat, m_transforms[0]));
-        m_renderers.push_back(new narc_engine::Renderer(&model2, mat2, m_transforms[1]));
-        m_renderers.push_back(new narc_engine::Renderer(&model, mat, m_transforms[2]));
+        m_renderers.push_back(new narc_engine::Renderer(model, mat, m_transforms[0]));
+        m_renderers.push_back(new narc_engine::Renderer(model2, mat2, m_transforms[1]));
+        m_renderers.push_back(new narc_engine::Renderer(model, mat, m_transforms[2]));
 
         m_transforms[2]->setWorldScale(glm::vec3(0.5f, 0.5f, 0.5f));
     }

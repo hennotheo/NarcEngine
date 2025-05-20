@@ -9,5 +9,6 @@ namespace narc_engine
         Buffer,
         Shader,
         Material,
+        Mesh,
     };
 }

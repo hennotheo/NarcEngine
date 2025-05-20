@@ -2,6 +2,14 @@
 
 namespace narc_engine
 {
+    constexpr uint32_t BASE_ALLOCATED_RESOURCES = 20;
+
+    ResourceManager::ResourceManager()
+    {
+        m_resources.reserve(BASE_ALLOCATED_RESOURCES);
+        m_allocationOrder.reserve(BASE_ALLOCATED_RESOURCES);
+    }
+
     ResourceManager::~ResourceManager()
     {
         for (ResourceId& resourceID : m_allocationOrder)

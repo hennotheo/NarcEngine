@@ -19,14 +19,14 @@ namespace narc_engine {
     protected:
         friend class ResourceManager;
 
-        explicit Shader(const std::string& vertexShaderFile, const std::string& fragShaderFile);
+        explicit Shader(const char* vertexShaderFile, const char* fragShaderFile);
 
         void onLoad() override;
         void onUnload() override;
 
     private:
-        ShaderModule m_fragShaderModule;
         ShaderModule m_vertexShaderModule;
+        ShaderModule m_fragShaderModule;
         VkDescriptorSetLayout m_descriptorSetLayout;
 
     private:

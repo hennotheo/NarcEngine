@@ -2,13 +2,13 @@
 // Created by theoh on 3/14/2025.
 //
 
-#include "models/Shader.h"
+#include "resources/Shader.h"
 
 #include "Engine.h"
 #include "utils/Utils.h"
 
 namespace narc_engine {
-    Shader::Shader(const std::string& vertexShaderFile, const std::string& fragShaderFile)
+    Shader::Shader(const char* vertexShaderFile, const char* fragShaderFile)
         :Resource(ResourceType::Shader), m_vertexShaderModule(vertexShaderFile), m_fragShaderModule(fragShaderFile)
     {
     }
@@ -17,13 +17,16 @@ namespace narc_engine {
 
     void Shader::onLoad()
     {
+        m_vertexShaderModule.load();
+        m_fragShaderModule.load();
         createDescriptorSetLayout();
     }
 
     void Shader::onUnload()
     {
         vkDestroyDescriptorSetLayout(NARC_DEVICE_HANDLE, m_descriptorSetLayout, nullptr);
-
+        m_vertexShaderModule.unload();
+        m_fragShaderModule.unload();
     }
 
     VkPipelineShaderStageCreateInfo Shader::configureShaderStage(const char* entryPoint, VkShaderStageFlagBits stage) const

@@ -6,7 +6,7 @@
 
 #include "Engine.h"
 
-#include "models/Shader.h"
+#include "resources/Shader.h"
 #include "resources/Texture2DResource.h"
 
 namespace narc_engine
@@ -16,7 +16,7 @@ namespace narc_engine
     Material::Material(const char* texturePath) :
         Resource(ResourceType::Material), //TODO not create texture in material
         m_mainTexture(Engine::getInstance()->resourceManager()->createResource<Texture2DResource>(texturePath)),
-        m_shader(Engine::getInstance()->resourceManager()->createResource<Shader>(std::string("shaders/shader_vert.spv"), std::string("shaders/shader_frag.spv")))
+        m_shader(Engine::getInstance()->resourceManager()->createResource<Shader>("shaders/shader_vert.spv", "shaders/shader_frag.spv"))
     {
         s_materialCounter++;
     }
