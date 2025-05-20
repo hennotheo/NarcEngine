@@ -20,7 +20,6 @@
 namespace narc_engine {
 
     class DeviceMemory;
-    class IResourceManager;
 
     class Engine : public IEngine
     {

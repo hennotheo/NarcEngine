@@ -21,9 +21,11 @@ namespace narc_engine
     protected:
         VkBuffer m_buffer;
         DeviceMemory m_bufferMemory;
-        VkBufferUsageFlags m_usage;
 
         void createBuffer(VkDeviceSize size, VkMemoryPropertyFlags properties, VkBuffer& buffer, DeviceMemory& bufferMemory);
         virtual void release();
+
+    private:
+        VkBufferUsageFlags m_usage;
     };
 }
