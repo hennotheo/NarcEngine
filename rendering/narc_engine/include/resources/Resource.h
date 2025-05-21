@@ -3,6 +3,8 @@
 #include "resources/ResourceType.h"
 #include "resources/ResourceState.h"
 
+#include "Rhi.h"
+
 #define NARC_GET_RESOURCE_BY_ID(type, id) reinterpret_cast<type>(narc_engine::Resource::getResourceById(id));
 
 #define NARC_RESOURCE_IMPLEMENTATION(type, ...) \

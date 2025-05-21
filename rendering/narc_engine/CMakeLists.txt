@@ -1,22 +1,8 @@
 narc_blob_source_files()
 
-set(NARC_ENGINE_DEPENDENCIES
-    NarcIO
-    NarcLog
-    NarcMath
-    CompileShaderCommand)
-
-set(PRIVATE_LIBS
-    glfw
-    Vulkan::Vulkan)
-
-set(PRIVATE_INCLUDES
-    "${Vulkan_INCLUDE_DIRS}"
-    "${imgui_SOURCE_DIR}")
-
 add_library(NarcEngine SHARED include/NarcEngine.h ${CPP_FILES} ${HPP_FILES})
 
-add_dependencies(NarcEngine ${NARC_ENGINE_DEPENDENCIES})
+add_dependencies(NarcEngine ${NARC_ENGINE_DEPENDENCIES} NarcRHI)
 
 target_compile_definitions(NarcEngine PRIVATE NARC_ENGINE_BUILD_DLL)
 
@@ -28,9 +14,10 @@ target_sources(NarcEngine PRIVATE ${imgui_SOURCE_FILES})
 target_link_libraries(NarcEngine PUBLIC
     NarcIO
     NarcLog
-    NarcMath)
+    NarcMath
+    NarcRHI)
 target_link_libraries(NarcEngine PRIVATE ${PRIVATE_LIBS})
-target_precompile_headers(NarcEngine PRIVATE "include/pch.h")
+target_precompile_headers(NarcEngine PUBLIC "include/pch.h")
 
 #----------------
 #----- TEST -----

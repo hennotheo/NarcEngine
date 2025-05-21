@@ -37,7 +37,8 @@
             "targets": [
                 "NarcEngineEditor"
             ],
-            "cleanFirst": false
+            "cleanFirst": false,
+            "jobs": 0
         },
         {
             "name": "release",

@@ -42,8 +42,7 @@ add_subdirectory(core/narc_math)
 add_subdirectory(core/narclog)
 add_subdirectory(core/narcio)
 
-add_subdirectory(rendering/shaders)
-add_subdirectory(rendering/narc_engine)
+add_subdirectory(rendering)
 
 add_subdirectory(editor/application)
 
