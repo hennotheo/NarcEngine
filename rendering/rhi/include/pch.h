@@ -2,4 +2,8 @@
 
 #include <vulkan/vulkan.h>
 
-#include "Rhi.h"
+#include <NarcMath.h>
+#include <NarcLog.h>
+#include <NarcIO.h>
+
+#include "rhi/RhiCore.h"

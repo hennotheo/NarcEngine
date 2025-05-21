@@ -11,5 +11,5 @@ target_link_libraries(NarcRHI PUBLIC
     NarcIO
     NarcLog
     NarcMath)
-target_link_libraries(NarcRHI PRIVATE ${PRIVATE_LIBS})
+target_link_libraries(NarcRHI PRIVATE NarcEngineDependencies)
 # target_precompile_headers(NarcRHI priv "include/pch.h")
