@@ -12,6 +12,9 @@ namespace narc_engine
 
         virtual void init() = 0;
         virtual void shutdown() = 0;
+
+        virtual void setApplicationVersion(uint16_t major, uint16_t minor, uint16_t patch) = 0;
+        virtual void setApplicationName(const char* name) = 0;
     };
 
     using ContextRhiPtr = std::unique_ptr<ContextRhi>;

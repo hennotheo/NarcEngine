@@ -37,7 +37,6 @@ if(ENABLE_TESTS)
     target_link_libraries(Tests_NarcEngine PRIVATE
         gtest gtest_main
         gmock gmock_main
-        ${PRIVATE_LIBS}
         NarcIO
         NarcLog
         NarcMath)

@@ -55,6 +55,7 @@ namespace narc_engine {
             VkMemoryPropertyFlags properties, VkImage& image, DeviceMemory* imageMemory) const;
 
     private:
+        ContextRhiPtr m_contextRhi;
         std::unique_ptr<EngineInstance> m_instance;
         std::unique_ptr<EngineDebugLogger> m_debugLogger;
         std::unique_ptr<DeviceHandler> m_deviceHandler;

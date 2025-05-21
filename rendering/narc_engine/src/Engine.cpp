@@ -66,6 +66,7 @@ namespace narc_engine {
         builder.setValidationLayers(&g_validationLayers);
         builder.setDeviceExtensions(&g_deviceExtensions);
 
+        m_contextRhi = createContextRhi(RendererApiType::Vulkan);
         m_instance = CREATE_ENGINE_UNIQUE_COMPONENT(EngineInstance, &builder);
         builder.m_instance = m_instance.get();
 

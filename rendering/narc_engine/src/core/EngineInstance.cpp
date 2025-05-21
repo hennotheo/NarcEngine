@@ -12,9 +12,6 @@ namespace narc_engine
 
     EngineInstance::EngineInstance(const EngineBuilder* builder)
     {
-        ContextRhiPtr ptr = createContextRhi(RendererApiType::Vulkan);
-        ptr->init();
-        ptr->shutdown();
         glfwInit();
 
         checkValidationLayerSupport(builder->getValidationLayers());

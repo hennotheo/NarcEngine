@@ -1,5 +1,9 @@
 add_subdirectory(shaders)
 
+#-----------------
+#--- INTERFACE ---
+#-----------------
+
 add_library(NarcEngineDependencies INTERFACE)
 target_include_directories(NarcEngineDependencies INTERFACE 
     "${CMAKE_CURRENT_SOURCE_DIR}"
@@ -15,6 +19,10 @@ add_dependencies(NarcEngineDependencies
     NarcLog
     NarcMath
     CompileShaderCommand)
+
+#-----------------
+#----- SOURCE -----
+#-----------------
 
 add_subdirectory(rhi)
 add_subdirectory(narc_engine)
