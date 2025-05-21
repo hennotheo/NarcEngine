@@ -13,6 +13,7 @@ if(NOT ENABLE_TESTS)
         "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
         target_link_libraries(NarcEngineEditor PRIVATE NarcEngine)
+        target_precompile_headers(NarcEngineEditor PRIVATE "include/pch.h")
 endif()
 
 #----------------

@@ -1,5 +1,9 @@
 add_subdirectory(shaders)
 
+add_library(NarcI INTERFACE)
+target_include_directories(NarcI INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_precompile_headers(NarcI INTERFACE "rhi/include/pch.h")
+
 set(NARC_ENGINE_DEPENDENCIES
     NarcIO
     NarcLog
@@ -8,7 +12,8 @@ set(NARC_ENGINE_DEPENDENCIES
 
 set(PRIVATE_LIBS
     glfw
-    Vulkan::Vulkan)
+    Vulkan::Vulkan
+    NarcI)
 
 set(PRIVATE_INCLUDES
     "${Vulkan_INCLUDE_DIRS}"

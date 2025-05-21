@@ -1,8 +1,3 @@
-#include <exception>
-#include <iostream>
-#include <functional>
-#include <NarcLog.h>
-
 #ifdef NARC_ENGINE_PLATFORM_WINDOWS
 
 #ifndef NARC_TEST_BUILD

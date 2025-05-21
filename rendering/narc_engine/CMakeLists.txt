@@ -17,7 +17,7 @@ target_link_libraries(NarcEngine PUBLIC
     NarcMath
     NarcRHI)
 target_link_libraries(NarcEngine PRIVATE ${PRIVATE_LIBS})
-target_precompile_headers(NarcEngine PUBLIC "include/pch.h")
+target_precompile_headers(NarcEngine PRIVATE "include/pch.h")
 
 #----------------
 #----- TEST -----
