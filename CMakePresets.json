@@ -34,9 +34,6 @@
         {
             "name": "dev-editor",
             "configurePreset": "dev",
-            "targets": [
-                "NarcEngineEditor"
-            ],
             "cleanFirst": false,
             "jobs": 0
         },

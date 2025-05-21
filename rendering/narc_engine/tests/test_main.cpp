@@ -6,6 +6,12 @@
 
 #include <gmock/gmock.h>
 
+TEST(NarcEngineTest, TestName)
+{
+    // Your test code here
+    EXPECT_TRUE(true);
+}
+
 int main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
