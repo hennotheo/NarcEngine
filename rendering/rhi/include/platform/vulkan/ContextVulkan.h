@@ -4,7 +4,7 @@
 
 namespace narc_engine
 {
-    class ContextVulkan : public ContextRhi
+    class ContextVulkan final : public ContextRhi
     {
     public:
         ContextVulkan();
@@ -16,9 +16,14 @@ namespace narc_engine
         void setApplicationVersion(uint16_t major, uint16_t minor, uint16_t patch) override;
         void setApplicationName(const char* name) override;
 
+    protected:
+        RhiResult enableExtension(const RhiExtensions& extension) override;
+
     private:
         VkInstanceCreateInfo m_createInfo{};
-        VkInstance m_instance;
+        VkInstance m_instance{};
         VkApplicationInfo m_appInfo{};
+
+        std::vector<const char*> m_requiredExtensions{};
     };
 } // namespace narc_engine

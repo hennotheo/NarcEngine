@@ -26,6 +26,35 @@ protected:
     virtual RendererApiType getTestedApi() = 0;
 };
 
+class RhiExtensionsTest : public ::testing::TestWithParam<RhiExtensions>
+{
+};
+
+TEST_P(RhiExtensionsTest, Extensions_Enabled)
+{
+    const RhiExtensions extension = GetParam();
+    const ContextRhiPtr context = createContextRhi(RendererApiType::Vulkan);
+
+    context->addExtensions(&extension, 1);
+
+    EXPECT_TRUE(context->isExtensionEnabled(extension));
+}
+
+TEST_P(RhiExtensionsTest, Extensions_InitShutdown)
+{
+    const RhiExtensions extension = GetParam();
+    const ContextRhiPtr context = createContextRhi(RendererApiType::Vulkan);
+
+    context->addExtensions(&extension, 1);
+
+    EXPECT_NO_THROW(context->init()) << "ContextRhi initialization threw an exception";
+    EXPECT_NO_THROW(context->shutdown()) << "ContextRhi shutdown threw an exception";
+}
+
+INSTANTIATE_TEST_SUITE_P(RhiExtensionsVulkanTest, RhiExtensionsTest,
+                         ::testing::Values(RhiExtensions::Core, RhiExtensions::DebugUtils, RhiExtensions::Surface,
+                                           RhiExtensions::ExtendedDevicesProperties, RhiExtensions::ExtendedSurfaceCapabilities));
+
 class RhiTestVulkan : public RhiTest
 {
 protected:
@@ -34,15 +63,21 @@ protected:
 
 TEST_F(RhiTestVulkan, ContextRhi_Creation)
 {
-    ContextRhiPtr context = createContextRhi(getTestedApi());
-    ASSERT_NE(context, nullptr) << "Failed to create ContextRhi for Vulkan API";
+    const ContextRhiPtr context = createContextRhi(getTestedApi());
+    ASSERT_NE(context.get(), nullptr) << "Failed to create ContextRhi for Vulkan API";
 }
 
 TEST_F(RhiTestVulkan, ContextRhi_InitShutdown)
 {
-    ContextRhiPtr context = createContextRhi(getTestedApi());
+    const ContextRhiPtr context = createContextRhi(getTestedApi());
     EXPECT_NO_THROW(context->init()) << "ContextRhi initialization threw an exception";
     EXPECT_NO_THROW(context->shutdown()) << "ContextRhi shutdown threw an exception";
+}
+
+TEST_F(RhiTestVulkan, ContextRhi_Core_Enabled)
+{
+    const ContextRhiPtr context = createContextRhi(getTestedApi());
+    EXPECT_TRUE(context->isExtensionEnabled(RhiExtensions::Core));
 }
 
 int main(int argc, char** argv)

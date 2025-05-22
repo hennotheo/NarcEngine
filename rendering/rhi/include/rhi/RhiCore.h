@@ -8,7 +8,7 @@
 
 #elif defined(TESTING_BUILD_DLL)
 
-#define NARC_ENGINE_API 
+#define NARC_ENGINE_API
 
 #else
 
@@ -23,6 +23,8 @@
 
 #define ENABLE_VALIDATION_LAYERS
 
-#else
-
 #endif
+
+using RhiResult = bool;
+#define RHI_SUCCESS true
+#define RHI_FAILURE false

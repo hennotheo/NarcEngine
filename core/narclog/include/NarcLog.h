@@ -4,11 +4,11 @@
 
 #include "Core.h"
 
-#define NARCLOG_FATAL(message) throw narclog::FatalException(message)
-#define NARCLOG_ERROR(message) throw narclog::ErrorException(message)
-#define NARCLOG_WARNING(message) narclog::log(WARNING, message)
-#define NARCLOG_INFO(message) narclog::log(INFO, message)
-#define NARCLOG_DEBUG(message) narclog::log(DEBUG, message)
+#define NARCLOG_FATAL(message) throw narclog::FatalException(std::string(message))
+#define NARCLOG_ERROR(message) throw narclog::ErrorException(std::string(message))
+#define NARCLOG_WARNING(message) narclog::logString(WARNING, std::string(message))
+#define NARCLOG_INFO(message) narclog::logString(INFO, std::string(message))
+#define NARCLOG_DEBUG(message) narclog::logString(DEBUG, std::string(message))
 
 #define NARCLOG_INIT(callback) narclog::createLogger(); \
     narclog::setSafeCloseCallback(callback)

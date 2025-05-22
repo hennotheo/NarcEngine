@@ -5,7 +5,33 @@
 
 namespace narc_engine
 {
-    ContextRhiPtr createContextRhi(RendererApiType api)
+    ContextRhi::ContextRhi() = default;
+
+    ContextRhi::~ContextRhi() = default;
+
+    void ContextRhi::addExtensions(const RhiExtensions* extension, const size_t count)
+    {
+        for (size_t i = 0; i < count; ++i)
+        {
+            const RhiExtensions ext = extension[i];
+
+            if (m_extensions.contains(ext))
+            {
+                NARCLOG_DEBUG("Extension already enabled");
+                continue;
+            }
+
+            if (enableExtension(ext) == RHI_FAILURE)
+            {
+                NARCLOG_WARNING("Failed to enable extension");
+                continue;
+            }
+
+            m_extensions.insert(ext);
+        }
+    }
+
+    ContextRhiPtr createContextRhi(const RendererApiType api)
     {
         switch (api)
         {
@@ -14,14 +40,13 @@ namespace narc_engine
 
         case RendererApiType::OpenGL:
             NARC_FATAL_OPENGL_NOT_SUPPORTED();
-            break;
 
         case RendererApiType::DirectX12:
             NARC_FATAL_DIRECTX12_NOT_SUPPORTED();
-            break;
+
         default:
             break;
         }
         return nullptr;
     }
-}
+} // namespace narc_engine
