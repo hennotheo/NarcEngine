@@ -3,38 +3,14 @@ file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 
 link_directories(${CMAKE_BINARY_DIR}/NarcEngine/${CMAKE_BUILD_TYPE})
 
-if(NOT ENABLE_TESTS)
-        add_executable(NarcEngineEditor src/main.cpp ${CPP_FILES} ${HPP_FILES})
+add_executable(NarcEngineEditor src/main.cpp ${CPP_FILES} ${HPP_FILES})
+narc_decl_testable_target(NarcEngineEditor)
 
-        add_dependencies(NarcEngineEditor
+narc_testable_add_dependencies(NarcEngineEditor
         NarcEngine)
 
-        target_include_directories(NarcEngineEditor PRIVATE
+narc_testable_add_include_directory(NarcEngineEditor PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-        target_link_libraries(NarcEngineEditor PRIVATE NarcEngine)
-        target_precompile_headers(NarcEngineEditor PRIVATE "include/pch.h")
-endif()
-
-#----------------
-#----- TEST -----
-#----------------
-
-if(ENABLE_TESTS)
-        file(GLOB_RECURSE TESTS_CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp)
-        file(GLOB_RECURSE TESTS_HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.h)
-
-        link_directories(${CMAKE_BINARY_DIR}/NarcEngine/${CMAKE_BUILD_TYPE})
-        add_executable(Tests_NarcEngineEditor tests/test_main.cpp ${TESTS_CPP_FILES} ${TESTS_HPP_FILES} ${CPP_FILES} ${HPP_FILES})
-
-        add_dependencies(Tests_NarcEngineEditor NarcEngine)
-
-        target_include_directories(Tests_NarcEngineEditor PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-        target_link_libraries(Tests_NarcEngineEditor PRIVATE
-                gtest gtest_main
-                gmock gmock_main
-                NarcEngine)
-
-        gtest_discover_tests(Tests_NarcEngineEditor
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
-endif()
+narc_testable_link_library(NarcEngineEditor PRIVATE NarcEngine)
+narc_testable_pch(NarcEngineEditor PRIVATE "include/pch.h")
