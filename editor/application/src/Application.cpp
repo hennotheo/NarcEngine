@@ -6,10 +6,10 @@
 
 namespace narc
 {
-    const std::string g_modelPath = "models/test.obj";
-    const std::string g_model2Path = "models/test2.obj";
-    const std::string g_texturePath = "textures/test.png";
-    const std::string g_texture2Path = "textures/test2.png";
+    const std::string g_modelPath = "models/mdl_cube.obj";
+    const std::string g_model2Path = "models/mdl_sphere.obj";
+    const std::string g_texturePath = "textures/tex_test_uv_0.png";
+    const std::string g_texture2Path = "textures/tex_test_uv_1.png";
 
     Application::Application()
     {

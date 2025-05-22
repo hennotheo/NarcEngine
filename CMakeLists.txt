@@ -46,4 +46,6 @@ add_subdirectory(rendering)
 
 add_subdirectory(editor/application)
 
+add_subdirectory(resources)
+
 include(cmake/installation.cmake)

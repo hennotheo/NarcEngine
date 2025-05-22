@@ -48,3 +48,5 @@ vendors/**
 
 #Shaders
 *.spv
+
+!resources/**
