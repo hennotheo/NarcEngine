@@ -123,6 +123,8 @@ TEST_P(RhiLayersTest, Layer_InitShutdown)
     const RhiLayer layer = GetParam();
     const ContextRhiPtr context = createContextRhi(RendererApiType::Vulkan);
 
+    RhiExtension logExtension = RhiExtension::DebugUtils;
+    context->addExtensions(&logExtension, 1);
     context->addLayers(&layer, 1);
 
     EXPECT_NO_THROW(context->init()) << "ContextRhi initialization threw an exception";

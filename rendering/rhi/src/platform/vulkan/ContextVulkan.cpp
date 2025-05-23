@@ -11,9 +11,6 @@ namespace narc_engine
 
 //----- MONITORING -----
 #define API_DUMP_LAYER_NAME "VK_LAYER_LUNARG_api_dump"
-#define OBJ_TRACKER_LAYER_NAME "VK_LAYER_LUNARG_object_tracker"
-#define MEMORY_TRACKER_LAYER_NAME "VK_LAYER_LUNARG_memory_tracker"
-#define THREAD_SAFETY_LAYER_NAME "VK_LAYER_LUNARG_thread_safety"
 
     ContextVulkan::ContextVulkan()
     {
@@ -38,6 +35,9 @@ namespace narc_engine
     {
         m_createInfo.enabledExtensionCount = static_cast<uint32_t>(m_requiredExtensions.size());
         m_createInfo.ppEnabledExtensionNames = m_requiredExtensions.data();
+
+        m_createInfo.enabledLayerCount = static_cast<uint32_t>(m_requiredLayers.size());
+        m_createInfo.ppEnabledLayerNames = m_requiredLayers.data();
 
         if (vkCreateInstance(&m_createInfo, nullptr, &m_instance) != VK_SUCCESS)
         {
@@ -91,9 +91,6 @@ namespace narc_engine
 
         case RhiLayer::Monitoring:
             m_requiredLayers.push_back(API_DUMP_LAYER_NAME);
-            m_requiredLayers.push_back(OBJ_TRACKER_LAYER_NAME);
-            m_requiredLayers.push_back(MEMORY_TRACKER_LAYER_NAME);
-            m_requiredLayers.push_back(THREAD_SAFETY_LAYER_NAME);
             return RHI_SUCCESS;
 
         default:
