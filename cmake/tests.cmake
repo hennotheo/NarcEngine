@@ -52,6 +52,7 @@ function(narc_decl_testable_target TARGET_NAME)
     add_executable(Tests_${TARGET_NAME} tests/test_main.cpp ${TESTS_CPP_FILES} ${TESTS_HPP_FILES} ${CPP_FILES} ${HPP_FILES})
     add_dependencies(Tests_${TARGET_NAME} ${TARGET_NAME})
     add_compile_definitions(Tests_${TARGET_NAME} PRIVATE NARC_TEST_BUILD)
+    target_include_directories(Tests_${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/tests")
 
     target_link_libraries(Tests_${TARGET_NAME} PRIVATE
         gtest gtest_main

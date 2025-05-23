@@ -2,9 +2,10 @@
 // Created by theoh on 23/05/2025.
 //
 
+#include "rhi/tests/test_rhi.h"
 #include "test_context_base.h"
 
-class RhiTestVulkan : public RhiTest
+class RhiContextTestVulkan : public RhiTest
 {
 protected:
     RendererApiType getTestedApi() override { return RendererApiType::Vulkan; }
@@ -15,7 +16,7 @@ protected:
  * @brief Unit tests for Vulkan-specific ContextRhi functionality.
  */
 
-TEST_F(RhiTestVulkan, ContextRhi_Creation)
+TEST_F(RhiContextTestVulkan, ContextRhi_Creation)
 {
     /**
      * @test Verifies that a ContextRhi object can be successfully created for the Vulkan API.
@@ -25,7 +26,7 @@ TEST_F(RhiTestVulkan, ContextRhi_Creation)
     ASSERT_NE(context.get(), nullptr) << "Failed to create ContextRhi for Vulkan API";
 }
 
-TEST_F(RhiTestVulkan, ContextRhi_InitShutdown)
+TEST_F(RhiContextTestVulkan, ContextRhi_InitShutdown)
 {
     /**
      * @test Verifies that the ContextRhi object can be initialized and shut down without exceptions.
@@ -36,7 +37,7 @@ TEST_F(RhiTestVulkan, ContextRhi_InitShutdown)
     EXPECT_NO_THROW(context->shutdown()) << "ContextRhi shutdown threw an exception";
 }
 
-TEST_F(RhiTestVulkan, ContextRhi_Core_Enabled)
+TEST_F(RhiContextTestVulkan, ContextRhi_Core_Enabled)
 {
     /**
      * @test Checks if the Core extension is enabled for the Vulkan ContextRhi.

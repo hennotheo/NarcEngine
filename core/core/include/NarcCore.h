@@ -28,4 +28,5 @@
 #include "Events.h"
 
 #include "interfaces/IGetter.h"
+#include "interfaces/IInitialisable.h"
 #include "interfaces/ILoadable.h"

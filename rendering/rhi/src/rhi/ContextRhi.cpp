@@ -6,7 +6,6 @@
 namespace narc_engine
 {
     ContextRhi::ContextRhi() = default;
-
     ContextRhi::~ContextRhi() = default;
 
     void ContextRhi::addExtensions(const RhiExtension* extension, const size_t count)

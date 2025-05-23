@@ -1,20 +1,15 @@
 #pragma once
 
-#include "platform/Platforms.h"
-
 #include "definitions/RhiExtension.h"
 #include "definitions/RhiLayer.h"
 
 namespace narc_engine
 {
-    class NARC_ENGINE_API ContextRhi
+    class NARC_ENGINE_API ContextRhi : public narc_core::IInitialisable
     {
     public:
         ContextRhi();
-        virtual ~ContextRhi();
-
-        virtual void init() = 0;
-        virtual void shutdown() = 0;
+        ~ContextRhi() override;
 
         GETTER bool isExtensionEnabled(const RhiExtension& extension) const { return m_extensions.contains(extension); }
         GETTER bool isLayerEnabled(const RhiLayer& layer) const { return m_layers.contains(layer); }
@@ -34,7 +29,5 @@ namespace narc_engine
         std::unordered_set<RhiLayer> m_layers;
     };
 
-    using ContextRhiPtr = std::unique_ptr<ContextRhi>;
-
-    ContextRhiPtr createContextRhi(RendererApiType api);
+    NARC_DECL_RHI_CREATION(ContextRhi);
 } // namespace narc_engine

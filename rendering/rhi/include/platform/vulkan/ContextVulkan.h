@@ -10,8 +10,7 @@ namespace narc_engine
         ContextVulkan();
         ~ContextVulkan() override;
 
-        void init() override;
-        void shutdown() override;
+        NARC_IMPL_INITIALISABLE();
 
         void setApplicationVersion(uint16_t major, uint16_t minor, uint16_t patch) override;
         void setApplicationName(const char* name) override;
