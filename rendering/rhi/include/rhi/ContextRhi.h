@@ -2,7 +2,7 @@
 
 #include "platform/Platforms.h"
 
-#include "definitions/Extensions.h"
+#include "definitions/RhiExtension.h"
 #include "definitions/RhiLayer.h"
 
 namespace narc_engine

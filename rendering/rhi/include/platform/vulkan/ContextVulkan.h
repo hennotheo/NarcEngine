@@ -26,5 +26,6 @@ namespace narc_engine
         VkApplicationInfo m_appInfo{};
 
         std::vector<const char*> m_requiredExtensions{};
+        std::vector<const char*> m_requiredLayers{};
     };
 } // namespace narc_engine

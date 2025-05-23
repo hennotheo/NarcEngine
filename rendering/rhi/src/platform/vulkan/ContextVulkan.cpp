@@ -6,6 +6,15 @@ namespace narc_engine
 {
 #define MINIMUM_VK_VERSION VK_API_VERSION_1_1
 
+//----- VALIDATION -----
+#define VALIDATION_LAYER_NAME "VK_LAYER_KHRONOS_validation"
+
+//----- MONITORING -----
+#define API_DUMP_LAYER_NAME "VK_LAYER_LUNARG_api_dump"
+#define OBJ_TRACKER_LAYER_NAME "VK_LAYER_LUNARG_object_tracker"
+#define MEMORY_TRACKER_LAYER_NAME "VK_LAYER_LUNARG_memory_tracker"
+#define THREAD_SAFETY_LAYER_NAME "VK_LAYER_LUNARG_thread_safety"
+
     ContextVulkan::ContextVulkan()
     {
         m_requiredExtensions.reserve(10);
@@ -74,6 +83,21 @@ namespace narc_engine
 
     RhiResult ContextVulkan::enableLayer(const RhiLayer& extension)
     {
-        return RHI_FAILURE;
+        switch (extension)
+        {
+        case RhiLayer::Validation:
+            m_requiredLayers.push_back(VALIDATION_LAYER_NAME);
+            return RHI_SUCCESS;
+
+        case RhiLayer::Monitoring:
+            m_requiredLayers.push_back(API_DUMP_LAYER_NAME);
+            m_requiredLayers.push_back(OBJ_TRACKER_LAYER_NAME);
+            m_requiredLayers.push_back(MEMORY_TRACKER_LAYER_NAME);
+            m_requiredLayers.push_back(THREAD_SAFETY_LAYER_NAME);
+            return RHI_SUCCESS;
+
+        default:
+            return RHI_FAILURE;
+        }
     }
 } // namespace narc_engine
