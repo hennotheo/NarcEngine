@@ -45,30 +45,35 @@ namespace narc_engine
 
     void ContextVulkan::setApplicationName(const char* name) { m_appInfo.pApplicationName = name; }
 
-    RhiResult ContextVulkan::enableExtension(const RhiExtensions& extension)
+    RhiResult ContextVulkan::enableExtension(const RhiExtension& extension)
     {
         switch (extension)
         {
-        case RhiExtensions::Core:
+        case RhiExtension::Core:
             return RHI_SUCCESS;
 
-        case RhiExtensions::DebugUtils:
+        case RhiExtension::DebugUtils:
             m_requiredExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
             return RHI_SUCCESS;
 
-        case RhiExtensions::Surface:
+        case RhiExtension::Surface:
             m_requiredExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
             return RHI_SUCCESS;
 
-        case RhiExtensions::ExtendedDevicesProperties:
+        case RhiExtension::ExtendedDevicesProperties:
             m_requiredExtensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
             return RHI_SUCCESS;
-        case RhiExtensions::ExtendedSurfaceCapabilities:
+        case RhiExtension::ExtendedSurfaceCapabilities:
             m_requiredExtensions.push_back(VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME);
             return RHI_SUCCESS;
 
         default:
             return RHI_FAILURE;
         }
+    }
+
+    RhiResult ContextVulkan::enableLayer(const RhiLayer& extension)
+    {
+        return RHI_FAILURE;
     }
 } // namespace narc_engine

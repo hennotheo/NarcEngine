@@ -9,11 +9,11 @@ namespace narc_engine
 
     ContextRhi::~ContextRhi() = default;
 
-    void ContextRhi::addExtensions(const RhiExtensions* extension, const size_t count)
+    void ContextRhi::addExtensions(const RhiExtension* extension, const size_t count)
     {
         for (size_t i = 0; i < count; ++i)
         {
-            const RhiExtensions ext = extension[i];
+            const RhiExtension ext = extension[i];
 
             if (m_extensions.contains(ext))
             {
@@ -28,6 +28,28 @@ namespace narc_engine
             }
 
             m_extensions.insert(ext);
+        }
+    }
+
+    void ContextRhi::addLayers(const RhiLayer* layers, const size_t count)
+    {
+        for (size_t i = 0; i < count; ++i)
+        {
+            const RhiLayer layer = layers[i];
+
+            if (m_layers.contains(layer))
+            {
+                NARCLOG_DEBUG("Layer already enabled");
+                continue;
+            }
+
+            if (enableLayer(layer) == RHI_FAILURE)
+            {
+                NARCLOG_WARNING("Failed to enable layer");
+                continue;
+            }
+
+            m_layers.insert(layer);
         }
     }
 

@@ -9,7 +9,7 @@
 #include "exceptions/FatalException.h"
 
 #if !(defined(NARC_TEST_BUILD) && defined(NARCLOG_BUILD_DLL))
-#define TESTING_LOGGER
+#define ENABLE_TERMINATE
 #endif
 
 #ifdef NARC_ENGINE_PLATFORM_WINDOWS
@@ -59,7 +59,7 @@ namespace narclog
         try
         {
             g_logger = CREATE_LOGGER();
-#if TESTING_LOGGER
+#ifdef ENABLE_TERMINATE
             std::set_terminate(handleTerminate);
 #endif
         }
@@ -93,11 +93,6 @@ namespace narclog
         {
             throw narclog::ErrorException(message);
         }
-
-#if TESTING_LOGGER
-        throw std::runtime_error(message);
-        g_logger->log(level, message);
-#endif
 
 #if !defined(NARC_TEST_BUILD)
         if (g_logger == nullptr)

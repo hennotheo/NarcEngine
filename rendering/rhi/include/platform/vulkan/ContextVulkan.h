@@ -17,7 +17,8 @@ namespace narc_engine
         void setApplicationName(const char* name) override;
 
     protected:
-        RhiResult enableExtension(const RhiExtensions& extension) override;
+        RhiResult enableExtension(const RhiExtension& extension) override;
+        RhiResult enableLayer(const RhiLayer& extension) override;
 
     private:
         VkInstanceCreateInfo m_createInfo{};

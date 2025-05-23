@@ -24,7 +24,6 @@ namespace narc_engine
         if (m_allocated)
         {
             NARCLOG_WARNING("Device memory already allocated!");
-            NARCLOG_WARNING(m_memory);
             return;
         }
 

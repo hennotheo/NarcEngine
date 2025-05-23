@@ -6,7 +6,7 @@
 
 namespace narc_engine
 {
-    enum class RhiExtensions
+    enum class RhiExtension
     {
         ///@brief All extensions needed to run the engine
         Core,
@@ -16,5 +16,5 @@ namespace narc_engine
         ExtendedSurfaceCapabilities
     };
 
-    constexpr RhiExtensions CoreExtension[1] = {RhiExtensions::Core};//To simplify the code
+    constexpr RhiExtension CoreExtension[1] = {RhiExtension::Core};//To simplify the code
 } // namespace narc_engine
