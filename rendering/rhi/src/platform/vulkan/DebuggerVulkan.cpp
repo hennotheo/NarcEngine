@@ -6,6 +6,14 @@
 
 namespace narc_engine
 {
+    DebuggerVulkan::DebuggerVulkan()
+    {
+    }
+
+    DebuggerVulkan::~DebuggerVulkan()
+    {
+    }
+
     void DebuggerVulkan::init()
     {
         // Initialize Vulkan-specific debugging features here

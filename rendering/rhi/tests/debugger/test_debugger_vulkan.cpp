@@ -24,21 +24,13 @@ protected:
 
 TEST_F(RhiDebuggerTestVulkan, DebuggerRhi_Creation)
 {
-    /**
-     * @test Verifies that a ContextRhi object can be successfully created for the Vulkan API.
-     * @details Ensures that the created context is not null.
-     */
-    const DebuggerRhiPtr context = createDe(getTestedApi());
-    ASSERT_NE(context.get(), nullptr) << "Failed to create ContextRhi for Vulkan API";
+    const DebuggerRhiPtr debugger = createDebuggerRhi(getTestedApi());
+    ASSERT_NE(debugger.get(), nullptr) << "Failed to create DebuggerRhiPtr for Vulkan API";
 }
 
 TEST_F(RhiDebuggerTestVulkan, DebuggerRhi_InitShutdown)
 {
-    /**
-     * @test Verifies that the ContextRhi object can be initialized and shut down without exceptions.
-     * @details Ensures that the init() and shutdown() methods do not throw any exceptions.
-     */
-    const ContextRhiPtr context = createContextRhi(getTestedApi());
+    const DebuggerRhiPtr context = createDebuggerRhi(getTestedApi());
     EXPECT_NO_THROW(context->init()) << "RhiDebugger initialization threw an exception";
     EXPECT_NO_THROW(context->shutdown()) << "RhiDebugger shutdown threw an exception";
 }

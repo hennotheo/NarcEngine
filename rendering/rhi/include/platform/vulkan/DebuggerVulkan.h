@@ -8,7 +8,7 @@
 
 namespace narc_engine
 {
-    class DebuggerVulkan : public DebuggerRhi
+    class DebuggerVulkan final : public DebuggerRhi
     {
     public:
         DebuggerVulkan();

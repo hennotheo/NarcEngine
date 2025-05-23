@@ -11,9 +11,5 @@ using namespace narc_engine;
 
 class RhiTest : public ::testing::Test
 {
-protected:
-    void SetUp() override;
-    void TearDown() override;
-
     virtual RendererApiType getTestedApi() = 0;
 };
