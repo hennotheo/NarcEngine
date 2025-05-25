@@ -2,8 +2,12 @@
 
 #include "rhi/ContextRhi.h"
 
+#include "context/ExtensionVulkan.h"
+
 namespace narc_engine
 {
+#define NARC_CTX_TO_VK(contextRhiPtr)
+
     class ContextVulkan final : public ContextRhi
     {
     public:
@@ -11,6 +15,8 @@ namespace narc_engine
         ~ContextVulkan() override;
 
         NARC_IMPL_INITIALISABLE();
+
+        GETTER const VkInstance& getVkInstance() const { return m_instance; }
 
         void setApplicationVersion(uint16_t major, uint16_t minor, uint16_t patch) override;
         void setApplicationName(const char* name) override;
@@ -24,7 +30,7 @@ namespace narc_engine
         VkInstance m_instance{};
         VkApplicationInfo m_appInfo{};
 
-        std::vector<const char*> m_requiredExtensions{};
+        std::vector<ExtensionVulkan*> m_requiredExtensions{};
         std::vector<const char*> m_requiredLayers{};
     };
 } // namespace narc_engine

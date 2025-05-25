@@ -5,6 +5,8 @@
 #include "rhi/tests/test_rhi.h"
 #include "test_context_base.h"
 
+#include "platform/vulkan/ContextVulkan.h"
+
 class RhiContextTestVulkan : public RhiTest
 {
 protected:
@@ -54,12 +56,15 @@ TEST_P(RhiExtensionsTest, Extensions_Enabled)
      * @param extension The extension to be tested, provided by the test parameterization.
      * @details Ensures that the isExtensionEnabled() method returns true after adding the extension.
      */
-    const RhiExtension extension = GetParam();
+    const ExtensionParam params = GetParam();
     const ContextRhiPtr context = createContextRhi(RendererApiType::Vulkan);
 
-    context->addExtensions(&extension, 1);
+    context->addExtensions(params.extensions.data(), params.extensions.size());
 
-    EXPECT_TRUE(context->isExtensionEnabled(extension));
+    for (auto& extension : params.extensions)
+    {
+        EXPECT_TRUE(context->isExtensionEnabled(extension)) << "Extension " << static_cast<int>(extension) << " should be enabled";
+    }
 }
 
 TEST_P(RhiExtensionsTest, Extensions_InitShutdown)
@@ -69,10 +74,15 @@ TEST_P(RhiExtensionsTest, Extensions_InitShutdown)
      * @param extension The extension to be tested, provided by the test parameterization.
      * @details Ensures that the init() and shutdown() methods do not throw any exceptions after adding the extension.
      */
-    const RhiExtension extension = GetParam();
+    const ExtensionParam params = GetParam();
     const ContextRhiPtr context = createContextRhi(RendererApiType::Vulkan);
 
-    context->addExtensions(&extension, 1);
+    constexpr RhiExtension debug = RhiExtension::DebugUtils;
+    constexpr RhiLayer validation = RhiLayer::Validation;
+    context->addExtensions(&debug, 1);
+    context->addLayers(&validation, 1);
+
+    context->addExtensions(params.extensions.data(), params.extensions.size());
 
     EXPECT_NO_THROW(context->init()) << "ContextRhi initialization threw an exception";
     EXPECT_NO_THROW(context->shutdown()) << "ContextRhi shutdown threw an exception";
@@ -85,9 +95,16 @@ INSTANTIATE_TEST_SUITE_P(
      * @brief Parameterizes the RhiExtensionsTest with a set of Vulkan-specific extensions.
      * @details Tests are run for each extension in the provided list.
      */
-    ::testing::Values(RhiExtension::Core, RhiExtension::DebugUtils, RhiExtension::Surface,
-        RhiExtension::ExtendedDevicesProperties, RhiExtension::ExtendedSurfaceCapabilities)
-    );
+    ::testing::Values(
+        ExtensionParam {"Core", {RhiExtension::Core}},
+        ExtensionParam {"Debug", {RhiExtension::DebugUtils}},
+        ExtensionParam {"ExtendedDevicesProperties", {RhiExtension::ExtendedDevicesProperties}},
+        ExtensionParam {"ExtendedSurfaceCapabilities", {RhiExtension::ExtendedSurfaceCapabilities}}
+    ),
+    [](const ::testing::TestParamInfo<ExtensionParam>& info) {
+    return info.param.name;
+    }
+);
 
 /**
  * @brief Tests if a specific layer can be enabled for the Vulkan ContextRhi.
@@ -124,8 +141,8 @@ TEST_P(RhiLayersTest, Layer_InitShutdown)
     const RhiLayer layer = GetParam();
     const ContextRhiPtr context = createContextRhi(RendererApiType::Vulkan);
 
-    RhiExtension logExtension = RhiExtension::DebugUtils;
-    context->addExtensions(&logExtension, 1);
+    const std::vector<RhiExtension> extension = {RhiExtension::Core, RhiExtension::DebugUtils};
+    context->addExtensions(extension.data(), extension.size());
     context->addLayers(&layer, 1);
 
     EXPECT_NO_THROW(context->init()) << "ContextRhi initialization threw an exception";

@@ -11,5 +11,12 @@
 
 #include "rhi/ContextRhi.h"
 
-class RhiExtensionsTest : public ::testing::TestWithParam<RhiExtension>{};
+
+struct ExtensionParam
+{
+    std::string name;
+    const std::vector<RhiExtension> extensions;
+};
+
+class RhiExtensionsTest : public ::testing::TestWithParam<ExtensionParam>{};
 class RhiLayersTest : public ::testing::TestWithParam<RhiLayer>{};

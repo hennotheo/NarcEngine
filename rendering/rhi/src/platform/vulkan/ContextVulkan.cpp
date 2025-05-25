@@ -1,15 +1,17 @@
 #include "platform/vulkan/ContextVulkan.h"
 
-#include <vulkan/vulkan.h>
+#include "platform/vulkan/VulkanUtils.h"
+
+#include "platform/vulkan/context/ExtensionVulkan.h"
 
 namespace narc_engine
 {
 #define MINIMUM_VK_VERSION VK_API_VERSION_1_1
 
-//----- VALIDATION -----
+    //----- VALIDATION -----
 #define VALIDATION_LAYER_NAME "VK_LAYER_KHRONOS_validation"
 
-//----- MONITORING -----
+    //----- MONITORING -----
 #define API_DUMP_LAYER_NAME "VK_LAYER_LUNARG_api_dump"
 
     ContextVulkan::ContextVulkan()
@@ -29,12 +31,46 @@ namespace narc_engine
         addExtensions(CoreExtension, 1);
     }
 
-    ContextVulkan::~ContextVulkan() {}
+    ContextVulkan::~ContextVulkan()
+    {
+        for (auto& ptr : m_requiredExtensions)
+        {
+            delete ptr;
+            ptr = nullptr;
+        }
+    }
 
     void ContextVulkan::init()
     {
-        m_createInfo.enabledExtensionCount = static_cast<uint32_t>(m_requiredExtensions.size());
-        m_createInfo.ppEnabledExtensionNames = m_requiredExtensions.data();
+        const uint32_t extensionCount = static_cast<uint32_t>(m_requiredExtensions.size());
+        std::vector<const char*> extensions;
+        extensions.reserve(m_requiredExtensions.size());
+        ExtensionVulkan* lastExtension = nullptr;
+        for (uint32_t i = 0; i < extensionCount; ++i)
+        {
+            ExtensionVulkan* ext = m_requiredExtensions[i];
+            extensions.push_back(ext->getName());
+            std::cout << "Enabling extension: " << ext->getName() << std::endl;
+
+            const void* createInfo = ext->getCreateInfo();
+            if (createInfo == nullptr)
+                continue;
+
+            if (lastExtension != nullptr)
+            {
+                lastExtension->linkNextCreateInfo(createInfo);
+            }
+            else
+            {
+                std::cout << "Linking extension: " << ext->getName() << std::endl;
+                m_createInfo.pNext = createInfo;
+            }
+
+            lastExtension = ext;
+        }
+
+        m_createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+        m_createInfo.ppEnabledExtensionNames = extensions.data();
 
         m_createInfo.enabledLayerCount = static_cast<uint32_t>(m_requiredLayers.size());
         m_createInfo.ppEnabledLayerNames = m_requiredLayers.data();
@@ -43,9 +79,22 @@ namespace narc_engine
         {
             NARCLOG_FATAL("Failed to create instance!");
         }
+
+        for (const auto& ext : m_requiredExtensions)
+        {
+            ext->init();
+        }
     }
 
-    void ContextVulkan::shutdown() { vkDestroyInstance(m_instance, nullptr); }
+    void ContextVulkan::shutdown()
+    {
+        for (const auto& ext : m_requiredExtensions)
+        {
+            ext->shutdown();
+        }
+
+        vkDestroyInstance(m_instance, nullptr);
+    }
 
     void ContextVulkan::setApplicationVersion(const uint16_t major, const uint16_t minor, const uint16_t patch)
     {
@@ -62,18 +111,20 @@ namespace narc_engine
             return RHI_SUCCESS;
 
         case RhiExtension::DebugUtils:
-            m_requiredExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+            m_requiredExtensions.push_back(new DebugExtensionVulkan(this));
             return RHI_SUCCESS;
 
         case RhiExtension::Surface:
-            m_requiredExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+            m_requiredExtensions.push_back(new SurfaceExtensionVulkan(this));
             return RHI_SUCCESS;
 
         case RhiExtension::ExtendedDevicesProperties:
-            m_requiredExtensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+            m_requiredExtensions.push_back(new ExtendedDevicesPropertiesExtensionVulkan(this));
             return RHI_SUCCESS;
+
         case RhiExtension::ExtendedSurfaceCapabilities:
-            m_requiredExtensions.push_back(VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME);
+            m_requiredExtensions.push_back(new SurfaceExtensionVulkan(this));
+            m_requiredExtensions.push_back(new ExtendedSurfaceCapabilitiesExtensionVulkan(this));
             return RHI_SUCCESS;
 
         default:
