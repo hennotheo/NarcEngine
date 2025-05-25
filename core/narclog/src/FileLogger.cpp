@@ -50,7 +50,7 @@ namespace narclog {
         std::ofstream file(filename);
         if (!file.is_open())
         {
-            NARCLOG_ERROR("Failed to open file: " + filename);
+            NARCLOG_ERROR("Failed to open file: {}", filename);
         }
 
         for (const std::string& line: m_lines)

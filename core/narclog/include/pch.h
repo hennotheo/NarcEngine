@@ -6,4 +6,7 @@
 
 #include <NarcCore.h>
 
-#include "NarcLog.h"
+#include "Core.h"
+
+#include "keywords/LogLevel.h"
+#include "keywords/LogFunctions.h"

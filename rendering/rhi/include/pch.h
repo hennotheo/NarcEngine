@@ -7,5 +7,4 @@
 #include <NarcIO.h>
 
 #include "rhi/RhiCore.h"
-
-#include "platform/Platforms.h"
+#include "rhi/Platforms.h"

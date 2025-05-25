@@ -3,7 +3,8 @@
 //
 
 #pragma once
-#include "platform/vulkan/VulkanUtils.h"
+
+#include "backend_vulkan/VulkanUtils.h"
 
 namespace narc_engine
 {

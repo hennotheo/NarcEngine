@@ -26,6 +26,8 @@
 
 #include "pch.h"
 
+#include "utils/Format.h"
+
 #include "Events.h"
 
 #include "interfaces/IGetter.h"

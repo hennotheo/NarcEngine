@@ -3,7 +3,7 @@
 #include <NarcIO.h>
 #include <NarcLog.h>
 #include <NarcMath.h>
-#include <Rhi.h>
+#include <../../rhi/include/rhi/Rhi.h>
 
 #include "utils/PublicTypedefs.h"
 

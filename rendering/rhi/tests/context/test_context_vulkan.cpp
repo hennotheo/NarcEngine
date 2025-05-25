@@ -5,7 +5,7 @@
 #include "rhi/tests/test_rhi.h"
 #include "test_context_base.h"
 
-#include "platform/vulkan/ContextVulkan.h"
+#include "backend_vulkan/ContextVulkan.h"
 
 class RhiContextTestVulkan : public RhiTest
 {

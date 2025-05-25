@@ -1,8 +1,6 @@
-#include "platform/vulkan/ContextVulkan.h"
+#include "backend_vulkan/ContextVulkan.h"
 
-#include "platform/vulkan/VulkanUtils.h"
-
-#include "platform/vulkan/context/ExtensionVulkan.h"
+#include "backend_vulkan/context/ExtensionVulkan.h"
 
 namespace narc_engine
 {

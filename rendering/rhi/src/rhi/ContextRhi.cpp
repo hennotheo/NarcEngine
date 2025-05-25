@@ -1,7 +1,7 @@
 #include "rhi/ContextRhi.h"
 
-#include "platform/Platforms.h"
-#include "platform/vulkan/ContextVulkan.h"
+#include "Platforms.h"
+#include "backend_vulkan/ContextVulkan.h"
 
 namespace narc_engine
 {

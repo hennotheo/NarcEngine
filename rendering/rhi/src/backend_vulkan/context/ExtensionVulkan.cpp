@@ -2,9 +2,9 @@
 // Created by theoh on 5/23/2025.
 //
 
-#include "platform/vulkan/context/ExtensionVulkan.h"
+#include "backend_vulkan/context/ExtensionVulkan.h"
 
-#include "platform/vulkan/ContextVulkan.h"
+#include "backend_vulkan/ContextVulkan.h"
 #include "rhi/RhiCore.h"
 
 namespace narc_engine
@@ -19,15 +19,15 @@ namespace narc_engine
         {
             // NARCLOG_PREPARE_HANDLER(NarcEngineCore);
             // NARC_EXECUTE_HANDLED(NarcEngineCore, NARCLOG_ERROR(pCallbackData->pMessage), pCallbackData);
-            NARCLOG_ERROR(pCallbackData->pMessage);
+            NARCLOG_ERROR("{}", pCallbackData->pMessage);
         }
         else if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
         {
-            NARCLOG_WARNING(pCallbackData->pMessage);
+            NARCLOG_WARNING("{}", pCallbackData->pMessage);
         }
         else
         {
-            NARCLOG_DEBUG(pCallbackData->pMessage);
+            NARCLOG_DEBUG("{}", pCallbackData->pMessage);
         }
 
         return VK_FALSE;
