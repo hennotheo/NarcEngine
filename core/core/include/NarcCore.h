@@ -5,9 +5,8 @@
 #pragma once
 
 #define QUERY [[nodiscard]]
-#define GETTER [[nodiscard]] inline
-#define VIRTUAL_GETTER [[nodiscard]] virtual
-#define SETTER inline
+
+#define NARC_MUTABLE_THIS(type) const_cast<type*>(this)
 
 #define DEPRECATED [[deprecated("Deprecated. This code will be removed in the future.")]]
 #define TEMP_CODE [[deprecated("Temporary code just for testing purposes")]]
@@ -26,7 +25,8 @@
 
 #include "pch.h"
 
-#include "utils/Format.h"
+#include "macros/Format.h"
+#include "macros/GetterSetter.h"
 
 #include "Events.h"
 

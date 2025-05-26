@@ -6,8 +6,6 @@
 
 namespace narc_engine
 {
-#define NARC_CTX_TO_VK(contextRhiPtr)
-
     class ContextVulkan final : public ContextRhi
     {
     public:
@@ -15,7 +13,9 @@ namespace narc_engine
         ~ContextVulkan() override;
 
         NARC_IMPL_INITIALISABLE();
+        // NARC_IMPL_VK_PLATFORM_GETTERS(Context);
 
+        NARC_IMPL_RHI_PLATFORM_GETTER(Context, Vulkan)
         GETTER const VkInstance& getVkInstance() const { return m_instance; }
 
         void setApplicationVersion(uint16_t major, uint16_t minor, uint16_t patch) override;

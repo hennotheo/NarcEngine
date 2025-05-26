@@ -5,10 +5,10 @@
 #include <NarcMath.h>
 #include <../../rhi/include/rhi/Rhi.h>
 
-#include "utils/PublicTypedefs.h"
+#include "../../../core/core/include/macros/PublicTypedefs.h"
 
 #ifdef NARC_ENGINE_BUILD_DLL
 
-#include "utils/Utils.h"
+#include "../../../core/core/include/macros/Utils.h"
 
 #endif

@@ -5,11 +5,15 @@
 
 namespace narc_engine
 {
+    class ContextVulkan;
+
     class NARC_ENGINE_API ContextRhi : public narc_core::IInitialisable
     {
     public:
         ContextRhi();
         ~ContextRhi() override;
+
+        NARC_DECL_RHI_PLATFORM_GETTERS(Context);
 
         GETTER bool isExtensionEnabled(const RhiExtension& extension) const { return m_extensions.contains(extension); }
         GETTER bool isLayerEnabled(const RhiLayer& layer) const { return m_layers.contains(layer); }

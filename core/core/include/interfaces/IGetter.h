@@ -1,4 +1,6 @@
-#pragma once 
+#pragma once
+
+#include "macros/GetterSetter.h"
 
 namespace narc_core
 {

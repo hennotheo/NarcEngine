@@ -39,6 +39,15 @@ TEST_F(RhiContextTestVulkan, ContextRhi_InitShutdown)
     EXPECT_NO_THROW(context->shutdown()) << "ContextRhi shutdown threw an exception";
 }
 
+TEST_F(RhiContextTestVulkan, ContextRhi_InitInstanceExists)
+{
+    const ContextRhiPtr context = createContextRhi(getTestedApi());
+    const auto vkContext = context->getContextVulkan();
+    context->init();
+    EXPECT_TRUE(vkContext->getVkInstance() != nullptr);
+    context->shutdown();
+}
+
 TEST_F(RhiContextTestVulkan, ContextRhi_Core_Enabled)
 {
     /**
