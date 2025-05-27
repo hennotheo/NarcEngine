@@ -8,20 +8,20 @@
 
 namespace narc_engine
 {
-    DeviceRhi::DeviceRhi(const ContextRhi* ctx) :
-        narc_core::IInitialisable(), m_context(ctx)
+    DeviceRhi::DeviceRhi(const ContextRhi* ctx, const WindowRhi* window) :
+        narc_core::IInitialisable(), m_context(ctx), m_window(window)
     {
 
     }
 
     DeviceRhi::~DeviceRhi() = default;
 
-    DeviceRhiPtr createDeviceRhi(const RendererApiType api, const ContextRhi* ctx)
+    DeviceRhiPtr createDeviceRhi(const RendererApiType api, const ContextRhi* ctx, const WindowRhi* window)
     {
         switch (api)
         {
         case RendererApiType::Vulkan:
-            return std::make_unique<DeviceVulkan>(ctx);
+            return std::make_unique<DeviceVulkan>(ctx->getContextVulkan(), window->getWindowVulkan());
 
         case RendererApiType::OpenGL:
             NARC_FATAL_OPENGL_NOT_SUPPORTED();

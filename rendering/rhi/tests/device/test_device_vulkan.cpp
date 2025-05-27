@@ -14,13 +14,13 @@ protected:
 
 TEST_F(VulkanDeviceTest, DeviceRhi_Creation)
 {
-    const DeviceRhiPtr device = createDeviceRhi(getTestedApi(), m_context.get());
+    const DeviceRhiPtr device = createDeviceRhi(getTestedApi(), m_context.get(), m_window.get());
     ASSERT_NE(device.get(), nullptr) << "Failed to create DeviceRhi for Vulkan API";
 }
 
 TEST_F(VulkanDeviceTest, DeviceRhi_InitShutdown)
 {
-    const DeviceRhiPtr device = createDeviceRhi(getTestedApi(), m_context.get());
+    const DeviceRhiPtr device = createDeviceRhi(getTestedApi(), m_context.get(), m_window.get());
 
     EXPECT_NO_THROW(device->init()) << "DeviceRhi initialization threw an exception";
     EXPECT_NO_THROW(device->shutdown()) << "DeviceRhi shutdown threw an exception";
@@ -28,7 +28,7 @@ TEST_F(VulkanDeviceTest, DeviceRhi_InitShutdown)
 
 TEST_F(VulkanDeviceTest, DeviceRhi_GetDeviceVulkan)
 {
-    const DeviceRhiPtr device = createDeviceRhi(getTestedApi(), m_context.get());
+    const DeviceRhiPtr device = createDeviceRhi(getTestedApi(), m_context.get(), m_window.get());
 
     const auto deviceVK = device->getDeviceVulkan();
 
@@ -37,7 +37,7 @@ TEST_F(VulkanDeviceTest, DeviceRhi_GetDeviceVulkan)
 
 TEST_F(VulkanDeviceTest, DeviceRhi_VkDeviceInitialized)
 {
-    const DeviceRhiPtr device = createDeviceRhi(getTestedApi(), m_context.get());
+    const DeviceRhiPtr device = createDeviceRhi(getTestedApi(), m_context.get(), m_window.get());
 
     device->init();
 

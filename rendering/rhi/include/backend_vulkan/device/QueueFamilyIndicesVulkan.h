@@ -12,6 +12,4 @@ namespace narc_engine
             return GraphicsFamily.has_value() && PresentFamily.has_value();
         }
     };
-
-    QueueFamilyIndicesVulkan findQueueFamilies(VkPhysicalDevice device);
 }

@@ -5,13 +5,17 @@
 #pragma once
 
 #include "DeviceRhi.h"
-#include <type_traits>
+
+#include "backend_vulkan/ContextVulkan.h"
+#include "backend_vulkan/WindowVulkan.h"
+#include "backend_vulkan/device/PhysicalDeviceVulkan.h"
+
 namespace narc_engine
 {
     class DeviceVulkan final : public DeviceRhi
     {
     public:
-        explicit DeviceVulkan(const ContextRhi* ctx);
+        explicit DeviceVulkan(const ContextVulkan* ctx, const WindowVulkan* window);
         ~DeviceVulkan() override;
 
         NARC_IMPL_INITIALISABLE();
@@ -21,5 +25,9 @@ namespace narc_engine
 
     private:
         VkDevice m_device = VK_NULL_HANDLE;
+
+        PhysicalDeviceVulkan m_physicalDevice;
+
+        std::vector<VkDeviceQueueCreateInfo> createQueueCreateInfos(const QueueFamilyIndicesVulkan& indices);
     };
 }

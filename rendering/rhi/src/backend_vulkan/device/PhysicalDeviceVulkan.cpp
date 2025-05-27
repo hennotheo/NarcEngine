@@ -5,11 +5,12 @@
 #include "backend_vulkan/device/PhysicalDeviceVulkan.h"
 
 #include "backend_vulkan/ContextVulkan.h"
+#include "backend_vulkan/WindowVulkan.h"
 
 namespace narc_engine
 {
-    PhysicalDeviceVulkan::PhysicalDeviceVulkan(const ContextVulkan* context) :
-        m_context(context)
+    PhysicalDeviceVulkan::PhysicalDeviceVulkan(const ContextVulkan* context, const WindowVulkan* window) :
+        m_context(context), m_window(window)
     {
         uint32_t deviceCount = 0;
         if (vkEnumeratePhysicalDevices(context->getVkInstance(), &deviceCount, nullptr) != VK_SUCCESS)
@@ -63,10 +64,41 @@ namespace narc_engine
         return 1;
     }
 
+    QueueFamilyIndicesVulkan PhysicalDeviceVulkan::findQueueFamilies(const VkPhysicalDevice physicalDevice) const
+    {
+        QueueFamilyIndicesVulkan indices;
+
+        uint32_t queueFamilyCount = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
+        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
+
+        int i = 0;
+        for (const auto& queueFamily : queueFamilies)
+        {
+            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            {
+                indices.GraphicsFamily = i;
+            }
+
+            if (isPhysicalDeviceSupported(physicalDevice, i))
+            {
+                indices.PresentFamily = i;
+            }
+
+            if (indices.isComplete())
+                break;
+
+            i++;
+        }
+
+        return indices;
+    }
+
     RhiResult PhysicalDeviceVulkan::isPhysicalDeviceSupported(const VkPhysicalDevice physicalDevice, const uint32_t queueFamilyIndex) const
     {
-        bool supported = false;
-        // vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_surface->get(), &supported);
+        VkBool32 supported = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_window->getVkSurface(), &supported);
 
         if (!supported)
         {

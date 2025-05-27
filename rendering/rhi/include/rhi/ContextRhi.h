@@ -5,7 +5,7 @@
 
 namespace narc_engine
 {
-    class ContextVulkan;
+    NARC_DECL_RHI_PLATFORM_TYPES(Context)
 
     class NARC_ENGINE_API ContextRhi : public narc_core::IInitialisable
     {

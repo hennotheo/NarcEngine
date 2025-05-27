@@ -5,22 +5,24 @@
 #pragma once
 
 #include "ContextRhi.h"
+#include "WindowRhi.h"
 
 namespace narc_engine
 {
     NARC_DECL_RHI_PLATFORM_TYPES(Device)
 
-    class DeviceRhi : public narc_core::IInitialisable
+    class NARC_ENGINE_API DeviceRhi : public narc_core::IInitialisable
     {
     public:
-        explicit DeviceRhi(const ContextRhi* ctx);
+        explicit DeviceRhi(const ContextRhi* ctx, const WindowRhi* window);
         ~DeviceRhi() override;
 
         NARC_DECL_RHI_PLATFORM_GETTERS(Device)
 
     protected:
         const ContextRhi* m_context;
+        const WindowRhi* m_window;
     };
 
-    NARC_DECL_RHI_CREATION(DeviceRhi, const ContextRhi* ctx);
+    NARC_DECL_RHI_CREATION(DeviceRhi, const ContextRhi* ctx, const WindowRhi* window);
 }

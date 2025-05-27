@@ -18,6 +18,10 @@ namespace narc_engine
         explicit WindowVulkan(const ContextVulkan* ctx);
         ~WindowVulkan() override;
 
+        NARC_IMPL_VK_PLATFORM_GETTERS(Window);
+
+        NARC_GETTER(VkSurfaceKHR, getVkSurface, m_surface);
+
         NARC_IMPL_INITIALISABLE();
 
     private:

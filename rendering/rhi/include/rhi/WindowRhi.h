@@ -10,11 +10,15 @@ struct GLFWwindow;
 
 namespace narc_engine
 {
-    class WindowRhi : public narc_core::IInitialisable
+    NARC_DECL_RHI_PLATFORM_TYPES(Window)
+
+    class NARC_ENGINE_API WindowRhi : public narc_core::IInitialisable
     {
     public:
         explicit WindowRhi(const ContextRhi* ctx);
         ~WindowRhi() override;
+
+        NARC_DECL_RHI_PLATFORM_GETTERS(Window);
 
     protected:
         void createWindow();

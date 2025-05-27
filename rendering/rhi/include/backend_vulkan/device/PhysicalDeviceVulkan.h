@@ -9,6 +9,7 @@
 namespace narc_engine
 {
     class ContextVulkan;
+    class WindowVulkan;
 
     struct PhysicalDeviceVulkanProperties
     {
@@ -21,7 +22,7 @@ namespace narc_engine
     class PhysicalDeviceVulkan final
     {
     public:
-        explicit PhysicalDeviceVulkan(const ContextVulkan* context);
+        explicit PhysicalDeviceVulkan(const ContextVulkan* context, const WindowVulkan* window);
         ~PhysicalDeviceVulkan();
 
         QUERY PhysicalDeviceVulkanProperties queryPhysicalDevice() const;
@@ -30,11 +31,13 @@ namespace narc_engine
         std::vector<VkPhysicalDevice> m_physicalDevices;
 
         const ContextVulkan* m_context;
+        const WindowVulkan* m_window;
 
     private:
         QUERY VkPhysicalDevice queryBestPhysicalDevice() const;
 
         int rateDeviceSuitability(VkPhysicalDevice device) const;
         RhiResult isPhysicalDeviceSupported(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) const;
+        QueueFamilyIndicesVulkan findQueueFamilies(VkPhysicalDevice physicalDevice) const;
     };
 }
