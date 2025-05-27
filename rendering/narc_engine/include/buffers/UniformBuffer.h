@@ -10,7 +10,7 @@ namespace narc_engine
         UniformBuffer();
         ~UniformBuffer() override = default;
 
-        GETTER const VkDeviceSize getUniformBufferSize(uint32_t index) const { return m_bufferSizes[index]; }
+        NARC_GETTER(VkDeviceSize, getUniformBufferSize, m_bufferSizes[index], const uint32_t index);
         QUERY const VkDeviceSize getValidUniformBufferSize(VkDeviceSize size) const;
 
         void beginRegister(VkDeviceSize totalSize);

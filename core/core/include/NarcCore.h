@@ -34,8 +34,7 @@
 #include "interfaces/IInitialisable.h"
 #include "interfaces/ILoadable.h"
 
-#define DELETE_PTR_ARRAY(array) \
-    for (auto& ptr : array)\
+#define DELETE_PTR_ARRAY(array) for (auto& ptr : array)\
     {\
         delete ptr;\
         ptr = nullptr;\

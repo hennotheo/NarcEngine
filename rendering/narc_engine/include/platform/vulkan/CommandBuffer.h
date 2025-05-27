@@ -5,7 +5,7 @@ namespace narc_engine {
     class CommandBuffer
     {
     public:
-        GETTER VkCommandBuffer getVkCommandBuffer() const { return m_commandBuffer; }
+        NARC_GETTER(VkCommandBuffer, getVkCommandBuffer, m_commandBuffer);
 
         void allocate(const VkCommandBufferAllocateInfo* allocInfo);
         void reset(VkCommandBufferResetFlags flags);

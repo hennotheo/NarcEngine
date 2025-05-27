@@ -7,7 +7,7 @@
 
 #include "backend_vulkan/ContextVulkan.h"
 
-class RhiContextTestVulkan : public RhiTest
+class RhiContextTest : public RhiTest
 {
 protected:
     RendererApiType getTestedApi() override { return RendererApiType::Vulkan; }
@@ -18,7 +18,7 @@ protected:
  * @brief Unit tests for Vulkan-specific ContextRhi functionality.
  */
 
-TEST_F(RhiContextTestVulkan, ContextRhi_Creation)
+TEST_F(RhiContextTest, ContextVulkan_Creation)
 {
     /**
      * @test Verifies that a ContextRhi object can be successfully created for the Vulkan API.
@@ -28,7 +28,7 @@ TEST_F(RhiContextTestVulkan, ContextRhi_Creation)
     ASSERT_NE(context.get(), nullptr) << "Failed to create ContextRhi for Vulkan API";
 }
 
-TEST_F(RhiContextTestVulkan, ContextRhi_InitShutdown)
+TEST_F(RhiContextTest, ContextVulkan_InitShutdown)
 {
     /**
      * @test Verifies that the ContextRhi object can be initialized and shut down without exceptions.
@@ -39,7 +39,7 @@ TEST_F(RhiContextTestVulkan, ContextRhi_InitShutdown)
     EXPECT_NO_THROW(context->shutdown()) << "ContextRhi shutdown threw an exception";
 }
 
-TEST_F(RhiContextTestVulkan, ContextRhi_InitInstanceExists)
+TEST_F(RhiContextTest, ContextVulkan_InitInstanceExists)
 {
     const ContextRhiPtr context = createContextRhi(getTestedApi());
     const auto vkContext = context->getContextVulkan();
@@ -48,7 +48,7 @@ TEST_F(RhiContextTestVulkan, ContextRhi_InitInstanceExists)
     context->shutdown();
 }
 
-TEST_F(RhiContextTestVulkan, ContextRhi_Core_Enabled)
+TEST_F(RhiContextTest, ContextVulkan_Core_Enabled)
 {
     /**
      * @test Checks if the Core extension is enabled for the Vulkan ContextRhi.

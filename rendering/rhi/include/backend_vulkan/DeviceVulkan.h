@@ -15,9 +15,9 @@ namespace narc_engine
         ~DeviceVulkan() override;
 
         NARC_IMPL_INITIALISABLE();
-        // NARC_IMPL_VK_PLATFORM_GETTERS(Device);
-        NARC_OVERRIDE_GETTER(DeviceVulkan*, DeviceVulkan, const_cast<DeviceVulkan*>(this));
-        NARC_GETTER(VkDevice, VkDevice, m_device);
+        NARC_IMPL_VK_PLATFORM_GETTERS(Device);
+
+        NARC_GETTER(VkDevice, getVkDevice, m_device);
 
     private:
         VkDevice m_device = VK_NULL_HANDLE;

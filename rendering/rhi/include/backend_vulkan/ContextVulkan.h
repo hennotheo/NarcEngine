@@ -16,7 +16,7 @@ namespace narc_engine
         // NARC_IMPL_VK_PLATFORM_GETTERS(Context);
 
         NARC_IMPL_RHI_PLATFORM_GETTER(Context, Vulkan)
-        GETTER const VkInstance& getVkInstance() const { return m_instance; }
+        NARC_GETTER(const VkInstance&, getVkInstance, m_instance);
 
         void setApplicationVersion(uint16_t major, uint16_t minor, uint16_t patch) override;
         void setApplicationName(const char* name) override;

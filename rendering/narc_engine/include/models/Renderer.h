@@ -14,10 +14,10 @@ namespace narc_engine
         explicit Renderer(const narc_io::Model3D& model, ResourceId material, const narc_math::Transform* transform);
         ~Renderer();
 
-        GETTER ResourceId getMaterial() const { return m_material; }
-        GETTER ResourceId getMesh() const { return m_mesh; }
+        NARC_GETTER(ResourceId, getMaterial, m_material);
+        NARC_GETTER(ResourceId, getMesh, m_mesh);
 
-        TEMP_CODE GETTER const glm::mat4 getModelMatrix() const { return m_transform->getModelMatrix(); }
+        TEMP_CODE NARC_GETTER(const glm::mat4&, getModelMatrix, m_transform->getModelMatrix());
 
     private:
         ResourceId m_mesh;

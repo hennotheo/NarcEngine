@@ -1,10 +1,10 @@
-#include "macros/EngineFunctions.h"
+#include "utils/EngineFunctions.h"
 
 #include "buffers/Buffer.h"
 #include "platform/vulkan/CommandBuffer.h"
 #include "platform/vulkan/CommandPool.h"
 
-#include "macros/EngineMacros.h"
+#include "utils/EngineMacros.h"
 
 #include "Engine.h"
 #include "core/devices/LogicalDevice.h"

@@ -22,5 +22,6 @@ namespace narclog
 #define NARCLOG_INFO(...) narclog::logString(INFO, NARC_FORMAT(__VA_ARGS__))
 #define NARCLOG_DEBUG(...) narclog::logString(DEBUG, NARC_FORMAT(__VA_ARGS__))
 
-#define NARCLOG_INIT(callback) narclog::createLogger(); \
-narclog::setSafeCloseCallback(callback)
+#define NARCLOG_INIT(callback) \
+    narclog::createLogger(); \
+    narclog::setSafeCloseCallback(callback)

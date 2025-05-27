@@ -4,7 +4,7 @@
 
 namespace narc_core
 {
-#define NARC_IMPL_IGETTER(T, value)  GETTER const T& get() const noexcept override { return value; }
+#define NARC_IMPL_IGETTER(T, value) NARC_OVERRIDE_GETTER(T, get, value)
 
     template<typename T>
     class IGetter
@@ -12,6 +12,6 @@ namespace narc_core
     public:
         virtual ~IGetter() = default;
 
-        GETTER virtual const T& get() const noexcept = 0;
+        NARC_PURE_VIRTUAL_GETTER(T, get);
     };
 } // namespace 

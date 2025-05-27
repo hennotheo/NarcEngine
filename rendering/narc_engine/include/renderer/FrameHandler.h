@@ -21,14 +21,13 @@ namespace narc_engine {
         FrameHandler();
         ~FrameHandler();
 
-        DEPRECATED GETTER CommandPool* getCommandPool() const { return m_commandPool.get(); }
+        DEPRECATED NARC_GETTER(CommandPool*, getCommandPool, m_commandPool.get());
 
-        GETTER const Semaphore* getImageAvailableSemaphore() const { return m_imageAvailableSemaphore.get(); }
-        GETTER const Semaphore* getRenderFinishedSemaphore() const { return m_renderFinishedSemaphore.get(); }
-        GETTER const Fence* getInFlightFence() const { return m_inFlightFence.get(); }
-
-        GETTER UniformBuffer* getUniformBuffer() const { return m_uniformBuffer.get(); }
-        GETTER const VkDescriptorSet& getDescriptorSet(ResourceId id) const { return m_descriptorSets.at(id); }
+        NARC_GETTER(const Semaphore*, getImageAvailableSemaphore, m_imageAvailableSemaphore.get());
+        NARC_GETTER(const Semaphore*, getRenderFinishedSemaphore, m_renderFinishedSemaphore.get());
+        NARC_GETTER(const Fence*, getInFlightFence, m_inFlightFence.get());
+        NARC_GETTER(UniformBuffer*, getUniformBuffer, m_uniformBuffer.get());
+        NARC_GETTER(const VkDescriptorSet&, getDescriptorSet, m_descriptorSets.at(id), const ResourceId &id);
 
     private:
         std::unique_ptr<CommandPool> m_commandPool;

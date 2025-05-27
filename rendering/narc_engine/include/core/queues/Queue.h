@@ -9,7 +9,7 @@ namespace narc_engine
     public:
         virtual ~Queue() = default;
 
-        GETTER const VkQueue& getVkQueue() const { return m_queue; }
+        NARC_GETTER(const VkQueue&, getVkQueue, m_queue);
 
     protected:
         VkQueue m_queue;

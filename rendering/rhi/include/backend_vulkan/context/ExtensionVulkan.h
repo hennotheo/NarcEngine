@@ -18,8 +18,8 @@ namespace narc_engine
         explicit ExtensionVulkan(const ContextVulkan* ctx, const char* name);
         ~ExtensionVulkan() override = default;
 
-        GETTER const char* getName() const { return m_name; }
-        NARC_PURE_VIRTUAL_GETTER(const void*, CreateInfo)
+        NARC_GETTER(const char*, getName, m_name);
+        NARC_VIRTUAL_GETTER(const void*, getCreateInfo, nullptr);
 
         virtual void linkNextCreateInfo(const void* next) = 0;
 
@@ -55,7 +55,7 @@ namespace narc_engine
         explicit name##ExtensionVulkan(const ContextVulkan* ctx) : ExtensionVulkan(ctx, vkName){};\
         ~name##ExtensionVulkan() override{}\
         \
-        NARC_OVERRIDE_GETTER(const void*, CreateInfo, nullptr) \
+        NARC_OVERRIDE_GETTER(const void*, getCreateInfo, nullptr) \
         \
         inline void linkNextCreateInfo(const void* next) override {};\
         void init() override {}\

@@ -15,8 +15,8 @@ namespace narc_engine
 
         NARC_DECL_RHI_PLATFORM_GETTERS(Context);
 
-        GETTER bool isExtensionEnabled(const RhiExtension& extension) const { return m_extensions.contains(extension); }
-        GETTER bool isLayerEnabled(const RhiLayer& layer) const { return m_layers.contains(layer); }
+        NARC_BOOL_GETTER(isExtensionEnabled, m_extensions.contains(extension), const RhiExtension& extension);
+        NARC_BOOL_GETTER(isLayerEnabled, m_layers.contains(layer), const RhiLayer& layer);
 
         virtual void setApplicationVersion(uint16_t major, uint16_t minor, uint16_t patch) = 0;
         virtual void setApplicationName(const char* name) = 0;

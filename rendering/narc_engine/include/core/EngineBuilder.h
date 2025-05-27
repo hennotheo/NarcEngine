@@ -14,14 +14,14 @@ namespace narc_engine
         friend class Engine;
 
     public:
-        GETTER const EngineInstance* getInstance() const { return m_instance; }
-        GETTER const EngineDebugLogger* getDebugLogger() const { return m_debugLogger; }
-        GETTER const ISurfaceProvider* getSurfaceProvider() const { return m_surface; }
-        GETTER const PhysicalDevice* getPhysicalDevice() const { return m_physicalDevice; }
-        GETTER const LogicalDevice* getLogicalDevice() const { return m_logicalDevice; }
-        GETTER const KeywordList* getValidationLayers() const { return m_validationLayers; }
-        GETTER const KeywordList* getDeviceExtensions() const { return m_deviceExtensions; }
-        GETTER uint32_t getFrameInFlightCount() const { return m_frameInFlightCount; }
+        NARC_GETTER(const EngineInstance*, getInstance, m_instance);
+        NARC_GETTER(const EngineDebugLogger*, getDebugLogger, m_debugLogger);
+        NARC_GETTER(const ISurfaceProvider*, getSurfaceProvider, m_surface);
+        NARC_GETTER(const PhysicalDevice*, getPhysicalDevice, m_physicalDevice);
+        NARC_GETTER(const LogicalDevice*, getLogicalDevice, m_logicalDevice);
+        NARC_GETTER(const KeywordList*, getValidationLayers, m_validationLayers);
+        NARC_GETTER(const KeywordList*, getDeviceExtensions, m_deviceExtensions);
+        NARC_GETTER(uint32_t, getFrameInFlightCount, m_frameInFlightCount);
 
         inline void setValidationLayers(const KeywordList* validationLayers) { m_validationLayers = validationLayers; }
         inline void setDeviceExtensions(const KeywordList* extensions) { m_deviceExtensions = extensions; }

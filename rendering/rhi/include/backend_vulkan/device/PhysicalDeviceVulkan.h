@@ -1,33 +1,29 @@
+//
+// Created by theoh on 26/05/2025.
+//
+
 #pragma once
 
-#include <vulkan/vulkan_core.h>
-
-#include "core/EngineBuilder.h"
-#include "core/queues/QueueFamilyIndices.h"
-#include "renderer/SwapChainSupportDetails.h"
-#include "core/devices/PhysicalDevice.h"
+#include <vulkan/vulkan.h>
 
 namespace narc_engine
 {
-    class EngineInstance;
-    class EngineBuilder;
-    class ISurfaceProvider;
+    class ContextRhi;
 
-    class PhysicalDevice : public narc_core::IGetter<VkPhysicalDevice>
+    class PhysicalDeviceVulkan : public narc_core::IGetter<VkPhysicalDevice>
     {
     public:
-        PhysicalDevice(const EngineBuilder* builder);
+        explicit PhysicalDevice(const ContextRhi* builder);
 
         NARC_IMPL_IGETTER(VkPhysicalDevice, m_physicalDevice);
 
-        NARC_GETTER(const QueueFamilyIndices&, getQueueFamilyIndices, m_queueFamilyIndices)
-        NARC_GETTER(const VkPhysicalDeviceProperties&, getPhysicalDeviceProperties, m_physicalDeviceProperties)
-
-        QUERY SwapChainSupportDetails querySwapChainSupport() const { return querySwapChainSupport(m_physicalDevice); }
+        GETTER const QueueFamilyIndices& getQueueFamilyIndices() const { return m_queueFamilyIndices; }
+        GETTER const SwapChainSupportDetails getSwapChainSupport() const { return querySwapChainSupport(m_physicalDevice); }
+        GETTER const VkPhysicalDeviceProperties& getPhysicalDeviceProperties() const { return m_physicalDeviceProperties; }
 
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
         VkFormat findDepthFormat() const;
-        VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
+        VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
 
     private:
         VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;

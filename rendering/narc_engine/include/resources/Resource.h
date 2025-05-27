@@ -21,8 +21,8 @@ namespace narc_engine
     public:
         virtual ~Resource();
 
-        GETTER ResourceId getId() const { return m_id; };
-        GETTER ResourceType getType() const { return m_type; };
+        NARC_GETTER(ResourceId, getId, m_id);
+        NARC_GETTER(ResourceType, getType, m_type);
 
         NARC_IMPL_ILOADABLE();
 

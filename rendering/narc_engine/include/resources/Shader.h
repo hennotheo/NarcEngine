@@ -12,7 +12,7 @@ namespace narc_engine {
     public:
         ~Shader() override;
 
-        TEMP_CODE GETTER VkDescriptorSetLayout getDescriptorSetLayout() const { return m_descriptorSetLayout; }
+        TEMP_CODE VkDescriptorSetLayout getDescriptorSetLayout() const { return m_descriptorSetLayout; }
 
         VkPipelineShaderStageCreateInfo configureShaderStage(const char* entryPoint, VkShaderStageFlagBits stage) const;
 

@@ -1,7 +1,5 @@
 #include "Engine.h"
 
-#include "../../../core/core/include/macros/Utils.h"
-
 #include "models/Vertex.h"
 #include "buffers/StagingBuffer.h"
 #include "core/Window.h"

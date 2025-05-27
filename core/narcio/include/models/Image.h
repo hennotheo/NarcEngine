@@ -14,10 +14,10 @@ namespace narc_io
             FileReader::releaseImage(m_data);
         }
 
-        GETTER int getWidth() const { return m_width; }
-        GETTER int getHeight() const { return m_height; }
-        GETTER int getChannels() const { return m_channels; }
-        GETTER void* getData() const { return m_data; }
+        NARC_GETTER(int, getWidth, m_width);
+        NARC_GETTER(int, getHeight, m_height);
+        NARC_GETTER(int, getChannels, m_channels);
+        NARC_GETTER(void*, getData, m_data);
 
     private:
         Image(int width, int height, int channels, void* data)

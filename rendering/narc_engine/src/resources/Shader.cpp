@@ -5,7 +5,7 @@
 #include "resources/Shader.h"
 
 #include "Engine.h"
-#include "macros/Utils.h"
+#include "utils/Utils.h"
 
 namespace narc_engine {
     Shader::Shader(const char* vertexShaderFile, const char* fragShaderFile)

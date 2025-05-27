@@ -13,7 +13,7 @@ namespace narc_engine {
         ~DescriptorPool();
 
         NARC_IMPL_IGETTER(VkDescriptorPool, m_descriptorPool)
-        GETTER DescriptorPoolBuilder* builder() const { return m_builder.get(); }
+        NARC_GETTER(DescriptorPoolBuilder*, builder, m_builder.get())
 
         void create();
 
