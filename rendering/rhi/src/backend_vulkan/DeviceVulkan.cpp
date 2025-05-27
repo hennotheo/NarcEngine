@@ -9,7 +9,8 @@
 
 namespace narc_engine
 {
-    DeviceVulkan::DeviceVulkan(const ContextRhi* ctx) : DeviceRhi(ctx)
+    DeviceVulkan::DeviceVulkan(const ContextRhi* ctx) :
+        DeviceRhi(ctx)
     {
 
     }
