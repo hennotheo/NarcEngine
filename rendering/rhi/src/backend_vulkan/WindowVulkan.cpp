@@ -9,10 +9,21 @@
 
 namespace narc_engine
 {
+    std::vector<const char*> getVulkanGLFWRequiredExtensions()
+    {
+        uint32_t glfwExtensionCount = 0;
+        const char** extensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+        return std::vector<const char*>(extensions, extensions + glfwExtensionCount);
+    }
+
     WindowVulkan::WindowVulkan(const ContextVulkan* ctx):
         WindowRhi(ctx)
     {
-
+        if (!glfwVulkanSupported())
+        {
+            NARCLOG_FATAL("Vulkan is not supported by GLFW!");
+        }
     }
 
     WindowVulkan::~WindowVulkan()

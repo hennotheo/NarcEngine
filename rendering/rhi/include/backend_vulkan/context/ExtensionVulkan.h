@@ -48,21 +48,16 @@ namespace narc_engine
         VkDebugUtilsMessengerEXT m_debugMessenger{};
     };
 
-#define NARC_DECL_EXTENSION_VULKAN(name, vkName) \
-    class name##ExtensionVulkan final : public ExtensionVulkan \
-    {\
-    public:\
-        explicit name##ExtensionVulkan(const ContextVulkan* ctx) : ExtensionVulkan(ctx, vkName){};\
-        ~name##ExtensionVulkan() override{}\
-        \
-        NARC_OVERRIDE_GETTER(const void*, getCreateInfo, nullptr) \
-        \
-        inline void linkNextCreateInfo(const void* next) override {};\
-        void init() override {}\
-        void shutdown() override {}\
-    }
+    class BasicExtensionVulkan final : public ExtensionVulkan
+    {
+    public:
+        explicit BasicExtensionVulkan(const ContextVulkan* ctx, const char* name) : ExtensionVulkan(ctx, name){};
+        ~BasicExtensionVulkan() override{}
 
-    NARC_DECL_EXTENSION_VULKAN(Surface, VK_KHR_SURFACE_EXTENSION_NAME);
-    NARC_DECL_EXTENSION_VULKAN(ExtendedDevicesProperties, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
-    NARC_DECL_EXTENSION_VULKAN(ExtendedSurfaceCapabilities, VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME);
+        NARC_OVERRIDE_GETTER(const void*, getCreateInfo, nullptr)
+
+        inline void linkNextCreateInfo(const void* next) override {};
+        void init() override {}
+        void shutdown() override {}
+    };
 }

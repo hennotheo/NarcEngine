@@ -1,6 +1,7 @@
 #include "backend_vulkan/ContextVulkan.h"
 
 #include "backend_vulkan/context/ExtensionVulkan.h"
+#include "backend_vulkan/WindowVulkan.h"
 
 namespace narc_engine
 {
@@ -12,7 +13,7 @@ namespace narc_engine
     //----- MONITORING -----
 #define API_DUMP_LAYER_NAME "VK_LAYER_LUNARG_api_dump"
 
-    ContextVulkan::ContextVulkan()
+    ContextVulkan::ContextVulkan() : ContextRhi()
     {
         m_requiredExtensions.reserve(10);
 
@@ -48,7 +49,6 @@ namespace narc_engine
         {
             ExtensionVulkan* ext = m_requiredExtensions[i];
             extensions.push_back(ext->getName());
-            std::cout << "Enabling extension: " << ext->getName() << std::endl;
 
             const void* createInfo = ext->getCreateInfo();
             if (createInfo == nullptr)
@@ -106,23 +106,22 @@ namespace narc_engine
         switch (extension)
         {
         case RhiExtension::Core:
+            for (const auto glfwExtensions : getVulkanGLFWRequiredExtensions())
+            {
+                m_requiredExtensions.push_back(new BasicExtensionVulkan(this, glfwExtensions));
+            }
             return RHI_SUCCESS;
 
         case RhiExtension::DebugUtils:
             m_requiredExtensions.push_back(new DebugExtensionVulkan(this));
             return RHI_SUCCESS;
 
-        case RhiExtension::Surface:
-            m_requiredExtensions.push_back(new SurfaceExtensionVulkan(this));
-            return RHI_SUCCESS;
-
         case RhiExtension::ExtendedDevicesProperties:
-            m_requiredExtensions.push_back(new ExtendedDevicesPropertiesExtensionVulkan(this));
+            m_requiredExtensions.push_back(new BasicExtensionVulkan(this, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME));
             return RHI_SUCCESS;
 
         case RhiExtension::ExtendedSurfaceCapabilities:
-            m_requiredExtensions.push_back(new SurfaceExtensionVulkan(this));
-            m_requiredExtensions.push_back(new ExtendedSurfaceCapabilitiesExtensionVulkan(this));
+            m_requiredExtensions.push_back(new BasicExtensionVulkan(this, VK_KHR_SURFACE_EXTENSION_NAME));
             return RHI_SUCCESS;
 
         default:

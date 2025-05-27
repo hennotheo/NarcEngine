@@ -10,6 +10,8 @@ namespace narc_engine
 {
     class ContextVulkan;
 
+    std::vector<const char*> getVulkanGLFWRequiredExtensions();
+
     class WindowVulkan final : public WindowRhi
     {
     public:

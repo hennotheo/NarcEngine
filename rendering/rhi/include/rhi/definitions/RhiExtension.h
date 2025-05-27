@@ -11,7 +11,6 @@ namespace narc_engine
         ///@brief All extensions needed to run the engine
         Core,
         DebugUtils,
-        Surface,
         ExtendedDevicesProperties,
         ExtendedSurfaceCapabilities
     };

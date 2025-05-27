@@ -1,12 +1,20 @@
 #include "rhi/ContextRhi.h"
 
+#include <GLFW/glfw3.h>
+
 #include "Platforms.h"
 #include "backend_vulkan/ContextVulkan.h"
 
 namespace narc_engine
 {
-    ContextRhi::ContextRhi() = default;
-    ContextRhi::~ContextRhi() = default;
+    ContextRhi::ContextRhi()
+    {
+        glfwInit();
+    }
+    ContextRhi::~ContextRhi()
+    {
+        glfwTerminate();
+    }
 
     void ContextRhi::addExtension(const RhiExtension& extension)
     {
