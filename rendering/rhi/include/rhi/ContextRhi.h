@@ -21,7 +21,9 @@ namespace narc_engine
         virtual void setApplicationVersion(uint16_t major, uint16_t minor, uint16_t patch) = 0;
         virtual void setApplicationName(const char* name) = 0;
 
+        void addExtension(const RhiExtension& extension);
         void addExtensions(const RhiExtension* extension, size_t count);
+        void addLayer(const RhiLayer& layer);
         void addLayers(const RhiLayer* layers, size_t count);
 
     protected:

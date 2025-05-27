@@ -9,4 +9,5 @@
 
 //Context
 #include "ContextRhi.h"
+#include "WindowRhi.h"
 #include "DeviceRhi.h"

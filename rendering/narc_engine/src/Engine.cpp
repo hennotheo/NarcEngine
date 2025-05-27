@@ -4,6 +4,7 @@
 #include "buffers/StagingBuffer.h"
 #include "core/Window.h"
 #include "core/EngineBuilder.h"
+#include "Rhi.h"
 
 #include "platform/vulkan/DeviceMemory.h"
 
@@ -65,32 +66,45 @@ namespace narc_engine {
         builder.setDeviceExtensions(&g_deviceExtensions);
 
         m_contextRhi = createContextRhi(RendererApiType::Vulkan);
-        m_instance = CREATE_ENGINE_UNIQUE_COMPONENT(EngineInstance, &builder);
-        builder.m_instance = m_instance.get();
+        WindowRhiPtr window = createWindowRhi(RendererApiType::Vulkan, m_contextRhi.get());
 
-        m_debugLogger = CREATE_ENGINE_UNIQUE_COMPONENT(EngineDebugLogger, m_instance.get());
-        builder.m_debugLogger = m_debugLogger.get();
+        m_contextRhi->init();
+        window->init();
 
-        m_windows = CREATE_ENGINE_UNIQUE_COMPONENT(Window, m_instance.get());
-        builder.m_surface = m_windows.get();
-
-        if (m_instance == nullptr || m_windows == nullptr)
+        while (true)
         {
-            NARCLOG_FATAL("Failed to initialize Engine: m_instance or m_window is null");
+
         }
 
-        m_deviceHandler = CREATE_ENGINE_UNIQUE_COMPONENT(DeviceHandler, &builder);
-        builder.m_physicalDevice = m_deviceHandler->getPhysicalDevice();
-        builder.m_logicalDevice = m_deviceHandler->getLogicalDevice();
+        window->shutdown();
+        m_contextRhi->shutdown();
 
-        m_graphicsQueue = CREATE_ENGINE_UNIQUE_COMPONENT(GraphicsQueue, &builder);
-        m_presentQueue = CREATE_ENGINE_UNIQUE_COMPONENT(PresentQueue, &builder);
-
-        m_commandPool = CREATE_ENGINE_UNIQUE_COMPONENT(CommandPool);
-        m_windows->initRenderingSystem(&builder);
-
-        m_engineBinder = CREATE_ENGINE_UNIQUE_COMPONENT(EngineBinder, this);
-        m_resourcesManager = CREATE_ENGINE_UNIQUE_COMPONENT(ResourceManager);
+        // m_instance = CREATE_ENGINE_UNIQUE_COMPONENT(EngineInstance, &builder);
+        // builder.m_instance = m_instance.get();
+        //
+        // m_debugLogger = CREATE_ENGINE_UNIQUE_COMPONENT(EngineDebugLogger, m_instance.get());
+        // builder.m_debugLogger = m_debugLogger.get();
+        //
+        // m_windows = CREATE_ENGINE_UNIQUE_COMPONENT(Window, m_instance.get());
+        // builder.m_surface = m_windows.get();
+        //
+        // if (m_instance == nullptr || m_windows == nullptr)
+        // {
+        //     NARCLOG_FATAL("Failed to initialize Engine: m_instance or m_window is null");
+        // }
+        //
+        // m_deviceHandler = CREATE_ENGINE_UNIQUE_COMPONENT(DeviceHandler, &builder);
+        // builder.m_physicalDevice = m_deviceHandler->getPhysicalDevice();
+        // builder.m_logicalDevice = m_deviceHandler->getLogicalDevice();
+        //
+        // m_graphicsQueue = CREATE_ENGINE_UNIQUE_COMPONENT(GraphicsQueue, &builder);
+        // m_presentQueue = CREATE_ENGINE_UNIQUE_COMPONENT(PresentQueue, &builder);
+        //
+        // m_commandPool = CREATE_ENGINE_UNIQUE_COMPONENT(CommandPool);
+        // m_windows->initRenderingSystem(&builder);
+        //
+        // m_engineBinder = CREATE_ENGINE_UNIQUE_COMPONENT(EngineBinder, this);
+        // m_resourcesManager = CREATE_ENGINE_UNIQUE_COMPONENT(ResourceManager);
     }
 
     Engine::~Engine() = default;

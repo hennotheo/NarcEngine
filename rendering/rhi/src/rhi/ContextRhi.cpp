@@ -8,25 +8,45 @@ namespace narc_engine
     ContextRhi::ContextRhi() = default;
     ContextRhi::~ContextRhi() = default;
 
+    void ContextRhi::addExtension(const RhiExtension& extension)
+    {
+        if (m_extensions.contains(extension))
+        {
+            NARCLOG_DEBUG("Extension already enabled");
+            return;
+        }
+
+        if (enableExtension(extension) == RHI_FAILURE)
+        {
+            NARCLOG_WARNING("Failed to enable extension");
+            return;
+        }
+
+        m_extensions.insert(extension);
+    }
+
+    void ContextRhi::addLayer(const RhiLayer& layer)
+    {
+        if (m_layers.contains(layer))
+        {
+            NARCLOG_DEBUG("Layer already enabled");
+            return;
+        }
+
+        if (enableLayer(layer) == RHI_FAILURE)
+        {
+            NARCLOG_WARNING("Failed to enable layer");
+            return;
+        }
+
+        m_layers.insert(layer);
+    }
+
     void ContextRhi::addExtensions(const RhiExtension* extension, const size_t count)
     {
         for (size_t i = 0; i < count; ++i)
         {
-            const RhiExtension ext = extension[i];
-
-            if (m_extensions.contains(ext))
-            {
-                NARCLOG_DEBUG("Extension already enabled");
-                continue;
-            }
-
-            if (enableExtension(ext) == RHI_FAILURE)
-            {
-                NARCLOG_WARNING("Failed to enable extension");
-                continue;
-            }
-
-            m_extensions.insert(ext);
+            addExtension(extension[i]);
         }
     }
 
@@ -34,21 +54,7 @@ namespace narc_engine
     {
         for (size_t i = 0; i < count; ++i)
         {
-            const RhiLayer layer = layers[i];
-
-            if (m_layers.contains(layer))
-            {
-                NARCLOG_DEBUG("Layer already enabled");
-                continue;
-            }
-
-            if (enableLayer(layer) == RHI_FAILURE)
-            {
-                NARCLOG_WARNING("Failed to enable layer");
-                continue;
-            }
-
-            m_layers.insert(layer);
+            addLayer(layers[i]);
         }
     }
 

@@ -66,7 +66,7 @@ namespace narc_engine
     RhiResult PhysicalDeviceVulkan::isPhysicalDeviceSupported(const VkPhysicalDevice physicalDevice, const uint32_t queueFamilyIndex) const
     {
         bool supported = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_surface->get(), &supported);
+        // vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_surface->get(), &supported);
 
         if (!supported)
         {
