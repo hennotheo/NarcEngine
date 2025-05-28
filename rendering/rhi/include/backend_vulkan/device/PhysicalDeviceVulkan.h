@@ -26,7 +26,7 @@ namespace narc_engine
         explicit PhysicalDeviceVulkan(const ContextVulkan* context, const WindowVulkan* window);
         ~PhysicalDeviceVulkan();
 
-        QUERY PhysicalDeviceVulkanProperties queryPhysicalDevice() const;
+        QUERY PhysicalDeviceVulkanProperties queryPhysicalDevice();
 
         SETTER void addExtension(const char* extension) { m_deviceExtensions.insert(extension); }
 
@@ -41,6 +41,7 @@ namespace narc_engine
     private:
         QUERY VkPhysicalDevice queryBestPhysicalDevice() const;
 
+        void registerAllPhysicalDevices();
         int rateDeviceSuitability(VkPhysicalDevice device) const;
         RhiResult isSurfaceSupportedByPhysicalDevice(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) const;
         RhiResult deviceSupportAllRequiredExtensions(VkPhysicalDevice physicalDevice) const;

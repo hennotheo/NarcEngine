@@ -12,8 +12,18 @@ namespace narc_engine
     PhysicalDeviceVulkan::PhysicalDeviceVulkan(const ContextVulkan* context, const WindowVulkan* window) :
         m_context(context), m_window(window)
     {
+
+    }
+
+    PhysicalDeviceVulkan::~PhysicalDeviceVulkan()
+    {
+
+    }
+
+    void PhysicalDeviceVulkan::registerAllPhysicalDevices()
+    {
         uint32_t deviceCount = 0;
-        if (vkEnumeratePhysicalDevices(context->getVkInstance(), &deviceCount, nullptr) != VK_SUCCESS)
+        if (vkEnumeratePhysicalDevices(m_context->getVkInstance(), &deviceCount, nullptr) != VK_SUCCESS)
         {
             NARCLOG_FATAL("Failed to enumerate physical devices!");
         }
@@ -24,16 +34,13 @@ namespace narc_engine
         }
 
         m_physicalDevices.resize(deviceCount);
-        vkEnumeratePhysicalDevices(context->getVkInstance(), &deviceCount, m_physicalDevices.data());
+        vkEnumeratePhysicalDevices(m_context->getVkInstance(), &deviceCount, m_physicalDevices.data());
     }
 
-    PhysicalDeviceVulkan::~PhysicalDeviceVulkan()
+    PhysicalDeviceVulkanProperties PhysicalDeviceVulkan::queryPhysicalDevice()
     {
+        registerAllPhysicalDevices();
 
-    }
-
-    PhysicalDeviceVulkanProperties PhysicalDeviceVulkan::queryPhysicalDevice() const
-    {
         PhysicalDeviceVulkanProperties props{};
 
         props.PhysicalDevice = queryBestPhysicalDevice();

@@ -11,3 +11,4 @@
 #include "ContextRhi.h"
 #include "WindowRhi.h"
 #include "DeviceRhi.h"
+#include "SwapChainRhi.h"

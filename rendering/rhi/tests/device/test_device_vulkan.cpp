@@ -12,13 +12,13 @@ protected:
     RendererApiType getTestedApi() override { return RendererApiType::Vulkan; }
 };
 
-TEST_F(VulkanDeviceTest, DeviceRhi_Creation)
+TEST_F(VulkanDeviceTest, Creation)
 {
     const DeviceRhiPtr device = createDeviceRhi(getTestedApi(), m_context.get(), m_window.get());
     ASSERT_NE(device.get(), nullptr) << "Failed to create DeviceRhi for Vulkan API";
 }
 
-TEST_F(VulkanDeviceTest, DeviceRhi_InitShutdown)
+TEST_F(VulkanDeviceTest, InitShutdown)
 {
     const DeviceRhiPtr device = createDeviceRhi(getTestedApi(), m_context.get(), m_window.get());
 
@@ -26,7 +26,7 @@ TEST_F(VulkanDeviceTest, DeviceRhi_InitShutdown)
     EXPECT_NO_THROW(device->shutdown()) << "DeviceRhi shutdown threw an exception";
 }
 
-TEST_F(VulkanDeviceTest, DeviceRhi_GetDeviceVulkan)
+TEST_F(VulkanDeviceTest, GetDeviceVulkan)
 {
     const DeviceRhiPtr device = createDeviceRhi(getTestedApi(), m_context.get(), m_window.get());
 
@@ -35,7 +35,7 @@ TEST_F(VulkanDeviceTest, DeviceRhi_GetDeviceVulkan)
     EXPECT_NE(deviceVK, nullptr);
 }
 
-TEST_F(VulkanDeviceTest, DeviceRhi_PhysicalDeviceVulkanCreation)
+TEST_F(VulkanDeviceTest, PhysicalDeviceVulkanCreation)
 {
     EXPECT_NO_THROW(PhysicalDeviceVulkan physicalDevice(m_context->getContextVulkan(), m_window->getWindowVulkan()););
 }
@@ -62,7 +62,7 @@ INSTANTIATE_TEST_SUITE_P(
     )
     );
 
-TEST_F(VulkanDeviceTest, DeviceRhi_VkDeviceInitialized)
+TEST_F(VulkanDeviceTest, VkDeviceInitialized)
 {
     const DeviceRhiPtr device = createDeviceRhi(getTestedApi(), m_context.get(), m_window.get());
 
