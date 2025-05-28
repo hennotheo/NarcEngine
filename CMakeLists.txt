@@ -6,20 +6,26 @@ include(cmake/versionning.cmake)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-set(CMAKE_CXX_COMPILER g++)
-set(CMAKE_C_COMPILER gcc)
-set(CMAKE_CXX_FLAGS -std=c++20)
+if(NOT DEFINED CMAKE_CXX_COMPILER OR CMAKE_CXX_COMPILER STREQUAL "")
+  set(CMAKE_CXX_COMPILER "g++")
+endif()
+
+if(NOT DEFINED CMAKE_C_COMPILER OR CMAKE_C_COMPILER STREQUAL "")
+  set(CMAKE_C_COMPILER "gcc")
+endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_RULE_MESSAGES OFF)
 
 if (NOT DEFINED CMAKE_BUILD_TYPE)
-set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release")
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release")
 endif ()
 
 project(NarcEngineEditor
-VERSION ${NARC_VERSION}
-LANGUAGES CXX)
+        VERSION ${NARC_VERSION}
+        LANGUAGES CXX)
 
 include(cmake/helpers.cmake)
 include(cmake/dependencies.cmake)
@@ -27,9 +33,9 @@ include(cmake/tests.cmake)
 
 narc_set_shared_lib()
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS "NARC_BUILD_DEBUG" APPEND)
-endif()
+endif ()
 
 set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS "NARC_ENGINE_PLATFORM_WINDOWS" APPEND)
 

@@ -155,7 +155,7 @@ namespace narc_engine
         return RHI_SUCCESS;
     }
 
-    bool PhysicalDeviceVulkan::deviceSupportAllRequiredExtensions(const VkPhysicalDevice physicalDevice) const
+    RhiResult PhysicalDeviceVulkan::deviceSupportAllRequiredExtensions(const VkPhysicalDevice physicalDevice) const
     {
         uint32_t extensionCount;
         vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);
@@ -163,7 +163,7 @@ namespace narc_engine
         std::vector<VkExtensionProperties> availableExtensions(extensionCount);
         vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, availableExtensions.data());
 
-        std::set<const char*> requiredExtensions(m_deviceExtensions);
+        std::set<std::string> requiredExtensions(m_deviceExtensions.begin(), m_deviceExtensions.end());//string to compare
         for (const auto& extension : availableExtensions)
         {
             requiredExtensions.erase(extension.extensionName);

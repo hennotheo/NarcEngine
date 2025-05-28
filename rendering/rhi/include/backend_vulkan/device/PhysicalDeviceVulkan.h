@@ -28,6 +28,8 @@ namespace narc_engine
 
         QUERY PhysicalDeviceVulkanProperties queryPhysicalDevice() const;
 
+        SETTER void addExtension(const char* extension) { m_deviceExtensions.insert(extension); }
+
     private:
         std::vector<VkPhysicalDevice> m_physicalDevices;
 
@@ -41,7 +43,7 @@ namespace narc_engine
 
         int rateDeviceSuitability(VkPhysicalDevice device) const;
         RhiResult isSurfaceSupportedByPhysicalDevice(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) const;
-        bool deviceSupportAllRequiredExtensions(VkPhysicalDevice physicalDevice) const;
+        RhiResult deviceSupportAllRequiredExtensions(VkPhysicalDevice physicalDevice) const;
         QueueFamilyIndicesVulkan findQueueFamilies(VkPhysicalDevice physicalDevice) const;
     };
 }

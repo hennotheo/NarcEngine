@@ -35,6 +35,33 @@ TEST_F(VulkanDeviceTest, DeviceRhi_GetDeviceVulkan)
     EXPECT_NE(deviceVK, nullptr);
 }
 
+TEST_F(VulkanDeviceTest, DeviceRhi_PhysicalDeviceVulkanCreation)
+{
+    EXPECT_NO_THROW(PhysicalDeviceVulkan physicalDevice(m_context->getContextVulkan(), m_window->getWindowVulkan()););
+}
+
+class DeviceVulkanExtensionTest
+    : public VulkanDeviceTest, public ::testing::WithParamInterface<const char*>
+{
+};
+
+TEST_P(DeviceVulkanExtensionTest, QueryPhysicalDeviceWithExtension)
+{
+    PhysicalDeviceVulkan physicalDevice(m_context->getContextVulkan(), m_window->getWindowVulkan());
+    physicalDevice.addExtension(GetParam());
+    EXPECT_NO_THROW(physicalDevice.queryPhysicalDevice());
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    VulkanDeviceTest,
+    DeviceVulkanExtensionTest,
+    ::testing::Values(
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+        VK_KHR_MAINTENANCE1_EXTENSION_NAME,
+        VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME
+    )
+    );
+
 TEST_F(VulkanDeviceTest, DeviceRhi_VkDeviceInitialized)
 {
     const DeviceRhiPtr device = createDeviceRhi(getTestedApi(), m_context.get(), m_window.get());
