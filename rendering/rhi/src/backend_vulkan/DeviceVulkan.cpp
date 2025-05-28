@@ -20,6 +20,9 @@ namespace narc_engine
     void DeviceVulkan::init()
     {
         const PhysicalDeviceVulkanProperties specs = m_physicalDevice.queryPhysicalDevice();
+
+        NARCLOG_DEBUG("Initializing Vulkan device : {}", specs.Properties.deviceName);
+
         const std::vector<VkDeviceQueueCreateInfo> queueCreateInfos = createQueueCreateInfos(specs.QueueFamilyIndices);
 
         VkDeviceCreateInfo createInfo{};

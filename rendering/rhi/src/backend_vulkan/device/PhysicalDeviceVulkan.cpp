@@ -38,6 +38,7 @@ namespace narc_engine
 
         props.PhysicalDevice = queryBestPhysicalDevice();
         props.QueueFamilyIndices = findQueueFamilies(props.PhysicalDevice);
+        vkGetPhysicalDeviceProperties(props.PhysicalDevice, &props.Properties);
 
         return props;
     }
@@ -59,9 +60,55 @@ namespace narc_engine
         NARCLOG_FATAL("Failed to find a suitable GPU!");
     }
 
-    int PhysicalDeviceVulkan::rateDeviceSuitability(VkPhysicalDevice device) const
+    int PhysicalDeviceVulkan::rateDeviceSuitability(const VkPhysicalDevice device) const
     {
-        return 1;
+        VkPhysicalDeviceProperties deviceProperties{};
+        vkGetPhysicalDeviceProperties(device, &deviceProperties);
+
+        VkPhysicalDeviceFeatures2 deviceFeatures{};
+        deviceFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+        // deviceFeatures.pNext = &accelStructFeatures;
+        vkGetPhysicalDeviceFeatures2(device, &deviceFeatures);
+
+        int score = 0;
+
+        // Performance advantage
+        if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+        {
+            score += 1000;
+        }
+
+        // Max possible size of texture affect graphics quality
+        score += deviceProperties.limits.maxImageDimension2D;
+        score += deviceFeatures.features.samplerAnisotropy ? 1000 : 0;
+
+        // Application can't function without geometry shaders
+        if (!deviceFeatures.features.geometryShader)
+        {
+            return 0;
+        }
+
+        if (!deviceSupportAllRequiredExtensions(device))
+        {
+            return 0;
+        }
+
+#pragma warning "Swap chain support check is currently disabled, uncomment if needed"
+        // bool swapChainAdequate = false;
+        // SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
+        // swapChainAdequate = !swapChainSupport.Formats.empty() && !swapChainSupport.PresentModes.empty();
+        // if (!swapChainAdequate)
+        // {
+        //     return 0;
+        // }
+
+        const QueueFamilyIndicesVulkan indices = findQueueFamilies(device);
+        if (!indices.isComplete())
+        {
+            return 0;
+        }
+
+        return score;
     }
 
     QueueFamilyIndicesVulkan PhysicalDeviceVulkan::findQueueFamilies(const VkPhysicalDevice physicalDevice) const
@@ -81,7 +128,7 @@ namespace narc_engine
                 indices.GraphicsFamily = i;
             }
 
-            if (isPhysicalDeviceSupported(physicalDevice, i))
+            if (isSurfaceSupportedByPhysicalDevice(physicalDevice, i))
             {
                 indices.PresentFamily = i;
             }
@@ -95,7 +142,7 @@ namespace narc_engine
         return indices;
     }
 
-    RhiResult PhysicalDeviceVulkan::isPhysicalDeviceSupported(const VkPhysicalDevice physicalDevice, const uint32_t queueFamilyIndex) const
+    RhiResult PhysicalDeviceVulkan::isSurfaceSupportedByPhysicalDevice(const VkPhysicalDevice physicalDevice, const uint32_t queueFamilyIndex) const
     {
         VkBool32 supported = false;
         vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_window->getVkSurface(), &supported);
@@ -106,5 +153,22 @@ namespace narc_engine
         }
 
         return RHI_SUCCESS;
+    }
+
+    bool PhysicalDeviceVulkan::deviceSupportAllRequiredExtensions(const VkPhysicalDevice physicalDevice) const
+    {
+        uint32_t extensionCount;
+        vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);
+
+        std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+        vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, availableExtensions.data());
+
+        std::set<const char*> requiredExtensions(m_deviceExtensions);
+        for (const auto& extension : availableExtensions)
+        {
+            requiredExtensions.erase(extension.extensionName);
+        }
+
+        return requiredExtensions.empty();
     }
 }

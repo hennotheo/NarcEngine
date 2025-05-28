@@ -17,6 +17,7 @@ namespace narc_engine
 
         VkPhysicalDevice PhysicalDevice;
         QueueFamilyIndicesVulkan QueueFamilyIndices;
+        VkPhysicalDeviceProperties Properties;
     };
 
     class PhysicalDeviceVulkan final
@@ -30,6 +31,8 @@ namespace narc_engine
     private:
         std::vector<VkPhysicalDevice> m_physicalDevices;
 
+        std::set<const char*> m_deviceExtensions;
+
         const ContextVulkan* m_context;
         const WindowVulkan* m_window;
 
@@ -37,7 +40,8 @@ namespace narc_engine
         QUERY VkPhysicalDevice queryBestPhysicalDevice() const;
 
         int rateDeviceSuitability(VkPhysicalDevice device) const;
-        RhiResult isPhysicalDeviceSupported(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) const;
+        RhiResult isSurfaceSupportedByPhysicalDevice(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) const;
+        bool deviceSupportAllRequiredExtensions(VkPhysicalDevice physicalDevice) const;
         QueueFamilyIndicesVulkan findQueueFamilies(VkPhysicalDevice physicalDevice) const;
     };
 }
