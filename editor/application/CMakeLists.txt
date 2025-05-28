@@ -3,6 +3,10 @@ file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 
 link_directories(${CMAKE_BINARY_DIR}/NarcEngine/${CMAKE_BUILD_TYPE})
 
+if(ENABLE_TESTS)
+    return()
+endif()
+
 add_executable(NarcEngineEditor src/main.cpp ${CPP_FILES} ${HPP_FILES})
 narc_decl_testable_target(NarcEngineEditor)
 

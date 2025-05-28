@@ -8,6 +8,8 @@
 
 #include "NarcIO.h"
 
+namespace fs = std::filesystem;
+
 TEST(NarcIOLoading, ReadFile)
 {
     EXPECT_NO_THROW(narc_io::FileReader::readFile("shaders/shader_vert.spv"););

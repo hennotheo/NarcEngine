@@ -49,7 +49,7 @@ function(narc_decl_testable_target TARGET_NAME)
     narc_auto_glob_tests()
     link_directories(${CMAKE_BINARY_DIR}/NarcEngine/${CMAKE_BUILD_TYPE})
     add_executable(Tests_${TARGET_NAME} tests/test_main.cpp ${TESTS_CPP_FILES} ${TESTS_HPP_FILES} ${CPP_FILES} ${HPP_FILES})
-    add_dependencies(Tests_${TARGET_NAME} ${TARGET_NAME})
+#    add_dependencies(Tests_${TARGET_NAME} ${TARGET_NAME})
     add_compile_definitions(Tests_${TARGET_NAME} PRIVATE NARC_TEST_BUILD)
     target_include_directories(Tests_${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/tests")
 
