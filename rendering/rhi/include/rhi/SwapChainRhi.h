@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include "DeviceRhi.h"
-#include "WindowRhi.h"
-
 namespace narc_engine
 {
+    class WindowRhi;
+    class DeviceRhi;
+
     NARC_DECL_RHI_PLATFORM_TYPES(SwapChain)
 
     class NARC_ENGINE_API SwapChainRhi : public narc_core::IInitialisable
@@ -19,7 +19,7 @@ namespace narc_engine
 
         NARC_DECL_RHI_PLATFORM_GETTERS(SwapChain)
 
-    protected:
+    PROTECTED_TESTABLE:
         const WindowRhi* m_window;
         const DeviceRhi* m_device;
     };

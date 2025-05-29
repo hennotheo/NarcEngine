@@ -7,6 +7,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include "rhi/Rhi.h"
+
 using namespace narc_engine;
 
 class RhiTest : public ::testing::Test

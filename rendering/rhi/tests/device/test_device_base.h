@@ -7,9 +7,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "WindowRhi.h"
 #include "test_rhi.h"
-#include "rhi/DeviceRhi.h"
 
 using namespace narc_engine;
 

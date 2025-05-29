@@ -4,8 +4,9 @@
 #include "WindowRhi.h"
 
 #define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
 #include "ContextRhi.h"
-#include "GLFW/glfw3.h"
 #include "backend_vulkan/WindowVulkan.h"
 
 namespace narc_engine

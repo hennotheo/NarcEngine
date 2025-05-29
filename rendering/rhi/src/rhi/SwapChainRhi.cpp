@@ -3,6 +3,9 @@
 //
 #include "SwapchainRhi.h"
 
+#include "WindowRhi.h"
+#include "DeviceRhi.h"
+
 #include "backend_vulkan/SwapChainVulkan.h"
 
 namespace narc_engine

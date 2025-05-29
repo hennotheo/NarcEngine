@@ -39,3 +39,6 @@
         delete ptr;\
         ptr = nullptr;\
     }
+
+#define NARC_DECL_DEPENDENCY_INJECTION(name, dependencyType) \
+    inline void inject##name##Dependency(dependencyType& dependency)

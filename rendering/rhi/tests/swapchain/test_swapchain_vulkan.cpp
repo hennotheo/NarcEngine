@@ -6,6 +6,7 @@
 
 #include "test_rhi.h"
 
+#include "ContextRhi.h"
 #include "SwapChainRhi.h"
 #include "backend_vulkan/SwapChainVulkan.h"
 
@@ -78,7 +79,7 @@ TEST_F(VulkanSwapChain, GetVkSwapchainKHRInitialized)
     const auto swapChainVK = swapChain->getSwapChainVulkan();
 
     swapChain->init();
-    VkSwapchainKHR vkSwapChain = swapChainVK->getVkSwapChain();
+    const VkSwapchainKHR vkSwapChain = swapChainVK->getVkSwapChain();
     swapChain->shutdown();
 
     EXPECT_NE(vkSwapChain, VK_NULL_HANDLE);

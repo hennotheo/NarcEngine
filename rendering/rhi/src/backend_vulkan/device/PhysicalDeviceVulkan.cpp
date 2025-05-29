@@ -149,6 +149,8 @@ namespace narc_engine
         return indices;
     }
 
+    // extern VkSurfaceKHR g_firstVkSurface;
+
     RhiResult PhysicalDeviceVulkan::isSurfaceSupportedByPhysicalDevice(const VkPhysicalDevice physicalDevice, const uint32_t queueFamilyIndex) const
     {
         VkBool32 supported = false;

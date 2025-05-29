@@ -4,6 +4,9 @@
 
 #include "DeviceRhi.h"
 
+#include "ContextRhi.h"
+#include "WindowRhi.h"
+
 #include "backend_vulkan/DeviceVulkan.h"
 
 namespace narc_engine
