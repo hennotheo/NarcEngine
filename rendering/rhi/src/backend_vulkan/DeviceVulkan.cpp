@@ -6,8 +6,8 @@
 
 namespace narc_engine
 {
-    DeviceVulkan::DeviceVulkan(const ContextVulkan* ctx, const WindowVulkan* window) :
-        DeviceRhi(ctx, window), m_physicalDevice(ctx, window)
+    DeviceVulkan::DeviceVulkan(const ContextVulkan* ctx) :
+        DeviceRhi(ctx), m_physicalDevice(ctx)
     {
 
     }

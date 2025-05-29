@@ -3,11 +3,10 @@
 //
 
 #pragma once
+
 #include "SwapChainRhi.h"
 
 struct GLFWwindow;
-
-#include "SwapChainRhi.h"
 
 namespace narc_engine
 {
@@ -20,8 +19,6 @@ namespace narc_engine
     public:
         explicit WindowRhi(const ContextRhi* ctx);
         ~WindowRhi() override;
-
-        NARC_DECL_DEPENDENCY_INJECTION(SwapChain, SwapChainRhiPtr) { m_swapChain = std::move(dependency); }
 
         NARC_DECL_RHI_PLATFORM_GETTERS(Window);
 
@@ -39,8 +36,6 @@ namespace narc_engine
         narc_core::Event<int, int> m_onFramebufferResized;
         narc_core::Event<int, int, int, int> m_onKeyboardEvent;
         narc_core::Event<int, int, int> m_onMouseEvent;
-
-        SwapChainRhiPtr m_swapChain;
 
     private:
         static void framebufferResizeCallback(GLFWwindow* window, int width, int height);

@@ -15,7 +15,7 @@ namespace narc_engine
     class DeviceVulkan final : public DeviceRhi
     {
     public:
-        explicit DeviceVulkan(const ContextVulkan* ctx, const WindowVulkan* window);
+        explicit DeviceVulkan(const ContextVulkan* ctx);
         ~DeviceVulkan() override;
 
         NARC_IMPL_INITIALISABLE();

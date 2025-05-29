@@ -13,7 +13,8 @@ namespace narc_engine
         ~ContextVulkan() override;
 
         NARC_IMPL_INITIALISABLE();
-        // NARC_IMPL_VK_PLATFORM_GETTERS(Context);
+
+        NARC_OVERRIDE_GETTER(RendererApiType, getRendererApiType, RendererApiType::Vulkan);
 
         NARC_IMPL_RHI_PLATFORM_GETTER(Context, Vulkan)
         NARC_GETTER(const VkInstance&, getVkInstance, m_instance);

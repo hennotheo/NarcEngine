@@ -19,7 +19,7 @@ public:
     {
         m_context = createContextRhi(getTestedApi());
         m_window = createWindowRhi(getTestedApi(), m_context.get());
-        m_device = createDeviceRhi(getTestedApi(), m_context.get(), m_window.get());
+        m_device = createDeviceRhi(getTestedApi(), m_context.get());
 
         ASSERT_NE(m_context.get(), nullptr) << "Failed to create ContextRhi for Vulkan API";
         ASSERT_NE(m_window.get(), nullptr) << "Failed to create WindowRhi for Vulkan API";
@@ -69,7 +69,7 @@ TEST_F(VulkanSwapChain, GetSwapchainVulkan)
 
     const auto swapChainVK = swapChain->getSwapChainVulkan();
 
-    EXPECT_NE(swapChainVK, nullptr);
+    EXPECT_NE(swapChainVK, VK_NULL_HANDLE);
 }
 
 TEST_F(VulkanSwapChain, GetVkSwapchainKHRInitialized)

@@ -21,6 +21,10 @@ namespace narc_engine
         NARC_BOOL_GETTER(isExtensionEnabled, m_extensions.contains(extension), const RhiExtension& extension);
         NARC_BOOL_GETTER(isLayerEnabled, m_layers.contains(layer), const RhiLayer& layer);
 
+        NARC_PURE_VIRTUAL_GETTER(RendererApiType, getRendererApiType);
+        NARC_GETTER(const WindowRhi*, getWindow, m_window.get());
+        NARC_GETTER(const DeviceRhi*, getDevice, m_device.get());
+
         NARC_DECL_DEPENDENCY_INJECTION(Window, WindowRhiPtr) { m_window = std::move(dependency); }
         NARC_DECL_DEPENDENCY_INJECTION(Device, DeviceRhiPtr) { m_device = std::move(dependency); }
 
@@ -32,11 +36,11 @@ namespace narc_engine
         void addLayer(const RhiLayer& layer);
         void addLayers(const RhiLayer* layers, size_t count);
 
-    PROTECTED_TESTABLE:
+    protected:
         virtual RhiResult enableExtension(const RhiExtension& extension) = 0;
         virtual RhiResult enableLayer(const RhiLayer& extension) = 0;
 
-    PRIVATE_TESTABLE:
+    private:
         std::unordered_set<RhiExtension> m_extensions;
         std::unordered_set<RhiLayer> m_layers;
 

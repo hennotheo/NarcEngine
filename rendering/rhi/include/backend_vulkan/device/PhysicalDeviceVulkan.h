@@ -23,7 +23,7 @@ namespace narc_engine
     class PhysicalDeviceVulkan final
     {
     public:
-        explicit PhysicalDeviceVulkan(const ContextVulkan* context, const WindowVulkan* window);
+        explicit PhysicalDeviceVulkan(const ContextVulkan* context);
         ~PhysicalDeviceVulkan();
 
         QUERY PhysicalDeviceVulkanProperties queryPhysicalDevice();
@@ -36,7 +36,6 @@ namespace narc_engine
         std::set<const char*> m_deviceExtensions;
 
         const ContextVulkan* m_context;
-        const WindowVulkan* m_window;
 
     private:
         QUERY VkPhysicalDevice queryBestPhysicalDevice() const;

@@ -9,8 +9,8 @@
 
 namespace narc_engine
 {
-    PhysicalDeviceVulkan::PhysicalDeviceVulkan(const ContextVulkan* context, const WindowVulkan* window) :
-        m_context(context), m_window(window)
+    PhysicalDeviceVulkan::PhysicalDeviceVulkan(const ContextVulkan* context) :
+        m_context(context)
     {
 
     }
@@ -149,12 +149,12 @@ namespace narc_engine
         return indices;
     }
 
-    // extern VkSurfaceKHR g_firstVkSurface;
+    extern VkSurfaceKHR g_firstVkSurface;
 
     RhiResult PhysicalDeviceVulkan::isSurfaceSupportedByPhysicalDevice(const VkPhysicalDevice physicalDevice, const uint32_t queueFamilyIndex) const
     {
         VkBool32 supported = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_window->getVkSurface(), &supported);
+        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, g_firstVkSurface, &supported);
 
         if (!supported)
         {

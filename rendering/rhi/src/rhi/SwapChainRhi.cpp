@@ -13,6 +13,7 @@ namespace narc_engine
     SwapChainRhi::SwapChainRhi(const WindowRhi* window, const DeviceRhi* device)
         : m_window(window), m_device(device)
     {
+
     }
 
     SwapChainRhi::~SwapChainRhi()
