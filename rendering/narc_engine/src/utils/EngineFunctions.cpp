@@ -2,7 +2,7 @@
 
 #include "buffers/Buffer.h"
 #include "platform/vulkan/CommandBuffer.h"
-#include "platform/vulkan/CommandPool.h"
+#include "platform/vulkan/CommandPoolRhi.h"
 
 #include "utils/EngineMacros.h"
 
@@ -25,7 +25,7 @@ namespace narc_engine
         NARC_END_SINGLE_TIME_COMMANDS(commandBuffer);
     }
 
-    const CommandPool* getCommandPool()
+    const CommandPoolRhi* getCommandPool()
     {
         return Engine::getInstance()->getCommandPool();
     }

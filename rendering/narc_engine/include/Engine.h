@@ -4,7 +4,7 @@
 
 #include "interfaces/IEngine.h"
 
-#include "platform/vulkan/CommandPool.h"
+#include "platform/vulkan/CommandPoolRhi.h"
 
 #include "core/devices/DeviceHandler.h"
 #include "core/EngineBinder.h"
@@ -40,7 +40,7 @@ namespace narc_engine
         EngineBinder* binder() const noexcept override;
         ResourceManager* resourceManager() const { return m_resourcesManager.get(); }
 
-        CommandPool* getCommandPool() const { return m_commandPool.get(); }
+        CommandPoolRhi* getCommandPool() const { return m_commandPool.get(); }
         TEMP_CODE const DeviceHandler* getDevice() const { return m_deviceHandler.get(); }
         TEMP_CODE const GraphicsQueue* getGraphicsQueue() const { return m_graphicsQueue.get(); }
         TEMP_CODE const PresentQueue* getPresentQueue() const { return m_presentQueue.get(); }
@@ -66,7 +66,7 @@ namespace narc_engine
         std::unique_ptr<GraphicsQueue> m_graphicsQueue;
         std::unique_ptr<PresentQueue> m_presentQueue;
 
-        std::unique_ptr<CommandPool> m_commandPool;
+        std::unique_ptr<CommandPoolRhi> m_commandPool;
 
         std::unique_ptr<EngineBinder> m_engineBinder;
         std::unique_ptr<ResourceManager> m_resourcesManager;

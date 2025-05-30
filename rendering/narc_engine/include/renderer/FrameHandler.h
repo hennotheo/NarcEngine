@@ -5,7 +5,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include "platform/vulkan/CommandPool.h"
+#include "platform/vulkan/CommandPoolRhi.h"
 #include "platform/vulkan/DescriptorPool.h"
 #include "buffers/UniformBuffer.h"
 
@@ -21,7 +21,7 @@ namespace narc_engine {
         FrameHandler();
         ~FrameHandler();
 
-        DEPRECATED NARC_GETTER(CommandPool*, getCommandPool, m_commandPool.get());
+        DEPRECATED NARC_GETTER(CommandPoolRhi*, getCommandPool, m_commandPool.get());
 
         NARC_GETTER(const Semaphore*, getImageAvailableSemaphore, m_imageAvailableSemaphore.get());
         NARC_GETTER(const Semaphore*, getRenderFinishedSemaphore, m_renderFinishedSemaphore.get());
@@ -30,7 +30,7 @@ namespace narc_engine {
         NARC_GETTER(const VkDescriptorSet&, getDescriptorSet, m_descriptorSets.at(id), const ResourceId &id);
 
     private:
-        std::unique_ptr<CommandPool> m_commandPool;
+        std::unique_ptr<CommandPoolRhi> m_commandPool;
 
         std::unique_ptr<Semaphore> m_imageAvailableSemaphore;
         std::unique_ptr<Semaphore> m_renderFinishedSemaphore;

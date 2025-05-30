@@ -5,13 +5,13 @@
 namespace narc_engine
 {
     class Buffer;
-    class CommandPool;
+    class CommandPoolRhi;
     class PhysicalDevice;
     class LogicalDevice;
 
     void copyBuffer(const Buffer* srcBuffer, const Buffer* dstBuffer, DeviceSize size);
 
-    const CommandPool* getCommandPool();
+    const CommandPoolRhi* getCommandPool();
     const PhysicalDevice* getPhysicalDevice();
     const LogicalDevice* getLogicalDevice();
 } // namespace narc_engine

@@ -2,7 +2,7 @@
 // Created by theoh on 30/05/2025.
 //
 
-#include "CommandQueueRhi.h"
+#include "commands/CommandBufferRhi.h"
 
 namespace narc_engine
 {
