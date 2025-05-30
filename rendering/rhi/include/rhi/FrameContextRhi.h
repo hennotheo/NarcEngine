@@ -6,7 +6,7 @@
 
 namespace narc_engine
 {
-    class FrameContextRhi
+    struct NARC_ENGINE_API FrameContextRhi
     {
 
     };

@@ -6,8 +6,13 @@
 
 namespace narc_engine {
 
-class FenceRhi {
+    NARC_DECL_RHI_PLATFORM_TYPES(Fence);
 
-};
+    class NARC_ENGINE_API FenceRhi : public narc_core::IInitialisable
+    {
+
+    };
+
+    NARC_DECL_RHI_CREATION(FenceRhi);
 
 } // narc_engine

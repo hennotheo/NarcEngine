@@ -2,7 +2,7 @@
 // Created by theoh on 30/05/2025.
 //
 
-#include "backend_vulkan/sync/SemaphoreVulkan.h"
+#include "commands/CommandQueueRhi.h"
 
 namespace narc_engine
 {

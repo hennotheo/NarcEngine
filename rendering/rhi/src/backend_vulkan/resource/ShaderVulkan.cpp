@@ -2,12 +2,7 @@
 // Created by theoh on 30/05/2025.
 //
 
-#pragma once
+#include "backend_vulkan/resources/ShaderVulkan.h"
 
 namespace narc_engine {
-
-class CommandQueueVulkan {
-
-};
-
 } // narc_engine
