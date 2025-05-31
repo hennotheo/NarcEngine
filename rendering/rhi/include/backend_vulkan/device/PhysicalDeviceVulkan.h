@@ -5,6 +5,7 @@
 #pragma once
 
 #include "QueueFamilyIndicesVulkan.h"
+#include "SwapChainSupportDetailsVulkan.h"
 
 namespace narc_engine
 {
@@ -18,6 +19,7 @@ namespace narc_engine
         VkPhysicalDevice PhysicalDevice;
         QueueFamilyIndicesVulkan QueueFamilyIndices;
         VkPhysicalDeviceProperties Properties;
+        SwapChainSupportDetailsVulkan SwapChainSupportDetails;
     };
 
     class PhysicalDeviceVulkan final
@@ -45,5 +47,6 @@ namespace narc_engine
         RhiResult isSurfaceSupportedByPhysicalDevice(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) const;
         RhiResult deviceSupportAllRequiredExtensions(VkPhysicalDevice physicalDevice) const;
         QueueFamilyIndicesVulkan findQueueFamilies(VkPhysicalDevice physicalDevice) const;
+        SwapChainSupportDetailsVulkan querySwapChainSupport(VkPhysicalDevice device) const;
     };
 }

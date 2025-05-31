@@ -22,9 +22,12 @@ namespace narc_engine
 
         NARC_DECL_RHI_PLATFORM_GETTERS(Window);
 
+        NARC_GETTER(const glm::u32vec2&, getFramebufferSize, m_framebufferSize);
+
     protected:
         void createWindow();
         void destroyWindow();
+
 
         GLFWwindow* m_window = nullptr;
 
@@ -32,6 +35,7 @@ namespace narc_engine
 
     private:
         bool m_framebufferResized = false;
+        glm::i32vec2 m_framebufferSize;
 
         narc_core::Event<int, int> m_onFramebufferResized;
         narc_core::Event<int, int, int, int> m_onKeyboardEvent;

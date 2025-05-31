@@ -44,7 +44,8 @@ namespace narc_engine
 
     void WindowRhi::createWindow()
     {
-        m_window = glfwCreateWindow(800, 600, "Narc Engine RHI Window", nullptr, nullptr);
+        m_framebufferSize = glm::u32vec2(800, 600);
+        m_window = glfwCreateWindow(m_framebufferSize.x, m_framebufferSize.y, "Narc Engine RHI Window", nullptr, nullptr);
         if (!m_window)
         {
             NARCLOG_FATAL("Failed to create GLFW window!");
@@ -66,6 +67,7 @@ namespace narc_engine
     {
         WindowRhi* windowObject = reinterpret_cast<WindowRhi*>(glfwGetWindowUserPointer(window));
         windowObject->m_onFramebufferResized.trigger(width, height);
+        windowObject->m_framebufferSize = glm::u32vec2(width, height);
 
         windowObject->m_framebufferResized = true;
     }

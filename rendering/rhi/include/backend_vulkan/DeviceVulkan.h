@@ -7,7 +7,6 @@
 #include "DeviceRhi.h"
 
 #include "backend_vulkan/ContextVulkan.h"
-#include "backend_vulkan/WindowVulkan.h"
 #include "backend_vulkan/device/PhysicalDeviceVulkan.h"
 
 namespace narc_engine
@@ -22,11 +21,13 @@ namespace narc_engine
         NARC_IMPL_VK_PLATFORM_GETTERS(Device);
 
         NARC_GETTER(VkDevice, getVkDevice, m_device);
+        NARC_GETTER(const PhysicalDeviceVulkanProperties&, getPhysicalDeviceProperties, m_physicalDeviceProperties);
 
     private:
         VkDevice m_device = VK_NULL_HANDLE;
 
         PhysicalDeviceVulkan m_physicalDevice;
+        PhysicalDeviceVulkanProperties m_physicalDeviceProperties;
 
         std::vector<VkDeviceQueueCreateInfo> createQueueCreateInfos(const QueueFamilyIndicesVulkan& indices);
     };

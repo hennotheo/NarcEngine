@@ -6,6 +6,10 @@
 
 namespace narc_engine
 {
+    const std::vector<const char*> g_deviceExtensions = {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    };
+
     DeviceVulkan::DeviceVulkan(const ContextVulkan* ctx) :
         DeviceRhi(ctx), m_physicalDevice(ctx)
     {
@@ -19,11 +23,9 @@ namespace narc_engine
 
     void DeviceVulkan::init()
     {
-        const PhysicalDeviceVulkanProperties specs = m_physicalDevice.queryPhysicalDevice();
+        m_physicalDeviceProperties = m_physicalDevice.queryPhysicalDevice();
 
-        NARCLOG_DEBUG("Initializing Vulkan device : {}", specs.Properties.deviceName);
-
-        const std::vector<VkDeviceQueueCreateInfo> queueCreateInfos = createQueueCreateInfos(specs.QueueFamilyIndices);
+        const std::vector<VkDeviceQueueCreateInfo> queueCreateInfos = createQueueCreateInfos(m_physicalDeviceProperties.QueueFamilyIndices);
 
         VkDeviceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -31,7 +33,10 @@ namespace narc_engine
         createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
         createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
-        if (vkCreateDevice(specs.PhysicalDevice, &createInfo, nullptr, &m_device) != VK_SUCCESS)
+        createInfo.enabledExtensionCount = static_cast<uint32_t>(g_deviceExtensions.size());
+        createInfo.ppEnabledExtensionNames = g_deviceExtensions.data();
+
+        if (vkCreateDevice(m_physicalDeviceProperties.PhysicalDevice, &createInfo, nullptr, &m_device) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create logical device!");
         }

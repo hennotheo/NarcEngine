@@ -19,7 +19,7 @@ namespace narc_engine
         explicit DeviceRhi(const ContextRhi* ctx);
         ~DeviceRhi() override;
 
-        NARC_DECL_RHI_PLATFORM_GETTERS(Device)
+        NARC_DECL_RHI_PLATFORM_GETTERS(Device);
 
     PROTECTED_TESTABLE:
         const ContextRhi* m_context;

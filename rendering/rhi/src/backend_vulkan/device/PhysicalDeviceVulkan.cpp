@@ -9,6 +9,8 @@
 
 namespace narc_engine
 {
+    extern VkSurfaceKHR g_firstVkSurface;
+
     PhysicalDeviceVulkan::PhysicalDeviceVulkan(const ContextVulkan* context) :
         m_context(context)
     {
@@ -45,6 +47,7 @@ namespace narc_engine
 
         props.PhysicalDevice = queryBestPhysicalDevice();
         props.QueueFamilyIndices = findQueueFamilies(props.PhysicalDevice);
+        props.SwapChainSupportDetails = querySwapChainSupport(props.PhysicalDevice);
         vkGetPhysicalDeviceProperties(props.PhysicalDevice, &props.Properties);
 
         return props;
@@ -100,14 +103,13 @@ namespace narc_engine
             return 0;
         }
 
-#pragma warning "Swap chain support check is currently disabled, uncomment if needed"
-        // bool swapChainAdequate = false;
-        // SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
-        // swapChainAdequate = !swapChainSupport.Formats.empty() && !swapChainSupport.PresentModes.empty();
-        // if (!swapChainAdequate)
-        // {
-        //     return 0;
-        // }
+        bool swapChainAdequate = false;
+        SwapChainSupportDetailsVulkan swapChainSupport = querySwapChainSupport(device);
+        swapChainAdequate = !swapChainSupport.Formats.empty() && !swapChainSupport.PresentModes.empty();
+        if (!swapChainAdequate)
+        {
+            return 0;
+        }
 
         const QueueFamilyIndicesVulkan indices = findQueueFamilies(device);
         if (!indices.isComplete())
@@ -149,7 +151,32 @@ namespace narc_engine
         return indices;
     }
 
-    extern VkSurfaceKHR g_firstVkSurface;
+    SwapChainSupportDetailsVulkan PhysicalDeviceVulkan::querySwapChainSupport(const VkPhysicalDevice device) const
+    {
+        SwapChainSupportDetailsVulkan details;
+
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, g_firstVkSurface, &details.Capabilities);
+
+        uint32_t formatCount;
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, g_firstVkSurface, &formatCount, nullptr);
+
+        if (formatCount != 0)
+        {
+            details.Formats.resize(formatCount);
+            vkGetPhysicalDeviceSurfaceFormatsKHR(device, g_firstVkSurface, &formatCount, details.Formats.data());
+        }
+
+        uint32_t presentModeCount;
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, g_firstVkSurface, &presentModeCount, nullptr);
+
+        if (presentModeCount != 0)
+        {
+            details.PresentModes.resize(presentModeCount);
+            vkGetPhysicalDeviceSurfacePresentModesKHR(device, g_firstVkSurface, &presentModeCount, details.PresentModes.data());
+        }
+
+        return details;
+    }
 
     RhiResult PhysicalDeviceVulkan::isSurfaceSupportedByPhysicalDevice(const VkPhysicalDevice physicalDevice, const uint32_t queueFamilyIndex) const
     {
