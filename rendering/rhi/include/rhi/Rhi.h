@@ -12,3 +12,6 @@
 #include "WindowRhi.h"
 #include "DeviceRhi.h"
 #include "SwapChainRhi.h"
+
+//Extensions
+#include "DependencyInjection.h"

@@ -39,6 +39,20 @@ else()
 
 endif()
 
+# --- BOOST DI ---
+FetchContent_Declare(
+        di
+        GIT_REPOSITORY https://github.com/boost-ext/di
+        GIT_TAG cpp14
+        SOURCE_DIR ${VENDOR_DIR}/di
+        EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(di)
+
+add_library(di_lib INTERFACE IMPORTED GLOBAL)
+target_include_directories(di_lib INTERFACE ${VENDOR_DIR}/di/include)
+
+# --- STB ---
 FetchContent_Declare(
     stb
     GIT_REPOSITORY https://github.com/nothings/stb.git

@@ -7,10 +7,13 @@
 
 namespace narc_engine
 {
+    extern auto createVulkanDependencyInjection();
+
     ContextRhi::ContextRhi()
     {
         glfwInit();
     }
+
     ContextRhi::~ContextRhi()
     {
         glfwTerminate();
@@ -70,18 +73,20 @@ namespace narc_engine
     {
         switch (api)
         {
-        case RendererApiType::Vulkan:
-            return std::make_unique<ContextVulkan>();
+            using enum RendererApiType;
 
-        case RendererApiType::OpenGL:
+        case Vulkan:
+            return std::make_unique<ContextVulkan>();
+            break;
+
+        case OpenGL:
             NARC_FATAL_OPENGL_NOT_SUPPORTED();
 
-        case RendererApiType::DirectX12:
+        case DirectX12:
             NARC_FATAL_DIRECTX12_NOT_SUPPORTED();
 
         default:
             break;
         }
-        return nullptr;
     }
 } // namespace narc_engine

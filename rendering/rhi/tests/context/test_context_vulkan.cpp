@@ -20,11 +20,12 @@ protected:
 
 TEST_F(RhiContextTest, ContextVulkan_Creation)
 {
+    const auto injector = createDependencyInjector(getTestedApi());
     /**
      * @test Verifies that a ContextRhi object can be successfully created for the Vulkan API.
      * @details Ensures that the created context is not null.
      */
-    const ContextRhiPtr context = createContextRhi(getTestedApi());
+    const ContextRhiPtr context = injector.create<ContextRhiPtr>();
     ASSERT_NE(context.get(), nullptr) << "Failed to create ContextRhi for Vulkan API";
 }
 

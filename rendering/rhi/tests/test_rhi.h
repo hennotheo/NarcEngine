@@ -6,8 +6,10 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <boost/di.hpp>
 
 #include "rhi/Rhi.h"
+#include "DependencyInjection.h"
 
 using namespace narc_engine;
 
