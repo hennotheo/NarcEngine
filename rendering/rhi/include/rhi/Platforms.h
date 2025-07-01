@@ -3,7 +3,7 @@
 #define NARC_FATAL_OPENGL_NOT_SUPPORTED() NARCLOG_FATAL("OpenGL is not supported yet")
 #define NARC_FATAL_DIRECTX12_NOT_SUPPORTED() NARCLOG_FATAL("DirectX12 is not supported yet")
 
-#define NARC_DECL_RHI_PLATFORM_GETTER(className, platform) NARC_VIRTUAL_GETTER( className##platform*, get ## className##platform, nullptr)
+#define NARC_DECL_RHI_PLATFORM_GETTER(className, platform) NARC_VIRTUAL_GETTER(className##platform*, get ## className##platform, nullptr)
 
 #define NARC_DECL_RHI_PLATFORM_TYPES(className) \
     class className##Vulkan;

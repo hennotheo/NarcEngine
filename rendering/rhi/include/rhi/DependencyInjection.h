@@ -20,6 +20,7 @@ namespace narc_engine
 {
     using namespace boost;
 
+
     inline auto createDependencyInjector(RendererApiType apiType)
     {
         return di::make_injector(di::bind<ContextRhi>().to<ContextVulkan>().in(di::singleton),
@@ -27,4 +28,6 @@ namespace narc_engine
                                  di::bind<WindowRhi>().to<WindowVulkan>().in(di::unique),
                                  di::bind<SwapChainRhi>().to<SwapChainVulkan>().in(di::unique));
     }
+
+    using RhiInjector = decltype(createDependencyInjector(RendererApiType::Vulkan));
 } // namespace narc_engine

@@ -22,11 +22,6 @@ namespace narc_engine
         NARC_BOOL_GETTER(isLayerEnabled, m_layers.contains(layer), const RhiLayer& layer);
 
         NARC_PURE_VIRTUAL_GETTER(RendererApiType, getRendererApiType);
-        NARC_GETTER(const WindowRhi*, getWindow, m_window.get());
-        NARC_GETTER(const DeviceRhi*, getDevice, m_device.get());
-
-        NARC_DECL_DEPENDENCY_INJECTION(Window, WindowRhiPtr) { m_window = std::move(dependency); }
-        NARC_DECL_DEPENDENCY_INJECTION(Device, DeviceRhiPtr) { m_device = std::move(dependency); }
 
         virtual void setApplicationVersion(uint16_t major, uint16_t minor, uint16_t patch) = 0;
         virtual void setApplicationName(const char* name) = 0;
@@ -43,9 +38,6 @@ namespace narc_engine
     private:
         std::unordered_set<RhiExtension> m_extensions;
         std::unordered_set<RhiLayer> m_layers;
-
-        WindowRhiPtr m_window;
-        DeviceRhiPtr m_device;
     };
 
     using ContextRhiPtr = std::shared_ptr<ContextRhi>;

@@ -15,7 +15,7 @@ namespace narc_engine
     class WindowVulkan final : public WindowRhi
     {
     public:
-        explicit WindowVulkan(const ContextVulkan* ctx);
+        explicit WindowVulkan(const ContextRhi& ctx);
         ~WindowVulkan() override;
 
         NARC_IMPL_VK_PLATFORM_GETTERS(Window);

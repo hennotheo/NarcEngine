@@ -14,23 +14,18 @@ protected:
 
 TEST_F(VulkanDeviceTest, Creation)
 {
-    const DeviceRhiPtr device = createDeviceRhi(getTestedApi(), m_context.get());
-    ASSERT_NE(device.get(), nullptr) << "Failed to create DeviceRhi for Vulkan API";
+    ASSERT_NE(m_device.get(), nullptr) << "Failed to create DeviceRhi for Vulkan API";
 }
 
 TEST_F(VulkanDeviceTest, InitShutdown)
 {
-    const DeviceRhiPtr device = createDeviceRhi(getTestedApi(), m_context.get());
-
-    EXPECT_NO_THROW(device->init()) << "DeviceRhi initialization threw an exception";
-    EXPECT_NO_THROW(device->shutdown()) << "DeviceRhi shutdown threw an exception";
+    EXPECT_NO_THROW(m_device->init()) << "DeviceRhi initialization threw an exception";
+    EXPECT_NO_THROW(m_device->shutdown()) << "DeviceRhi shutdown threw an exception";
 }
 
 TEST_F(VulkanDeviceTest, GetDeviceVulkan)
 {
-    const DeviceRhiPtr device = createDeviceRhi(getTestedApi(), m_context.get());
-
-    const auto deviceVK = device->getDeviceVulkan();
+    const auto deviceVK = m_device->getDeviceVulkan();
 
     EXPECT_NE(deviceVK, nullptr);
 }
@@ -64,13 +59,11 @@ INSTANTIATE_TEST_SUITE_P(
 
 TEST_F(VulkanDeviceTest, VkDeviceInitialized)
 {
-    const DeviceRhiPtr device = createDeviceRhi(getTestedApi(), m_context.get());
+    m_device->init();
 
-    device->init();
-
-    const auto deviceVK = device->getDeviceVulkan();
+    const auto deviceVK = m_device->getDeviceVulkan();
     EXPECT_NE(deviceVK, nullptr) << "DeviceVulkan is not implemented";
     EXPECT_NE(deviceVK->getVkDevice(), VK_NULL_HANDLE) << "VkDevice is not initialized";
 
-    device->shutdown();
+    m_device->shutdown();
 }

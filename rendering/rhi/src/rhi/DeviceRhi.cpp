@@ -5,29 +5,24 @@
 #include "DeviceRhi.h"
 
 #include "ContextRhi.h"
-#include "WindowRhi.h"
 
 #include "backend_vulkan/DeviceVulkan.h"
 
 namespace narc_engine
 {
-    DeviceRhi::DeviceRhi(const ContextRhi* ctx) :
-        narc_core::IInitialisable(), m_context(ctx)
+    DeviceRhi::DeviceRhi(const ContextRhi& ctx) :
+        narc_core::IInitialisable()
     {
-        m_swapChain = createSwapChainRhi(
-            ctx->getRendererApiType(),
-            ctx->getWindow(),
-            this);
     }
 
     DeviceRhi::~DeviceRhi() = default;
 
-    DeviceRhiPtr createDeviceRhi(const RendererApiType api, const ContextRhi* ctx)
+    DeviceRhiPtr createDeviceRhi(const RendererApiType api, const ContextRhi& ctx)
     {
         switch (api)
         {
         case RendererApiType::Vulkan:
-            return std::make_unique<DeviceVulkan>(ctx->getContextVulkan());
+            return std::make_unique<DeviceVulkan>(ctx);
 
         case RendererApiType::OpenGL:
             NARC_FATAL_OPENGL_NOT_SUPPORTED();

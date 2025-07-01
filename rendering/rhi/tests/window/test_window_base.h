@@ -20,6 +20,8 @@ public:
         const auto injector = createDependencyInjector(getTestedApi());
         m_context = injector.create<ContextRhiPtr>();
 
+        m_window = injector.create<WindowRhiPtr>();
+
         m_context->addExtension(RhiExtension::DebugUtils);
         m_context->addLayer(RhiLayer::Validation);
         ASSERT_NE(m_context.get(), nullptr) << "Failed to create ContextRhi for Vulkan API";
@@ -36,4 +38,5 @@ public:
 
 protected:
     ContextRhiPtr m_context;
+    WindowRhiPtr m_window;
 };

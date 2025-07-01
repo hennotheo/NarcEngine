@@ -14,7 +14,10 @@ namespace narc_engine
     PhysicalDeviceVulkan::PhysicalDeviceVulkan(const ContextVulkan* context) :
         m_context(context)
     {
-
+        if (context == nullptr)
+        {
+            NARCLOG_FATAL("ContextVulkan is null!");
+        }
     }
 
     PhysicalDeviceVulkan::~PhysicalDeviceVulkan()

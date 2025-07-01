@@ -20,8 +20,8 @@ public:
         const auto injector = createDependencyInjector(getTestedApi());
         m_context = injector.create<ContextRhiPtr>();
 
-        m_window = createWindowRhi(getTestedApi(), m_context.get());
-        m_device = createDeviceRhi(getTestedApi(), m_context.get());
+        m_window = injector.create<WindowRhiPtr>();
+        m_device = injector.create<DeviceRhiPtr>();
 
         ASSERT_NE(m_context.get(), nullptr) << "Failed to create ContextRhi for Vulkan API";
         ASSERT_NE(m_window.get(), nullptr) << "Failed to create WindowRhi for Vulkan API";

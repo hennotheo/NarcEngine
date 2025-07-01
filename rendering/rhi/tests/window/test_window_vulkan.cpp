@@ -11,14 +11,11 @@ protected:
 
 TEST_F(VulkanWindowTest, WindowRhi_Creation)
 {
-    const WindowRhiPtr window = createWindowRhi(getTestedApi(), m_context.get());
-    ASSERT_NE(window.get(), nullptr) << "Failed to create DeviceRhi for Vulkan API";
+    ASSERT_NE(m_window.get(), nullptr) << "Failed to create DeviceRhi for Vulkan API";
 }
 
 TEST_F(VulkanWindowTest, WindowRhi_InitShutdown)
 {
-    const WindowRhiPtr window = createWindowRhi(getTestedApi(), m_context.get());
-
-    EXPECT_NO_THROW(window->init()) << "WindowRhi initialization threw an exception";
-    EXPECT_NO_THROW(window->shutdown()) << "WindowRhi shutdown threw an exception";
+    EXPECT_NO_THROW(m_window->init()) << "WindowRhi initialization threw an exception";
+    EXPECT_NO_THROW(m_window->shutdown()) << "WindowRhi shutdown threw an exception";
 }

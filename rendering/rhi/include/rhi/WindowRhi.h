@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "SwapChainRhi.h"
-
 struct GLFWwindow;
 
 namespace narc_engine
@@ -17,7 +15,7 @@ namespace narc_engine
     class NARC_ENGINE_API WindowRhi : public narc_core::IInitialisable
     {
     public:
-        explicit WindowRhi(const ContextRhi* ctx);
+        explicit WindowRhi(const ContextRhi& ctx);
         ~WindowRhi() override;
 
         NARC_DECL_RHI_PLATFORM_GETTERS(Window);
@@ -28,10 +26,9 @@ namespace narc_engine
         void createWindow();
         void destroyWindow();
 
-
         GLFWwindow* m_window = nullptr;
 
-        const ContextRhi* const m_context;
+        const ContextRhi& m_context;
 
     private:
         bool m_framebufferResized = false;
@@ -47,5 +44,5 @@ namespace narc_engine
         static void onMouseInputPerformed(GLFWwindow* window, int button, int action, int mods);
     };
 
-    NARC_DECL_RHI_CREATION(WindowRhi, const ContextRhi* ctx);
+    NARC_DECL_RHI_CREATION(WindowRhi, const ContextRhi& ctx);//TODO : Remove this line when the RhiInjector is ready
 }

@@ -6,17 +6,16 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include "ContextRhi.h"
 #include "backend_vulkan/WindowVulkan.h"
 
 namespace narc_engine
 {
-    WindowRhiPtr createWindowRhi(RendererApiType api, const ContextRhi* ctx)
+    WindowRhiPtr createWindowRhi(RendererApiType api, const ContextRhi& ctx)
     {
         switch (api)
         {
         case RendererApiType::Vulkan:
-            return std::make_unique<WindowVulkan>(ctx->getContextVulkan());
+            return std::make_unique<WindowVulkan>(ctx);
 
         case RendererApiType::OpenGL:
             NARC_FATAL_OPENGL_NOT_SUPPORTED();
@@ -30,7 +29,7 @@ namespace narc_engine
         return nullptr;
     }
 
-    WindowRhi::WindowRhi(const ContextRhi* ctx) :
+    WindowRhi::WindowRhi(const ContextRhi& ctx) :
         narc_core::IInitialisable(), m_context(ctx)
     {
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
