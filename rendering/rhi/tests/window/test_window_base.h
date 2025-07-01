@@ -17,7 +17,7 @@ class RhiWindowTest : public RhiTest
 public:
     void SetUp() override
     {
-        m_context = createContextRhi(getTestedApi());
+        // m_context = createContextRhi(getTestedApi());
         m_context->addExtension(RhiExtension::DebugUtils);
         m_context->addLayer(RhiLayer::Validation);
         ASSERT_NE(m_context.get(), nullptr) << "Failed to create ContextRhi for Vulkan API";

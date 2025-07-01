@@ -4,20 +4,26 @@
 
 #pragma once
 
+#include "rhi/ContextRhi.h"
+#include "rhi/DeviceRhi.h"
+#include "rhi/SwapChainRhi.h"
+#include "rhi/WindowRhi.h"
 
 namespace narc_engine
 {
-    class WindowVulkan;
-    class WindowRhi;
-    class ContextVulkan;
-    class ContextRhi;
-
     using namespace boost;
+
+    class ContextVulkan;
+    class DeviceVulkan;
+    class WindowVulkan;
+    class SwapChainVulkan;
 
     inline auto createDependencyInjector(RendererApiType apiType)
     {
-        return di::make_injector(
-            di::bind<ContextRhi>().to<ContextVulkan>(),
-            di::bind<WindowRhi>().to<WindowVulkan>());
+        // static auto contextInstance = std::make_shared<ContextVulkan>();
+
+        return di::make_injector(di::bind<ContextRhi>().to<ContextVulkan>().in(di::singleton),
+                                 di::bind<DeviceRhi>().to<DeviceVulkan>().in(di::unique), di::bind<WindowRhi>().to<WindowVulkan>().in(di::unique),
+                                 di::bind<SwapChainRhi>().to<SwapChainVulkan>().in(di::unique));
     }
 } // namespace narc_engine

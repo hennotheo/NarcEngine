@@ -48,5 +48,6 @@ namespace narc_engine
         DeviceRhiPtr m_device;
     };
 
-    NARC_DECL_RHI_CREATION(ContextRhi);
+    using ContextRhiPtr = std::shared_ptr<ContextRhi>;
+    // NARC_DECL_RHI_CREATION(ContextRhi);
 } // namespace narc_engine

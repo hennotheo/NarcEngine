@@ -35,14 +35,14 @@ TEST_F(RhiContextTest, ContextVulkan_InitShutdown)
      * @test Verifies that the ContextRhi object can be initialized and shut down without exceptions.
      * @details Ensures that the init() and shutdown() methods do not throw any exceptions.
      */
-    const ContextRhiPtr context = createContextRhi(getTestedApi());
+    const ContextRhiPtr context = nullptr;//createContextRhi(getTestedApi());
     EXPECT_NO_THROW(context->init()) << "ContextRhi initialization threw an exception";
     EXPECT_NO_THROW(context->shutdown()) << "ContextRhi shutdown threw an exception";
 }
 
 TEST_F(RhiContextTest, ContextVulkan_InitInstanceExists)
 {
-    const ContextRhiPtr context = createContextRhi(getTestedApi());
+    const ContextRhiPtr context = nullptr;//createContextRhi(getTestedApi());
     const auto vkContext = context->getContextVulkan();
     context->init();
     EXPECT_TRUE(vkContext->getVkInstance() != nullptr);
@@ -55,7 +55,7 @@ TEST_F(RhiContextTest, ContextVulkan_Core_Enabled)
      * @test Checks if the Core extension is enabled for the Vulkan ContextRhi.
      * @details Ensures that the isExtensionEnabled() method returns true for the Core extension.
      */
-    const ContextRhiPtr context = createContextRhi(getTestedApi());
+    const ContextRhiPtr context = nullptr;//createContextRhi(getTestedApi());
     EXPECT_TRUE(context->isExtensionEnabled(RhiExtension::Core));
 }
 
@@ -67,7 +67,7 @@ TEST_P(RhiExtensionsTest, Extensions_Enabled)
      * @details Ensures that the isExtensionEnabled() method returns true after adding the extension.
      */
     const ExtensionParam params = GetParam();
-    const ContextRhiPtr context = createContextRhi(RendererApiType::Vulkan);
+    const ContextRhiPtr context = nullptr;//createContextRhi(getTestedApi());
 
     context->addExtensions(params.extensions.data(), params.extensions.size());
 
@@ -85,7 +85,7 @@ TEST_P(RhiExtensionsTest, Extensions_InitShutdown)
      * @details Ensures that the init() and shutdown() methods do not throw any exceptions after adding the extension.
      */
     const ExtensionParam params = GetParam();
-    const ContextRhiPtr context = createContextRhi(RendererApiType::Vulkan);
+    const ContextRhiPtr context = nullptr;//createContextRhi(getTestedApi());
 
     constexpr RhiExtension debug = RhiExtension::DebugUtils;
     constexpr RhiLayer validation = RhiLayer::Validation;
@@ -129,7 +129,7 @@ TEST_P(RhiLayersTest, Layer_Enabled)
      * @details Ensures that the isLayerEnabled() method returns true after adding the layer.
      */
     const RhiLayer layer = GetParam();
-    const ContextRhiPtr context = createContextRhi(RendererApiType::Vulkan);
+    const ContextRhiPtr context = nullptr;//createContextRhi(getTestedApi());
 
     context->addLayers(&layer, 1);
 
@@ -149,7 +149,7 @@ TEST_P(RhiLayersTest, Layer_InitShutdown)
      * @details Ensures that the init() and shutdown() methods do not throw any exceptions after adding the layer.
      */
     const RhiLayer layer = GetParam();
-    const ContextRhiPtr context = createContextRhi(RendererApiType::Vulkan);
+    const ContextRhiPtr context = nullptr;//createContextRhi(getTestedApi());
 
     const std::vector<RhiExtension> extension = {RhiExtension::Core, RhiExtension::DebugUtils};
     context->addExtensions(extension.data(), extension.size());

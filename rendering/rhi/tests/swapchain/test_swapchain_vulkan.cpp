@@ -17,7 +17,7 @@ class VulkanSwapChain : public RhiTest
 public:
     void SetUp() override
     {
-        m_context = createContextRhi(getTestedApi());
+        // m_context = createContextRhi(getTestedApi());
         m_window = createWindowRhi(getTestedApi(), m_context.get());
         m_device = createDeviceRhi(getTestedApi(), m_context.get());
 
