@@ -16,7 +16,9 @@ class RhiDeviceTest : public RhiTest
 public:
     void SetUp() override
     {
-        // m_context = createContextRhi(getTestedApi());
+        const auto injector = createDependencyInjector(getTestedApi());
+        m_context = injector.create<ContextRhiPtr>();
+        
         m_window = createWindowRhi(getTestedApi(), m_context.get());
 
         ASSERT_NE(m_context.get(), nullptr) << "Failed to create ContextRhi for Vulkan API";

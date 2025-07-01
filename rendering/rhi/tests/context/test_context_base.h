@@ -18,5 +18,24 @@ struct ExtensionParam
     const std::vector<RhiExtension> extensions;
 };
 
-class RhiExtensionsTest : public ::testing::TestWithParam<ExtensionParam>{};
-class RhiLayersTest : public ::testing::TestWithParam<RhiLayer>{};
+class RhiContextTest : public RhiTest
+{
+public:
+    void SetUp() override
+    {
+        const auto injector = createDependencyInjector(getTestedApi());
+        m_context = injector.create<ContextRhiPtr>();
+    }
+
+    void TearDown() override { m_context.reset(); }
+
+protected:
+    ContextRhiPtr m_context;
+};
+
+class RhiExtensionsTest : public ::testing::TestWithParam<ExtensionParam>
+{
+};
+class RhiLayersTest : public ::testing::TestWithParam<RhiLayer>
+{
+};

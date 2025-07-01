@@ -17,7 +17,9 @@ class VulkanSwapChain : public RhiTest
 public:
     void SetUp() override
     {
-        // m_context = createContextRhi(getTestedApi());
+        const auto injector = createDependencyInjector(getTestedApi());
+        m_context = injector.create<ContextRhiPtr>();
+
         m_window = createWindowRhi(getTestedApi(), m_context.get());
         m_device = createDeviceRhi(getTestedApi(), m_context.get());
 
