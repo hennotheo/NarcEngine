@@ -28,8 +28,6 @@ public:
 
         m_context->init();
         m_window->init();
-
-        int t = 0;
     }
 
     void TearDown() override

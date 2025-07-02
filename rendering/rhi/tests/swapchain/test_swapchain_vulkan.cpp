@@ -52,14 +52,14 @@ protected:
 
 TEST_F(VulkanSwapChain, Creation)
 {
-    const SwapChainRhiPtr swapChain = createSwapChainRhi(getTestedApi(), m_window.get(), m_device.get());
+    const SwapChainRhiPtr swapChain = createSwapChainRhi(getTestedApi(), *m_window, *m_device);
     ASSERT_NE(swapChain.get(), nullptr) << "Failed to create SwapChainRhi for Vulkan API";
 }
 
 
 TEST_F(VulkanSwapChain, InitShutdown)
 {
-    const SwapChainRhiPtr swapChain = createSwapChainRhi(getTestedApi(), m_window.get(), m_device.get());
+    const SwapChainRhiPtr swapChain = createSwapChainRhi(getTestedApi(), *m_window, *m_device);
 
     EXPECT_NO_THROW(swapChain->init()) << "DeviceRhi initialization threw an exception";
     EXPECT_NO_THROW(swapChain->shutdown()) << "DeviceRhi shutdown threw an exception";
@@ -67,7 +67,7 @@ TEST_F(VulkanSwapChain, InitShutdown)
 
 TEST_F(VulkanSwapChain, GetSwapchainVulkan)
 {
-    const SwapChainRhiPtr swapChain = createSwapChainRhi(getTestedApi(), m_window.get(), m_device.get());
+    const SwapChainRhiPtr swapChain = createSwapChainRhi(getTestedApi(), *m_window, *m_device);
 
     const auto swapChainVK = swapChain->getSwapChainVulkan();
 
@@ -76,7 +76,7 @@ TEST_F(VulkanSwapChain, GetSwapchainVulkan)
 
 TEST_F(VulkanSwapChain, GetVkSwapchainKHRInitialized)
 {
-    const SwapChainRhiPtr swapChain = createSwapChainRhi(getTestedApi(), m_window.get(), m_device.get());
+    const SwapChainRhiPtr swapChain = createSwapChainRhi(getTestedApi(), *m_window, *m_device);
 
     const auto swapChainVK = swapChain->getSwapChainVulkan();
 

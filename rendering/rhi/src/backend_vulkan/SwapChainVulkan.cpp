@@ -9,8 +9,8 @@
 
 namespace narc_engine
 {
-    SwapChainVulkan::SwapChainVulkan(const WindowRhi* window, const DeviceRhi* device) :
-        SwapChainRhi(window, device)
+    SwapChainVulkan::SwapChainVulkan(const WindowRhi& window, const DeviceRhi& device)
+        : m_window(window), m_device(device)
     {
     }
 
@@ -20,7 +20,7 @@ namespace narc_engine
 
     void SwapChainVulkan::init()
     {
-        const PhysicalDeviceVulkanProperties props = m_device->getDeviceVulkan()->getPhysicalDeviceProperties();
+        const PhysicalDeviceVulkanProperties props = m_device.getDeviceVulkan()->getPhysicalDeviceProperties();
 
         SwapChainSupportDetailsVulkan swapChainSupport = props.SwapChainSupportDetails;
         const VkSurfaceFormatKHR surfaceFormat = swapChainSupport.chooseSwapSurfaceFormat();
@@ -36,7 +36,7 @@ namespace narc_engine
 
         VkSwapchainCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = m_window->getWindowVulkan()->getVkSurface();
+        createInfo.surface = m_window.getWindowVulkan()->getVkSurface();
         createInfo.minImageCount = imageCount;
         createInfo.imageFormat = surfaceFormat.format;
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -65,7 +65,7 @@ namespace narc_engine
             createInfo.pQueueFamilyIndices = nullptr; // Optional
         }
 
-        if (vkCreateSwapchainKHR(m_device->getDeviceVulkan()->getVkDevice(), &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
+        if (vkCreateSwapchainKHR(m_device.getDeviceVulkan()->getVkDevice(), &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create swap chain!");
         }
@@ -73,7 +73,7 @@ namespace narc_engine
 
     void SwapChainVulkan::shutdown()
     {
-        vkDestroySwapchainKHR(m_device->getDeviceVulkan()->getVkDevice(), m_swapChain, nullptr);
+        vkDestroySwapchainKHR(m_device.getDeviceVulkan()->getVkDevice(), m_swapChain, nullptr);
         m_swapChain = VK_NULL_HANDLE;
     }
 

@@ -32,14 +32,14 @@ namespace narc_engine
             return VK_PRESENT_MODE_FIFO_KHR;
         }
 
-        TEMP_CODE inline VkExtent2D chooseSwapExtent(const WindowRhi* surface) const
+        TEMP_CODE inline VkExtent2D chooseSwapExtent(const WindowRhi& surface) const
         {
             if (Capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
             {
                 return Capabilities.currentExtent;
             }
 
-            const glm::u32vec2 size = surface->getFramebufferSize();
+            const glm::u32vec2 size = surface.getFramebufferSize();
 
             VkExtent2D actualExtent =
             {

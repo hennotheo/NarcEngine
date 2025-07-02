@@ -10,8 +10,7 @@
 
 namespace narc_engine
 {
-    SwapChainRhi::SwapChainRhi(const WindowRhi* window, const DeviceRhi* device)
-        : m_window(window), m_device(device)
+    SwapChainRhi::SwapChainRhi()
     {
 
     }
@@ -20,7 +19,7 @@ namespace narc_engine
     {
     }
 
-    SwapChainRhiPtr createSwapChainRhi(const RendererApiType api, const WindowRhi* window, const DeviceRhi* device)
+    SwapChainRhiPtr createSwapChainRhi(const RendererApiType api, const WindowRhi& window, const DeviceRhi& device)
     {
         switch (api)
         {

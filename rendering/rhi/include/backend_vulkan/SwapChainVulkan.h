@@ -11,7 +11,7 @@ namespace narc_engine
     class SwapChainVulkan final : public SwapChainRhi
     {
     public:
-        explicit SwapChainVulkan(const WindowRhi* window, const DeviceRhi* device);
+        explicit SwapChainVulkan(const WindowRhi& window, const DeviceRhi& device);
         ~SwapChainVulkan() override;
 
         NARC_IMPL_INITIALISABLE();
@@ -22,5 +22,8 @@ namespace narc_engine
 
     private:
         VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
+
+        const WindowRhi& m_window;
+        const DeviceRhi& m_device;
     };
 } // narc_engine
