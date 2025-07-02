@@ -15,7 +15,7 @@ namespace narc_engine
     class NARC_ENGINE_API DeviceRhi : public narc_core::IInitialisable
     {
     public:
-        explicit DeviceRhi(const ContextRhi& ctx);
+        DeviceRhi();
         ~DeviceRhi() override;
 
         NARC_DECL_RHI_PLATFORM_GETTERS(Device);

@@ -10,8 +10,7 @@ namespace narc_engine
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
-    DeviceVulkan::DeviceVulkan(const ContextRhi& ctx) :
-        DeviceRhi(ctx), m_physicalDevice(ctx.getContextVulkan())
+    DeviceVulkan::DeviceVulkan(const ContextRhi& ctx) : m_physicalDevice(ctx.getContextVulkan())
     {
 
     }

@@ -13,7 +13,7 @@ namespace narc_engine
     //----- MONITORING -----
 #define API_DUMP_LAYER_NAME "VK_LAYER_LUNARG_api_dump"
 
-    ContextVulkan::ContextVulkan() : ContextRhi()
+    ContextVulkan::ContextVulkan()
     {
         m_requiredExtensions.reserve(10);
 

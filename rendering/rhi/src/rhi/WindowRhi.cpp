@@ -29,8 +29,7 @@ namespace narc_engine
         return nullptr;
     }
 
-    WindowRhi::WindowRhi(const ContextRhi& ctx) :
-        narc_core::IInitialisable(), m_context(ctx)
+    WindowRhi::WindowRhi(const ContextRhi& ctx) : m_context(ctx)
     {
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -45,6 +44,7 @@ namespace narc_engine
     {
         m_framebufferSize = glm::u32vec2(800, 600);
         m_window = glfwCreateWindow(m_framebufferSize.x, m_framebufferSize.y, "Narc Engine RHI Window", nullptr, nullptr);
+
         if (!m_window)
         {
             NARCLOG_FATAL("Failed to create GLFW window!");

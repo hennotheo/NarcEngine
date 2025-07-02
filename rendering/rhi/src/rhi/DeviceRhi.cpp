@@ -10,10 +10,7 @@
 
 namespace narc_engine
 {
-    DeviceRhi::DeviceRhi(const ContextRhi& ctx) :
-        narc_core::IInitialisable()
-    {
-    }
+    DeviceRhi::DeviceRhi() = default;
 
     DeviceRhi::~DeviceRhi() = default;
 
