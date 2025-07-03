@@ -26,6 +26,7 @@ namespace narc_engine
         void createWindow();
         void destroyWindow();
 
+    PROTECTED_TESTABLE:
         GLFWwindow* m_window = nullptr;
 
         const ContextRhi& m_context;

@@ -12,6 +12,11 @@ protected:
     RendererApiType getTestedApi() override { return RendererApiType::Vulkan; }
 };
 
+class DeviceVulkanExtensionTest
+    : public VulkanDeviceTest, public ::testing::WithParamInterface<const char*>
+{
+};
+
 TEST_F(VulkanDeviceTest, Creation)
 {
     ASSERT_NE(m_device.get(), nullptr) << "Failed to create DeviceRhi for Vulkan API";
@@ -34,11 +39,6 @@ TEST_F(VulkanDeviceTest, PhysicalDeviceVulkanCreation)
 {
     EXPECT_NO_THROW(PhysicalDeviceVulkan physicalDevice(m_context->getContextVulkan()););
 }
-
-class DeviceVulkanExtensionTest
-    : public VulkanDeviceTest, public ::testing::WithParamInterface<const char*>
-{
-};
 
 TEST_P(DeviceVulkanExtensionTest, QueryPhysicalDeviceWithExtension)
 {
