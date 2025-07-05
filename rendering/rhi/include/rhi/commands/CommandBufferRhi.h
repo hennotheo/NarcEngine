@@ -13,5 +13,5 @@ namespace narc_engine
 
     };
 
-    NARC_DECL_RHI_CREATION(CommandBufferRhi);
+    using CommandBufferRhiPtr = std::unique_ptr<CommandBufferRhi>;
 } // narc_engine

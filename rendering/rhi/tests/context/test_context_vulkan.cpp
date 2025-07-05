@@ -12,7 +12,7 @@ class RhiContextTestVulkan : public RhiTest
 public:
     void SetUp() override
     {
-        const auto injector = createDependencyInjector(getTestedApi());
+        const auto injector = createRhiInjector(getTestedApi());
         m_context = injector.create<ContextRhiPtr>();
     }
 
@@ -53,7 +53,7 @@ TEST_F(RhiContextTestVulkan, ContextVulkan_InitShutdown)
 
 TEST_F(RhiContextTestVulkan, ContextVulkan_InitInstanceExists)
 {
-    const auto injector = createDependencyInjector(getTestedApi());
+    const auto injector = createRhiInjector(getTestedApi());
     const auto context = injector.create<ContextRhiPtr>();
 
     const auto vkContext = context->getContextVulkan();
@@ -64,7 +64,7 @@ TEST_F(RhiContextTestVulkan, ContextVulkan_InitInstanceExists)
 
 TEST_F(RhiContextTestVulkan, ContextVulkan_Core_Enabled)
 {
-    const auto injector = createDependencyInjector(getTestedApi());
+    const auto injector = createRhiInjector(getTestedApi());
     const auto context = injector.create<ContextRhiPtr>();
 
     /**
@@ -83,7 +83,7 @@ TEST_P(RhiExtensionsTest, Extensions_Enabled)
      * @details Ensures that the isExtensionEnabled() method returns true after adding the extension.
      */
     const ExtensionParam params = GetParam();
-    const auto injector = createDependencyInjector(RendererApiType::Vulkan);
+    const auto injector = createRhiInjector(RendererApiType::Vulkan);
     const auto context = injector.create<ContextRhiPtr>();
 
     context->addExtensions(params.extensions.data(), params.extensions.size());
@@ -102,7 +102,7 @@ TEST_P(RhiExtensionsTest, Extensions_InitShutdown)
      * @details Ensures that the init() and shutdown() methods do not throw any exceptions after adding the extension.
      */
     const ExtensionParam params = GetParam();
-    const auto injector = createDependencyInjector(RendererApiType::Vulkan);
+    const auto injector = createRhiInjector(RendererApiType::Vulkan);
     const auto context = injector.create<ContextRhiPtr>();
 
     constexpr RhiExtension debug = RhiExtension::DebugUtils;
@@ -139,7 +139,7 @@ TEST_P(RhiLayersTest, Layer_Enabled)
      * @details Ensures that the isLayerEnabled() method returns true after adding the layer.
      */
     const RhiLayer layer = GetParam();
-    const auto injector = createDependencyInjector(RendererApiType::Vulkan);
+    const auto injector = createRhiInjector(RendererApiType::Vulkan);
     const auto context = injector.create<ContextRhiPtr>();
 
     context->addLayers(&layer, 1);
@@ -160,7 +160,7 @@ TEST_P(RhiLayersTest, Layer_InitShutdown)
      * @details Ensures that the init() and shutdown() methods do not throw any exceptions after adding the layer.
      */
     const RhiLayer layer = GetParam();
-    const auto injector = createDependencyInjector(RendererApiType::Vulkan);
+    const auto injector = createRhiInjector(RendererApiType::Vulkan);
     const auto context = injector.create<ContextRhiPtr>();
 
     const std::vector<RhiExtension> extension = {RhiExtension::Core, RhiExtension::DebugUtils};

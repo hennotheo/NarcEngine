@@ -13,6 +13,5 @@ namespace narc_engine {
 
     };
 
-    NARC_DECL_RHI_CREATION(FenceRhi);
-
+    using FenceRhiPtr = std::shared_ptr<FenceRhi>;
 } // narc_engine

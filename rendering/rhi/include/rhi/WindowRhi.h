@@ -4,18 +4,18 @@
 
 #pragma once
 
+#include "ContextRhi.h"
+
 struct GLFWwindow;
 
 namespace narc_engine
 {
-    class ContextRhi;
-
     NARC_DECL_RHI_PLATFORM_TYPES(Window)
 
     class NARC_ENGINE_API WindowRhi : public narc_core::IInitialisable
     {
     public:
-        explicit WindowRhi(const ContextRhi& ctx);
+        explicit WindowRhi(const ContextRhiPtr ctx);
         ~WindowRhi() override;
 
         NARC_DECL_RHI_PLATFORM_GETTERS(Window);
@@ -29,7 +29,7 @@ namespace narc_engine
     PROTECTED_TESTABLE:
         GLFWwindow* m_window = nullptr;
 
-        const ContextRhi& m_context;
+        const ContextRhiPtr m_context;
 
     private:
         bool m_framebufferResized = false;
@@ -45,5 +45,5 @@ namespace narc_engine
         static void onMouseInputPerformed(GLFWwindow* window, int button, int action, int mods);
     };
 
-    NARC_DECL_RHI_CREATION(WindowRhi, const ContextRhi& ctx);//TODO : Remove this line when the RhiInjector is ready
+    using WindowRhiPtr = std::shared_ptr<WindowRhi>;
 }

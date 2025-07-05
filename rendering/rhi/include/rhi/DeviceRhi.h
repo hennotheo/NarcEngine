@@ -21,5 +21,5 @@ namespace narc_engine
         NARC_DECL_RHI_PLATFORM_GETTERS(Device);
     };
 
-    NARC_DECL_RHI_CREATION(DeviceRhi, const ContextRhi& ctx);
+    using DeviceRhiPtr = std::shared_ptr<DeviceRhi>;
 }

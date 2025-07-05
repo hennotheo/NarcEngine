@@ -3,13 +3,13 @@
 //
 #include "test_window_base.h"
 
+#include "backend_vulkan/WindowVulkan.h"
+
 class VulkanWindowTest : public RhiWindowTest
 {
 protected:
-    RendererApiType getTestedApi() override { return RendererApiType::Vulkan; }
+    constexpr RendererApiType getTestedApi() override { return RendererApiType::Vulkan; }
 };
-
-TEST_F(VulkanWindowTest, WindowRhi_Creation) { ASSERT_NE(m_window.get(), nullptr) << "Failed to create DeviceRhi for Vulkan API"; }
 
 TEST_F(VulkanWindowTest, WindowRhi_InitShutdown)
 {

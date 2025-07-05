@@ -7,5 +7,5 @@
 #include <NarcLog.h>
 #include <NarcMath.h>
 
-#include "rhi/Platforms.h"
-#include "rhi/RhiCore.h"
+#include "Platforms.h"
+#include "RhiCore.h"

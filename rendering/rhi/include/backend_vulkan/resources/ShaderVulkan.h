@@ -12,5 +12,6 @@ namespace narc_engine
     {
 
     };
-    NARC_DECL_RHI_CREATION(ShaderRhi);
+
+    using ShaderRhiPtr = std::unique_ptr<ShaderRhi>;
 } // narc_engine

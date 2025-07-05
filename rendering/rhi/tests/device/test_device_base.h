@@ -16,7 +16,7 @@ class RhiDeviceTest : public RhiTest
 public:
     void SetUp() override
     {
-        m_injector = std::make_unique<RhiInjector>(createDependencyInjector(getTestedApi()));
+        m_injector = std::make_unique<RhiInjector>(createRhiInjector(getTestedApi()));
 
         m_context = m_injector->create<ContextRhiPtr>();
         m_window = m_injector->create<WindowRhiPtr>();

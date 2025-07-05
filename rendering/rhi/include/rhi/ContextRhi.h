@@ -3,9 +3,6 @@
 #include "definitions/RhiExtension.h"
 #include "definitions/RhiLayer.h"
 
-#include "WindowRhi.h"
-#include "DeviceRhi.h"
-
 namespace narc_engine
 {
     NARC_DECL_RHI_PLATFORM_TYPES(Context)
@@ -41,5 +38,4 @@ namespace narc_engine
     };
 
     using ContextRhiPtr = std::shared_ptr<ContextRhi>;
-    // NARC_DECL_RHI_CREATION(ContextRhi);
 } // namespace narc_engine

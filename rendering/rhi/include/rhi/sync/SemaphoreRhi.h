@@ -13,5 +13,5 @@ namespace narc_engine
 
     };
 
-    NARC_DECL_RHI_CREATION(SemaphoreRhi);
+    using SemaphoreRhiPtr = std::shared_ptr<SemaphoreRhi>;
 } // narc_engine

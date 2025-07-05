@@ -33,6 +33,7 @@ namespace narc_engine
         static Engine* getInstance();
 
         NARC_OVERRIDE_BOOL_GETTER(shouldClose, m_shouldClose);
+        NARC_IMPL_INITIALISABLE();
 
         void pollEvents() override;
         void render() override;
@@ -57,6 +58,10 @@ namespace narc_engine
 
     private:
         ContextRhiPtr m_contextRhi;
+        DeviceRhiPtr m_deviceRhi;
+
+        WindowRhiPtr m_windowRhi;
+
         std::unique_ptr<EngineInstance> m_instance;
         std::unique_ptr<EngineDebugLogger> m_debugLogger;
         std::unique_ptr<DeviceHandler> m_deviceHandler;

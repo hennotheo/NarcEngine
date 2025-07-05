@@ -4,14 +4,16 @@
 
 #pragma once
 
+#include "DeviceRhi.h"
 #include "SwapChainRhi.h"
+#include "WindowRhi.h"
 
 namespace narc_engine
 {
     class SwapChainVulkan final : public SwapChainRhi
     {
     public:
-        explicit SwapChainVulkan(const WindowRhi& window, const DeviceRhi& device);
+        explicit SwapChainVulkan(const WindowRhiPtr window, const DeviceRhiPtr device);
         ~SwapChainVulkan() override;
 
         NARC_IMPL_INITIALISABLE();
@@ -23,7 +25,7 @@ namespace narc_engine
     private:
         VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
 
-        const WindowRhi& m_window;
-        const DeviceRhi& m_device;
+        const std::weak_ptr<WindowRhi> m_window;
+        const std::weak_ptr<DeviceRhi> m_device;
     };
 } // narc_engine

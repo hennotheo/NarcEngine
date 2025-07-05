@@ -13,5 +13,5 @@ namespace narc_engine
 
     };
 
-    NARC_DECL_RHI_CREATION(CommandQueueRhi);
+    using CommandQueueRhiPtr = std::shared_ptr<CommandQueueRhi>;
 } // narc_engine

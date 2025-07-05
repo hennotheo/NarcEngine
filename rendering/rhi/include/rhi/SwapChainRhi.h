@@ -20,5 +20,5 @@ namespace narc_engine
         NARC_DECL_RHI_PLATFORM_GETTERS(SwapChain)
     };
 
-    NARC_DECL_RHI_CREATION(SwapChainRhi, const WindowRhi& window, const DeviceRhi& device);//TODO : Remove This later
-}
+    using SwapChainRhiPtr = std::shared_ptr<SwapChainRhi>;
+} // namespace narc_engine

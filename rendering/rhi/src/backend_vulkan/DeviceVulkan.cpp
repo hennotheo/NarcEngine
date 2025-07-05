@@ -6,19 +6,11 @@
 
 namespace narc_engine
 {
-    const std::vector<const char*> g_deviceExtensions = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME
-    };
+    const std::vector<const char*> g_deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
-    DeviceVulkan::DeviceVulkan(const ContextRhi& ctx) : m_physicalDevice(ctx.getContextVulkan())
-    {
+    DeviceVulkan::DeviceVulkan(const ContextRhiPtr& ctx) : m_physicalDevice(ctx->getContextVulkan()) {}
 
-    }
-
-    DeviceVulkan::~DeviceVulkan()
-    {
-
-    }
+    DeviceVulkan::~DeviceVulkan() {}
 
     void DeviceVulkan::init()
     {
@@ -41,10 +33,7 @@ namespace narc_engine
         }
     }
 
-    void DeviceVulkan::shutdown()
-    {
-        vkDestroyDevice(m_device, nullptr);
-    }
+    void DeviceVulkan::shutdown() { vkDestroyDevice(m_device, nullptr); }
 
     std::vector<VkDeviceQueueCreateInfo> DeviceVulkan::createQueueCreateInfos(const QueueFamilyIndicesVulkan& indices)
     {
@@ -64,4 +53,4 @@ namespace narc_engine
 
         return queueCreateInfos;
     }
-}
+} // namespace narc_engine

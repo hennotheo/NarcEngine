@@ -8,13 +8,12 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "DependencyInjection.h"
-#include "rhi/Rhi.h"
+#include "Rhi.h"
 
 using namespace narc_engine;
 
 class RhiTest : public ::testing::Test
 {
 protected:
-    virtual RendererApiType getTestedApi() = 0;
+    constexpr virtual RendererApiType getTestedApi() = 0;
 };

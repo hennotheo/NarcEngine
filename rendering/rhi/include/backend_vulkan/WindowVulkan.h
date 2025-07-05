@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "ContextRhi.h"
 #include "WindowRhi.h"
 
 namespace narc_engine
@@ -15,7 +16,7 @@ namespace narc_engine
     class WindowVulkan final : public WindowRhi
     {
     public:
-        explicit WindowVulkan(const ContextRhi& ctx);
+        explicit WindowVulkan(const ContextRhiPtr& ctx);
         ~WindowVulkan() override;
 
         NARC_IMPL_VK_PLATFORM_GETTERS(Window);

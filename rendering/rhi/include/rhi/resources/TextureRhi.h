@@ -12,5 +12,6 @@ namespace narc_engine
     {
 
     };
-    NARC_DECL_RHI_CREATION(TextureRhi);
+
+    using TextureRhiPtr = std::unique_ptr<TextureRhi>;
 } // narc_engine

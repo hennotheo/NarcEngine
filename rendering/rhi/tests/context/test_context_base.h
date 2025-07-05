@@ -23,7 +23,7 @@ class RhiContextTest : public RhiTest
 public:
     void SetUp() override
     {
-        const auto injector = createDependencyInjector(getTestedApi());
+        const auto injector = createRhiInjector(getTestedApi());
         m_context = injector.create<ContextRhiPtr>();
     }
 

@@ -10,35 +10,13 @@
 
 namespace narc_engine
 {
-    WindowRhiPtr createWindowRhi(RendererApiType api, const ContextRhi& ctx)
-    {
-        switch (api)
-        {
-        case RendererApiType::Vulkan:
-            return std::make_unique<WindowVulkan>(ctx);
-
-        case RendererApiType::OpenGL:
-            NARC_FATAL_OPENGL_NOT_SUPPORTED();
-
-        case RendererApiType::DirectX12:
-            NARC_FATAL_DIRECTX12_NOT_SUPPORTED();
-
-        default:
-            break;
-        }
-        return nullptr;
-    }
-
-    WindowRhi::WindowRhi(const ContextRhi& ctx) : m_context(ctx)
+    WindowRhi::WindowRhi(const ContextRhiPtr ctx) : m_context(ctx), m_framebufferSize()
     {
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     }
 
-    WindowRhi::~WindowRhi()
-    {
-
-    }
+    WindowRhi::~WindowRhi() = default;
 
     void WindowRhi::createWindow()
     {
@@ -82,4 +60,4 @@ namespace narc_engine
         WindowRhi* windowObject = reinterpret_cast<WindowRhi*>(glfwGetWindowUserPointer(window));
         windowObject->m_onMouseEvent.trigger(button, action, mods);
     }
-}
+} // namespace narc_engine

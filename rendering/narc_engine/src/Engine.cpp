@@ -1,12 +1,15 @@
 #include "Engine.h"
 
-#include "models/Vertex.h"
-#include "buffers/StagingBuffer.h"
-#include "core/Window.h"
-#include "core/EngineBuilder.h"
 #include "Rhi.h"
+#include "boost/di.hpp"
+#include "buffers/StagingBuffer.h"
+#include "core/EngineBuilder.h"
+#include "core/Window.h"
+#include "models/Vertex.h"
 
 #include "platform/vulkan/DeviceMemory.h"
+
+#include ""
 
 #define CREATE_ENGINE_UNIQUE_COMPONENT(type, ...) std::make_unique<type>(__VA_ARGS__);\
     NARCLOG_DEBUG("Created engine component: " #type); \
@@ -65,19 +68,11 @@ namespace narc_engine {
         builder.setValidationLayers(&g_validationLayers);
         builder.setDeviceExtensions(&g_deviceExtensions);
 
-        m_contextRhi = createContextRhi(RendererApiType::Vulkan);
-        WindowRhiPtr window = createWindowRhi(RendererApiType::Vulkan, m_contextRhi.get());
+        const auto injector = createRhiInjector(RendererApiType::Vulkan);
 
-        m_contextRhi->init();
-        window->init();
-
-        while (true)
-        {
-
-        }
-
-        window->shutdown();
-        m_contextRhi->shutdown();
+        m_contextRhi = injector.create<ContextRhiPtr>();
+        m_windowRhi = injector.create<WindowRhiPtr>();
+        m_deviceRhi = injector.create<DeviceRhiPtr>();
 
         // m_instance = CREATE_ENGINE_UNIQUE_COMPONENT(EngineInstance, &builder);
         // builder.m_instance = m_instance.get();
@@ -117,6 +112,21 @@ namespace narc_engine {
     EngineBinder* Engine::binder() const
     {
         return m_engineBinder.get();
+    }
+
+    void Engine::init()
+    {
+        m_contextRhi->init();
+        m_windowRhi->init();
+        m_deviceRhi->init();
+
+    }
+
+    void Engine::shutdown()
+    {
+        m_deviceRhi->shutdown();
+        m_windowRhi->shutdown();
+        m_contextRhi->shutdown();
     }
 
     void Engine::pollEvents()

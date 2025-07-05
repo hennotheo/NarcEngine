@@ -28,6 +28,8 @@ namespace narc
 
     void Application::start()
     {
+        m_engine->init();
+
         m_transforms.push_back(new narc_math::Transform());
         m_transforms.push_back(new narc_math::Transform());
         m_transforms.push_back(new narc_math::Transform());
@@ -59,6 +61,8 @@ namespace narc
             delete transform;
         }
         m_transforms.clear();
+
+        m_engine->shutdown();
     }
 
     void Application::appLoopBody()
