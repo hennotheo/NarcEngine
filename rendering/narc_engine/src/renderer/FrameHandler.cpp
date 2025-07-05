@@ -9,7 +9,7 @@
 namespace narc_engine {
     FrameHandler::FrameHandler()
     {
-        m_commandPool = std::make_unique<CommandPool>();
+        m_commandPool = std::make_unique<CommandPoolRhi>();
         m_commandPool->createCommandBuffers(10);
 
         m_renderFinishedSemaphore = std::make_unique<Semaphore>();

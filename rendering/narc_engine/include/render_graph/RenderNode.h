@@ -14,10 +14,10 @@ namespace narc_engine
         explicit RenderNode(const RenderPass* renderPass, const Shader* shader);
         virtual ~RenderNode() = default;
 
-        GETTER uint32_t getOrder() const { return m_order; }
+        uint32_t getOrder() const { return m_order; }
 
-        GETTER const std::vector<ResourceId>& getOutputs()const { return m_outputs; }
-        GETTER const std::vector<ResourceId>& getInputs() const { return m_inputs; }
+        const std::vector<ResourceId>& getOutputs()const { return m_outputs; }
+        const std::vector<ResourceId>& getInputs() const { return m_inputs; }
 
         TEMP_CODE virtual void record(const CommandBuffer* cmd, const RenderContext* ctx);//TODO Add pure virtual function
 

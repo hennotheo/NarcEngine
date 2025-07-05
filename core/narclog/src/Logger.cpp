@@ -4,7 +4,10 @@
 
 #include "Logger.h"
 
-#include <keywords/ConsoleStyle.h>
+#include "keywords/ConsoleStyle.h"
+
+#include "exceptions/FatalException.h"
+#include "exceptions/ErrorException.h"
 
 #include "FileLogger.h"
 

@@ -18,8 +18,8 @@ namespace narc_engine
     public:
         ~Material() override;
 
-        GETTER ResourceId getMainTexture() const { return m_mainTexture; }
-        GETTER ResourceId getShader() const { return m_shader; }
+        NARC_GETTER(ResourceId, getMainTexture, m_mainTexture);
+        NARC_GETTER(ResourceId, getShader, m_shader);
 
     protected:
         explicit Material(const char* texturePath);

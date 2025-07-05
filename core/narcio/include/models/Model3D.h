@@ -5,8 +5,8 @@
 #pragma once
 
 
-
-namespace narc_io {
+namespace narc_io
+{
     typedef std::vector<glm::vec3> VertexList;
     typedef std::vector<glm::vec3> ColorList;
     typedef std::vector<glm::vec2> TexCoordList;
@@ -16,14 +16,14 @@ namespace narc_io {
     {
         friend class FileReader;
 
-        GETTER uint32_t getVerticesCount() const { return m_vertices.size(); };
-        GETTER const VertexList* getVertices() const { return &m_vertices; };
+        NARC_GETTER(uint32_t, getVerticesCount, m_vertices.size());
+        NARC_GETTER(const VertexList&, getVertices, m_vertices);
 
-        GETTER uint32_t getIndicesCount() const { return m_indices.size(); };
-        GETTER const IndexList* getIndices() const { return &m_indices; };
-        
-        GETTER const TexCoordList* getTexCoords() const { return &m_texCoords; };
-        GETTER const ColorList* getColors() const { return &m_colors; };
+        NARC_GETTER(uint32_t, getIndicesCount, m_indices.size());
+        NARC_GETTER(const IndexList&, getIndices, m_indices);
+
+        NARC_GETTER(const TexCoordList&, getTexCoords, m_texCoords);
+        NARC_GETTER(const ColorList&, getColors, m_colors);
 
     private:
         std::vector<glm::vec3> m_vertices{};

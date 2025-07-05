@@ -116,7 +116,7 @@ namespace narc_engine {
 
     void SwapChain::createSwapChain()
     {
-        SwapChainSupportDetails swapChainSupport = NARC_PHYSICAL_DEVICE->getSwapChainSupport();
+        SwapChainSupportDetails swapChainSupport = NARC_PHYSICAL_DEVICE->querySwapChainSupport();
         VkSurfaceFormatKHR surfaceFormat = swapChainSupport.chooseSwapSurfaceFormat();
         VkPresentModeKHR presentMode = swapChainSupport.chooseSwapPresentMode();
         VkExtent2D extent = swapChainSupport.chooseSwapExtent(m_surface);

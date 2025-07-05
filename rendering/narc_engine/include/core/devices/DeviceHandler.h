@@ -17,8 +17,8 @@ namespace narc_engine
         explicit DeviceHandler(const EngineBuilder* builder);
         ~DeviceHandler();
 
-        GETTER const PhysicalDevice* getPhysicalDevice() const { return m_physicalDevice.get(); }
-        GETTER const LogicalDevice* getLogicalDevice() const { return m_logicalDevice.get(); }
+        NARC_GETTER(const PhysicalDevice*, getPhysicalDevice, m_physicalDevice.get())
+        NARC_GETTER(const LogicalDevice*, getLogicalDevice, m_logicalDevice.get())
 
     private:
         std::unique_ptr<PhysicalDevice> m_physicalDevice;

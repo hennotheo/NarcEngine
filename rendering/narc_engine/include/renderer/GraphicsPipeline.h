@@ -26,7 +26,7 @@ namespace narc_engine {
         VkPipelineColorBlendStateCreateInfo createColorBlendStateInfo(const VkPipelineColorBlendAttachmentState& colorBlendAttachment);
         VkPipelineDynamicStateCreateInfo createDynamicStateInfo(const std::vector<VkDynamicState>& dynamicStates);
 
-        GETTER VkPipelineLayout getLayout() const { return m_pipelineLayout; }
+        VkPipelineLayout getLayout() const { return m_pipelineLayout; }
 
         void bindPipeline(const CommandBuffer* commandBuffer) const;
 

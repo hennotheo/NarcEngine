@@ -1,3 +1,10 @@
+# REMOVING COVERAGE FLAGS (WE DONT TEST THOSE LIBS)
+set(_CFLAGS   "${CMAKE_C_FLAGS}")
+set(_CXXFLAGS "${CMAKE_CXX_FLAGS}")
+# strip coverage
+string(REPLACE "--coverage" "" CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}")
+string(REPLACE "--coverage" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+
 set(VENDOR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendors)
 set(FETCHCONTENT_QUIET ON)
 
@@ -32,6 +39,20 @@ else()
 
 endif()
 
+# --- BOOST DI ---
+FetchContent_Declare(
+        di
+        GIT_REPOSITORY https://github.com/boost-ext/di
+        GIT_TAG cpp14
+        SOURCE_DIR ${VENDOR_DIR}/di
+        EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(di)
+
+add_library(di_lib INTERFACE IMPORTED GLOBAL)
+target_include_directories(di_lib INTERFACE ${VENDOR_DIR}/di/include)
+
+# --- STB ---
 FetchContent_Declare(
     stb
     GIT_REPOSITORY https://github.com/nothings/stb.git
@@ -111,3 +132,7 @@ set(imgui_SOURCE_FILES
 
 # --- PYTHON ---
 find_package (Python COMPONENTS Interpreter)
+
+# RE ENABLE ORIGINAL FLAGS
+set(CMAKE_C_FLAGS   "${_CFLAGS}")
+set(CMAKE_CXX_FLAGS "${_CXXFLAGS}")

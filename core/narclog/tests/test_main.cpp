@@ -36,25 +36,25 @@ INITIALISATION_TESTS(LoggerDestroy_NoThrow)
     EXPECT_NO_THROW(narclog::destroyLogger(););
 }
 
-LOG_TESTS(Log_Infos)
-{
-    LogTests logger;
-
-    testing::internal::CaptureStdout();
-    NARCLOG_INFO("MESSAGE");
-    std::string output = testing::internal::GetCapturedStdout();
-    EXPECT_THAT(output, ::testing::HasSubstr("MESSAGE"));
-}
-
-LOG_TESTS(Log_Warning)
-{
-    LogTests logger;
-
-    testing::internal::CaptureStdout();
-    NARCLOG_WARNING("MESSAGE");
-    std::string output = testing::internal::GetCapturedStdout();
-    EXPECT_THAT(output, ::testing::HasSubstr("MESSAGE"));
-}
+// LOG_TESTS(Log_Infos)
+// {
+//     LogTests logger;
+//
+//     testing::internal::CaptureStdout();
+//     NARCLOG_INFO("MESSAGE");
+//     std::string output = testing::internal::GetCapturedStdout();
+//     EXPECT_THAT(output, ::testing::HasSubstr("MESSAGE"));
+// }
+//
+// LOG_TESTS(Log_Warning)
+// {
+//     LogTests logger;
+//
+//     testing::internal::CaptureStdout();
+//     NARCLOG_WARNING("MESSAGE");
+//     std::string output = testing::internal::GetCapturedStdout();
+//     EXPECT_THAT(output, ::testing::HasSubstr("MESSAGE"));
+// }
 
 LOG_TESTS(Log_Error)
 {

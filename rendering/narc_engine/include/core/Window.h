@@ -25,11 +25,11 @@ namespace narc_engine
 
     public:
         explicit Window(const EngineInstance* engineInstance);
-        ~Window();
+        ~Window() override;
 
-        NARC_IMPL_IGETTER(VkSurfaceKHR, m_surface)
-        GETTER const void* getSurfaceHandler() const override { return m_window; }
-        GETTER bool shouldClose() const { return m_shouldClose; }
+        NARC_IMPL_IGETTER(VkSurfaceKHR, m_surface);
+        NARC_GETTER(const void*, getSurfaceHandler, m_window);
+        NARC_BOOL_GETTER(shouldClose, m_shouldClose);
 
         void getValidFramebufferSize(int* width, int* height) const override;
         void getFramebufferSize(int* width, int* height) const override;

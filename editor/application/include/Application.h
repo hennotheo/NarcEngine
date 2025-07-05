@@ -1,8 +1,5 @@
 #pragma once
 
-#include <NarcEngine.h>
-#include <NarcMath.h>
-
 namespace narc
 {
     class Application final

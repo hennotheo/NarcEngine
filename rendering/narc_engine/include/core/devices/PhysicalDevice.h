@@ -20,13 +20,14 @@ namespace narc_engine
 
         NARC_IMPL_IGETTER(VkPhysicalDevice, m_physicalDevice);
 
-        GETTER const QueueFamilyIndices& getQueueFamilyIndices() const { return m_queueFamilyIndices; }
-        GETTER const SwapChainSupportDetails getSwapChainSupport() const { return querySwapChainSupport(m_physicalDevice); }
-        GETTER const VkPhysicalDeviceProperties& getPhysicalDeviceProperties() const { return m_physicalDeviceProperties; }
+        NARC_GETTER(const QueueFamilyIndices&, getQueueFamilyIndices, m_queueFamilyIndices)
+        NARC_GETTER(const VkPhysicalDeviceProperties&, getPhysicalDeviceProperties, m_physicalDeviceProperties)
+
+        QUERY SwapChainSupportDetails querySwapChainSupport() const { return querySwapChainSupport(m_physicalDevice); }
 
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
         VkFormat findDepthFormat() const;
-        VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
+        VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
 
     private:
         VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;

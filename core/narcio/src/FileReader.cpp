@@ -22,20 +22,22 @@ struct vertex
     }
 };
 
-namespace std {
-    template<>
+namespace std
+{
+    template <>
     struct hash<vertex>
     {
         size_t operator()(vertex const& vertex) const
         {
             return ((hash<glm::vec3>()(vertex.pos) ^
-                     (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
-                   (hash<glm::vec2>()(vertex.tex) << 1);
+                    (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
+                (hash<glm::vec2>()(vertex.tex) << 1);
         }
     };
 }
 
-namespace narc_io {
+namespace narc_io
+{
     std::vector<char> FileReader::readFile(const std::string& filename)
     {
         std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -45,7 +47,7 @@ namespace narc_io {
             NARCLOG_FATAL("Failed to open file!");
         }
 
-        const size_t fileSize = (size_t) file.tellg();
+        const size_t fileSize = (size_t)file.tellg();
         std::vector<char> buffer(fileSize);
 
         file.seekg(0);
@@ -74,9 +76,9 @@ namespace narc_io {
         TexCoordList texCoords;
         ColorList colors;
         IndexList indices;
-        for (const auto& shape: shapes)
+        for (const auto& shape : shapes)
         {
-            for (const auto& index: shape.mesh.indices)
+            for (const auto& index : shape.mesh.indices)
             {
                 vertex vertex{};
                 vertex.pos = {

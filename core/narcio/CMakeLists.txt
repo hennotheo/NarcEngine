@@ -1,24 +1,22 @@
 narc_blob_source_files()
 
 add_library(NarcIO SHARED include/NarcIO.h ${CPP_FILES} ${HPP_FILES})
+narc_decl_testable_target(NarcIO)
 
-add_dependencies(NarcIO
+narc_testable_add_dependencies(NarcIO 
         NarcLog
         NarcMath)
 
-target_compile_definitions(NarcIO PRIVATE
-        NARC_IO_BUILD_DLL)
-target_precompile_headers(NarcIO PRIVATE
-        "include/pch.h")
+narc_testable_add_compile_definition(NarcIO PRIVATE NARC_IO_BUILD_DLL)
 
-target_include_directories(NarcIO PUBLIC
+narc_testable_pch(NarcIO PRIVATE "include/pch.h")
+
+narc_testable_add_include_directory(NarcIO PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_include_directories(NarcIO PRIVATE
+
+narc_testable_add_include_directory(NarcIO PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/vendors/include"
         "${stb_SOURCE_DIR}"
-        "${tinyobjloader_SOURCE_DIR}"
-)
+        "${tinyobjloader_SOURCE_DIR}")
 
-target_link_libraries(NarcIO PUBLIC NarcLog NarcMath)
-
-narc_auto_setup_tests(NarcIO)
+narc_testable_link_library(NarcIO PUBLIC NarcLog NarcMath)

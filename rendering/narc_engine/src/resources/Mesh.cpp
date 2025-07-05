@@ -19,9 +19,9 @@ namespace narc_engine {
         m_vertices.reserve(m_model.getVerticesCount());
         m_indices.reserve(m_model.getIndicesCount());
 
-        const narc_io::VertexList modelVertices = *m_model.getVertices();
-        const narc_io::TexCoordList modelTexCoords = *m_model.getTexCoords();
-        const narc_io::IndexList modelIndices = *m_model.getIndices();
+        const narc_io::VertexList& modelVertices = m_model.getVertices();
+        const narc_io::TexCoordList& modelTexCoords = m_model.getTexCoords();
+        const narc_io::IndexList& modelIndices = m_model.getIndices();
         for (uint32_t i = 0; i < m_model.getVerticesCount(); ++i)
         {
             m_vertices.push_back({

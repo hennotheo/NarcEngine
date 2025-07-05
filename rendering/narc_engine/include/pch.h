@@ -1,10 +1,11 @@
 #pragma once
 
+#include <boost/di.hpp>
+
 #include <NarcIO.h>
 #include <NarcLog.h>
 #include <NarcMath.h>
-
-#include "Core.h"
+#include <Rhi.h>
 
 #include "utils/PublicTypedefs.h"
 

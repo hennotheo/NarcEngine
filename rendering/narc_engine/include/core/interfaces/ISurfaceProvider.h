@@ -10,9 +10,10 @@ namespace narc_engine {
         friend class UiRenderer;
 
     public:
-        virtual ~ISurfaceProvider() = default;
+        ~ISurfaceProvider() override = default;
 
-        GETTER virtual const void* getSurfaceHandler() const = 0;
+        NARC_PURE_VIRTUAL_GETTER(const void*, getSurfaceHandler)
+
         virtual void getValidFramebufferSize(int* width, int* height) const = 0;
         virtual void getFramebufferSize(int* width, int* height) const = 0;
 

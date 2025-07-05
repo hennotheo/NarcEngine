@@ -12,7 +12,7 @@ namespace narc_engine
 
         NARC_IMPL_IGETTER(VkDeviceMemory, m_memory);
 
-        GETTER bool isAllocated() const { return m_allocated; }
+        NARC_BOOL_GETTER(Allocated, m_allocated)
 
         void setSize(VkDeviceSize size) { m_allocInfo.allocationSize = size; }
         void setMemoryTypeIndex(uint32_t index) { m_allocInfo.memoryTypeIndex = index; }

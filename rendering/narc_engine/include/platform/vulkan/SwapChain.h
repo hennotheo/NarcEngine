@@ -5,7 +5,8 @@
 #include "RenderPass.h"
 #include "renderer/DepthResources.h"
 
-namespace narc_engine {
+namespace narc_engine
+{
     class ISurfaceProvider;
     class DeviceHandler;
     class Window;
@@ -18,9 +19,9 @@ namespace narc_engine {
         ~SwapChain() override;
 
         NARC_IMPL_IGETTER(VkSwapchainKHR, m_swapChain)
-        GETTER const VkExtent2D& getSwapChainExtent() const { return m_swapChainExtent; }
-        GETTER const VkFramebuffer& getFrameBuffer(const uint32_t& imageIndex) const { return m_swapChainFramebuffers[imageIndex]; }
-        GETTER const RenderPass* getRenderPass() const { return m_renderPass.get(); }
+        NARC_GETTER(const VkExtent2D&, getSwapChainExtent, m_swapChainExtent);
+        NARC_GETTER(const VkFramebuffer&, getFrameBuffer, m_swapChainFramebuffers[imageIndex], const uint32_t& imageIndex);
+        NARC_GETTER(const RenderPass*, getRenderPass, m_renderPass.get());
 
         void create(ISurfaceProvider* surface);
         void createFramebuffers();
