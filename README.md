@@ -55,4 +55,4 @@ NarcEngine is a C++ game engine that leverages Vulkan for high-performance graph
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+Licensed under MPL-2.0. See `LICENSE` and `NOTICE` file for details.
