@@ -1,0 +1,14 @@
+NarcEngine — Copyright (c) 2025 Théo Henno
+
+This engine is licensed under the Mozilla Public License 2.0 (MPL-2.0).
+
+If you use or distribute NarcEngine or a modified version, you must include the following notice in your project:
+
+"This project uses NarcEngine, an open-source game engine created by Théo Henno (https://github.com/hennotheo/NarcEngine)."
+
+For games using the engine, this credit must appear in at least one of the following:
+- The game README or official documentation
+- The game’s credits screen or credits file
+
+Commercial use of the engine for developing games is permitted.
+Selling or distributing a fork of the engine without open-sourcing modifications is not permitted.
