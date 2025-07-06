@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "DeviceRhi.h"
+#include "device/DeviceRhi.h"
 
 namespace narc_engine
 {

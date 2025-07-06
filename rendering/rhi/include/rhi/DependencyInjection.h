@@ -5,7 +5,7 @@
 #pragma once
 
 #include "ContextRhi.h"
-#include "DeviceRhi.h"
+#include "device/DeviceRhi.h"
 #include "WindowRhi.h"
 #include "SwapChainRhi.h"
 #include "queue/GraphicsQueueRhi.h"
@@ -13,7 +13,7 @@
 #include "device/MemoryAllocatorRhi.h"
 
 #include "backend_vulkan/ContextVulkan.h"
-#include "backend_vulkan/DeviceVulkan.h"
+#include "../backend_vulkan/device/DeviceVulkan.h"
 #include "backend_vulkan/WindowVulkan.h"
 #include "backend_vulkan/SwapChainVulkan.h"
 #include "backend_vulkan/device/MemoryAllocatorVulkan.h"

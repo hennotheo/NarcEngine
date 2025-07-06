@@ -6,8 +6,7 @@
 
 #include "queue/GraphicsQueueRhi.h"
 
-#include "DeviceRhi.h"
-#include "backend_vulkan/DeviceVulkan.h"
+#include "backend_vulkan/device/DeviceVulkan.h"
 
 namespace narc_engine
 {

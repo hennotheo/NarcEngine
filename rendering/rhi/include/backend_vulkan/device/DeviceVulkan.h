@@ -4,9 +4,8 @@
 
 #pragma once
 
-#include "DeviceRhi.h"
+#include "device/DeviceRhi.h"
 
-#include "backend_vulkan/ContextVulkan.h"
 #include "backend_vulkan/device/PhysicalDeviceVulkan.h"
 
 namespace narc_engine

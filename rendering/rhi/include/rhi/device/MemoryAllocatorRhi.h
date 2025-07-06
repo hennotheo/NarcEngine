@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "ContextRhi.h"
 #include "DeviceRhi.h"
 
 namespace narc_engine

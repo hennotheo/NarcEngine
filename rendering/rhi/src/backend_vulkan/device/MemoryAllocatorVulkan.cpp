@@ -9,7 +9,7 @@
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1 // NOSONAR
 #include <vk_mem_alloc.h>
 
-#include "backend_vulkan/DeviceVulkan.h"
+#include "../../../include/backend_vulkan/device/DeviceVulkan.h"
 
 namespace narc_engine
 {

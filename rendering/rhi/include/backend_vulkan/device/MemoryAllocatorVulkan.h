@@ -6,7 +6,8 @@
 
 #include "device/MemoryAllocatorRhi.h"
 
-#include "backend_vulkan/DeviceVulkan.h"
+#include "DeviceVulkan.h"
+#include "backend_vulkan/ContextVulkan.h"
 
 namespace narc_engine
 {

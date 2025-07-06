@@ -4,7 +4,7 @@
 
 #include "backend_vulkan/SwapChainVulkan.h"
 
-#include "backend_vulkan/DeviceVulkan.h"
+#include "../../include/backend_vulkan/device/DeviceVulkan.h"
 #include "backend_vulkan/WindowVulkan.h"
 
 namespace narc_engine

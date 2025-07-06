@@ -4,7 +4,7 @@
 
 #include "backend_vulkan/queue/GraphicsQueueVulkan.h"
 
-#include "backend_vulkan/DeviceVulkan.h"
+#include "../../../include/backend_vulkan/device/DeviceVulkan.h"
 #include "backend_vulkan/device/QueueFamilyIndicesVulkan.h"
 
 namespace narc_engine

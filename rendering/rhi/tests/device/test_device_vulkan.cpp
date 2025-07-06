@@ -4,7 +4,7 @@
 
 #include "test_device_base.h"
 
-#include "backend_vulkan/DeviceVulkan.h"
+#include "../../include/backend_vulkan/device/DeviceVulkan.h"
 
 class VulkanDeviceTest : public RhiDeviceTest
 {

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "DeviceRhi.h"
+#include "../rhi/device/DeviceRhi.h"
 #include "SwapChainRhi.h"
 #include "WindowRhi.h"
 

@@ -2,7 +2,7 @@
 // Created by theoh on 25/05/2025.
 //
 
-#include "backend_vulkan/DeviceVulkan.h"
+#include "backend_vulkan/device/DeviceVulkan.h"
 
 namespace narc_engine
 {
