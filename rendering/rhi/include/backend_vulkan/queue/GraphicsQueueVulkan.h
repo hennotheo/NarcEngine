@@ -21,13 +21,11 @@ namespace narc_engine
 
         NARC_IMPL_RHI_PLATFORM_GETTER(GraphicsQueue, Vulkan);
 
-
-
         void submit() override;
         void waitIdle() override;
 
     protected:
-        NARC_OVERRIDE_GETTER(DeviceVulkan*, getDevice, static_cast<DeviceVulkan*>(super::getDevice()))
+        NARC_OVERRIDE_GETTER(DeviceVulkan*, getDevice, super::getDevice ()->getDeviceVulkan())
 
     private:
         VkQueue m_queue = VK_NULL_HANDLE;
