@@ -28,4 +28,4 @@ namespace narc_engine
         const std::weak_ptr<WindowRhi> m_window;
         const std::weak_ptr<DeviceRhi> m_device;
     };
-} // narc_engine
+} // namespace narc_engine

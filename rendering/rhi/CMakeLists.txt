@@ -1,7 +1,6 @@
 narc_blob_source_files()
 
-add_library(NarcRHI STATIC include/rhi/Rhi.h ${CPP_FILES} ${HPP_FILES}
-        tests/swapchain/test_swapchain_base.h)
+add_library(NarcRHI STATIC include/rhi/Rhi.h ${CPP_FILES} ${HPP_FILES})
 narc_decl_testable_target(NarcRHI)
 
 narc_testable_add_compile_definition(NarcRHI PRIVATE NARC_ENGINE_BUILD_DLL)
