@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vk_mem_alloc.h>
 #include <boost/di.hpp>
 #include <vulkan/vulkan.h>
 

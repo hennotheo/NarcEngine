@@ -17,11 +17,6 @@ class DeviceVulkanExtensionTest
 {
 };
 
-TEST_F(VulkanDeviceTest, Creation)
-{
-    ASSERT_NE(m_device.get(), nullptr) << "Failed to create DeviceRhi for Vulkan API";
-}
-
 TEST_F(VulkanDeviceTest, InitShutdown)
 {
     EXPECT_NO_THROW(m_device->init()) << "DeviceRhi initialization threw an exception";
@@ -32,7 +27,7 @@ TEST_F(VulkanDeviceTest, GetDeviceVulkan)
 {
     const auto deviceVK = m_device->getDeviceVulkan();
 
-    EXPECT_NE(deviceVK, nullptr);
+    EXPECT_NE(deviceVK, VK_NULL_HANDLE);
 }
 
 TEST_F(VulkanDeviceTest, PhysicalDeviceVulkanCreation)

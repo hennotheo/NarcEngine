@@ -9,9 +9,11 @@
 #include "SwapChainRhi.h"
 #include "WindowRhi.h"
 #include "queue/GraphicsQueueRhi.h"
+#include "device/MemoryAllocatorRhi.h"
 
 #include "backend_vulkan/ContextVulkan.h"
 #include "backend_vulkan/DeviceVulkan.h"
+#include "backend_vulkan/device/MemoryAllocatorVulkan.h"
 #include "backend_vulkan/SwapChainVulkan.h"
 #include "backend_vulkan/WindowVulkan.h"
 
@@ -21,6 +23,7 @@ namespace narc_engine
     {
         return boost::di::make_injector(boost::di::bind<ContextRhi>().to<ContextVulkan>().in(boost::di::singleton),
                                         boost::di::bind<DeviceRhi>().to<DeviceVulkan>().in(boost::di::singleton),
+                                        boost::di::bind<MemoryAllocatorRhi>().to<MemoryAllocatorVulkan>().in(boost::di::singleton),
                                         boost::di::bind<WindowRhi>().to<WindowVulkan>().in(boost::di::singleton),//TODO: Change this to unique later
                                         boost::di::bind<GraphicsQueueRhi>().to<GraphicsQueueVulkan>().in(boost::di::singleton),
                                         boost::di::bind<SwapChainRhi>().to<SwapChainVulkan>().in(boost::di::unique));

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "context/ApplicationInfos.h"
 #include "definitions/RhiExtension.h"
 #include "definitions/RhiLayer.h"
 
@@ -19,6 +20,8 @@ namespace narc_engine
         NARC_BOOL_GETTER(isLayerEnabled, m_layers.contains(layer), const RhiLayer& layer);
 
         NARC_PURE_VIRTUAL_GETTER(RendererApiType, getRendererApiType);
+
+        QUERY virtual ApplicationInfos getApplicationInfos() const noexcept = 0;
 
         virtual void setApplicationVersion(uint16_t major, uint16_t minor, uint16_t patch) = 0;
         virtual void setApplicationName(const char* name) = 0;

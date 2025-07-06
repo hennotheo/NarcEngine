@@ -1,6 +1,7 @@
 # REMOVING COVERAGE FLAGS (WE DONT TEST THOSE LIBS)
 set(_CFLAGS   "${CMAKE_C_FLAGS}")
 set(_CXXFLAGS "${CMAKE_CXX_FLAGS}")
+
 # strip coverage
 string(REPLACE "--coverage" "" CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}")
 string(REPLACE "--coverage" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -38,6 +39,19 @@ else()
     target_include_directories(glm_lib INTERFACE ${VENDOR_DIR}/glm)
 
 endif()
+
+# --- BOOST DI ---
+FetchContent_Declare(
+        vma
+        GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
+        GIT_TAG v3.3.0
+        SOURCE_DIR ${VENDOR_DIR}/vulkanMemoryAllocator
+        EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(vma)
+
+add_library(vma_lib INTERFACE IMPORTED GLOBAL)
+target_include_directories(vma_lib INTERFACE ${VENDOR_DIR}/vulkanMemoryAllocator/include)
 
 # --- BOOST DI ---
 FetchContent_Declare(

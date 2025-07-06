@@ -12,7 +12,8 @@ target_include_directories(NarcEngineDependencies INTERFACE
 target_link_libraries(NarcEngineDependencies INTERFACE
         glfw
         Vulkan::Vulkan
-        di_lib)
+        di_lib
+        vma_lib)
 target_precompile_headers(NarcEngineDependencies INTERFACE "rhi/include/pch.h")
 
 add_dependencies(NarcEngineDependencies

@@ -4,9 +4,6 @@
 
 #pragma once
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-
 #include "test_rhi.h"
 
 using namespace narc_engine;
@@ -23,8 +20,12 @@ public:
 
         m_device = m_injector->create<DeviceRhiPtr>();
 
+        m_memoryAllocator = m_injector->create<MemoryAllocatorRhiPtr>();
+
         ASSERT_NE(m_context.get(), nullptr) << "Failed to create ContextRhi for Vulkan API";
         ASSERT_NE(m_window.get(), nullptr) << "Failed to create WindowRhi for Vulkan API";
+        ASSERT_NE(m_device.get(), nullptr) << "Failed to create DeviceRhi for Vulkan API";
+        ASSERT_NE(m_memoryAllocator.get(), nullptr) << "Failed to create MemoryAllocatorRhi for Vulkan API";
 
         m_context->init();
         m_window->init();
@@ -43,6 +44,7 @@ protected:
     WindowRhiPtr m_window;
 
     DeviceRhiPtr m_device;
+    MemoryAllocatorRhiPtr m_memoryAllocator;
 
     std::unique_ptr<RhiInjector> m_injector;
 };

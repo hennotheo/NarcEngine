@@ -94,6 +94,11 @@ namespace narc_engine
         vkDestroyInstance(m_instance, nullptr);
     }
 
+    ApplicationInfos ContextVulkan::getApplicationInfos() const noexcept
+    {
+        return {m_appInfo.apiVersion};
+    }
+
     void ContextVulkan::setApplicationVersion(const uint16_t major, const uint16_t minor, const uint16_t patch)
     {
         m_appInfo.applicationVersion = VK_MAKE_VERSION(major, minor, patch);
@@ -105,22 +110,24 @@ namespace narc_engine
     {
         switch (extension)
         {
-        case RhiExtension::Core:
+            using enum RhiExtension;
+
+        case Core:
             for (const auto glfwExtensions : getVulkanGLFWRequiredExtensions())
             {
                 m_requiredExtensions.push_back(new BasicExtensionVulkan(this, glfwExtensions));
             }
             return RHI_SUCCESS;
 
-        case RhiExtension::DebugUtils:
+        case DebugUtils:
             m_requiredExtensions.push_back(new DebugExtensionVulkan(this));
             return RHI_SUCCESS;
 
-        case RhiExtension::ExtendedDevicesProperties:
+        case ExtendedDevicesProperties:
             m_requiredExtensions.push_back(new BasicExtensionVulkan(this, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME));
             return RHI_SUCCESS;
 
-        case RhiExtension::ExtendedSurfaceCapabilities:
+        case ExtendedSurfaceCapabilities:
             m_requiredExtensions.push_back(new BasicExtensionVulkan(this, VK_KHR_SURFACE_EXTENSION_NAME));
             return RHI_SUCCESS;
 
