@@ -11,12 +11,12 @@ public:
     {
         RhiDeviceTest::SetUp();
 
-        m_device->init();
+        EXPECT_NO_THROW(m_device->init()) << "DeviceRhi initialization threw an exception";
     }
 
     void TearDown() override
     {
-        m_device->shutdown();
+        EXPECT_NO_THROW(m_device->shutdown()) << "DeviceRhi shutdown threw an exception";
 
         RhiDeviceTest::TearDown();
     }

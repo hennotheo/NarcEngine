@@ -20,6 +20,7 @@ namespace narc_engine
         NARC_IMPL_INITIALISABLE();
 
         NARC_IMPL_RHI_PLATFORM_GETTER(PresentQueue, Vulkan);
+        NARC_GETTER(VkQueue, getQueue, m_queue);
 
         void present() const override;
 

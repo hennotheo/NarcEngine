@@ -6,16 +6,17 @@
 
 #include "ContextRhi.h"
 #include "DeviceRhi.h"
-#include "SwapChainRhi.h"
 #include "WindowRhi.h"
+#include "SwapChainRhi.h"
 #include "queue/GraphicsQueueRhi.h"
+#include "queue/PresentQueueRhi.h"
 #include "device/MemoryAllocatorRhi.h"
 
 #include "backend_vulkan/ContextVulkan.h"
 #include "backend_vulkan/DeviceVulkan.h"
-#include "backend_vulkan/device/MemoryAllocatorVulkan.h"
-#include "backend_vulkan/SwapChainVulkan.h"
 #include "backend_vulkan/WindowVulkan.h"
+#include "backend_vulkan/SwapChainVulkan.h"
+#include "backend_vulkan/device/MemoryAllocatorVulkan.h"
 
 namespace narc_engine
 {
@@ -26,6 +27,7 @@ namespace narc_engine
                                         boost::di::bind<MemoryAllocatorRhi>().to<MemoryAllocatorVulkan>().in(boost::di::singleton),
                                         boost::di::bind<WindowRhi>().to<WindowVulkan>().in(boost::di::singleton),//TODO: Change this to unique later
                                         boost::di::bind<GraphicsQueueRhi>().to<GraphicsQueueVulkan>().in(boost::di::singleton),
+                                        boost::di::bind<PresentQueueRhi>().to<PresentQueueVulkan>().in(boost::di::singleton),
                                         boost::di::bind<SwapChainRhi>().to<SwapChainVulkan>().in(boost::di::unique));
     }
 

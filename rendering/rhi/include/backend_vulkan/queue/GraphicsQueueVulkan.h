@@ -20,6 +20,7 @@ namespace narc_engine
         NARC_IMPL_INITIALISABLE();
 
         NARC_IMPL_RHI_PLATFORM_GETTER(GraphicsQueue, Vulkan);
+        NARC_GETTER(VkQueue, getQueue, m_queue);
 
         void submit() override;
         void waitIdle() override;
