@@ -4,14 +4,13 @@
 #include "WindowRhi.h"
 
 #define GLFW_INCLUDE_VULKAN
-
 #include <GLFW/glfw3.h>
 
 #include "backend_vulkan/WindowVulkan.h"
 
 namespace narc_engine
 {
-    WindowRhi::WindowRhi(const ContextRhiPtr ctx) : m_context(ctx), m_framebufferSize()
+    WindowRhi::WindowRhi(const ContextRhiPtr& ctx) : m_context(ctx), m_framebufferSize()
     {
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);

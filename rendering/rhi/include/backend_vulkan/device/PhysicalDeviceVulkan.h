@@ -4,14 +4,13 @@
 
 #pragma once
 
+#include "ContextRhi.h"
+
 #include "QueueFamilyIndicesVulkan.h"
 #include "SwapChainSupportDetailsVulkan.h"
 
 namespace narc_engine
 {
-    class ContextVulkan;
-    class WindowVulkan;
-
     struct PhysicalDeviceVulkanProperties
     {
         const char* Name;
@@ -25,7 +24,7 @@ namespace narc_engine
     class PhysicalDeviceVulkan final
     {
     public:
-        explicit PhysicalDeviceVulkan(const ContextVulkan* context);
+        explicit PhysicalDeviceVulkan(const ContextRhiPtr& context);
         ~PhysicalDeviceVulkan();
 
         QUERY PhysicalDeviceVulkanProperties queryPhysicalDevice();
@@ -36,8 +35,9 @@ namespace narc_engine
         std::vector<VkPhysicalDevice> m_physicalDevices;
 
         std::set<const char*> m_deviceExtensions;
+        VkSurfaceKHR m_testSurface = VK_NULL_HANDLE;
 
-        const ContextVulkan* m_context;
+        const ContextRhiPtr m_context;
 
     private:
         QUERY VkPhysicalDevice queryBestPhysicalDevice() const;

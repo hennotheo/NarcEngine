@@ -15,7 +15,7 @@ namespace narc_engine
     class NARC_ENGINE_API WindowRhi : public narc_core::IInitialisable
     {
     public:
-        explicit WindowRhi(const ContextRhiPtr ctx);
+        explicit WindowRhi(const ContextRhiPtr& ctx);
         ~WindowRhi() override;
 
         NARC_DECL_RHI_PLATFORM_GETTERS(Window);

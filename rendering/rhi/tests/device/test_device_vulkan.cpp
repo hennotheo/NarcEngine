@@ -32,12 +32,12 @@ TEST_F(VulkanDeviceTest, GetDeviceVulkan)
 
 TEST_F(VulkanDeviceTest, PhysicalDeviceVulkanCreation)
 {
-    EXPECT_NO_THROW(PhysicalDeviceVulkan physicalDevice(m_context->getContextVulkan()););
+    EXPECT_NO_THROW(PhysicalDeviceVulkan physicalDevice(m_context););
 }
 
 TEST_P(DeviceVulkanExtensionTest, QueryPhysicalDeviceWithExtension)
 {
-    PhysicalDeviceVulkan physicalDevice(m_context->getContextVulkan());
+    PhysicalDeviceVulkan physicalDevice(m_context);
     physicalDevice.addExtension(GetParam());
     EXPECT_NO_THROW(physicalDevice.queryPhysicalDevice());
 }

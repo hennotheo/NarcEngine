@@ -9,13 +9,11 @@ namespace narc_engine
     const std::vector<const char*> g_deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
     DeviceVulkan::DeviceVulkan(const ContextRhiPtr& ctx) :
-        m_physicalDevice(ctx->getContextVulkan())
+        m_physicalDevice(ctx)
     {
     }
 
-    DeviceVulkan::~DeviceVulkan()
-    {
-    }
+    DeviceVulkan::~DeviceVulkan() = default;
 
     void DeviceVulkan::init()
     {

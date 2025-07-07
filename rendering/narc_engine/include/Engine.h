@@ -62,6 +62,9 @@ namespace narc_engine
 
         WindowRhiPtr m_windowRhi;
 
+        GraphicsQueueRhiPtr m_graphicsQueueRhi;
+        PresentQueueRhiPtr m_presentQueueRhi;
+
         std::unique_ptr<EngineInstance> m_instance;
         std::unique_ptr<EngineDebugLogger> m_debugLogger;
         std::unique_ptr<DeviceHandler> m_deviceHandler;

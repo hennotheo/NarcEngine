@@ -4,13 +4,12 @@
 
 #pragma once
 
-#include "ContextRhi.h"
 #include "WindowRhi.h"
+
+#include "ContextRhi.h"
 
 namespace narc_engine
 {
-    class ContextVulkan;
-
     std::vector<const char*> getVulkanGLFWRequiredExtensions();
 
     class WindowVulkan final : public WindowRhi

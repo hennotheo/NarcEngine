@@ -9,9 +9,7 @@
 
 namespace narc_engine
 {
-    extern VkSurfaceKHR g_firstVkSurface;
-
-    PhysicalDeviceVulkan::PhysicalDeviceVulkan(const ContextVulkan* context) :
+    PhysicalDeviceVulkan::PhysicalDeviceVulkan(const ContextRhiPtr& context) :
         m_context(context)
     {
         if (context == nullptr)
@@ -20,15 +18,14 @@ namespace narc_engine
         }
     }
 
-    PhysicalDeviceVulkan::~PhysicalDeviceVulkan()
-    {
-
-    }
+    PhysicalDeviceVulkan::~PhysicalDeviceVulkan() = default;
 
     void PhysicalDeviceVulkan::registerAllPhysicalDevices()
     {
+        const auto vkInstance = m_context->getContextVulkan()->getVkInstance();
+
         uint32_t deviceCount = 0;
-        if (vkEnumeratePhysicalDevices(m_context->getVkInstance(), &deviceCount, nullptr) != VK_SUCCESS)
+        if (vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr) != VK_SUCCESS)
         {
             NARCLOG_FATAL("Failed to enumerate physical devices!");
         }
@@ -39,19 +36,24 @@ namespace narc_engine
         }
 
         m_physicalDevices.resize(deviceCount);
-        vkEnumeratePhysicalDevices(m_context->getVkInstance(), &deviceCount, m_physicalDevices.data());
+        vkEnumeratePhysicalDevices(vkInstance, &deviceCount, m_physicalDevices.data());
     }
 
     PhysicalDeviceVulkanProperties PhysicalDeviceVulkan::queryPhysicalDevice()
     {
         registerAllPhysicalDevices();
 
-        PhysicalDeviceVulkanProperties props{};
+        WindowVulkan temporaryWindow(m_context);
+        temporaryWindow.init();
+        m_testSurface = temporaryWindow.getVkSurface();
 
+        PhysicalDeviceVulkanProperties props{};
         props.PhysicalDevice = queryBestPhysicalDevice();
         props.QueueFamilyIndices = findQueueFamilies(props.PhysicalDevice);
         props.SwapChainSupportDetails = querySwapChainSupport(props.PhysicalDevice);
         vkGetPhysicalDeviceProperties(props.PhysicalDevice, &props.Properties);
+
+        temporaryWindow.shutdown();
 
         return props;
     }
@@ -114,13 +116,39 @@ namespace narc_engine
             return 0;
         }
 
-        const QueueFamilyIndicesVulkan indices = findQueueFamilies(device);
-        if (!indices.isComplete())
+        if (const QueueFamilyIndicesVulkan indices = findQueueFamilies(device); !indices.isComplete())
         {
             return 0;
         }
 
         return score;
+    }
+
+    SwapChainSupportDetailsVulkan PhysicalDeviceVulkan::querySwapChainSupport(const VkPhysicalDevice device) const
+    {
+        SwapChainSupportDetailsVulkan details;
+
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_testSurface, &details.Capabilities);
+
+        uint32_t formatCount;
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_testSurface, &formatCount, nullptr);
+
+        if (formatCount != 0)
+        {
+            details.Formats.resize(formatCount);
+            vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_testSurface, &formatCount, details.Formats.data());
+        }
+
+        uint32_t presentModeCount;
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_testSurface, &presentModeCount, nullptr);
+
+        if (presentModeCount != 0)
+        {
+            details.PresentModes.resize(presentModeCount);
+            vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_testSurface, &presentModeCount, details.PresentModes.data());
+        }
+
+        return details;
     }
 
     QueueFamilyIndicesVulkan PhysicalDeviceVulkan::findQueueFamilies(const VkPhysicalDevice physicalDevice) const
@@ -154,37 +182,10 @@ namespace narc_engine
         return indices;
     }
 
-    SwapChainSupportDetailsVulkan PhysicalDeviceVulkan::querySwapChainSupport(const VkPhysicalDevice device) const
-    {
-        SwapChainSupportDetailsVulkan details;
-
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, g_firstVkSurface, &details.Capabilities);
-
-        uint32_t formatCount;
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device, g_firstVkSurface, &formatCount, nullptr);
-
-        if (formatCount != 0)
-        {
-            details.Formats.resize(formatCount);
-            vkGetPhysicalDeviceSurfaceFormatsKHR(device, g_firstVkSurface, &formatCount, details.Formats.data());
-        }
-
-        uint32_t presentModeCount;
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, g_firstVkSurface, &presentModeCount, nullptr);
-
-        if (presentModeCount != 0)
-        {
-            details.PresentModes.resize(presentModeCount);
-            vkGetPhysicalDeviceSurfacePresentModesKHR(device, g_firstVkSurface, &presentModeCount, details.PresentModes.data());
-        }
-
-        return details;
-    }
-
     RhiResult PhysicalDeviceVulkan::isSurfaceSupportedByPhysicalDevice(const VkPhysicalDevice physicalDevice, const uint32_t queueFamilyIndex) const
     {
         VkBool32 supported = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, g_firstVkSurface, &supported);
+        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_testSurface, &supported);
 
         if (!supported)
         {
@@ -202,7 +203,7 @@ namespace narc_engine
         std::vector<VkExtensionProperties> availableExtensions(extensionCount);
         vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, availableExtensions.data());
 
-        std::set<std::string> requiredExtensions(m_deviceExtensions.begin(), m_deviceExtensions.end());//string to compare
+        std::set<std::string> requiredExtensions(m_deviceExtensions.begin(), m_deviceExtensions.end()); //string to compare
         for (const auto& extension : availableExtensions)
         {
             requiredExtensions.erase(extension.extensionName);

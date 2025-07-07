@@ -16,24 +16,18 @@ public:
         m_injector = std::make_unique<RhiInjector>(createRhiInjector(getTestedApi()));
 
         m_context = m_injector->create<ContextRhiPtr>();
-        m_window = m_injector->create<WindowRhiPtr>();
-
         m_device = m_injector->create<DeviceRhiPtr>();
-
         m_memoryAllocator = m_injector->create<MemoryAllocatorRhiPtr>();
 
         ASSERT_NE(m_context.get(), nullptr) << "Failed to create ContextRhi for Vulkan API";
-        ASSERT_NE(m_window.get(), nullptr) << "Failed to create WindowRhi for Vulkan API";
         ASSERT_NE(m_device.get(), nullptr) << "Failed to create DeviceRhi for Vulkan API";
         ASSERT_NE(m_memoryAllocator.get(), nullptr) << "Failed to create MemoryAllocatorRhi for Vulkan API";
 
         m_context->init();
-        m_window->init();
     }
 
     void TearDown() override
     {
-        m_window->shutdown();
         m_context->shutdown();
 
         m_injector.reset();
@@ -41,8 +35,6 @@ public:
 
 protected:
     ContextRhiPtr m_context;
-    WindowRhiPtr m_window;
-
     DeviceRhiPtr m_device;
     MemoryAllocatorRhiPtr m_memoryAllocator;
 

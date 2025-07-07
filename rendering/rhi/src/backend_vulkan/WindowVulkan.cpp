@@ -9,10 +9,6 @@
 
 namespace narc_engine
 {
-    /// @brief Global variable to store the first created surface.
-    /// @details To have a reference for the device creation.
-    VkSurfaceKHR g_firstVkSurface = VK_NULL_HANDLE;//TODO : Remove this later
-
     std::vector<const char*> getVulkanGLFWRequiredExtensions()
     {
         uint32_t glfwExtensionCount = 0;
@@ -42,8 +38,6 @@ namespace narc_engine
         {
             NARCLOG_FATAL("Failed to create window surface!");
         }
-
-        g_firstVkSurface = m_surface;
     }
 
     void WindowVulkan::shutdown()

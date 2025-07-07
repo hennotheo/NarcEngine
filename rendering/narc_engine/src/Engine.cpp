@@ -74,6 +74,9 @@ namespace narc_engine {
         m_windowRhi = injector.create<WindowRhiPtr>();
         m_deviceRhi = injector.create<DeviceRhiPtr>();
 
+        m_graphicsQueueRhi = injector.create<GraphicsQueueRhiPtr>();
+        m_presentQueueRhi = injector.create<PresentQueueRhiPtr>();
+
         // m_instance = CREATE_ENGINE_UNIQUE_COMPONENT(EngineInstance, &builder);
         // builder.m_instance = m_instance.get();
         //
@@ -120,10 +123,15 @@ namespace narc_engine {
         m_windowRhi->init();
         m_deviceRhi->init();
 
+        m_graphicsQueueRhi->init();
+        m_presentQueueRhi->init();
     }
 
     void Engine::shutdown()
     {
+        m_presentQueueRhi->shutdown();
+        m_graphicsQueueRhi->shutdown();
+
         m_deviceRhi->shutdown();
         m_windowRhi->shutdown();
         m_contextRhi->shutdown();

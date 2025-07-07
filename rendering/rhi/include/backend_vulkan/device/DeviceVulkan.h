@@ -26,7 +26,7 @@ namespace narc_engine
         VkDevice m_device = VK_NULL_HANDLE;
 
         PhysicalDeviceVulkan m_physicalDevice;
-        PhysicalDeviceVulkanProperties m_physicalDeviceProperties;
+        PhysicalDeviceVulkanProperties m_physicalDeviceProperties{};
 
         std::vector<VkDeviceQueueCreateInfo> createQueueCreateInfos(const QueueFamilyIndicesVulkan& indices);
     };
