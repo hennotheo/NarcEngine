@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/di.hpp>
+#include <vma/vk_mem_alloc.h>
 
 #include <NarcIO.h>
 #include <NarcLog.h>

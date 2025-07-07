@@ -19,8 +19,10 @@ namespace narc_engine
         virtual void waitDeviceIdle() = 0;
     };
 
-    NARC_ENGINE_API IEngine* getEngine();
-    NARC_ENGINE_API IEngine* createEngine();
+    using EnginePtr = std::shared_ptr<IEngine>;
+
+    NARC_ENGINE_API IEngine* getEngine();//TODO remove this function, use EnginePtr instead
+    NARC_ENGINE_API EnginePtr createEngine();
     
     #pragma warning "temporary resource functions"
     NARC_ENGINE_API ResourceId createMaterial(const char* texturePath);

@@ -1,20 +1,17 @@
 #include "Engine.h"
 
 #include "Rhi.h"
-#include "boost/di.hpp"
 #include "buffers/StagingBuffer.h"
 #include "core/EngineBuilder.h"
 #include "core/Window.h"
 #include "models/Vertex.h"
 
-#include "platform/vulkan/DeviceMemory.h"
-
-#include ""
 
 #define CREATE_ENGINE_UNIQUE_COMPONENT(type, ...) std::make_unique<type>(__VA_ARGS__);\
-    NARCLOG_DEBUG("Created engine component: " #type); \
+    NARCLOG_DEBUG("Created engine component: " #type);
 
-namespace narc_engine {
+namespace narc_engine
+{
     const std::vector<const char*> g_validationLayers =
     {
         "VK_LAYER_KHRONOS_validation"
@@ -31,20 +28,22 @@ namespace narc_engine {
 
     constexpr uint32_t g_maxFramesInFlight = 2;
 
-    static Engine* s_instance;
+    static Engine* s_instance; //TODO : remove this static instance, use EnginePtr instead
 
     IEngine* getEngine()
     {
+        NARCLOG_WARNING("This function is deprecated, use EnginePtr instead!");
+
 #ifdef NARC_ENGINE_PLATFORM_WINDOWS
         return Engine::getInstance();
 #endif
         return nullptr;
     }
 
-    IEngine* createEngine()
+    EnginePtr createEngine()
     {
 #ifdef NARC_ENGINE_PLATFORM_WINDOWS
-        return new Engine();
+        return std::make_shared<Engine>();
 #endif
         NARCLOG_FATAL("Engine not implemented for this platform!");
     }
@@ -64,9 +63,9 @@ namespace narc_engine {
     {
         s_instance = this;
 
-        EngineBuilder builder;
-        builder.setValidationLayers(&g_validationLayers);
-        builder.setDeviceExtensions(&g_deviceExtensions);
+        // EngineBuilder builder;
+        // builder.setValidationLayers(&g_validationLayers);
+        // builder.setDeviceExtensions(&g_deviceExtensions);
 
         const auto injector = createRhiInjector(RendererApiType::Vulkan);
 
@@ -109,6 +108,8 @@ namespace narc_engine {
 
     Engine* Engine::getInstance()
     {
+        NARCLOG_WARNING("This function is deprecated!");
+
         return s_instance;
     }
 
@@ -120,9 +121,9 @@ namespace narc_engine {
     void Engine::init()
     {
         m_contextRhi->init();
-        m_windowRhi->init();
         m_deviceRhi->init();
 
+        m_windowRhi->init();
         m_graphicsQueueRhi->init();
         m_presentQueueRhi->init();
     }
@@ -131,14 +132,16 @@ namespace narc_engine {
     {
         m_presentQueueRhi->shutdown();
         m_graphicsQueueRhi->shutdown();
+        m_windowRhi->shutdown();
 
         m_deviceRhi->shutdown();
-        m_windowRhi->shutdown();
         m_contextRhi->shutdown();
     }
 
     void Engine::pollEvents()
     {
+        throw std::invalid_argument("Not implemented yet!");
+
         m_windows->pollEvents();
 
         if (m_windows->shouldClose())
@@ -149,6 +152,8 @@ namespace narc_engine {
 
     void Engine::render()
     {
+        throw std::invalid_argument("Not implemented yet!");
+
         m_windows->render();
     }
 
@@ -245,7 +250,7 @@ namespace narc_engine {
         region.imageSubresource.baseArrayLayer = 0;
         region.imageSubresource.layerCount = 1;
 
-        region.imageOffset = { 0, 0, 0 };
+        region.imageOffset = {0, 0, 0};
         region.imageExtent = {
             width,
             height,
@@ -258,8 +263,8 @@ namespace narc_engine {
     }
 
     void Engine::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
-        VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
-        DeviceMemory* imageMemory) const
+                             VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
+                             DeviceMemory* imageMemory) const
     {
         VkImageCreateInfo imageInfo{};
         imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -289,23 +294,23 @@ namespace narc_engine {
 
         imageMemory->setSize(memRequirements.size);
         imageMemory->setMemoryTypeIndex(m_deviceHandler->getPhysicalDevice()->findMemoryType(memRequirements.memoryTypeBits, properties));
-        
+
         imageMemory->allocate();
 
         vkBindImageMemory(m_deviceHandler->getLogicalDevice()->get(), image, imageMemory->get(), 0);
     }
 
     void Engine::createImage(const narc_io::Image& imageData, VkFormat format, VkImageTiling tiling,
-        VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
-        DeviceMemory* imageMemory) const
+                             VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
+                             DeviceMemory* imageMemory) const
     {
         createImage(imageData.getWidth(),
-            imageData.getHeight(),
-            format,
-            tiling,
-            usage,
-            properties,
-            image,
-            imageMemory);
+                    imageData.getHeight(),
+                    format,
+                    tiling,
+                    usage,
+                    properties,
+                    image,
+                    imageMemory);
     }
 }

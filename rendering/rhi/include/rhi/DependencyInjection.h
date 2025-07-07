@@ -6,17 +6,22 @@
 
 #include "ContextRhi.h"
 #include "device/DeviceRhi.h"
-#include "WindowRhi.h"
-#include "SwapChainRhi.h"
 #include "queue/GraphicsQueueRhi.h"
 #include "queue/PresentQueueRhi.h"
 #include "device/MemoryAllocatorRhi.h"
 
+#include "SwapChainRhi.h"
+#include "WindowRhi.h"
+
+
 #include "backend_vulkan/ContextVulkan.h"
-#include "../backend_vulkan/device/DeviceVulkan.h"
+#include "backend_vulkan/device/DeviceVulkan.h"
+#include "backend_vulkan/device/MemoryAllocatorVulkan.h"
+#include "backend_vulkan/queue/GraphicsQueueVulkan.h"
+#include "backend_vulkan/queue/PresentQueueVulkan.h"
+
 #include "backend_vulkan/WindowVulkan.h"
 #include "backend_vulkan/SwapChainVulkan.h"
-#include "backend_vulkan/device/MemoryAllocatorVulkan.h"
 
 namespace narc_engine
 {

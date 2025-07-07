@@ -19,10 +19,9 @@
 
 namespace narc_engine
 {
-
     class DeviceMemory;
 
-    class Engine : public IEngine
+    class Engine final : public IEngine
     {
         friend EngineBinder;
 
