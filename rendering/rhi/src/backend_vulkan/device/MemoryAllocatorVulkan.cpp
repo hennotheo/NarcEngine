@@ -9,12 +9,13 @@
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1 // NOSONAR
 #include <vk_mem_alloc.h>
 
-#include "../../../include/backend_vulkan/device/DeviceVulkan.h"
+#include "backend_vulkan/device/DeviceVulkan.h"
 
 namespace narc_engine
 {
     MemoryAllocatorVulkan::MemoryAllocatorVulkan(const ContextRhiPtr& ctx, const DeviceRhiPtr& device) :
-        super(ctx, device)
+        m_context(std::static_pointer_cast<ContextVulkan>(ctx)),// Static cast cause ContextRhiPtr is a shared pointer to ContextVulkan
+        m_device(std::static_pointer_cast<DeviceVulkan>(device))// Static cast cause DeviceRhiPtr is a shared pointer to DeviceVulkan
     {
     }
 
@@ -35,14 +36,17 @@ namespace narc_engine
 
     VmaAllocatorCreateInfo MemoryAllocatorVulkan::createAllocatorCreateInfo(const VmaVulkanFunctions* vulkanFunctions) const
     {
-        const ApplicationInfos appInfo = getContext()->getApplicationInfos();
+        NARC_GUARD_WEAK(context, m_context, "Context is null!");
+        NARC_GUARD_WEAK(device, m_device, "Device is null!");
+
+        const ApplicationInfos appInfo = context->getApplicationInfos();
 
         VmaAllocatorCreateInfo allocatorCreateInfo = {};
         allocatorCreateInfo.flags = VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
         allocatorCreateInfo.vulkanApiVersion = appInfo.RendererApiVersion;
-        allocatorCreateInfo.physicalDevice = getDevice()->getPhysicalDeviceProperties().PhysicalDevice;
-        allocatorCreateInfo.device = getDevice()->getVkDevice();
-        allocatorCreateInfo.instance = getContext()->getVkInstance();
+        allocatorCreateInfo.physicalDevice = device->getPhysicalDeviceProperties().PhysicalDevice;
+        allocatorCreateInfo.device = device->getVkDevice();
+        allocatorCreateInfo.instance = context->getVkInstance();
         allocatorCreateInfo.pVulkanFunctions = vulkanFunctions;
 
         return allocatorCreateInfo;

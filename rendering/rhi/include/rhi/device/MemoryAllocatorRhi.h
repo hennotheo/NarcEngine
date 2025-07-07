@@ -14,18 +14,9 @@ namespace narc_engine
     class NARC_ENGINE_API MemoryAllocatorRhi : public narc_core::IInitialisable
     {
     public:
-        explicit MemoryAllocatorRhi(const ContextRhiPtr& ctx, const DeviceRhiPtr& device);
-        ~MemoryAllocatorRhi() override = default;
+        MemoryAllocatorRhi();
 
         NARC_DECL_RHI_PLATFORM_GETTERS(MemoryAllocator);
-
-    protected:
-        NARC_VIRTUAL_GETTER(DeviceRhi*, getDevice, m_device.get())
-        NARC_VIRTUAL_GETTER(ContextRhi*, getContext, m_context.get())
-
-    private:
-        const ContextRhiPtr m_context;
-        const DeviceRhiPtr m_device;
     };
 
     using MemoryAllocatorRhiPtr = std::shared_ptr<MemoryAllocatorRhi>;

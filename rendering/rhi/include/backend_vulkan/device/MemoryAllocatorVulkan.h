@@ -24,8 +24,8 @@ namespace narc_engine
     private:
         VmaAllocator m_allocator = VK_NULL_HANDLE;
 
-        NARC_OVERRIDE_GETTER(DeviceVulkan*, getDevice, super::getDevice()->getDeviceVulkan())
-        NARC_OVERRIDE_GETTER(ContextVulkan*, getContext, super::getContext()->getContextVulkan())
+        std::weak_ptr<ContextVulkan> m_context;
+        std::weak_ptr<DeviceVulkan> m_device;
 
     private:
         VmaAllocatorCreateInfo createAllocatorCreateInfo(const VmaVulkanFunctions* vulkanFunctions) const;

@@ -12,6 +12,7 @@
 
 #include "SwapChainRhi.h"
 #include "WindowRhi.h"
+#include "FrameBufferRhi.h"
 
 
 #include "backend_vulkan/ContextVulkan.h"
@@ -22,6 +23,7 @@
 
 #include "backend_vulkan/WindowVulkan.h"
 #include "backend_vulkan/SwapChainVulkan.h"
+#include "backend_vulkan/FrameBufferVulkan.h"
 
 namespace narc_engine
 {
@@ -30,10 +32,13 @@ namespace narc_engine
         return boost::di::make_injector(boost::di::bind<ContextRhi>().to<ContextVulkan>().in(boost::di::singleton),
                                         boost::di::bind<DeviceRhi>().to<DeviceVulkan>().in(boost::di::singleton),
                                         boost::di::bind<MemoryAllocatorRhi>().to<MemoryAllocatorVulkan>().in(boost::di::singleton),
-                                        boost::di::bind<WindowRhi>().to<WindowVulkan>().in(boost::di::singleton),//TODO: Change this to unique later
+                                        boost::di::bind<WindowRhi>().to<WindowVulkan>().in(boost::di::singleton), //TODO: Change this to unique later
                                         boost::di::bind<GraphicsQueueRhi>().to<GraphicsQueueVulkan>().in(boost::di::singleton),
                                         boost::di::bind<PresentQueueRhi>().to<PresentQueueVulkan>().in(boost::di::singleton),
-                                        boost::di::bind<SwapChainRhi>().to<SwapChainVulkan>().in(boost::di::unique));
+                                        boost::di::bind<SwapChainRhi>().to<SwapChainVulkan>().in(boost::di::unique),
+
+                                        boost::di::bind<FrameBufferRhi>().to<FrameBufferVulkan>().in(boost::di::unique)
+            );
     }
 
     inline auto createRhiInjector(const RendererApiType apiType)

@@ -40,8 +40,8 @@
         ptr = nullptr;\
     }
 
-#define NARC_GUARD_WEAK(Var, WeakPtr, ErrorMsg) \
-    const auto Var = (WeakPtr).lock();          \
-    if (!(Var)) {                               \
-        NARCLOG_FATAL(ErrorMsg);                \
+#define NARC_GUARD_WEAK(varName, weakPtr, errorMsg) \
+    const auto varName = (weakPtr).lock();          \
+    if (!(varName)) {                               \
+        NARCLOG_FATAL(errorMsg);                    \
     }

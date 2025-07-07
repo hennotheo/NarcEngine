@@ -5,7 +5,10 @@
 
 namespace narc_engine
 {
-    SwapChainRhi::SwapChainRhi() = default;
+    SwapChainRhi::SwapChainRhi(FrameBufferRhiPtr& frameBuffer) :
+        m_frameBuffer(std::move(frameBuffer))
+    {
+    }
 
     SwapChainRhi::~SwapChainRhi() = default;
 } // namespace narc_engine

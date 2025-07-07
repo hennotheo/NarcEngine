@@ -4,32 +4,25 @@
 
 #include "backend_vulkan/SwapChainVulkan.h"
 
-#include "../../include/backend_vulkan/device/DeviceVulkan.h"
-#include "backend_vulkan/WindowVulkan.h"
-
 namespace narc_engine
 {
-    SwapChainVulkan::SwapChainVulkan(const WindowRhiPtr window, const DeviceRhiPtr device) : m_window(window), m_device(device) {}
-
-    SwapChainVulkan::~SwapChainVulkan() {}
-
-    void SwapChainVulkan::init()
+    SwapChainVulkan::SwapChainVulkan(const WindowRhiPtr& window, const DeviceRhiPtr& device, FrameBufferRhiPtr frameBuffer) :
+        super(frameBuffer),
+        m_window(std::static_pointer_cast<WindowVulkan>(window)),
+        m_device(std::static_pointer_cast<DeviceVulkan>(device))
     {
-        const auto window = m_window.lock();
-        if (!window)
-        {
-            NARCLOG_FATAL("SwapChainVulkan: Window is not initialized.");
-        }
+    }
 
-        const auto device = m_device.lock();
-        if (!device)
-        {
-            NARCLOG_FATAL("SwapChainVulkan: Device is not initialized.");
-        }
+    SwapChainVulkan::~SwapChainVulkan() = default;
 
-        const PhysicalDeviceVulkanProperties props = device->getDeviceVulkan()->getPhysicalDeviceProperties();
+    void SwapChainVulkan::init() //TODO : TOO LONG, REFACTOR
+    {
+        NARC_GUARD_WEAK(window, m_window, "Window is null!");
+        NARC_GUARD_WEAK(device, m_device, "Device is null!");
 
-        SwapChainSupportDetailsVulkan swapChainSupport = props.SwapChainSupportDetails;
+        const auto vulkanDeviceProps = device->getPhysicalDeviceProperties();
+
+        const auto& swapChainSupport = vulkanDeviceProps.SwapChainSupportDetails;
         const VkSurfaceFormatKHR surfaceFormat = swapChainSupport.chooseSwapSurfaceFormat();
         const VkPresentModeKHR presentMode = swapChainSupport.chooseSwapPresentMode();
         const VkExtent2D extent = swapChainSupport.chooseSwapExtent(*window);
@@ -43,7 +36,7 @@ namespace narc_engine
 
         VkSwapchainCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = window->getWindowVulkan()->getVkSurface();
+        createInfo.surface = window->getVkSurface();
         createInfo.minImageCount = imageCount;
         createInfo.imageFormat = surfaceFormat.format;
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -56,14 +49,14 @@ namespace narc_engine
         createInfo.clipped = VK_TRUE;
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-        const QueueFamilyIndicesVulkan indices = props.QueueFamilyIndices;
-        const uint32_t queueFamilyIndices[] = {indices.GraphicsFamily.value(), indices.PresentFamily.value()};
+        const QueueFamilyIndicesVulkan indices = vulkanDeviceProps.QueueFamilyIndices;
+        const std::array queueFamilyIndices = {indices.GraphicsFamily.value(), indices.PresentFamily.value()};
 
         if (indices.GraphicsFamily != indices.PresentFamily)
         {
             createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT; // Multiple queue family without explicit ownership
-            createInfo.queueFamilyIndexCount = 2;
-            createInfo.pQueueFamilyIndices = queueFamilyIndices;
+            createInfo.queueFamilyIndexCount = queueFamilyIndices.size();
+            createInfo.pQueueFamilyIndices = queueFamilyIndices.data();
         }
         else
         {
@@ -72,7 +65,7 @@ namespace narc_engine
             createInfo.pQueueFamilyIndices = nullptr; // Optional
         }
 
-        if (vkCreateSwapchainKHR(device->getDeviceVulkan()->getVkDevice(), &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
+        if (vkCreateSwapchainKHR(device->getVkDevice(), &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create swap chain!");
         }
@@ -80,14 +73,9 @@ namespace narc_engine
 
     void SwapChainVulkan::shutdown()
     {
-        const auto device = m_device.lock();
-        if (!device)
-        {
-            NARCLOG_FATAL("SwapChainVulkan: Window is not initialized.");
-        }
+        NARC_GUARD_WEAK(device, m_device, "Device is null!");
 
-        vkDestroySwapchainKHR(device->getDeviceVulkan()->getVkDevice(), m_swapChain, nullptr);
+        vkDestroySwapchainKHR(device->getVkDevice(), m_swapChain, nullptr);
         m_swapChain = VK_NULL_HANDLE;
     }
-
 } // namespace narc_engine

@@ -53,7 +53,7 @@ namespace narc_engine
             return actualExtent;
         }
 
-        TEMP_CODE inline VkSurfaceFormatKHR chooseSwapSurfaceFormat()
+        TEMP_CODE inline VkSurfaceFormatKHR chooseSwapSurfaceFormat() const
         {
             if (Formats.empty())
             {

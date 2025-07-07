@@ -12,10 +12,12 @@ public:
         RhiDeviceTest::SetUp();
 
         EXPECT_NO_THROW(m_device->init()) << "DeviceRhi initialization threw an exception";
+        EXPECT_NO_THROW(m_memoryAllocator->init()) << "MemoryAllocatorRhi initialization threw an exception";
     }
 
     void TearDown() override
     {
+        EXPECT_NO_THROW(m_memoryAllocator->shutdown()) << "MemoryAllocatorRhi shutdown threw an exception";
         EXPECT_NO_THROW(m_device->shutdown()) << "DeviceRhi shutdown threw an exception";
 
         RhiDeviceTest::TearDown();
@@ -25,8 +27,8 @@ protected:
     RendererApiType getTestedApi() override { return RendererApiType::Vulkan; }
 };
 
-TEST_F(VulkanMemoryAllocatorTest, MemoryAllocatorCreation)
+TEST_F(VulkanMemoryAllocatorTest, MemoryAllocatorInitialized)
 {
-    EXPECT_NO_THROW(m_memoryAllocator->init()) << "MemoryAllocatorRhi initialization threw an exception";
-    EXPECT_NO_THROW(m_memoryAllocator->shutdown()) << "MemoryAllocatorRhi shutdown threw an exception";
+    EXPECT_NE(m_memoryAllocator, nullptr);//TODO : Change it
+    // m_memoryAllocator->getMemoryAllocatorVulkan();
 }

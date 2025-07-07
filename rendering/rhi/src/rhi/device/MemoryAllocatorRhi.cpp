@@ -6,8 +6,5 @@
 
 namespace narc_engine
 {
-
-    MemoryAllocatorRhi::MemoryAllocatorRhi(const ContextRhiPtr& ctx, const DeviceRhiPtr& device) : m_context(ctx), m_device(device)
-    {
-    }
+    MemoryAllocatorRhi::MemoryAllocatorRhi() = default;
 }
