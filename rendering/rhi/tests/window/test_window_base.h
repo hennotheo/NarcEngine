@@ -6,6 +6,7 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <GLFW/glfw3.h>
 
 #include "test_rhi.h"
 
@@ -16,7 +17,9 @@ class RhiWindowTest : public RhiTest
 public:
     void SetUp() override
     {
-        auto injector = createRhiInjector(getTestedApi());
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+
+        const auto injector = createRhiInjector(getTestedApi());
 
         m_context = injector.create<ContextRhiPtr>();
         m_window = injector.create<WindowRhiPtr>();

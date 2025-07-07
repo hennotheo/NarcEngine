@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <GLFW/glfw3.h>
+
 #include "test_rhi.h"
 
 using namespace narc_engine;
@@ -13,6 +15,8 @@ class RhiSwapChain : public RhiTest
 public:
     void SetUp() override
     {
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+
         const RhiInjector injector = createRhiInjector(getTestedApi());
 
         m_context = injector.create<ContextRhiPtr>();
