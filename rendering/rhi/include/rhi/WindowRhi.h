@@ -29,7 +29,7 @@ namespace narc_engine
     PROTECTED_TESTABLE:
         GLFWwindow* m_window = nullptr;
 
-        const ContextRhiPtr m_context;
+        const std::weak_ptr<ContextRhi> m_context;
 
     private:
         bool m_framebufferResized = false;

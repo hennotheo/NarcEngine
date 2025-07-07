@@ -17,7 +17,8 @@ namespace narc_engine
         return std::vector<const char*>(extensions, extensions + glfwExtensionCount);
     }
 
-    WindowVulkan::WindowVulkan(const ContextRhiPtr& ctx) : WindowRhi(ctx)
+    WindowVulkan::WindowVulkan(const ContextRhiPtr& ctx) :
+        WindowRhi(ctx)
     {
         if (!glfwVulkanSupported())
         {
@@ -32,9 +33,15 @@ namespace narc_engine
 
     void WindowVulkan::init()
     {
+        const auto context = m_context.lock();
+        if (!context)
+        {
+            NARCLOG_FATAL("ContextVulkan is null!");
+        }
+
         createWindow();
 
-        if (glfwCreateWindowSurface(m_context->getContextVulkan()->getVkInstance(), m_window, nullptr, &m_surface) != VK_SUCCESS)
+        if (glfwCreateWindowSurface(context->getContextVulkan()->getVkInstance(), m_window, nullptr, &m_surface) != VK_SUCCESS)
         {
             NARCLOG_FATAL("Failed to create window surface!");
         }
@@ -42,7 +49,13 @@ namespace narc_engine
 
     void WindowVulkan::shutdown()
     {
-        vkDestroySurfaceKHR(m_context->getContextVulkan()->getVkInstance(), m_surface, nullptr);
+        const auto context = m_context.lock();
+        if (!context)
+        {
+            NARCLOG_FATAL("ContextVulkan is null!");
+        }
+
+        vkDestroySurfaceKHR(context->getContextVulkan()->getVkInstance(), m_surface, nullptr);
 
         destroyWindow();
     }

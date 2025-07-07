@@ -39,3 +39,9 @@
         delete ptr;\
         ptr = nullptr;\
     }
+
+#define NARC_GUARD_WEAK(Var, WeakPtr, ErrorMsg) \
+    const auto Var = (WeakPtr).lock();          \
+    if (!(Var)) {                               \
+        NARCLOG_FATAL(ErrorMsg);                \
+    }

@@ -22,7 +22,9 @@ namespace narc_engine
 
     void PhysicalDeviceVulkan::registerAllPhysicalDevices()
     {
-        const auto vkInstance = m_context->getContextVulkan()->getVkInstance();
+        NARC_GUARD_WEAK(context, m_context, "Failed to register all physical devices!")
+
+        const auto vkInstance = context->getContextVulkan()->getVkInstance();
 
         uint32_t deviceCount = 0;
         if (vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr) != VK_SUCCESS)
@@ -41,9 +43,11 @@ namespace narc_engine
 
     PhysicalDeviceVulkanProperties PhysicalDeviceVulkan::queryPhysicalDevice()
     {
+        NARC_GUARD_WEAK(context, m_context, "Failed to register all physical devices!")
+
         registerAllPhysicalDevices();
 
-        WindowVulkan temporaryWindow(m_context);
+        WindowVulkan temporaryWindow(context);
         temporaryWindow.init();
         m_testSurface = temporaryWindow.getVkSurface();
 

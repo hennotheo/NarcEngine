@@ -33,11 +33,10 @@ namespace narc_engine
 
     private:
         std::vector<VkPhysicalDevice> m_physicalDevices;
-
         std::set<const char*> m_deviceExtensions;
         VkSurfaceKHR m_testSurface = VK_NULL_HANDLE;
 
-        const ContextRhiPtr m_context;
+        const std::weak_ptr<ContextRhi> m_context;
 
     private:
         QUERY VkPhysicalDevice queryBestPhysicalDevice() const;
