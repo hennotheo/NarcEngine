@@ -9,7 +9,7 @@
     friend class ResourceManager;\
     explicit type(__VA_ARGS__);\
     void onLoad() override;\
-    void onUnload() override;\
+    void onUnload() override;
 
 namespace narc_engine
 {
@@ -18,6 +18,7 @@ namespace narc_engine
     class Resource : public narc_core::ILoadable
     {
         friend class ResourceManager;
+
     public:
         virtual ~Resource();
 
@@ -34,7 +35,7 @@ namespace narc_engine
         virtual void onLoad() = 0;
         virtual void onUnload() = 0;
 
-    _internal:
+    protected:
         void setId(ResourceId id) { m_id = id; }
 
     private:

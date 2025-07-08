@@ -1,6 +1,10 @@
 #pragma once
 
-#include "pch.h"
+#include <NarcIO.h>
+#include <NarcLog.h>
+#include <NarcMath.h>
+
+#include "utils/PublicTypedefs.h"
 
 #include "models/Vertex.h"
 #include "models/Material.h"

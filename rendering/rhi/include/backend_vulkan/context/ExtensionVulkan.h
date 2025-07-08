@@ -36,9 +36,11 @@ namespace narc_engine
         explicit DebugExtensionVulkan(const ContextVulkan* ctx);
         ~DebugExtensionVulkan() override;
 
-        NARC_GETTER(const void*, CreateInfo, &m_createInfo)
+        NARC_GETTER(const void*, CreateInfo, nullptr);
+        // NARC_GETTER(const void*, CreateInfo, &m_createInfo)
 
-        inline void linkNextCreateInfo(const void* next) override { m_createInfo.pNext = next; }
+        // inline void linkNextCreateInfo(const void* next) override { m_createInfo.pNext = next; }
+        inline void linkNextCreateInfo(const void* next) override {  }
 
     protected:
         NARC_IMPL_INITIALISABLE();

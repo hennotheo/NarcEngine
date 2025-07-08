@@ -4,7 +4,9 @@
 #include "buffers/StagingBuffer.h"
 #include "core/EngineBuilder.h"
 #include "core/Window.h"
+#include "models/Material.h"
 #include "models/Vertex.h"
+#include "resources/Mesh.h"
 
 
 #define CREATE_ENGINE_UNIQUE_COMPONENT(type, ...) std::make_unique<type>(__VA_ARGS__);\
@@ -142,24 +144,24 @@ namespace narc_engine
     {
         throw std::invalid_argument("Not implemented yet!");
 
-        m_windows->pollEvents();
+        /*m_windows->pollEvents();
 
         if (m_windows->shouldClose())
         {
             m_shouldClose = true;
-        }
+        }*/
     }
 
     void Engine::render()
     {
         throw std::invalid_argument("Not implemented yet!");
 
-        m_windows->render();
+        // m_windows->render();
     }
 
     void Engine::waitDeviceIdle()
     {
-        m_deviceHandler->getLogicalDevice()->waitDeviceIdle();
+        //m_deviceHandler->getLogicalDevice()->waitDeviceIdle();
     }
 
     bool Engine::hasStencilComponent(VkFormat format)

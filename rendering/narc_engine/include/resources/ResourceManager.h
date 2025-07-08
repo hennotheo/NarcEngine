@@ -1,6 +1,7 @@
 #pragma once
 
 #include "resources/Resource.h"
+#include "resources/Mesh.h"
 
 namespace narc_engine
 {
@@ -25,9 +26,9 @@ namespace narc_engine
             }
 
             std::hash<std::string> hasher;
-            std::string combinedArgs = (std::string(typeName)) + std::to_string(m_resourceCounter);;
+            std::string combinedArgs = std::string(typeName) + std::to_string(m_resourceCounter);
             ResourceId id = std::to_string(hasher(combinedArgs));
-            
+
             auto ptr = new T(std::forward<Args>(args)...);
             m_resources[id] = std::unique_ptr<T>(ptr);
             m_resources[id]->setId(id);

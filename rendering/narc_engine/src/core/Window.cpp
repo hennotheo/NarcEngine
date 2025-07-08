@@ -5,6 +5,8 @@
 #include "core/EngineInstance.h"
 #include "core/EngineBuilder.h"
 #include "core/devices/DeviceHandler.h"
+#include "models/Material.h"
+#include "models/Renderer.h"
 #include "resources/Shader.h"
 #include "render_graph/RenderNode.h"
 #include "render_graph/GuiRenderNode.h"

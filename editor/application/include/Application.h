@@ -6,7 +6,7 @@ namespace narc
     {
     public:
         Application();
-        virtual ~Application();
+        ~Application();
 
         bool shouldClose() const;
         void start();
@@ -14,10 +14,10 @@ namespace narc
         void stop();
 
     private:
-        narc_engine::IEngine* m_engine;
+        narc_engine::EnginePtr m_engine;
 
-        std::vector<narc_math::Transform*> m_transforms;
-        std::vector<narc_engine::Renderer*> m_renderers;
+        // std::vector<narc_math::Transform*> m_transforms;
+        // std::vector<narc_engine::Renderer*> m_renderers;
 
         double m_currentTime = 0.0;
     };

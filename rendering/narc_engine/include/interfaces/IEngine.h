@@ -1,6 +1,6 @@
 #pragma once
 
-#include <NarcEngine.h>
+#include "core/EngineBinder.h"
 
 namespace narc_engine
 {
