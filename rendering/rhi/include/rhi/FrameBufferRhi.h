@@ -4,9 +4,11 @@
 
 #pragma once
 
+#include "resources/ImageViewRhi.h"
+
 namespace narc_engine
 {
-    NARC_DECL_RHI_PLATFORM_TYPES (FrameBuffer);
+    NARC_DECL_RHI_PLATFORM_TYPES(FrameBuffer);
 
     class NARC_ENGINE_API FrameBufferRhi : public narc_core::IInitialisable
     {
@@ -14,7 +16,15 @@ namespace narc_engine
         FrameBufferRhi();
         ~FrameBufferRhi() override;
 
-        NARC_DECL_RHI_PLATFORM_GETTERS (FrameBuffer);
+        void attachImageView(const ImageViewRhi* imageView);
+
+        NARC_DECL_RHI_PLATFORM_GETTERS(FrameBuffer);
+
+    protected:
+        NARC_GETTER(const std::vector<const ImageViewRhi*>&, getImageViews, m_imageViews);
+
+    private:
+        std::vector<const ImageViewRhi*> m_imageViews{};
     };
 
     using FrameBufferRhiPtr = std::unique_ptr<FrameBufferRhi>;

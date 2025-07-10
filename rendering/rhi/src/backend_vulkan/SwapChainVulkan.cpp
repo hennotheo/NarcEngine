@@ -4,10 +4,11 @@
 
 #include "backend_vulkan/SwapChainVulkan.h"
 
+#include "backend_vulkan/FrameBufferVulkan.h"
+
 namespace narc_engine
 {
-    SwapChainVulkan::SwapChainVulkan(const WindowRhiPtr& window, const DeviceRhiPtr& device, FrameBufferRhiPtr frameBuffer) :
-        super(frameBuffer),
+    SwapChainVulkan::SwapChainVulkan(const WindowRhiPtr& window, const DeviceRhiPtr& device) :
         m_window(std::static_pointer_cast<WindowVulkan>(window)),
         m_device(std::static_pointer_cast<DeviceVulkan>(device))
     {
@@ -17,6 +18,19 @@ namespace narc_engine
 
     void SwapChainVulkan::init() //TODO : TOO LONG, REFACTOR
     {
+        createSwapChain();
+    }
+
+    void SwapChainVulkan::shutdown()
+    {
+        NARC_GUARD_WEAK(device, m_device, "Device is null!");
+
+        vkDestroySwapchainKHR(device->getVkDevice(), m_swapChain, nullptr);
+        m_swapChain = VK_NULL_HANDLE;
+    }
+
+    void SwapChainVulkan::createSwapChain()
+    {
         NARC_GUARD_WEAK(window, m_window, "Window is null!");
         NARC_GUARD_WEAK(device, m_device, "Device is null!");
 
@@ -25,7 +39,7 @@ namespace narc_engine
         const auto& swapChainSupport = vulkanDeviceProps.SwapChainSupportDetails;
         const VkSurfaceFormatKHR surfaceFormat = swapChainSupport.chooseSwapSurfaceFormat();
         const VkPresentModeKHR presentMode = swapChainSupport.chooseSwapPresentMode();
-        const VkExtent2D extent = swapChainSupport.chooseSwapExtent(*window);
+        m_extent = swapChainSupport.chooseSwapExtent(*window);
 
         uint32_t imageCount = swapChainSupport.Capabilities.minImageCount + 1; // Min + 1 to allow for double buffering
 
@@ -40,7 +54,7 @@ namespace narc_engine
         createInfo.minImageCount = imageCount;
         createInfo.imageFormat = surfaceFormat.format;
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
-        createInfo.imageExtent = extent;
+        createInfo.imageExtent = m_extent;
         createInfo.imageArrayLayers = 1;
         createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
         createInfo.preTransform = swapChainSupport.Capabilities.currentTransform;
@@ -69,13 +83,9 @@ namespace narc_engine
         {
             NARCLOG_FATAL("failed to create swap chain!");
         }
-    }
 
-    void SwapChainVulkan::shutdown()
-    {
-        NARC_GUARD_WEAK(device, m_device, "Device is null!");
-
-        vkDestroySwapchainKHR(device->getVkDevice(), m_swapChain, nullptr);
-        m_swapChain = VK_NULL_HANDLE;
+        vkGetSwapchainImagesKHR(device->getVkDevice(), m_swapChain, &imageCount, nullptr);
+        m_images.resize(imageCount);
+        //TODO: vkGetSwapchainImagesKHR(device->getVkDevice(), m_swapChain, &imageCount, m_images.data());
     }
 } // namespace narc_engine
