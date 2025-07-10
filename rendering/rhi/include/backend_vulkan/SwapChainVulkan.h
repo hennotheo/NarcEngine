@@ -30,9 +30,9 @@ namespace narc_engine
         VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
         VkExtent2D m_extent{};
 
-        const std::weak_ptr<WindowVulkan> m_window;
-        const std::weak_ptr<DeviceVulkan> m_device;
+        void createSwapChain() override;
 
-        void createSwapChain();
+    protected:
+        void cleanupSwapChain() override;
     };
 } // namespace narc_engine

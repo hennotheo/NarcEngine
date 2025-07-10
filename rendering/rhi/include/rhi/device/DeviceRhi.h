@@ -15,6 +15,8 @@ namespace narc_engine
         ~DeviceRhi() override;
 
         NARC_DECL_RHI_PLATFORM_GETTERS(Device);
+
+        virtual void waitIdle() = 0;
     };
 
     using DeviceRhiPtr = std::shared_ptr<DeviceRhi>;

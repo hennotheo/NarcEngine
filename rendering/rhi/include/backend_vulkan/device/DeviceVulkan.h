@@ -22,6 +22,7 @@ namespace narc_engine
         NARC_GETTER(VkDevice, getVkDevice, m_device);
         NARC_GETTER(const PhysicalDeviceVulkanProperties&, getPhysicalDeviceProperties, m_physicalDeviceProperties);
 
+        void waitIdle() override;
     private:
         VkDevice m_device = VK_NULL_HANDLE;
 

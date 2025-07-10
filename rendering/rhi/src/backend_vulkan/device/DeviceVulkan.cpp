@@ -41,6 +41,11 @@ namespace narc_engine
         vkDestroyDevice(m_device, nullptr);
     }
 
+    void DeviceVulkan::waitIdle()
+    {
+        vkDeviceWaitIdle(m_device);
+    }
+
     std::vector<VkDeviceQueueCreateInfo> DeviceVulkan::createQueueCreateInfos(const QueueFamilyIndicesVulkan& indices)
     {
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;

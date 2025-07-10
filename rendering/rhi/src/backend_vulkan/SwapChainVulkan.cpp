@@ -5,28 +5,27 @@
 #include "backend_vulkan/SwapChainVulkan.h"
 
 #include "backend_vulkan/FrameBufferVulkan.h"
+#include "backend_vulkan/resources/ImageVulkan.h"
 
 namespace narc_engine
 {
     SwapChainVulkan::SwapChainVulkan(const WindowRhiPtr& window, const DeviceRhiPtr& device) :
-        m_window(std::static_pointer_cast<WindowVulkan>(window)),
-        m_device(std::static_pointer_cast<DeviceVulkan>(device))
+        super(window, device)
     {
     }
 
     SwapChainVulkan::~SwapChainVulkan() = default;
 
-    void SwapChainVulkan::init() //TODO : TOO LONG, REFACTOR
+    void SwapChainVulkan::init()
     {
         createSwapChain();
+        createImageViews();
+        createFramebuffers();
     }
 
     void SwapChainVulkan::shutdown()
     {
-        NARC_GUARD_WEAK(device, m_device, "Device is null!");
-
-        vkDestroySwapchainKHR(device->getVkDevice(), m_swapChain, nullptr);
-        m_swapChain = VK_NULL_HANDLE;
+        cleanup();
     }
 
     void SwapChainVulkan::createSwapChain()
@@ -34,7 +33,10 @@ namespace narc_engine
         NARC_GUARD_WEAK(window, m_window, "Window is null!");
         NARC_GUARD_WEAK(device, m_device, "Device is null!");
 
-        const auto vulkanDeviceProps = device->getPhysicalDeviceProperties();
+        const auto deviceVulkan = device->getDeviceVulkan();
+        const auto windowVulkan = window->getWindowVulkan();
+
+        const auto vulkanDeviceProps = deviceVulkan->getPhysicalDeviceProperties();
 
         const auto& swapChainSupport = vulkanDeviceProps.SwapChainSupportDetails;
         const VkSurfaceFormatKHR surfaceFormat = swapChainSupport.chooseSwapSurfaceFormat();
@@ -50,7 +52,7 @@ namespace narc_engine
 
         VkSwapchainCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = window->getVkSurface();
+        createInfo.surface = windowVulkan->getVkSurface();
         createInfo.minImageCount = imageCount;
         createInfo.imageFormat = surfaceFormat.format;
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -79,13 +81,22 @@ namespace narc_engine
             createInfo.pQueueFamilyIndices = nullptr; // Optional
         }
 
-        if (vkCreateSwapchainKHR(device->getVkDevice(), &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
+        if (vkCreateSwapchainKHR(deviceVulkan->getVkDevice(), &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
         {
             NARCLOG_FATAL("failed to create swap chain!");
         }
 
-        vkGetSwapchainImagesKHR(device->getVkDevice(), m_swapChain, &imageCount, nullptr);
-        m_images.resize(imageCount);
-        //TODO: vkGetSwapchainImagesKHR(device->getVkDevice(), m_swapChain, &imageCount, m_images.data());
+        ImageVulkan::initVkImagesFromSwapChain(m_images, m_swapChain, deviceVulkan->getVkDevice());
+        // vkGetSwapchainImagesKHR(device->getVkDevice(), m_swapChain, &imageCount, nullptr);
+        // m_images.resize(imageCount);
+        // //TODO: vkGetSwapchainImagesKHR(device->getVkDevice(), m_swapChain, &imageCount, m_images.data());
+    }
+
+    void SwapChainVulkan::cleanupSwapChain()
+    {
+        NARC_GUARD_WEAK(device, m_device, "Device is null!");
+
+        vkDestroySwapchainKHR(device->getDeviceVulkan()->getVkDevice(), m_swapChain, nullptr);
+        m_swapChain = VK_NULL_HANDLE;
     }
 } // namespace narc_engine
