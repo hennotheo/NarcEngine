@@ -19,8 +19,6 @@ namespace narc_engine
         explicit SwapChainVulkan(const WindowRhiPtr& window, const DeviceRhiPtr& device);
         ~SwapChainVulkan() override;
 
-        NARC_IMPL_INITIALISABLE();
-
         NARC_GETTER(VkSwapchainKHR, getVkSwapChain, m_swapChain);
         NARC_OVERRIDE_GETTER(SwapChainExtends, getExtends, SwapChainExtends(m_extent.width, m_extent.height));
 
@@ -34,5 +32,8 @@ namespace narc_engine
 
     protected:
         void cleanupSwapChain() override;
+        void createImages() override;
+        void createImageViews() override;
+        void createFramebuffers() override;
     };
 } // namespace narc_engine

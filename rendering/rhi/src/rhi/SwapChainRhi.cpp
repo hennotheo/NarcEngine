@@ -13,6 +13,19 @@ namespace narc_engine
 
     SwapChainRhi::~SwapChainRhi() = default;
 
+    void SwapChainRhi::init()
+    {
+        createSwapChain();
+        createImages();
+        createImageViews();
+        createFramebuffers();
+    }
+
+    void SwapChainRhi::shutdown()
+    {
+        cleanup();
+    }
+
     void SwapChainRhi::recreate()
     {
         NARC_GUARD_WEAK(window, m_window, "Window is null!");
@@ -30,31 +43,6 @@ namespace narc_engine
         createSwapChain();
         createImageViews();
         createFramebuffers();
-    }
-
-    void SwapChainRhi::createImageViews()
-    {
-        m_imageViews.resize(m_images.size());
-
-        for (size_t i = 0; i < m_images.size(); i++)
-        {
-            if (m_imageViews[i] == nullptr)
-            {
-                m_imageViews[i] = std::make_shared<ImageViewRhi>();
-            }
-
-            m_imageViews[i]->init();
-        }
-    }
-
-    void SwapChainRhi::createFramebuffers()
-    {
-        m_framebuffers.resize(m_images.size());
-
-        for (size_t i = 0; i < m_framebuffers.size(); i++)
-        {
-            m_framebuffers[i].init();
-        }
     }
 
     void SwapChainRhi::cleanup()

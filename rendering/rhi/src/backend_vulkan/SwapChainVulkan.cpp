@@ -16,18 +16,6 @@ namespace narc_engine
 
     SwapChainVulkan::~SwapChainVulkan() = default;
 
-    void SwapChainVulkan::init()
-    {
-        createSwapChain();
-        createImageViews();
-        createFramebuffers();
-    }
-
-    void SwapChainVulkan::shutdown()
-    {
-        cleanup();
-    }
-
     void SwapChainVulkan::createSwapChain()
     {
         NARC_GUARD_WEAK(window, m_window, "Window is null!");
@@ -85,11 +73,6 @@ namespace narc_engine
         {
             NARCLOG_FATAL("failed to create swap chain!");
         }
-
-        ImageVulkan::initVkImagesFromSwapChain(m_images, m_swapChain, deviceVulkan->getVkDevice());
-        // vkGetSwapchainImagesKHR(device->getVkDevice(), m_swapChain, &imageCount, nullptr);
-        // m_images.resize(imageCount);
-        // //TODO: vkGetSwapchainImagesKHR(device->getVkDevice(), m_swapChain, &imageCount, m_images.data());
     }
 
     void SwapChainVulkan::cleanupSwapChain()
@@ -98,5 +81,37 @@ namespace narc_engine
 
         vkDestroySwapchainKHR(device->getDeviceVulkan()->getVkDevice(), m_swapChain, nullptr);
         m_swapChain = VK_NULL_HANDLE;
+    }
+
+    void SwapChainVulkan::createImages()
+    {
+        NARC_GUARD_WEAK(device, m_device, "Device is null!");
+
+        ImageVulkan::initVkImagesFromSwapChain(m_images, m_swapChain, device->getDeviceVulkan()->getVkDevice());
+    }
+
+    void SwapChainVulkan::createImageViews()
+    {
+        m_imageViews.resize(m_images.size());
+
+        for (size_t i = 0; i < m_images.size(); i++)
+        {
+            if (m_imageViews[i] == nullptr)
+            {
+                m_imageViews[i] = std::make_shared<ImageViewRhi>();
+            }
+
+            m_imageViews[i]->init();
+        }
+    }
+
+    void SwapChainVulkan::createFramebuffers()
+    {
+        m_framebuffers.resize(m_images.size());
+
+        for (size_t i = 0; i < m_framebuffers.size(); i++)
+        {
+            m_framebuffers[i].init();
+        }
     }
 } // namespace narc_engine

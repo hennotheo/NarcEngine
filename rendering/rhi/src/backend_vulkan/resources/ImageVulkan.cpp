@@ -26,6 +26,7 @@ namespace narc_engine
     {
         uint32_t imageCount = 0;
         vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
+
         images.resize(imageCount);
         std::vector<VkImage> vkImages(imageCount);
         vkGetSwapchainImagesKHR(device, swapChain, &imageCount, vkImages.data());
