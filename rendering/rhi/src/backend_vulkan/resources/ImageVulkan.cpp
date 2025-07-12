@@ -13,28 +13,11 @@ namespace narc_engine
 
     void ImageVulkan::init()
     {
-
+        //TODO: Implement init logic
     }
 
     void ImageVulkan::shutdown()
     {
-
-    }
-
-    void ImageVulkan::initVkImagesFromSwapChain(std::vector<std::shared_ptr<ImageRhi>>& images, const VkSwapchainKHR& swapChain,
-                                                const VkDevice& device)
-    {
-        uint32_t imageCount = 0;
-        vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
-
-        images.resize(imageCount);
-        std::vector<VkImage> vkImages(imageCount);
-        vkGetSwapchainImagesKHR(device, swapChain, &imageCount, vkImages.data());
-
-        for (uint32_t i = 0; i < imageCount; ++i)
-        {
-            const auto& image = images[i];
-            image->getImageVulkan()->m_image = vkImages[i];
-        }
+        //TODO: Implement shutdown logic
     }
 } // narc_engine

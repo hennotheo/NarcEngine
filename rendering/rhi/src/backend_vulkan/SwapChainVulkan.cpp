@@ -5,10 +5,15 @@
 #include "backend_vulkan/SwapChainVulkan.h"
 
 #include "backend_vulkan/FrameBufferVulkan.h"
+#include "backend_vulkan/resources/ImageViewVulkan.h"
 #include "backend_vulkan/resources/ImageVulkan.h"
 
 namespace narc_engine
 {
+    // SwapChainVulkan::SwapChainVulkan(const WindowRhiPtr& window, const DeviceRhiPtr& device) : super(window, device)
+    // {
+    // }
+
     SwapChainVulkan::SwapChainVulkan(const WindowRhiPtr& window, const DeviceRhiPtr& device) :
         super(window, device)
     {
@@ -18,8 +23,8 @@ namespace narc_engine
 
     void SwapChainVulkan::createSwapChain()
     {
-        NARC_GUARD_WEAK(window, m_window, "Window is null!");
         NARC_GUARD_WEAK(device, m_device, "Device is null!");
+        NARC_GUARD_WEAK(window, m_window, "Window is not compatible with Device!");
 
         const auto deviceVulkan = device->getDeviceVulkan();
         const auto windowVulkan = window->getWindowVulkan();
@@ -87,7 +92,19 @@ namespace narc_engine
     {
         NARC_GUARD_WEAK(device, m_device, "Device is null!");
 
-        ImageVulkan::initVkImagesFromSwapChain(m_images, m_swapChain, device->getDeviceVulkan()->getVkDevice());
+        const auto& vkDevice = device->getDeviceVulkan()->getVkDevice();
+
+        uint32_t imageCount = 0;
+        vkGetSwapchainImagesKHR(vkDevice, m_swapChain, &imageCount, nullptr);
+
+        m_images.resize(imageCount);
+        std::vector<VkImage> vkImages(imageCount);
+        vkGetSwapchainImagesKHR(vkDevice, m_swapChain, &imageCount, vkImages.data());
+
+        for (uint32_t i = 0; i < imageCount; ++i)
+        {
+            m_images[i] = std::make_shared<SwapChainImageVulkan>(vkImages[i]);
+        }
     }
 
     void SwapChainVulkan::createImageViews()
@@ -98,7 +115,7 @@ namespace narc_engine
         {
             if (m_imageViews[i] == nullptr)
             {
-                m_imageViews[i] = std::make_shared<ImageViewRhi>();
+                m_imageViews[i] = std::make_shared<ImageViewVulkan>();
             }
 
             m_imageViews[i]->init();
@@ -107,11 +124,19 @@ namespace narc_engine
 
     void SwapChainVulkan::createFramebuffers()
     {
+        // NARC_GUARD_RAW_PTR(m_window, "Window is null!");
+        NARC_GUARD_WEAK(device, m_device, "Device is null!");
+
         m_framebuffers.resize(m_images.size());
 
-        for (size_t i = 0; i < m_framebuffers.size(); i++)
+        for (auto& framebuffer : m_framebuffers)
         {
-            m_framebuffers[i].init();
+            if (framebuffer == nullptr)
+            {
+                framebuffer = std::make_shared<FrameBufferVulkan>(device, shared_from_this());
+            }
+
+            framebuffer->init();
         }
     }
 } // namespace narc_engine

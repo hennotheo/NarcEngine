@@ -14,6 +14,12 @@ namespace narc_engine
         ImageViewVulkan();
         ~ImageViewVulkan() override;
 
+        NARC_IMPL_RHI_PLATFORM_GETTER(ImageView, Vulkan);
         NARC_IMPL_INITIALISABLE();
+
+        NARC_GETTER(const VkImageView&, getVkImageView, m_imageView);
+
+    private:
+        VkImageView m_imageView;
     };
 } // narc_engine

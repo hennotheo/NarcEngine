@@ -7,6 +7,7 @@
 #include "WindowRhi.h"
 
 #include "ContextRhi.h"
+#include "SwapChainVulkan.h"
 
 namespace narc_engine
 {
@@ -15,7 +16,7 @@ namespace narc_engine
     class WindowVulkan final : public WindowRhi
     {
     public:
-        explicit WindowVulkan(const ContextRhiPtr& ctx);
+        explicit WindowVulkan(const ContextRhiPtr& ctx, const DeviceRhiPtr& device, const SwapChainRhiPtr& swapChain);
         ~WindowVulkan() override;
 
         NARC_IMPL_VK_PLATFORM_GETTERS(Window);
@@ -26,5 +27,7 @@ namespace narc_engine
 
     private:
         VkSurfaceKHR m_surface = VK_NULL_HANDLE;
+
+        const SwapChainRhiPtr m_swapChain;
     };
 }

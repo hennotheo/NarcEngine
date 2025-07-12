@@ -33,7 +33,7 @@ namespace narc_engine
         const std::weak_ptr<WindowRhi> m_window;
         const std::weak_ptr<DeviceRhi> m_device;
 
-        std::vector<FrameBufferRhi> m_framebuffers{};
+        std::vector<std::shared_ptr<FrameBufferRhi>> m_framebuffers{};
         std::vector<std::shared_ptr<ImageRhi>> m_images{}; //TODO: Change this to a more specific type later
         std::vector<std::shared_ptr<ImageViewRhi>> m_imageViews{}; //TODO: Change this to a more specific type later
 

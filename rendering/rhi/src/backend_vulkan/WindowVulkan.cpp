@@ -17,13 +17,15 @@ namespace narc_engine
         return std::vector<const char*>(extensions, extensions + glfwExtensionCount);
     }
 
-    WindowVulkan::WindowVulkan(const ContextRhiPtr& ctx) :
-        WindowRhi(ctx)
+    WindowVulkan::WindowVulkan(const ContextRhiPtr& ctx, const DeviceRhiPtr& device, const SwapChainRhiPtr& swapChain):
+        WindowRhi(ctx), m_swapChain(swapChain)
     {
         if (!glfwVulkanSupported())
         {
             NARCLOG_FATAL("Vulkan is not supported by GLFW!");
         }
+
+        // m_swapChain = std::make_unique<SwapChainVulkan>(sha, device);
     }
 
     WindowVulkan::~WindowVulkan()
@@ -33,11 +35,7 @@ namespace narc_engine
 
     void WindowVulkan::init()
     {
-        const auto context = m_context.lock();
-        if (!context)
-        {
-            NARCLOG_FATAL("ContextVulkan is null!");
-        }
+        NARC_GUARD_WEAK(context, m_context, "ContextVulkan is null!");
 
         createWindow();
 
@@ -45,15 +43,21 @@ namespace narc_engine
         {
             NARCLOG_FATAL("Failed to create window surface!");
         }
+
+        if (m_swapChain != nullptr)
+        {
+            m_swapChain->init();
+        }
     }
 
     void WindowVulkan::shutdown()
     {
-        const auto context = m_context.lock();
-        if (!context)
+        if (m_swapChain != nullptr)
         {
-            NARCLOG_FATAL("ContextVulkan is null!");
+            m_swapChain->shutdown();
         }
+
+        NARC_GUARD_WEAK(context, m_context, "ContextVulkan is null!");
 
         vkDestroySurfaceKHR(context->getContextVulkan()->getVkInstance(), m_surface, nullptr);
 

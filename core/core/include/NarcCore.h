@@ -45,3 +45,8 @@
     if (!(varName)) {                               \
         NARCLOG_FATAL(errorMsg);                    \
     }
+
+#define NARC_GUARD_RAW_PTR(ptr, errorMsg)           \
+    if (ptr == nullptr) {                           \
+        NARCLOG_FATAL(errorMsg);                    \
+    }
