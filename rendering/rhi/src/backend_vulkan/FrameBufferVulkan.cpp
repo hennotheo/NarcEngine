@@ -9,9 +9,9 @@
 
 namespace narc_engine
 {
-    FrameBufferVulkan::FrameBufferVulkan(const DeviceRhiPtr& device, const SwapChainRhiPtr& swapChain) :
+    FrameBufferVulkan::FrameBufferVulkan(const DeviceRhiPtr& device, const SwapChainVulkan* swapChain) :
         m_device(std::static_pointer_cast<DeviceVulkan>(device)),
-        m_swapChain(std::static_pointer_cast<SwapChainVulkan>(swapChain))
+        m_swapChain(swapChain)
     {
         m_framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
     }
@@ -21,9 +21,9 @@ namespace narc_engine
     void FrameBufferVulkan::init()
     {
         NARC_GUARD_WEAK(device, m_device, "Device is null!");
-        NARC_GUARD_WEAK(swapChain, m_swapChain, "SwapChain is null!");
+        // NARC_GUARD_WEAK(swapChain, m_swapChain, "SwapChain is null!");
 
-        const SwapChainExtends swapChainExtends = swapChain->getExtends();
+        const SwapChainExtends swapChainExtends = m_swapChain->getExtends();
         const std::vector<const ImageViewRhi*> attachments = getImageViews();
 
         std::vector<VkImageView> vkAttachments;

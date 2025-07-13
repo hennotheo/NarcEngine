@@ -15,7 +15,7 @@ namespace narc_engine
         using super = FrameBufferRhi;
 
     public:
-        explicit FrameBufferVulkan(const DeviceRhiPtr& device, const SwapChainRhiPtr& swapChain);
+        explicit FrameBufferVulkan(const DeviceRhiPtr& device, const SwapChainVulkan* swapChain);
         ~FrameBufferVulkan() override;
 
         NARC_IMPL_INITIALISABLE();
@@ -24,7 +24,7 @@ namespace narc_engine
 
     private:
         const std::weak_ptr<DeviceVulkan> m_device;
-        const std::weak_ptr<SwapChainRhi> m_swapChain;
+        const SwapChainVulkan* m_swapChain;
 
         VkFramebufferCreateInfo m_framebufferInfo{};
         VkFramebuffer m_framebuffer = VK_NULL_HANDLE;

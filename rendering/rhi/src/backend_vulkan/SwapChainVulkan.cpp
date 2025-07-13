@@ -10,11 +10,7 @@
 
 namespace narc_engine
 {
-    // SwapChainVulkan::SwapChainVulkan(const WindowRhiPtr& window, const DeviceRhiPtr& device) : super(window, device)
-    // {
-    // }
-
-    SwapChainVulkan::SwapChainVulkan(const WindowRhiPtr& window, const DeviceRhiPtr& device) :
+    SwapChainVulkan::SwapChainVulkan(const WindowRhi* window, const DeviceRhiPtr& device) :
         super(window, device)
     {
     }
@@ -24,17 +20,17 @@ namespace narc_engine
     void SwapChainVulkan::createSwapChain()
     {
         NARC_GUARD_WEAK(device, m_device, "Device is null!");
-        NARC_GUARD_WEAK(window, m_window, "Window is not compatible with Device!");
+        NARC_GUARD_RAW_PTR(m_window, "Window is not compatible with Device!");
 
         const auto deviceVulkan = device->getDeviceVulkan();
-        const auto windowVulkan = window->getWindowVulkan();
+        const auto windowVulkan = m_window->getWindowVulkan();
 
         const auto vulkanDeviceProps = deviceVulkan->getPhysicalDeviceProperties();
 
         const auto& swapChainSupport = vulkanDeviceProps.SwapChainSupportDetails;
         const VkSurfaceFormatKHR surfaceFormat = swapChainSupport.chooseSwapSurfaceFormat();
         const VkPresentModeKHR presentMode = swapChainSupport.chooseSwapPresentMode();
-        m_extent = swapChainSupport.chooseSwapExtent(*window);
+        m_extent = swapChainSupport.chooseSwapExtent(*m_window);
 
         uint32_t imageCount = swapChainSupport.Capabilities.minImageCount + 1; // Min + 1 to allow for double buffering
 
@@ -133,7 +129,7 @@ namespace narc_engine
         {
             if (framebuffer == nullptr)
             {
-                framebuffer = std::make_shared<FrameBufferVulkan>(device, shared_from_this());
+                framebuffer = std::make_shared<FrameBufferVulkan>(device, this);
             }
 
             framebuffer->init();

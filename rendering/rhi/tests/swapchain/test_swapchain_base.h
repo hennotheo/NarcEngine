@@ -22,7 +22,7 @@ public:
         m_context = injector.create<ContextRhiPtr>();
         m_window = injector.create<WindowRhiPtr>();
         m_device = injector.create<DeviceRhiPtr>();
-        m_swapChain = injector.create<SwapChainRhiPtr>();
+        // m_swapChain = injector.create<SwapChainRhiPtr>();
 
         ASSERT_NE(m_context.get(), nullptr) << "Failed to create ContextRhi for Vulkan API";
         ASSERT_NE(m_window.get(), nullptr) << "Failed to create WindowRhi for Vulkan API";
@@ -40,7 +40,6 @@ public:
         m_window->shutdown();
         m_context->shutdown();
 
-        m_swapChain.reset();
         m_device.reset();
         m_window.reset();
         m_context.reset();

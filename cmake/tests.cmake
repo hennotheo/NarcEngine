@@ -52,6 +52,7 @@ function(narc_decl_testable_target TARGET_NAME)
 #    add_dependencies(Tests_${TARGET_NAME} ${TARGET_NAME})
     add_compile_definitions(Tests_${TARGET_NAME} PRIVATE NARC_TEST_BUILD)
     target_include_directories(Tests_${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/tests")
+    target_compile_features(Tests_${TARGET_NAME} PRIVATE cxx_std_20)
 
     target_link_libraries(Tests_${TARGET_NAME} PRIVATE
             gtest gtest_main

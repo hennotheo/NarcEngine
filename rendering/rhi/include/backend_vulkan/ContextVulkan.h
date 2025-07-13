@@ -12,6 +12,14 @@ namespace narc_engine
         ContextVulkan();
         ~ContextVulkan() override;
 
+        // Add move constructor and assignment operator
+        ContextVulkan(ContextVulkan&&) = default;
+        ContextVulkan& operator=(ContextVulkan&&) = default;
+
+        // Explicitly delete copy operations
+        ContextVulkan(const ContextVulkan&) = delete;
+        ContextVulkan& operator=(const ContextVulkan&) = delete;
+
         NARC_IMPL_INITIALISABLE();
         NARC_IMPL_RHI_PLATFORM_GETTER(Context, Vulkan)
 
@@ -28,7 +36,7 @@ namespace narc_engine
         VkInstance m_instance{};
         VkApplicationInfo m_appInfo{};
 
-        std::vector<ExtensionVulkan*> m_requiredExtensions{};
+        std::vector<std::unique_ptr<ExtensionVulkan>> m_requiredExtensions{};
         std::vector<const char*> m_requiredLayers{};
 
         RhiResult enableExtension(const RhiExtension& extension) override;

@@ -13,7 +13,7 @@ namespace narc_engine
     class DeviceVulkan final : public DeviceRhi
     {
     public:
-        explicit DeviceVulkan(const ContextRhiPtr& ctx);
+        BOOST_DI_INJECT(DeviceVulkan, const ContextRhiPtr& ctx);
         ~DeviceVulkan() override;
 
         NARC_IMPL_INITIALISABLE();

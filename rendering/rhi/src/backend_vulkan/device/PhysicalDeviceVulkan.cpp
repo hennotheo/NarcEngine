@@ -7,6 +7,8 @@
 #include "backend_vulkan/ContextVulkan.h"
 #include "backend_vulkan/WindowVulkan.h"
 
+#include "GLFW/glfw3.h"
+
 namespace narc_engine
 {
     PhysicalDeviceVulkan::PhysicalDeviceVulkan(const ContextRhiPtr& context) :
@@ -47,9 +49,15 @@ namespace narc_engine
 
         registerAllPhysicalDevices();
 
-        WindowVulkan temporaryWindow(context);
-        temporaryWindow.init();
-        m_testSurface = temporaryWindow.getVkSurface();
+        glfwInit();
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+        GLFWwindow* temporaryWindow = glfwCreateWindow(1, 1, "Temp", nullptr, nullptr);
+
+        if (glfwCreateWindowSurface(context->getContextVulkan()->getVkInstance(), temporaryWindow, nullptr, &m_testSurface) != VK_SUCCESS)
+        {
+            NARCLOG_FATAL("Failed to create window surface!");
+        }
 
         PhysicalDeviceVulkanProperties props{};
         props.PhysicalDevice = queryBestPhysicalDevice();
@@ -57,7 +65,8 @@ namespace narc_engine
         props.SwapChainSupportDetails = querySwapChainSupport(props.PhysicalDevice);
         vkGetPhysicalDeviceProperties(props.PhysicalDevice, &props.Properties);
 
-        temporaryWindow.shutdown();
+        glfwDestroyWindow(temporaryWindow);
+        glfwTerminate();
 
         return props;
     }

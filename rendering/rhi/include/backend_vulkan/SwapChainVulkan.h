@@ -16,7 +16,7 @@ namespace narc_engine
         using super = SwapChainRhi;
 
     public:
-        explicit SwapChainVulkan(const WindowRhiPtr& window, const DeviceRhiPtr& device);
+        explicit SwapChainVulkan(const WindowRhi* window, const DeviceRhiPtr& device);
         ~SwapChainVulkan() override;
 
         NARC_GETTER(VkSwapchainKHR, getVkSwapChain, m_swapChain);

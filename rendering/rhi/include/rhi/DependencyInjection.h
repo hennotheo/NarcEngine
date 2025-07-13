@@ -34,8 +34,8 @@ namespace narc_engine
                                         boost::di::bind<MemoryAllocatorRhi>().to<MemoryAllocatorVulkan>().in(boost::di::singleton),
                                         boost::di::bind<WindowRhi>().to<WindowVulkan>().in(boost::di::singleton), //TODO: Change this to unique later
                                         boost::di::bind<GraphicsQueueRhi>().to<GraphicsQueueVulkan>().in(boost::di::singleton),
-                                        boost::di::bind<PresentQueueRhi>().to<PresentQueueVulkan>().in(boost::di::singleton),
-                                        boost::di::bind<SwapChainRhi>().to<SwapChainVulkan>().in(boost::di::unique)
+                                        boost::di::bind<PresentQueueRhi>().to<PresentQueueVulkan>().in(boost::di::singleton)
+                                        // boost::di::bind<SwapChainRhi>().to<SwapChainVulkan>().in(boost::di::unique)
             );
     }
 

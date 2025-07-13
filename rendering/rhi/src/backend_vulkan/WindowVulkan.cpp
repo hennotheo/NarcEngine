@@ -5,6 +5,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include <utility>
+
 #include "backend_vulkan/ContextVulkan.h"
 
 namespace narc_engine
@@ -17,21 +19,16 @@ namespace narc_engine
         return std::vector<const char*>(extensions, extensions + glfwExtensionCount);
     }
 
-    WindowVulkan::WindowVulkan(const ContextRhiPtr& ctx, const DeviceRhiPtr& device, const SwapChainRhiPtr& swapChain):
-        WindowRhi(ctx), m_swapChain(swapChain)
+    WindowVulkan::WindowVulkan(const ContextRhiPtr& ctx, const DeviceRhiPtr& device):
+        WindowRhi(ctx), m_swapChain(std::make_shared<SwapChainVulkan>(this, device))
     {
         if (!glfwVulkanSupported())
         {
             NARCLOG_FATAL("Vulkan is not supported by GLFW!");
         }
-
-        // m_swapChain = std::make_unique<SwapChainVulkan>(sha, device);
     }
 
-    WindowVulkan::~WindowVulkan()
-    {
-
-    }
+    WindowVulkan::~WindowVulkan() = default;
 
     void WindowVulkan::init()
     {

@@ -27,27 +27,20 @@ namespace narc_engine
         m_createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         m_createInfo.pApplicationInfo = &m_appInfo;
 
-        addExtensions(CoreExtension, 1);
+        addExtension(RhiExtension::Core);
     }
 
-    ContextVulkan::~ContextVulkan()
-    {
-        for (auto& ptr : m_requiredExtensions)
-        {
-            delete ptr;
-            ptr = nullptr;
-        }
-    }
+    ContextVulkan::~ContextVulkan() = default;
 
     void ContextVulkan::init()
     {
-        const uint32_t extensionCount = static_cast<uint32_t>(m_requiredExtensions.size());
+        const auto extensionCount = static_cast<uint32_t>(m_requiredExtensions.size());
         std::vector<const char*> extensions;
-        extensions.reserve(m_requiredExtensions.size());
+        extensions.reserve(extensionCount);
+
         ExtensionVulkan* lastExtension = nullptr;
-        for (uint32_t i = 0; i < extensionCount; ++i)
+        for (auto& ext : m_requiredExtensions)
         {
-            ExtensionVulkan* ext = m_requiredExtensions[i];
             extensions.push_back(ext->getName());
 
             const void* createInfo = ext->getCreateInfo();
@@ -64,7 +57,7 @@ namespace narc_engine
                 m_createInfo.pNext = createInfo;
             }
 
-            lastExtension = ext;
+            lastExtension = ext.get();
         }
 
         m_createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
@@ -104,7 +97,10 @@ namespace narc_engine
         m_appInfo.applicationVersion = VK_MAKE_VERSION(major, minor, patch);
     }
 
-    void ContextVulkan::setApplicationName(const char* name) { m_appInfo.pApplicationName = name; }
+    void ContextVulkan::setApplicationName(const char* name)
+    {
+        m_appInfo.pApplicationName = name;
+    }
 
     RhiResult ContextVulkan::enableExtension(const RhiExtension& extension)
     {
@@ -113,22 +109,22 @@ namespace narc_engine
             using enum RhiExtension;
 
         case Core:
-            for (const auto glfwExtensions : getVulkanGLFWRequiredExtensions())
+            for (const auto& glfwExtensions : getVulkanGLFWRequiredExtensions())
             {
-                m_requiredExtensions.push_back(new BasicExtensionVulkan(this, glfwExtensions));
+                m_requiredExtensions.push_back(std::make_unique<BasicExtensionVulkan>(this, glfwExtensions));
             }
             return RHI_SUCCESS;
 
         case DebugUtils:
-            m_requiredExtensions.push_back(new DebugExtensionVulkan(this));
+            m_requiredExtensions.push_back(std::make_unique<DebugExtensionVulkan>(this));
             return RHI_SUCCESS;
 
         case ExtendedDevicesProperties:
-            m_requiredExtensions.push_back(new BasicExtensionVulkan(this, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME));
+            m_requiredExtensions.push_back(std::make_unique<BasicExtensionVulkan>(this, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME));
             return RHI_SUCCESS;
 
         case ExtendedSurfaceCapabilities:
-            m_requiredExtensions.push_back(new BasicExtensionVulkan(this, VK_KHR_SURFACE_EXTENSION_NAME));
+            m_requiredExtensions.push_back(std::make_unique<BasicExtensionVulkan>(this, VK_KHR_SURFACE_EXTENSION_NAME));
             return RHI_SUCCESS;
 
         default:

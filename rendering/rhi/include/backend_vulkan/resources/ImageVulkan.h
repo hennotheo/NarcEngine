@@ -11,11 +11,22 @@ namespace narc_engine
     class SwapChainImageVulkan final : public ImageRhi
     {
     public:
-        explicit SwapChainImageVulkan(const VkImage& image) : m_image(image) {}
+        explicit SwapChainImageVulkan(const VkImage& image) :
+            m_image(image)
+        {
+        }
+
         ~SwapChainImageVulkan() override = default;
 
-        void init() override { /* No-op, image is already initialized*/ }
-        void shutdown() override { /* No-op, image is not class dependant */ }
+        void init() override
+        {
+            /* No-op, image is already initialized*/
+        }
+
+        void shutdown() override
+        {
+            /* No-op, image is not class dependant */
+        }
 
         NARC_GETTER(VkImage, getVkImage, m_image);
 

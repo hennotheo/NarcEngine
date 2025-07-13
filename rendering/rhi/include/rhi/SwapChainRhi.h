@@ -19,7 +19,7 @@ namespace narc_engine
     class NARC_ENGINE_API SwapChainRhi : public narc_core::IInitialisable
     {
     public:
-        explicit SwapChainRhi(const WindowRhiPtr& window, const DeviceRhiPtr& device);
+        explicit SwapChainRhi(const WindowRhi* window, const DeviceRhiPtr& device);
         ~SwapChainRhi() override;
 
         NARC_DECL_RHI_PLATFORM_GETTERS(SwapChain)
@@ -30,7 +30,7 @@ namespace narc_engine
         void recreate();
 
     protected:
-        const std::weak_ptr<WindowRhi> m_window;
+        const WindowRhi* m_window;
         const std::weak_ptr<DeviceRhi> m_device;
 
         std::vector<std::shared_ptr<FrameBufferRhi>> m_framebuffers{};

@@ -16,7 +16,7 @@ namespace narc_engine
     class WindowVulkan final : public WindowRhi
     {
     public:
-        explicit WindowVulkan(const ContextRhiPtr& ctx, const DeviceRhiPtr& device, const SwapChainRhiPtr& swapChain);
+        BOOST_DI_INJECT(WindowVulkan, const ContextRhiPtr& ctx, const DeviceRhiPtr& device);
         ~WindowVulkan() override;
 
         NARC_IMPL_VK_PLATFORM_GETTERS(Window);

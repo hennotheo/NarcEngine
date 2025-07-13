@@ -3,8 +3,6 @@ cmake_policy(VERSION 3.31)
 
 include(cmake/versionning.cmake)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 if(NOT DEFINED CMAKE_CXX_COMPILER OR CMAKE_CXX_COMPILER STREQUAL "")
   set(CMAKE_CXX_COMPILER "g++")
@@ -26,6 +24,9 @@ endif ()
 project(NarcEngineEditor
         VERSION ${NARC_VERSION}
         LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 include(cmake/helpers.cmake)
 include(cmake/dependencies.cmake)

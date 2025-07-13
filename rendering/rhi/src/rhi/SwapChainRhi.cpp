@@ -5,7 +5,7 @@
 
 namespace narc_engine
 {
-    SwapChainRhi::SwapChainRhi(const WindowRhiPtr& window, const DeviceRhiPtr& device) :
+    SwapChainRhi::SwapChainRhi(const WindowRhi* window, const DeviceRhiPtr& device) :
         m_window(window), m_device(device)
     {
 
@@ -28,9 +28,9 @@ namespace narc_engine
 
     void SwapChainRhi::recreate()
     {
-        NARC_GUARD_WEAK(window, m_window, "Window is null!");
+        NARC_GUARD_RAW_PTR(m_window, "Window is null!");
 
-        const auto& size = window->getFramebufferSize();
+        const auto& size = m_window->getFramebufferSize();
         if (size.x <= 0 || size.y <= 0)
         {
             NARCLOG_ERROR("SwapChainRhi::recreate() - Invalid framebuffer size: {}x{}", size.x, size.y);

@@ -18,9 +18,15 @@ namespace narc_engine
         explicit WindowRhi(const ContextRhiPtr& ctx);
         ~WindowRhi() override;
 
+        WindowRhi(const WindowRhi&) = delete;
+        WindowRhi& operator=(const WindowRhi&) = delete;
+
+        WindowRhi(WindowRhi&&) noexcept = default;
+        WindowRhi& operator=(WindowRhi&&) noexcept = default;
+
         NARC_DECL_RHI_PLATFORM_GETTERS(Window);
 
-        NARC_GETTER(const glm::u32vec2&, getFramebufferSize, m_framebufferSize);
+        NARC_GETTER(glm::u32vec2, getFramebufferSize, m_framebufferSize);
 
     protected:
         void createWindow();
