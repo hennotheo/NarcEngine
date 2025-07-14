@@ -34,6 +34,7 @@ namespace narc_engine
     private:
         std::vector<VkPhysicalDevice> m_physicalDevices;
         std::set<const char*> m_deviceExtensions;
+
         VkSurfaceKHR m_testSurface = VK_NULL_HANDLE;
 
         const std::weak_ptr<ContextRhi> m_context;
@@ -46,6 +47,6 @@ namespace narc_engine
         RhiResult isSurfaceSupportedByPhysicalDevice(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) const;
         RhiResult deviceSupportAllRequiredExtensions(VkPhysicalDevice physicalDevice) const;
         QueueFamilyIndicesVulkan findQueueFamilies(VkPhysicalDevice physicalDevice) const;
-        SwapChainSupportDetailsVulkan querySwapChainSupport(VkPhysicalDevice device) const;
+        QUERY SwapChainSupportDetailsVulkan querySwapChainSupport(const VkPhysicalDevice& device) const;
     };
 }

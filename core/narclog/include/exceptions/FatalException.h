@@ -11,8 +11,13 @@ namespace narclog
         friend class MethodExceptionHandler;
 
     public:
-        explicit FatalException(const std::string& message)
-            : runtime_error(message)
+        explicit FatalException(const std::string& file, int line, const std::string& message) :
+            runtime_error(file + ":" + std::to_string(line) + " " + message)
+        {
+        }
+
+        explicit FatalException(const std::string& message) :
+            runtime_error(message)
         {
         }
 

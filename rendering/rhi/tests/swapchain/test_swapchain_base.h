@@ -30,14 +30,14 @@ public:
         ASSERT_NE(m_swapChain.get(), nullptr) << "Failed to create SwapChainRhi for Vulkan API";
 
         m_context->init();
-        m_window->init();
         m_device->init();
+        m_window->init();
     }
 
     void TearDown() override
     {
-        m_device->shutdown();
         m_window->shutdown();
+        m_device->shutdown();
         m_context->shutdown();
 
         m_device.reset();

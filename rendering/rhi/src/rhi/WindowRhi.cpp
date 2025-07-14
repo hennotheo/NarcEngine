@@ -12,14 +12,15 @@ namespace narc_engine
 {
     WindowRhi::WindowRhi(const ContextRhiPtr& ctx) : m_context(ctx), m_framebufferSize()
     {
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     }
 
     WindowRhi::~WindowRhi() = default;
 
     void WindowRhi::createWindow()
     {
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+
         m_framebufferSize = glm::u32vec2(800, 600);
         m_window = glfwCreateWindow(m_framebufferSize.x, m_framebufferSize.y, "Narc Engine RHI Window", nullptr, nullptr);
 

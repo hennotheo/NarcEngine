@@ -102,5 +102,4 @@ namespace narc_engine
 
         destroyDebugMessengerFunc(m_context->getVkInstance(), m_debugMessenger, nullptr);
     }
-
 }

@@ -16,7 +16,7 @@ namespace narclog
     NARCLOG_API void logString(LogLevel level, const std::string& message);
 }
 
-#define NARCLOG_FATAL(...) throw narclog::FatalException(NARC_FORMAT(__VA_ARGS__))
+#define NARCLOG_FATAL(...) throw narclog::FatalException(NARCLOG_FILE_LINE, NARC_FORMAT(__VA_ARGS__))
 #define NARCLOG_ERROR(...) throw narclog::ErrorException(NARC_FORMAT(__VA_ARGS__))
 
 #ifndef NARC_TEST_BUILD

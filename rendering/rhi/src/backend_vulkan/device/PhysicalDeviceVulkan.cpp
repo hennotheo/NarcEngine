@@ -49,10 +49,10 @@ namespace narc_engine
 
         registerAllPhysicalDevices();
 
-        glfwInit();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-        GLFWwindow* temporaryWindow = glfwCreateWindow(1, 1, "Temp", nullptr, nullptr);
+        GLFWwindow* temporaryWindow = glfwCreateWindow(800, 600, "Temp", nullptr, nullptr);
 
         if (glfwCreateWindowSurface(context->getContextVulkan()->getVkInstance(), temporaryWindow, nullptr, &m_testSurface) != VK_SUCCESS)
         {
@@ -61,12 +61,20 @@ namespace narc_engine
 
         PhysicalDeviceVulkanProperties props{};
         props.PhysicalDevice = queryBestPhysicalDevice();
+
+        if (props.PhysicalDevice == VK_NULL_HANDLE)
+        {
+            NARCLOG_FATAL("Failed to find a suitable physical device!");
+        }
+
         props.QueueFamilyIndices = findQueueFamilies(props.PhysicalDevice);
         props.SwapChainSupportDetails = querySwapChainSupport(props.PhysicalDevice);
         vkGetPhysicalDeviceProperties(props.PhysicalDevice, &props.Properties);
 
+        NARCLOG_INFO(props.PhysicalDevice);
+
+        vkDestroySurfaceKHR(context->getContextVulkan()->getVkInstance(), m_testSurface, nullptr);
         glfwDestroyWindow(temporaryWindow);
-        glfwTerminate();
 
         return props;
     }
@@ -137,7 +145,7 @@ namespace narc_engine
         return score;
     }
 
-    SwapChainSupportDetailsVulkan PhysicalDeviceVulkan::querySwapChainSupport(const VkPhysicalDevice device) const
+    SwapChainSupportDetailsVulkan PhysicalDeviceVulkan::querySwapChainSupport(const VkPhysicalDevice& device) const
     {
         SwapChainSupportDetailsVulkan details;
 

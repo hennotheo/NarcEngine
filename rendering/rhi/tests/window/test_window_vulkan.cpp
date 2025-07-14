@@ -19,26 +19,26 @@ TEST_F(VulkanWindowTest, WindowRhi_InitShutdown)
 
 TEST_F(VulkanWindowTest, WindowRhi_InitGLFWwindow)
 {
-    m_window->init();
+    EXPECT_NO_THROW(m_window->init()) << "WindowRhi initialization threw an exception";
 
     EXPECT_NE(m_window->m_window, nullptr) << "Failed to create GLFW window";
 
-    m_window->shutdown();
+    EXPECT_NO_THROW(m_window->shutdown()) << "WindowRhi shutdown threw an exception";
 }
 
 TEST_F(VulkanWindowTest, WindowRhi_DestroyGLFWwindow)
 {
-    m_window->init();
-    m_window->shutdown();
+    EXPECT_NO_THROW(m_window->init()) << "WindowRhi initialization threw an exception";
+    EXPECT_NO_THROW(m_window->shutdown()) << "WindowRhi shutdown threw an exception";
 
     EXPECT_EQ(m_window->m_window, nullptr) << "GLFW window was not destroyed properly during shutdown";
 }
 
 TEST_F(VulkanWindowTest, WindowRhi_InitCreateSurface)
 {
-    m_window->init();
+    EXPECT_NO_THROW(m_window->init()) << "WindowRhi initialization threw an exception";
 
     EXPECT_NE(m_window->getWindowVulkan()->getVkSurface(), nullptr) << "Failed to create Vulkan surface for the GLFW window";
 
-    m_window->shutdown();
+    EXPECT_NO_THROW(m_window->shutdown()) << "WindowRhi shutdown threw an exception";
 }
