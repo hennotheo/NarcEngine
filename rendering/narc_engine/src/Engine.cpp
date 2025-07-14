@@ -78,6 +78,8 @@ namespace narc_engine
         m_graphicsQueueRhi = injector.create<GraphicsQueueRhiPtr>();
         m_presentQueueRhi = injector.create<PresentQueueRhiPtr>();
 
+        m_allocator = injector.create<MemoryAllocatorRhiPtr>();
+
         // m_instance = CREATE_ENGINE_UNIQUE_COMPONENT(EngineInstance, &builder);
         // builder.m_instance = m_instance.get();
         //

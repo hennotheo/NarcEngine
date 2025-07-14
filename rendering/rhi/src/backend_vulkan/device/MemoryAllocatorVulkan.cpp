@@ -14,8 +14,8 @@
 namespace narc_engine
 {
     MemoryAllocatorVulkan::MemoryAllocatorVulkan(const ContextRhiPtr& ctx, const DeviceRhiPtr& device) :
-        m_context(std::static_pointer_cast<ContextVulkan>(ctx)),// Static cast cause ContextRhiPtr is a shared pointer to ContextVulkan
-        m_device(std::static_pointer_cast<DeviceVulkan>(device))// Static cast cause DeviceRhiPtr is a shared pointer to DeviceVulkan
+        m_context(std::static_pointer_cast<ContextVulkan>(ctx)), // Static cast cause ContextRhiPtr is a shared pointer to ContextVulkan
+        m_device(std::static_pointer_cast<DeviceVulkan>(device)) // Static cast cause DeviceRhiPtr is a shared pointer to DeviceVulkan
     {
     }
 
@@ -32,6 +32,24 @@ namespace narc_engine
     void MemoryAllocatorVulkan::shutdown()
     {
         vmaDestroyAllocator(m_allocator);
+    }
+
+    ImageResourceVulkan MemoryAllocatorVulkan::createImage(const VkImageCreateInfo* pImageCreateInfo,
+                                                           const VmaAllocationCreateInfo* pAllocationCreateInfo) const
+    {
+        VkImage image = VK_NULL_HANDLE;
+        VmaAllocation allocation = VK_NULL_HANDLE;
+        vmaCreateImage(m_allocator, pImageCreateInfo, pAllocationCreateInfo, &image, &allocation, nullptr);
+
+        return ImageResourceVulkan{
+            .image = image,
+            .allocation = allocation
+        };
+    }
+
+    void MemoryAllocatorVulkan::destroyImage(const ImageResourceVulkan& imageResource)
+    {
+        vmaCreateImage(m_allocator, &desc.imageInfo, &desc.allocInfo, &res.image, &res.allocation, nullptr);
     }
 
     VmaAllocatorCreateInfo MemoryAllocatorVulkan::createAllocatorCreateInfo(const VmaVulkanFunctions* vulkanFunctions) const

@@ -63,6 +63,7 @@ namespace narc_engine
 
         GraphicsQueueRhiPtr m_graphicsQueueRhi;
         PresentQueueRhiPtr m_presentQueueRhi;
+        MemoryAllocatorRhiPtr m_allocator;
 
         std::unique_ptr<EngineInstance> m_instance;
         std::unique_ptr<EngineDebugLogger> m_debugLogger;

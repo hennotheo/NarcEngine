@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "backend_vulkan/device/MemoryAllocatorVulkan.h"
+#include "device/MemoryAllocatorRhi.h"
 #include "resources/ImageRhi.h"
 
 namespace narc_engine
@@ -37,13 +39,15 @@ namespace narc_engine
     class ImageVulkan final : public ImageRhi
     {
     public:
-        ImageVulkan();
+        BOOST_DI_INJECT(ImageVulkan, const MemoryAllocatorRhiPtr& allocator);
         ~ImageVulkan() override;
 
         NARC_IMPL_RHI_PLATFORM_GETTER(Image, Vulkan);
         NARC_IMPL_INITIALISABLE();
 
     private:
-        VkImage m_image = VK_NULL_HANDLE;
+        std::weak_ptr<MemoryAllocatorRhi> m_allocator;
+
+        ImageResourceVulkan m_imageResource{};
     };
 } // narc_engine
