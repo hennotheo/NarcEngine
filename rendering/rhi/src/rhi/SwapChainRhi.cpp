@@ -47,7 +47,7 @@ namespace narc_engine
 
     void SwapChainRhi::cleanup()
     {
-        std::ranges::for_each(m_images, [](const std::shared_ptr<ImageRhi>& image)
+        std::ranges::for_each(m_framebuffers, [](const std::shared_ptr<FrameBufferRhi>& image)
         {
             image->shutdown();
         });

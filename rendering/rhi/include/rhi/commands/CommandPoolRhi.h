@@ -10,7 +10,11 @@ namespace narc_engine
 
     class NARC_ENGINE_API CommandPoolRhi : public narc_core::IInitialisable
     {
+    public:
+        CommandPoolRhi() = default;
+        ~CommandPoolRhi() override = default;
 
+        NARC_DECL_RHI_PLATFORM_GETTERS(CommandPool);
     };
 
     using CommandPoolRhiPtr = std::shared_ptr<CommandPoolRhi>;

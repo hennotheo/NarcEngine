@@ -28,7 +28,7 @@ namespace narc_engine
         NARC_IMPL_INITIALISABLE();
 
         ImageResourceVulkan createImage(const VkImageCreateInfo* pImageCreateInfo, const VmaAllocationCreateInfo* pAllocationCreateInfo) const;//TODO: Replace by builder pattern
-        void destroyImage(const ImageResourceVulkan& imageResource);
+        void destroyImage(const ImageResourceVulkan& imageResource) const;
 
     private:
         VmaAllocator m_allocator = VK_NULL_HANDLE;

@@ -5,11 +5,11 @@
 #include "CommandBuffer.h"
 
 namespace narc_engine {
-    class CommandPoolRhi
+    class CommandPool
     {
     public:
-        CommandPoolRhi();
-        ~CommandPoolRhi();
+        CommandPool();
+        ~CommandPool();
 
         CommandBuffer* getCommandBuffer(uint32_t index) { return &m_commandBuffers[index]; }
 

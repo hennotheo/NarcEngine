@@ -11,7 +11,7 @@ TEST(NarcEngineTest, EngineCreation)
 {
     const narc_engine::EnginePtr engine(narc_engine::createEngine());
 
-    EXPECT_NE(engine, nullptr);
+    EXPECT_NE(engine.get(), nullptr);
 }
 
 TEST(NarcEngineTest, EngineInitShutdown)

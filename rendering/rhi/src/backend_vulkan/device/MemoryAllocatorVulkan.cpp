@@ -47,9 +47,9 @@ namespace narc_engine
         };
     }
 
-    void MemoryAllocatorVulkan::destroyImage(const ImageResourceVulkan& imageResource)
+    void MemoryAllocatorVulkan::destroyImage(const ImageResourceVulkan& imageResource) const
     {
-        vmaCreateImage(m_allocator, &desc.imageInfo, &desc.allocInfo, &res.image, &res.allocation, nullptr);
+        vmaDestroyImage(m_allocator, imageResource.image, imageResource.allocation);
     }
 
     VmaAllocatorCreateInfo MemoryAllocatorVulkan::createAllocatorCreateInfo(const VmaVulkanFunctions* vulkanFunctions) const

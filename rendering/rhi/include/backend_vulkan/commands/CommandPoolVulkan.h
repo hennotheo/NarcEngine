@@ -4,14 +4,15 @@
 
 #pragma once
 
+#include "commands/CommandPoolRhi.h"
+
 namespace narc_engine
 {
     NARC_DECL_RHI_PLATFORM_TYPES(CommandPool);
 
-    class NARC_ENGINE_API CommandPoolRhi : public narc_core::IInitialisable
+    class CommandPoolVulkan final : public CommandPoolRhi
     {
-
+    public:
+        NARC_IMPL_INITIALISABLE();
     };
-
-    using CommandPoolRhiPtr = std::shared_ptr<CommandPoolRhi>;
 } // narc_engine

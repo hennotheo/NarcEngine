@@ -15,13 +15,19 @@ namespace narc_engine
 
     }
 
+    ImageVulkan::ImageVulkan(const VkImage& image) :
+        m_image(image),
+        m_allocator(std::weak_ptr<MemoryAllocatorRhi>())
+    {
+    }
+
     ImageVulkan::~ImageVulkan() = default;
 
     void ImageVulkan::init()
     {
         NARC_GUARD_WEAK(allocator, m_allocator, "Memory allocator is null!");
 
-        VkImageCreateInfo imageCreateInfo;//TODO: temporary replace it by builder pattern
+        VkImageCreateInfo imageCreateInfo; //TODO: temporary replace it by builder pattern
         imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
         imageCreateInfo.pNext = nullptr;
         imageCreateInfo.flags = 0;
@@ -33,13 +39,20 @@ namespace narc_engine
         VmaAllocationCreateInfo allocationCreateInfo;
         allocationCreateInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY; // Example usage, change as needed
 
-        m_imageResource = allocator->getMemoryAllocatorVulkan()->createImage(&imageCreateInfo, &allocationCreateInfo);
+        const auto resource = allocator->getMemoryAllocatorVulkan()->createImage(&imageCreateInfo, &allocationCreateInfo);
+        m_image = resource.image;
+        m_allocation = resource.allocation;
     }
 
     void ImageVulkan::shutdown()
     {
         NARC_GUARD_WEAK(allocator, m_allocator, "Memory allocator is null!");
 
-        allocator->getMemoryAllocatorVulkan()->destroyImage(m_imageResource);
+        allocator->getMemoryAllocatorVulkan()->destroyImage(
+            ImageResourceVulkan{
+                .image = m_image,
+                .allocation = m_allocation
+            }
+            );
     }
 } // narc_engine

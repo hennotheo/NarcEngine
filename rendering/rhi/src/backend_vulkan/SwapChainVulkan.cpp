@@ -105,15 +105,17 @@ namespace narc_engine
 
     void SwapChainVulkan::createImageViews()
     {
-        m_imageViews.resize(m_images.size());
+        NARC_GUARD_WEAK(device, m_device, "Device is null!");
 
+        m_imageViews.resize(m_images.size());
         for (size_t i = 0; i < m_images.size(); i++)
         {
-            if (m_imageViews[i] == nullptr)
+            if (m_imageViews[i] != nullptr)
             {
-                m_imageViews[i] = std::make_shared<ImageViewVulkan>();
+                continue;
             }
 
+            m_imageViews[i] = std::make_shared<ImageViewVulkan>(device, m_images[i]->getImageVulkan(), m_format);
             m_imageViews[i]->init();
         }
     }

@@ -26,6 +26,7 @@ namespace narc_engine
 
     private:
         VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
+        VkFormat m_format = VK_FORMAT_UNDEFINED;
         VkExtent2D m_extent{};
 
         void createSwapChain() override;

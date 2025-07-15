@@ -1,9 +1,9 @@
-﻿#include "platform/vulkan/CommandPoolRhi.h"
+﻿#include "platform/vulkan/CommandPool.h"
 
 #include "Engine.h"
 
 namespace narc_engine {
-    CommandPoolRhi::CommandPoolRhi()
+    CommandPool::CommandPool()
     {
         VkCommandPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -19,12 +19,12 @@ namespace narc_engine {
         }
     }
 
-    CommandPoolRhi::~CommandPoolRhi()
+    CommandPool::~CommandPool()
     {
         vkDestroyCommandPool(NARC_DEVICE_HANDLE, m_commandPool, nullptr);
     }
 
-    void CommandPoolRhi::createCommandBuffers(const uint32_t commandBufferCount)
+    void CommandPool::createCommandBuffers(const uint32_t commandBufferCount)
     {
         if (!m_commandBuffers.empty())
         {
@@ -42,7 +42,7 @@ namespace narc_engine {
         CommandBuffer::allocateBuffers(&allocInfo, m_commandBuffers);
     }
 
-    CommandBuffer CommandPoolRhi::beginSingleTimeCommands() const
+    CommandBuffer CommandPool::beginSingleTimeCommands() const
     {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -61,7 +61,7 @@ namespace narc_engine {
         return commandBuffer;
     }
 
-    void CommandPoolRhi::endSingleTimeCommands(CommandBuffer commandBuffer) const
+    void CommandPool::endSingleTimeCommands(CommandBuffer commandBuffer) const
     {
         commandBuffer.end();
 
