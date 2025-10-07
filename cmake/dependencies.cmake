@@ -103,15 +103,16 @@ if(WIN32)
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_USE_PLATFORM_WIN32_KHR" CACHE STRING "Vulkan Windows platform flag")
 
-elseif(UNIX)
+elseif(UNIX AND NOT APPLE)
 
-    message(FATAL_ERROR "Unix platform is not supported yet.")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_USE_PLATFORM_XCB_KHR" CACHE STRING "Vulkan Linux platform flag (XCB)")
+    add_compile_definitions(VK_USE_PLATFORM_XCB_KHR)
 
 elseif(APPLE)
 
     message(FATAL_ERROR "Apple platform is not supported yet.")
 
-endif(WIN32)
+endif()
 
 if(Vulkan_FOUND)
     message(STATUS "Vulkan found on system.")

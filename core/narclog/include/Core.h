@@ -6,11 +6,11 @@
 
 #ifdef NARCLOG_BUILD_DLL
 
-#define NARCLOG_API __declspec(dllexport)
+#define NARCLOG_API NARC_DLL_EXPORT
 
 #else
 
-#define NARCLOG_API __declspec(dllimport)
+#define NARCLOG_API NARC_DLL_IMPORT
 
 #endif
 

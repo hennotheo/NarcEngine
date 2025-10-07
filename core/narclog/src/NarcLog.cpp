@@ -12,12 +12,18 @@
 #define ENABLE_TERMINATE
 #endif
 
-#ifdef NARC_ENGINE_PLATFORM_WINDOWS
+#if defined(NARC_ENGINE_PLATFORM_WINDOWS)
+
+#include "platform/windows/WindowsLogger.h"
+#define CREATE_LOGGER new narclog::WindowsLogger
+
+#elif defined(NARC_ENGINE_PLATFORM_LINUX)
 
 #include "platform/windows/WindowsLogger.h"
 #define CREATE_LOGGER new narclog::WindowsLogger
 
 #else
+
 #error Unsupported platform.
 
 #endif

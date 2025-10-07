@@ -2,7 +2,7 @@
 
 #ifdef NARC_ENGINE_BUILD_DLL
 
-#define NARC_ENGINE_API __declspec(dllexport)
+#define NARC_ENGINE_API NARC_DLL_EXPORT
 #define _internal public
 #define _internal_protected public
 
@@ -12,7 +12,7 @@
 
 #else
 
-#define NARC_ENGINE_API __declspec(dllimport)
+#define NARC_ENGINE_API NARC_DLL_IMPORT
 #define _internal private
 #define _internal_protected protected
 

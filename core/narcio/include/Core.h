@@ -2,10 +2,10 @@
 
 #ifdef NARC_IO_BUILD_DLL
 
-#define NARC_IO_API __declspec(dllexport)
+#define NARC_IO_API NARC_DLL_EXPORT
 
 #else
 
-#define NARC_IO_API __declspec(dllimport)
+#define NARC_IO_API NARC_DLL_IMPORT
 
 #endif
