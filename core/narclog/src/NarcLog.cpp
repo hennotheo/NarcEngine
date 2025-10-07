@@ -15,12 +15,12 @@
 #if defined(NARC_ENGINE_PLATFORM_WINDOWS)
 
 #include "platform/windows/WindowsLogger.h"
-#define CREATE_LOGGER new narclog::WindowsLogger
+// #define CREATE_LOGGER new narclog::WindowsLogger
 
 #elif defined(NARC_ENGINE_PLATFORM_LINUX)
 
-#include "platform/windows/WindowsLogger.h"
-#define CREATE_LOGGER new narclog::WindowsLogger
+// #include "platform/windows/WindowsLogger.h"
+// #define CREATE_LOGGER new narclog::WindowsLogger
 
 #else
 
@@ -64,7 +64,7 @@ namespace narclog
 
         try
         {
-            g_logger = CREATE_LOGGER();
+            // g_logger = CREATE_LOGGER();
 #ifdef ENABLE_TERMINATE
             std::set_terminate(handleTerminate);
 #endif

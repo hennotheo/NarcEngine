@@ -11,4 +11,4 @@ narc_testable_pch(NarcLog PRIVATE "include/pch.h")
 
 narc_testable_add_include_directory(NarcLog PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-narc_testable_link_library(NarcLog PUBLIC NarcCore)
+narc_testable_link_library(NarcLog PUBLIC NarcCore spdlog)

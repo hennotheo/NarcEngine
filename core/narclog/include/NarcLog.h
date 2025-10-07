@@ -8,5 +8,3 @@
 
 #include "exceptions/ErrorException.h"
 #include "exceptions/FatalException.h"
-
-#include "keywords/LogFunctions.h"

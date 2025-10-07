@@ -48,8 +48,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(spdlog)
 
-
-
 # --- VMA ---
 FetchContent_Declare(
         vma
