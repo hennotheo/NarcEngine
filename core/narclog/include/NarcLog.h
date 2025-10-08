@@ -6,6 +6,8 @@
 
 #include "keywords/LogLevel.h"
 
+#include "exceptions/NarcEngineException.h"
+
 #define NARC_LOG_DEBUG(...) narc_log::log(DEBUG, __VA_ARGS__);
 #define NARC_LOG_INFO(...) narc_log::log(INFO, __VA_ARGS__)
 #define NARC_LOG_WARNING(...) narc_log::log(WARNING, __VA_ARGS__)
