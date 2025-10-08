@@ -5,7 +5,7 @@ narc_decl_testable_target(NarcLog)
 
 narc_testable_add_dependencies(NarcLog NarcCore spdlog)
 
-narc_testable_add_compile_definition(NarcLog PRIVATE NARCLOG_BUILD_DLL)
+narc_testable_add_compile_definition(NarcLog PRIVATE NARC_LOG_BUILD_DLL)
 narc_testable_pch(NarcLog PRIVATE "include/pch.h")
 
 

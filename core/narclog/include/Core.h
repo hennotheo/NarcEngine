@@ -4,14 +4,14 @@
 
 #pragma once
 
-#ifdef NARCLOG_BUILD_DLL
+#ifdef NARC_LOG_BUILD_DLL
 
-#define NARCLOG_API NARC_DLL_EXPORT
+#define NARC_LOG_API NARC_DLL_EXPORT
 
 #else
 
-#define NARCLOG_API NARC_DLL_IMPORT
+#define NARC_LOG_API NARC_DLL_IMPORT
 
 #endif
 
-#define NARCLOG_FILE_LINE __FILE__, __LINE__
+#define NARC_LOG_FILE_LINE __FILE__, __LINE__

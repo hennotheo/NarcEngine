@@ -6,9 +6,6 @@
 
 #include "keywords/LogLevel.h"
 
-#include "exceptions/ErrorException.h"
-#include "exceptions/FatalException.h"
-
 #define NARC_LOG_DEBUG(...) narc_log::log(DEBUG, __VA_ARGS__);
 #define NARC_LOG_INFO(...) narc_log::log(INFO, __VA_ARGS__)
 #define NARC_LOG_WARNING(...) narc_log::log(WARNING, __VA_ARGS__)
@@ -16,8 +13,10 @@
 #define NARC_LOG_FATAL(...) narc_log::log(FATAL, __VA_ARGS__)
 
 namespace narc_log {
+    [[maybe_unused]] NARC_LOG_API void init_signal_handling();
+
     template<typename... Args>
-    NARC_DLL_EXPORT void log(const LogLevel &level, spdlog::format_string_t<Args...> fmt, Args &&... args) {
+    [[maybe_unused]] NARC_LOG_API void log(const LogLevel &level, spdlog::format_string_t<Args...> fmt, Args &&... args) {
         switch (level) {
             case DEBUG:
                 spdlog::debug(fmt, std::forward<Args>(args)...);
