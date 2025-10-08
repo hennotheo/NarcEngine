@@ -15,5 +15,3 @@
 #endif
 
 #define NARCLOG_FILE_LINE __FILE__, __LINE__
-
-typedef std::vector<const char*> KeywordList;

@@ -15,6 +15,8 @@ set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS 1 CACHE INTERNAL "No dev warnings")
 include(FetchContent)
 message(STATUS "Fetching dependencies...")
 
+set(FETCHCONTENT_FULLY_DISCONNECTED OFF CACHE BOOL "Permet à FetchContent de réutiliser un dépôt local")
+
 # --- GLM ---
 
 set(GLM_VERSION 1.0.1)
@@ -46,6 +48,7 @@ FetchContent_Declare(
         GIT_TAG v1.15.3
         GIT_SHALLOW TRUE
 )
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 FetchContent_MakeAvailable(spdlog)
 
 # --- VMA ---

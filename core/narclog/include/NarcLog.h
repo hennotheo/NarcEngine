@@ -8,3 +8,32 @@
 
 #include "exceptions/ErrorException.h"
 #include "exceptions/FatalException.h"
+
+#define NARC_LOG_DEBUG(...) narc_log::log(DEBUG, __VA_ARGS__);
+#define NARC_LOG_INFO(...) narc_log::log(INFO, __VA_ARGS__)
+#define NARC_LOG_WARNING(...) narc_log::log(WARNING, __VA_ARGS__)
+#define NARC_LOG_ERROR(...) narc_log::log(ERROR, __VA_ARGS__)
+#define NARC_LOG_FATAL(...) narc_log::log(FATAL, __VA_ARGS__)
+
+namespace narc_log {
+    template<typename... Args>
+    NARC_DLL_EXPORT void log(const LogLevel &level, spdlog::format_string_t<Args...> fmt, Args &&... args) {
+        switch (level) {
+            case DEBUG:
+                spdlog::debug(fmt, std::forward<Args>(args)...);
+                break;
+            case INFO:
+                spdlog::info(fmt, std::forward<Args>(args)...);
+                break;
+            case WARNING:
+                spdlog::warn(fmt, std::forward<Args>(args)...);
+                break;
+            case ERROR:
+                spdlog::error(fmt, std::forward<Args>(args)...);
+                break;
+            case FATAL:
+                spdlog::critical(fmt, std::forward<Args>(args)...);
+                break;
+        }
+    }
+}

@@ -3,6 +3,8 @@
 //
 #pragma once
 
+///@brief Log levels for NarcLog
+/// @note DEBUG level only appears in debug mode, all other levels appear in release mode
 enum LogLevel
 {
     FATAL, //Appears in release mode
