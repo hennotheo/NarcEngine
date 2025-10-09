@@ -8,7 +8,10 @@
 
 #include "keywords/LogLevel.h"
 
-#define NARC_LOG_DEBUG(...) narc_log::log(DEBUG, __VA_ARGS__);
+#define NARC_ERROR_LOGIC(...) throw narc_log::LogicError(__VA_ARGS__)
+#define NARC_ERROR_RUNTIME(...) throw narc_log::RuntimeError(__VA_ARGS__)
+
+#define NARC_LOG_DEBUG(...) narc_log::log(DEBUG, __VA_ARGS__)
 #define NARC_LOG_INFO(...) narc_log::log(INFO, __VA_ARGS__)
 #define NARC_LOG_WARNING(...) narc_log::log(WARNING, __VA_ARGS__)
 #define NARC_LOG_ERROR(...) narc_log::log(ERROR, __VA_ARGS__)
