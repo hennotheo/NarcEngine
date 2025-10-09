@@ -92,7 +92,7 @@ namespace narc_engine
         auto iterator = std::remove(m_nodes.begin(), m_nodes.end(), node);
         if (iterator == m_nodes.end())
         {
-            NARCLOG_DEBUG("RenderGraph::removeNode: Node not found in the graph.");
+            NARC_LOG_DEBUG("RenderGraph::removeNode: Node not found in the graph.");
         }
         m_nodes.erase(iterator, m_nodes.end());
     }
@@ -108,7 +108,7 @@ namespace narc_engine
         {
             if (!checkIfInputsAreAvailable(node, uniqueResources))
             {
-                NARCLOG_FATAL("RenderGraph::buildGraph: Node inputs are not available!");
+                NARC_ERROR_RUNTIME("RenderGraph::buildGraph: Node inputs are not available!");
             }
 
             for (const auto& output : node->getOutputs())
@@ -152,7 +152,7 @@ namespace narc_engine
         const GraphicsQueue* graphicsQueue = Engine::getInstance()->getGraphicsQueue();
         if (graphicsQueue->submit(1, &submitInfo, frameHandler->getInFlightFence()->get()) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to submit draw command buffer!");
+            NARC_ERROR_RUNTIME("failed to submit draw command buffer!");
         }
 
         return signalSemaphores;
@@ -251,7 +251,7 @@ namespace narc_engine
 
         if (commandBuffer->end() != VK_SUCCESS)
         {
-            NARCLOG_FATAL("Failed to record command buffer!");
+            NARC_ERROR_RUNTIME("Failed to record command buffer!");
         }
     }
 
@@ -260,7 +260,7 @@ namespace narc_engine
         ctx->SwapChainExtent = m_swapchain->getSwapChainExtent();
         ctx->Renderers = &m_renderers;
         ctx->RenderersCount = static_cast<uint32_t>(m_renderers.size());
-        ctx->FrameHandler = frameHandler;
+        ctx->FrameHandlerPtr = frameHandler;
     }
 
     bool RenderGraph::checkIfInputsAreAvailable(const RenderNode* node, const std::set<ResourceId>& availableResources) const

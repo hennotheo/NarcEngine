@@ -44,7 +44,7 @@ namespace narc_engine
 
         if (vkCreateFramebuffer(device->getVkDevice(), &m_framebufferInfo, nullptr, &m_framebuffer) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to create framebuffer!");
+            NARC_ERROR_RUNTIME("failed to create framebuffer!");
         }
     }
 

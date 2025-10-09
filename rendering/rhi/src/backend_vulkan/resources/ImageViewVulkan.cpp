@@ -15,12 +15,12 @@ namespace narc_engine
     {
         if (image == nullptr)
         {
-            NARCLOG_FATAL("zzz");
+            NARC_ERROR_RUNTIME("zzz");
         }
 
         if (image->getVkImage() == VK_NULL_HANDLE)
         {
-            NARCLOG_FATAL("Image is not initialized!");
+            NARC_ERROR_RUNTIME("Image is not initialized!");
         }
     }
 

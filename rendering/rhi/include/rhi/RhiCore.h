@@ -28,3 +28,6 @@
 using RhiResult = bool;
 #define RHI_SUCCESS true
 #define RHI_FAILURE false
+
+///TODO: Change this LATER
+typedef std::vector<const char*> KeywordList;

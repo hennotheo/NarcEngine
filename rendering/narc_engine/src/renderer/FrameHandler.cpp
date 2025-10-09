@@ -28,7 +28,7 @@ namespace narc_engine {
     {
         if (m_descriptorSets.find(id) != m_descriptorSets.end())
         {
-            NARCLOG_ERROR("Descriptor set with id " + id + " already exists");
+            NARC_LOG_ERROR("Descriptor set with id {} already exists.", id);
             return;
         }
 

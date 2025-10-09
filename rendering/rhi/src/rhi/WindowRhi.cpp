@@ -26,7 +26,7 @@ namespace narc_engine
 
         if (!m_window)
         {
-            NARCLOG_FATAL("Failed to create GLFW window!");
+            NARC_ERROR_RUNTIME("Failed to create GLFW window!");
         }
 
         glfwSetWindowUserPointer(m_window, this);

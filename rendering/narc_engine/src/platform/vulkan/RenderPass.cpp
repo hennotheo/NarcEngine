@@ -65,7 +65,7 @@ namespace narc_engine {
 
         if (vkCreateRenderPass(NARC_DEVICE_HANDLE, &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to create render pass!");
+            NARC_ERROR_RUNTIME("failed to create render pass!");
         }
     }
 

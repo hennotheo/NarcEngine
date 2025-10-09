@@ -21,7 +21,7 @@ namespace narc_engine
 
         if (vkCreateShaderModule(NARC_DEVICE_HANDLE, &createInfo, nullptr, &m_shaderModule) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to create shader module!");
+            NARC_ERROR_RUNTIME("failed to create shader module!");
         }
     }
 

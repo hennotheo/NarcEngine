@@ -16,10 +16,7 @@ struct vertex
     glm::vec3 color;
     glm::vec2 tex;
 
-    bool operator==(const vertex& other) const
-    {
-        return pos == other.pos && tex == other.tex && color == other.color;
-    }
+    bool operator==(const vertex& other) const { return pos == other.pos && tex == other.tex && color == other.color; }
 };
 
 namespace std
@@ -29,12 +26,10 @@ namespace std
     {
         size_t operator()(vertex const& vertex) const
         {
-            return ((hash<glm::vec3>()(vertex.pos) ^
-                    (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
-                (hash<glm::vec2>()(vertex.tex) << 1);
+            return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.tex) << 1);
         }
     };
-}
+} // namespace std
 
 namespace narc_io
 {
@@ -44,7 +39,7 @@ namespace narc_io
 
         if (!file.is_open())
         {
-            NARCLOG_FATAL("Failed to open file!");
+            NARC_ERROR_RUNTIME("Failed to open file!");
         }
 
         const size_t fileSize = (size_t)file.tellg();
@@ -67,7 +62,7 @@ namespace narc_io
 
         if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str()))
         {
-            NARCLOG_FATAL(warn + err);
+            NARC_ERROR_RUNTIME(warn + err);
         }
 
 
@@ -81,16 +76,10 @@ namespace narc_io
             for (const auto& index : shape.mesh.indices)
             {
                 vertex vertex{};
-                vertex.pos = {
-                    attrib.vertices[3 * index.vertex_index + 0],
-                    attrib.vertices[3 * index.vertex_index + 1],
-                    attrib.vertices[3 * index.vertex_index + 2]
-                };
+                vertex.pos = {attrib.vertices[3 * index.vertex_index + 0], attrib.vertices[3 * index.vertex_index + 1],
+                              attrib.vertices[3 * index.vertex_index + 2]};
 
-                vertex.tex = {
-                    attrib.texcoords[2 * index.texcoord_index + 0],
-                    1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-                };
+                vertex.tex = {attrib.texcoords[2 * index.texcoord_index + 0], 1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
 
                 if (!uniqueVertices.contains(vertex))
                 {
@@ -120,7 +109,7 @@ namespace narc_io
 
         if (!pixels)
         {
-            NARCLOG_FATAL("Failed to load texture image!");
+            NARC_ERROR_RUNTIME("Failed to load texture image!");
         }
 
         Image image(texWidth, texHeight, texChannels, pixels);
@@ -128,8 +117,5 @@ namespace narc_io
         return image;
     }
 
-    void FileReader::releaseImage(void* imageData)
-    {
-        stbi_image_free(imageData);
-    }
-}
+    void FileReader::releaseImage(void* imageData) { stbi_image_free(imageData); }
+} // namespace narc_io

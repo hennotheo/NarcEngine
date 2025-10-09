@@ -22,7 +22,7 @@ namespace narc_engine
             const char* typeName = typeid(T).name();
             if (!typeName)
             {
-                NARCLOG_FATAL("typeid(T).name() returned null");
+                NARC_ERROR_RUNTIME("typeid(T).name() returned null");
             }
 
             std::hash<std::string> hasher;

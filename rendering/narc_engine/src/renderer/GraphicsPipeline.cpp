@@ -60,7 +60,7 @@ namespace narc_engine {
 
         if (vkCreatePipelineLayout(NARC_DEVICE_HANDLE, &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to create pipeline layout!");
+            NARC_ERROR_RUNTIME("failed to create pipeline layout!");
         }
 
         VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -84,7 +84,7 @@ namespace narc_engine {
 
         if (vkCreateGraphicsPipelines(NARC_DEVICE_HANDLE, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("Failed to create graphics pipeline!");
+            NARC_ERROR_RUNTIME("Failed to create graphics pipeline!");
         }
     }
 

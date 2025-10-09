@@ -23,13 +23,13 @@ namespace narc_engine
     {
         if (m_extensions.contains(extension))
         {
-            NARCLOG_DEBUG("Extension already enabled");
+            NARC_LOG_DEBUG("Extension already enabled");
             return;
         }
 
         if (enableExtension(extension) == RHI_FAILURE)
         {
-            NARCLOG_WARNING("Failed to enable extension");
+            NARC_LOG_WARNING("Failed to enable extension");
             return;
         }
 
@@ -40,13 +40,13 @@ namespace narc_engine
     {
         if (m_layers.contains(layer))
         {
-            NARCLOG_DEBUG("Layer already enabled");
+            NARC_LOG_DEBUG("Layer already enabled");
             return;
         }
 
         if (enableLayer(layer) == RHI_FAILURE)
         {
-            NARCLOG_WARNING("Failed to enable layer");
+            NARC_LOG_WARNING("Failed to enable layer");
             return;
         }
 
@@ -77,13 +77,12 @@ namespace narc_engine
 
         case Vulkan:
             return std::make_unique<ContextVulkan>();
-            break;
 
         case OpenGL:
-            NARC_FATAL_OPENGL_NOT_SUPPORTED();
+            NARC_ERROR_NOT_IMPLEMENTED("OpenGl is not supported yet");
 
         case DirectX12:
-            NARC_FATAL_DIRECTX12_NOT_SUPPORTED();
+            NARC_ERROR_NOT_IMPLEMENTED("DirectX12 is not supported yet");
 
         default:
             break;

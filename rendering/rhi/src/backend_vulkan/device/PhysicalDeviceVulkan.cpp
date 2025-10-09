@@ -9,14 +9,12 @@
 
 #include "GLFW/glfw3.h"
 
-namespace narc_engine
-{
-    PhysicalDeviceVulkan::PhysicalDeviceVulkan(const ContextRhiPtr& context) :
-        m_context(context)
+namespace narc_engine {
+    PhysicalDeviceVulkan::PhysicalDeviceVulkan(const ContextRhiPtr& context) : m_context(context)
     {
         if (context == nullptr)
         {
-            NARCLOG_FATAL("ContextVulkan is null!");
+            NARC_ERROR_RUNTIME("ContextVulkan is null!");
         }
     }
 
@@ -31,12 +29,12 @@ namespace narc_engine
         uint32_t deviceCount = 0;
         if (vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("Failed to enumerate physical devices!");
+            NARC_ERROR_RUNTIME("Failed to enumerate physical devices!");
         }
 
         if (deviceCount == 0)
         {
-            NARCLOG_FATAL("Failed to find GPUs with Vulkan Support!");
+            NARC_ERROR_RUNTIME("Failed to find GPUs with Vulkan Support!");
         }
 
         m_physicalDevices.resize(deviceCount);
@@ -56,7 +54,7 @@ namespace narc_engine
 
         if (glfwCreateWindowSurface(context->getContextVulkan()->getVkInstance(), temporaryWindow, nullptr, &m_testSurface) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("Failed to create window surface!");
+            NARC_ERROR_RUNTIME("Failed to create window surface!");
         }
 
         PhysicalDeviceVulkanProperties props{};
@@ -64,14 +62,14 @@ namespace narc_engine
 
         if (props.PhysicalDevice == VK_NULL_HANDLE)
         {
-            NARCLOG_FATAL("Failed to find a suitable physical device!");
+            NARC_ERROR_RUNTIME("Failed to find a suitable physical device!");
         }
 
         props.QueueFamilyIndices = findQueueFamilies(props.PhysicalDevice);
         props.SwapChainSupportDetails = querySwapChainSupport(props.PhysicalDevice);
         vkGetPhysicalDeviceProperties(props.PhysicalDevice, &props.Properties);
 
-        NARCLOG_INFO(props.PhysicalDevice);
+        NARC_LOG_INFO("{}", props.PhysicalDevice == VK_NULL_HANDLE ? "No Device" : props.Properties.deviceName);
 
         vkDestroySurfaceKHR(context->getContextVulkan()->getVkInstance(), m_testSurface, nullptr);
         glfwDestroyWindow(temporaryWindow);
@@ -82,7 +80,7 @@ namespace narc_engine
     VkPhysicalDevice PhysicalDeviceVulkan::queryBestPhysicalDevice() const
     {
         std::multimap<int, VkPhysicalDevice> candidates;
-        for (const auto& device : m_physicalDevices)
+        for (const auto& device: m_physicalDevices)
         {
             int score = rateDeviceSuitability(device);
             candidates.insert(std::make_pair(score, device));
@@ -93,7 +91,7 @@ namespace narc_engine
             return candidates.rbegin()->second;
         }
 
-        NARCLOG_FATAL("Failed to find a suitable GPU!");
+        NARC_ERROR_RUNTIME("Failed to find a suitable GPU!");
     }
 
     int PhysicalDeviceVulkan::rateDeviceSuitability(const VkPhysicalDevice device) const
@@ -182,7 +180,7 @@ namespace narc_engine
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
 
         int i = 0;
-        for (const auto& queueFamily : queueFamilies)
+        for (const auto& queueFamily: queueFamilies)
         {
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
             {
@@ -224,12 +222,12 @@ namespace narc_engine
         std::vector<VkExtensionProperties> availableExtensions(extensionCount);
         vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, availableExtensions.data());
 
-        std::set<std::string> requiredExtensions(m_deviceExtensions.begin(), m_deviceExtensions.end()); //string to compare
-        for (const auto& extension : availableExtensions)
+        std::set<std::string> requiredExtensions(m_deviceExtensions.begin(), m_deviceExtensions.end()); // string to compare
+        for (const auto& extension: availableExtensions)
         {
             requiredExtensions.erase(extension.extensionName);
         }
 
         return requiredExtensions.empty();
     }
-}
+} // namespace narc_engine

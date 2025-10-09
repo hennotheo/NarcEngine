@@ -68,7 +68,7 @@ namespace narc_engine
 
         if (vkCreateInstance(&m_createInfo, nullptr, &m_instance) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("Failed to create instance!");
+            NARC_ERROR_RUNTIME("Failed to create instance!");
         }
 
         for (const auto& ext : m_requiredExtensions)

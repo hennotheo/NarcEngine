@@ -17,7 +17,7 @@ namespace narc_engine
 
         if (vkCreateImageView(NARC_DEVICE_HANDLE, &viewInfo, nullptr, &m_imageView) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to create texture image view!");
+            NARC_ERROR_RUNTIME("failed to create texture image view!");
         }
     }
 

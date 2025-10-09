@@ -15,7 +15,7 @@ namespace narc_engine {
 
         if (vkCreateCommandPool(NARC_DEVICE_HANDLE, &poolInfo, nullptr, &m_commandPool) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to create command pool!");
+            NARC_ERROR_RUNTIME("failed to create command pool!");
         }
     }
 
@@ -28,7 +28,7 @@ namespace narc_engine {
     {
         if (!m_commandBuffers.empty())
         {
-            NARCLOG_FATAL("Command buffers have already been created!");
+            NARC_ERROR_RUNTIME("Command buffers have already been created!");
         }
 
         m_commandBuffers.resize(commandBufferCount);

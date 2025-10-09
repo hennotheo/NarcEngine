@@ -10,7 +10,7 @@ namespace narc_engine
 
         if (vkCreateFence(NARC_DEVICE_HANDLE, &fenceInfo, nullptr, &m_fence) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("Failed to create fence!");
+            NARC_ERROR_RUNTIME("Failed to create fence!");
         }
     }
 

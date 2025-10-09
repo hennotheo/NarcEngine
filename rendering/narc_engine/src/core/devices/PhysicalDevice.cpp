@@ -18,7 +18,7 @@ namespace narc_engine
 
         if (deviceCount == 0)
         {
-            NARCLOG_FATAL("Failed to find GPUs with Vulkan Support!");
+            NARC_ERROR_RUNTIME("Failed to find GPUs with Vulkan Support!");
         }
 
         std::multimap<int, VkPhysicalDevice> candidates;
@@ -34,7 +34,7 @@ namespace narc_engine
         }
         else
         {
-            NARCLOG_FATAL("Failed to find a suitable GPU!");
+            NARC_ERROR_RUNTIME("Failed to find a suitable GPU!");
         }
 
         m_queueFamilyIndices = findQueueFamilies(m_physicalDevice);
@@ -54,14 +54,14 @@ namespace narc_engine
             }
         }
 
-        NARCLOG_FATAL("failed to find suitable memory type!");
+        NARC_ERROR_RUNTIME("failed to find suitable memory type!");
     }
 
     void PhysicalDevice::getAllPhysicalDevices(uint32_t* pPhysicalDeviceCount, VkPhysicalDevice* pPhysicalDevices) const
     {
         if (vkEnumeratePhysicalDevices(m_instance->get(), pPhysicalDeviceCount, pPhysicalDevices) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("Failed to get physical devices!");
+            NARC_ERROR_RUNTIME("Failed to get physical devices!");
         }
     }
 
@@ -174,7 +174,7 @@ namespace narc_engine
             }
         }
 
-        NARCLOG_FATAL("Failed to find supported format!");
+        NARC_ERROR_RUNTIME("Failed to find supported format!");
     }
 
     QueueFamilyIndices PhysicalDevice::findQueueFamilies(VkPhysicalDevice device) const

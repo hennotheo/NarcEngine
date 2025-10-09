@@ -16,7 +16,7 @@ namespace narc_engine
         {
             if (PresentModes.empty())
             {
-                NARCLOG_FATAL("No available present modes for swapchain!");
+                NARC_ERROR_RUNTIME("No available present modes for swapchain!");
             }
 
             for (const auto& availablePresentMode : PresentModes)
@@ -56,7 +56,7 @@ namespace narc_engine
         {
             if (Formats.empty())
             {
-                NARCLOG_FATAL("No available formats for swapchain!");
+                NARC_ERROR_RUNTIME("No available formats for swapchain!");
             }
             for (const auto& availableFormat : Formats)
             {

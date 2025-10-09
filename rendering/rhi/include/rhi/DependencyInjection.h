@@ -47,13 +47,13 @@ namespace narc_engine
             return autoCreateVulkanInjector();
 
         case RendererApiType::DirectX12:
-            NARCLOG_FATAL("DirectX12 is not supported yet");
+            NARC_ERROR_RUNTIME("DirectX12 is not supported yet");
 
         case RendererApiType::OpenGL:
-            NARCLOG_FATAL("OpenGL is not supported yet");
+            NARC_ERROR_RUNTIME("OpenGL is not supported yet");
 
         default:
-            NARCLOG_FATAL("Unsupported API type");
+            NARC_ERROR_RUNTIME("Unsupported API type");
         }
     }
 

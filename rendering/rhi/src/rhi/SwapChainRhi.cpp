@@ -1,15 +1,10 @@
 //
 // Created by theoh on 28/05/2025.
 //
-#include "SwapchainRhi.h"
+#include "SwapChainRhi.h"
 
-namespace narc_engine
-{
-    SwapChainRhi::SwapChainRhi(const WindowRhi* window, const DeviceRhiPtr& device) :
-        m_window(window), m_device(device)
-    {
-
-    }
+namespace narc_engine {
+    SwapChainRhi::SwapChainRhi(const WindowRhi* window, const DeviceRhiPtr& device) : m_window(window), m_device(device) {}
 
     SwapChainRhi::~SwapChainRhi() = default;
 
@@ -21,10 +16,7 @@ namespace narc_engine
         createFramebuffers();
     }
 
-    void SwapChainRhi::shutdown()
-    {
-        cleanup();
-    }
+    void SwapChainRhi::shutdown() { cleanup(); }
 
     void SwapChainRhi::recreate()
     {
@@ -33,7 +25,7 @@ namespace narc_engine
         const auto& size = m_window->getFramebufferSize();
         if (size.x <= 0 || size.y <= 0)
         {
-            NARCLOG_ERROR("SwapChainRhi::recreate() - Invalid framebuffer size: {}x{}", size.x, size.y);
+            NARC_ERROR_RUNTIME("SwapChainRhi::recreate() - Invalid framebuffer size: {}x{}", size.x, size.y);
         }
 
         NARC_GUARD_WEAK(device, m_device, "Device is null!");
@@ -47,15 +39,9 @@ namespace narc_engine
 
     void SwapChainRhi::cleanup()
     {
-        std::ranges::for_each(m_framebuffers, [](const std::shared_ptr<FrameBufferRhi>& image)
-        {
-            image->shutdown();
-        });
+        std::ranges::for_each(m_framebuffers, [](const std::shared_ptr<FrameBufferRhi>& image) { image->shutdown(); });
 
-        std::ranges::for_each(m_imageViews, [](const std::shared_ptr<ImageViewRhi>& imageView)
-        {
-            imageView->shutdown();
-        });
+        std::ranges::for_each(m_imageViews, [](const std::shared_ptr<ImageViewRhi>& imageView) { imageView->shutdown(); });
 
         cleanupSwapChain();
     }

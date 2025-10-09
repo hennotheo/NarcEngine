@@ -9,7 +9,7 @@ namespace narc_engine
 
         if (vkCreateSemaphore(NARC_DEVICE_HANDLE, &semaphoreInfo, nullptr, &m_semaphore) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("Failed to create semaphore!");
+            NARC_ERROR_RUNTIME("Failed to create semaphore!");
         }
     }
 

@@ -34,7 +34,7 @@ namespace narc_engine
 
     IEngine* getEngine()
     {
-        NARCLOG_WARNING("This function is deprecated, use EnginePtr instead!");
+        NARC_LOG_WARNING("This function is deprecated, use EnginePtr instead!");
 
 #ifdef NARC_ENGINE_PLATFORM_WINDOWS
         return Engine::getInstance();
@@ -47,7 +47,7 @@ namespace narc_engine
 #ifdef NARC_ENGINE_PLATFORM_WINDOWS
         return std::make_shared<Engine>();
 #endif
-        NARCLOG_FATAL("Engine not implemented for this platform!");
+        NARC_ERROR_RUNTIME("Engine not implemented for this platform!");
     }
 
     ResourceId createMaterial(const char* texturePath)
@@ -112,12 +112,12 @@ namespace narc_engine
 
     Engine* Engine::getInstance()
     {
-        NARCLOG_WARNING("This function is deprecated!");
+        NARC_LOG_WARNING("This function is deprecated!");
 
         return s_instance;
     }
 
-    EngineBinder* Engine::binder() const
+    EngineBinder* Engine::binder() const noexcept
     {
         return m_engineBinder.get();
     }
@@ -232,7 +232,7 @@ namespace narc_engine
         }
         else
         {
-            NARCLOG_FATAL("Unsupported layout transition!");
+            NARC_ERROR_RUNTIME("Unsupported layout transition!");
         }
 
         commandBuffer.cmdPipelineBarrier(sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
@@ -288,7 +288,7 @@ namespace narc_engine
 
         if (vkCreateImage(m_deviceHandler->getLogicalDevice()->get(), &imageInfo, nullptr, &image) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to create image!");
+            NARC_ERROR_RUNTIME("failed to create image!");
         }
 
         VkMemoryRequirements memRequirements;

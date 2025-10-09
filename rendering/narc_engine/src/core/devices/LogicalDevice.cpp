@@ -38,7 +38,7 @@ namespace narc_engine
 
         if (vkCreateDevice(m_physicalDevice->get(), &createInfo, nullptr, &m_device) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to create logical device!");
+            NARC_ERROR_RUNTIME("failed to create logical device!");
         }
     }
 
@@ -51,7 +51,7 @@ namespace narc_engine
     {
         if (vkDeviceWaitIdle(m_device) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to wait for device idle!");
+            NARC_ERROR_RUNTIME("failed to wait for device idle!");
         }
     }
 

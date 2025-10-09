@@ -76,7 +76,7 @@ namespace narc_engine {
 
         if (vkCreateSampler(Engine::getInstance()->getDevice()->getLogicalDevice()->get(), &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to create texture sampler!");
+            NARC_ERROR_RUNTIME("failed to create texture sampler!");
         }
     }
 } // narc_engine

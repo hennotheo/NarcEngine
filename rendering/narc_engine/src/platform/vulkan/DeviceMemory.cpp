@@ -14,7 +14,7 @@ namespace narc_engine
     {
         if (m_allocated)
         {
-            NARCLOG_WARNING("Device memory not released!");
+            NARC_LOG_WARNING("Device memory not released!");
             release();
         }
     }
@@ -23,14 +23,14 @@ namespace narc_engine
     {
         if (m_allocated)
         {
-            NARCLOG_WARNING("Device memory already allocated!");
+            NARC_LOG_WARNING("Device memory already allocated!");
             return;
         }
 
         m_allocated = true;
         if (vkAllocateMemory(NARC_DEVICE_HANDLE, &m_allocInfo, nullptr, &m_memory) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to allocate image memory!");
+            NARC_LOG_WARNING("failed to allocate image memory!");
         }
     }
 
@@ -38,7 +38,7 @@ namespace narc_engine
     {
         if (!m_allocated)
         {
-            NARCLOG_WARNING("Device memory not allocated!");
+            NARC_LOG_WARNING("Device memory not allocated!");
             return;
         }
 
@@ -50,7 +50,7 @@ namespace narc_engine
     {
         if (vkMapMemory(NARC_DEVICE_HANDLE, m_memory, offset, size, 0, data) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to map device memory!");
+            NARC_LOG_WARNING("failed to map device memory!");
         }
     }
 

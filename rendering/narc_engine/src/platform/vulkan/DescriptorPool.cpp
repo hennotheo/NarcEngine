@@ -18,7 +18,7 @@ namespace narc_engine {
     {
         if (vkCreateDescriptorPool(NARC_DEVICE_HANDLE, m_builder->build(), nullptr, &m_descriptorPool) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to create descriptor pool!");
+            NARC_ERROR_RUNTIME("failed to create descriptor pool!");
         }
 
         m_allocated = true;
@@ -30,7 +30,7 @@ namespace narc_engine {
 
         if (vkAllocateDescriptorSets(NARC_DEVICE_HANDLE, allocInfo, descriptorSets) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to allocate descriptor sets!");
+            NARC_ERROR_RUNTIME("failed to allocate descriptor sets!");
         }
     }
 

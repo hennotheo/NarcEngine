@@ -72,7 +72,7 @@ namespace narc_engine
 
         if (vkCreateSwapchainKHR(deviceVulkan->getVkDevice(), &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to create swap chain!");
+            NARC_ERROR_RUNTIME("failed to create swap chain!");
         }
     }
 

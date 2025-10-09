@@ -21,7 +21,7 @@ namespace narc_engine
     {
         if (m_state == ResourceState::Loaded)
         {
-            NARCLOG_WARNING("Resource is already loaded");
+            NARC_LOG_WARNING("Resource is already loaded");
             return;
         }
 
@@ -33,7 +33,7 @@ namespace narc_engine
     {
         if (m_state != ResourceState::Loaded)
         {
-            NARCLOG_WARNING("Resource is not loaded");
+            NARC_LOG_WARNING("Resource is not loaded");
             return;
         }
 

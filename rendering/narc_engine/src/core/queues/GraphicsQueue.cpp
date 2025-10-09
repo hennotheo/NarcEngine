@@ -17,7 +17,7 @@ namespace narc_engine
     {
         if(vkQueueWaitIdle(m_queue) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("Failed to wait for graphics queue idle!");
+            NARC_ERROR_RUNTIME("Failed to wait for graphics queue idle!");
         }
     }
 

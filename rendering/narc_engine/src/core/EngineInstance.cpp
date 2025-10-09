@@ -33,7 +33,7 @@ namespace narc_engine
 
         if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("Failed to create instance!");
+            NARC_ERROR_RUNTIME("Failed to create instance!");
         }
     }
 
@@ -48,7 +48,7 @@ namespace narc_engine
         vkEnumerateInstanceVersion(&instanceVersion);
         if (instanceVersion < MINIMUM_VK_VERSION)
         {
-            NARCLOG_FATAL("Vulkan 1.1 is not supported by the instance.");
+            NARC_ERROR_RUNTIME("Vulkan 1.1 is not supported by the instance.");
         }
 
         return instanceVersion;
@@ -105,7 +105,7 @@ namespace narc_engine
             }
 
             if (!layerFound)
-                NARCLOG_WARNING("Validation layers requested, but not available!");
+                NARC_LOG_WARNING("Validation layers requested, but not available!");
         }
 
 #endif

@@ -1,34 +1,29 @@
 #include "render_graph/DrawCall.h"
 
-#include "platform/vulkan/CommandBuffer.h"
+#include "buffers/GraphicsBuffer.h"
 #include "models/Material.h"
 #include "models/PushConstants.h"
-#include "renderer/GraphicsPipeline.h"
+#include "platform/vulkan/CommandBuffer.h"
 #include "render_graph/contexts/RenderContext.h"
+#include "renderer/GraphicsPipeline.h"
 #include "resources/Mesh.h"
-#include "buffers/GraphicsBuffer.h"
 
-namespace narc_engine
-{
-    DrawCall::DrawCall(const Material* material, const GraphicsPipeline* pipeline)
-        : m_material(material), m_pipeline(pipeline), m_meshes()
-    {
-    }
+namespace narc_engine {
+    DrawCall::DrawCall(const Material* material, const GraphicsPipeline* pipeline) : m_material(material), m_pipeline(pipeline), m_meshes() {}
 
     void DrawCall::record(const CommandBuffer* cmd, const RenderContext* ctx)
     {
-        cmd->cmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS,
-            m_pipeline->getLayout(), 0, 1,
-            &ctx->FrameHandler->getDescriptorSet(m_material->getId()), 0, nullptr);
+        cmd->cmdBindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline->getLayout(), 0, 1,
+                                   &ctx->FrameHandlerPtr->getDescriptorSet(m_material->getId()), 0, nullptr);
 
         uint32_t drawCallIndex = 0;
-        for (const Mesh* mesh : m_meshes)
+        for (const Mesh* mesh: m_meshes)
         {
             PushConstants pushConstants{};
             pushConstants.objectIndex = drawCallIndex;
 
-            VkBuffer vertexBuffers[] = { mesh->getVertexBuffer()->getBuffer() };
-            VkDeviceSize offsets[] = { 0 };
+            VkBuffer vertexBuffers[] = {mesh->getVertexBuffer()->getBuffer()};
+            VkDeviceSize offsets[] = {0};
             cmd->cmdBindVertexBuffers(0, 1, vertexBuffers, offsets);
             cmd->cmdBindIndexBuffer(mesh->getIndexBuffer()->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
 

@@ -5,7 +5,7 @@ namespace narc_engine {
     {
         if (vkAllocateCommandBuffers(NARC_DEVICE_HANDLE, allocInfo, &m_commandBuffer) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to allocate command buffers!");
+            NARC_ERROR_RUNTIME("failed to allocate command buffers!");
         }
     }
 
@@ -13,7 +13,7 @@ namespace narc_engine {
     {
         if (vkResetCommandBuffer(m_commandBuffer, flags) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("Failed to reset command buffer!");
+            NARC_ERROR_RUNTIME("Failed to reset command buffer!");
         }
     }
 
@@ -21,7 +21,7 @@ namespace narc_engine {
     {
         if (vkBeginCommandBuffer(m_commandBuffer, &beginInfo) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("Failed to begin recording command buffer!");
+            NARC_ERROR_RUNTIME("Failed to begin recording command buffer!");
         }
     }
 
@@ -112,14 +112,14 @@ namespace narc_engine {
         {
             if (commandBuffer.m_allocated)
             {
-                NARCLOG_ERROR("Trying to allocate an already allocated command buffer!");
+                NARC_LOG_ERROR("Trying to allocate an already allocated command buffer!");
             }
         }
 
         std::vector<VkCommandBuffer> vkCommandBuffers(commandBuffers.size());
         if (vkAllocateCommandBuffers(NARC_DEVICE_HANDLE, allocInfo, vkCommandBuffers.data()) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("Failed to allocate command buffers!");
+            NARC_ERROR_RUNTIME("Failed to allocate command buffers!");
         }
 
         for (size_t i = 0; i < commandBuffers.size(); ++i)

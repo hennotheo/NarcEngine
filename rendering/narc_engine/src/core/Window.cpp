@@ -31,7 +31,7 @@ namespace narc_engine
 
         if (glfwCreateWindowSurface(m_engineInstance->get(), m_window, nullptr, &m_surface) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("Failed to create window surface!");
+            NARC_ERROR_RUNTIME("Failed to create window surface!");
         }
     }
 
@@ -138,7 +138,7 @@ namespace narc_engine
         }
         else if (result != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to present swap chain image!");
+            NARC_ERROR_RUNTIME("failed to present swap chain image!");
         }
     }
 
@@ -203,12 +203,12 @@ namespace narc_engine
             }
             else
             {
-                NARCLOG_DEBUG("Renderer already in the graph");
+                NARC_LOG_DEBUG("Renderer already in the graph");
             }
         }
         else
         {
-            NARCLOG_DEBUG("Renderer with the same material already exists in the graph");
+            NARC_LOG_DEBUG("Renderer with the same material already exists in the graph");
         }
 
         m_renderGraph->m_renderers.push_back(renderer);

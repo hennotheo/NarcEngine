@@ -39,7 +39,7 @@ namespace narc_engine {
 
         if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
         {
-            NARCLOG_FATAL("failed to acquire swap chain image!");
+            NARC_ERROR_RUNTIME("failed to acquire swap chain image!");
         }
 
         return result;
@@ -74,7 +74,7 @@ namespace narc_engine {
 
         if (width == 0 || height == 0)
         {
-            NARCLOG_FATAL("Window size is 0!");
+            NARC_ERROR_RUNTIME("Window size is 0!");
         }
 
         NARC_DEVICE->waitDeviceIdle();
@@ -109,7 +109,7 @@ namespace narc_engine {
 
             if (vkCreateFramebuffer(NARC_DEVICE_HANDLE, &framebufferInfo, nullptr, &m_swapChainFramebuffers[i]) != VK_SUCCESS)
             {
-                NARCLOG_FATAL("failed to create framebuffer!");
+                NARC_ERROR_RUNTIME("failed to create framebuffer!");
             }
         }
     }
@@ -161,7 +161,7 @@ namespace narc_engine {
 
         if (vkCreateSwapchainKHR(NARC_DEVICE_HANDLE, &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to create swap chain!");
+            NARC_ERROR_RUNTIME("failed to create swap chain!");
         }
 
         vkGetSwapchainImagesKHR(NARC_DEVICE_HANDLE, m_swapChain, &imageCount, nullptr);

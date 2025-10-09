@@ -24,7 +24,7 @@ namespace narc_engine
     {
         if (!glfwVulkanSupported())
         {
-            NARCLOG_FATAL("Vulkan is not supported by GLFW!");
+            NARC_ERROR_RUNTIME("Vulkan is not supported by GLFW!");
         }
     }
 
@@ -38,7 +38,7 @@ namespace narc_engine
 
         if (glfwCreateWindowSurface(context->getContextVulkan()->getVkInstance(), m_window, nullptr, &m_surface) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("Failed to create window surface!");
+            NARC_ERROR_RUNTIME("Failed to create window surface!");
         }
 
         if (m_swapChain != nullptr)

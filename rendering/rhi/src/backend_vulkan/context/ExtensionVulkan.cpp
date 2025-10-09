@@ -19,15 +19,15 @@ namespace narc_engine
         {
             // NARCLOG_PREPARE_HANDLER(NarcEngineCore);
             // NARC_EXECUTE_HANDLED(NarcEngineCore, NARCLOG_ERROR(pCallbackData->pMessage), pCallbackData);
-            NARCLOG_ERROR("{}", pCallbackData->pMessage);
+            NARC_LOG_ERROR("{}", pCallbackData->pMessage);
         }
         else if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
         {
-            NARCLOG_WARNING("{}", pCallbackData->pMessage);
+            NARC_LOG_WARNING("{}", pCallbackData->pMessage);
         }
         else
         {
-            NARCLOG_DEBUG("{}", pCallbackData->pMessage);
+            NARC_LOG_DEBUG("{}", pCallbackData->pMessage);
         }
 
         return VK_FALSE;
@@ -54,7 +54,7 @@ namespace narc_engine
     {
         if (isExtensionSupported(name) == RHI_FAILURE)
         {
-            NARCLOG_FATAL("Extension is not supported!");
+            NARC_ERROR_RUNTIME("Extension is not supported!");
         }
     }
 
@@ -86,7 +86,7 @@ namespace narc_engine
         const auto createDebugMessengerFunc = NARC_VK_GET_INSTANCE_PROC_ADDR(m_context->getVkInstance(), vkCreateDebugUtilsMessengerEXT);
         if (createDebugMessengerFunc == nullptr)
         {
-            NARCLOG_FATAL("Failed to get vkCreateDebugUtilsMessengerEXT function pointer!");
+            NARC_ERROR_RUNTIME("Failed to get vkCreateDebugUtilsMessengerEXT function pointer!");
         }
 
         createDebugMessengerFunc(m_context->getVkInstance(), &m_createInfo, nullptr, &m_debugMessenger);
@@ -97,7 +97,7 @@ namespace narc_engine
         const auto destroyDebugMessengerFunc = NARC_VK_GET_INSTANCE_PROC_ADDR(m_context->getVkInstance(), vkDestroyDebugUtilsMessengerEXT);
         if (destroyDebugMessengerFunc == nullptr)
         {
-            NARCLOG_FATAL("Failed to get vkDestroyDebugUtilsMessengerEXT function pointer!");
+            NARC_ERROR_RUNTIME("Failed to get vkDestroyDebugUtilsMessengerEXT function pointer!");
         }
 
         destroyDebugMessengerFunc(m_context->getVkInstance(), m_debugMessenger, nullptr);

@@ -34,30 +34,33 @@
 #include "interfaces/IInitialisable.h"
 #include "interfaces/ILoadable.h"
 
-#define DELETE_PTR_ARRAY(array) for (auto& ptr : array)\
-    {\
-        delete ptr;\
-        ptr = nullptr;\
+#define DELETE_PTR_ARRAY(array)                                                                                                                      \
+    for (auto& ptr : array)                                                                                                                          \
+    {                                                                                                                                                \
+        delete ptr;                                                                                                                                  \
+        ptr = nullptr;                                                                                                                               \
     }
 
-#define NARC_GUARD_WEAK(varName, weakPtr, errorMsg) \
-    const auto varName = (weakPtr).lock();          \
-    if (!(varName)) {                               \
-        NARCLOG_FATAL(errorMsg);                    \
+#define NARC_GUARD_WEAK(varName, weakPtr, errorMsg)                                                                                                  \
+    const auto varName = (weakPtr).lock();                                                                                                           \
+    if (!(varName))                                                                                                                                  \
+    {                                                                                                                                                \
+        NARC_ERROR_RUNTIME(errorMsg);                                                                                                                \
     }
 
-#define NARC_GUARD_RAW_PTR(ptr, errorMsg)           \
-    if (ptr == nullptr) {                           \
-        NARCLOG_FATAL(errorMsg);                    \
+#define NARC_GUARD_RAW_PTR(ptr, errorMsg)                                                                                                            \
+    if (ptr == nullptr)                                                                                                                              \
+    {                                                                                                                                                \
+        NARC_ERROR_RUNTIME(errorMsg);                                                                                                                \
     }
 
 #if defined(NARC_ENGINE_PLATFORM_WINDOWS)
-    #define NARC_DLL_EXPORT __declspec(dllexport)
-    #define NARC_DLL_IMPORT __declspec(dllimport)
+#define NARC_DLL_EXPORT __declspec(dllexport)
+#define NARC_DLL_IMPORT __declspec(dllimport)
 #elif defined(NARC_ENGINE_PLATFORM_LINUX)
-    #define NARC_DLL_EXPORT __attribute__((visibility("default")))
-    #define NARC_DLL_IMPORT __attribute__((visibility("default")))
+#define NARC_DLL_EXPORT __attribute__((visibility("default")))
+#define NARC_DLL_IMPORT __attribute__((visibility("default")))
 #else
-    #define NARC_DLL_EXPORT
-    #define NARC_DLL_IMPORT
+#define NARC_DLL_EXPORT
+#define NARC_DLL_IMPORT
 #endif

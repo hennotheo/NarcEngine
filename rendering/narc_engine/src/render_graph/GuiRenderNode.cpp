@@ -40,7 +40,7 @@ namespace narc_engine
             {
                 if (err != VK_SUCCESS)
                 {
-                    NARCLOG_FATAL(std::string("Vulkan Error: %d", err));
+                    NARC_ERROR_RUNTIME(std::string("Vulkan Error: %d", err));
                 }
             };
 

@@ -66,7 +66,7 @@ namespace narc_engine {
 
         if (vkCreateDescriptorSetLayout(NARC_DEVICE_HANDLE, &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to create descriptor set layout!");
+            NARC_ERROR_RUNTIME("failed to create descriptor set layout!");
         }
     }
 } // narc_engine

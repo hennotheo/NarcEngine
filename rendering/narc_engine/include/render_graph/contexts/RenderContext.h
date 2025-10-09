@@ -15,6 +15,6 @@ namespace narc_engine
         uint32_t RenderersCount;
 
 #pragma warning TODO: remove this temporary code, this is just for testing purposes
-        const FrameHandler* FrameHandler;
+        const FrameHandler* FrameHandlerPtr;
     };
 } // namespace narc_engine

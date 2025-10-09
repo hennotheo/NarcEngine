@@ -30,7 +30,7 @@ namespace narc_engine
 
         if (vkCreateBuffer(NARC_DEVICE_HANDLE, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
         {
-            NARCLOG_FATAL("failed to create buffer!");
+            NARC_ERROR_RUNTIME("failed to create buffer!");
         }
 
         VkMemoryRequirements memRequirements;
