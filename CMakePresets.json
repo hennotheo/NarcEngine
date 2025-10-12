@@ -34,8 +34,7 @@
         {
             "name": "dev-editor",
             "configurePreset": "dev",
-            "cleanFirst": false,
-            "jobs": 0
+            "cleanFirst": false
         },
         {
             "name": "release",

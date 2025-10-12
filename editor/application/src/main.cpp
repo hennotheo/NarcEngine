@@ -1,40 +1,29 @@
-#ifdef NARC_ENGINE_PLATFORM_WINDOWS
+#include <csignal>
+#include <cstdlib>
+#include <execinfo.h>
+#include <iostream>
+#include <unistd.h>
 
 #ifndef NARC_TEST_BUILD
-#include "Application.h"
 
-narc::Application* g_app = nullptr;
+#include <NarcLog.h>
+#include <Rhi.h>
 
-void engineRun()
+int main(int argc, char** argv)
 {
-    g_app = new narc::Application();
-    g_app->start();
+    spdlog::set_level(spdlog::level::debug);
+    narc_log::init_signal_handling();
 
-    NARCLOG_DEBUG("Engine initialized correctly.");
-
-    while (!g_app->shouldClose())
+    try
     {
-        g_app->appLoopBody();
+        narc_engine::VulkanInstance instance;
+        instance.init();
+        instance.shutdown();
+    }
+    catch (const std::exception& e)
+    {
+        NARC_LOG_ERROR("Exception caught: {}", e.what());
     }
 }
-
-void engineShutdown()
-{
-    g_app->stop();
-    delete g_app;
-}
-
-int main(int argc, char **argv)
-{
-    NARCLOG_INIT(engineShutdown);
-    
-    engineRun();
-    
-    engineShutdown();
-    narclog::destroyLogger();
-    return 0;
-}
-
-#endif
 
 #endif

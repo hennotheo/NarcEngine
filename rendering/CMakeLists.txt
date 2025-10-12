@@ -22,9 +22,8 @@ add_dependencies(NarcEngineDependencies
         NarcMath
         CompileShaderCommand)
 
-#-----------------
+#------------------
 #----- SOURCE -----
-#-----------------
+#------------------
 
 add_subdirectory(rhi)
-add_subdirectory(narc_engine)
