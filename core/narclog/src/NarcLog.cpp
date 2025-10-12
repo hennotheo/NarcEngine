@@ -3,105 +3,65 @@
 //
 #include "NarcLog.h"
 
-#include "Logger.h"
+#include <csignal>
+#include <execinfo.h>
 
-#include "exceptions/ErrorException.h"
-#include "exceptions/FatalException.h"
+namespace {
+    void display_backtrace() {
+        // Get void*'s for all entries on the stack
+        void *array[20];
+        const size_t size = backtrace(array, 20);
+        char **symbols = backtrace_symbols(array, static_cast<int>(size));
 
-#if !(defined(NARC_TEST_BUILD) && defined(NARCLOG_BUILD_DLL))
-#define ENABLE_TERMINATE
-#endif
-
-#ifdef NARC_ENGINE_PLATFORM_WINDOWS
-
-#include "platform/windows/WindowsLogger.h"
-#define CREATE_LOGGER new narclog::WindowsLogger
-
-#else
-#error Unsupported platform.
-
-#endif
-
-namespace narclog
-{
-    std::mutex loggingMutex;
-    std::mutex terminateMutex;
-    Logger* g_logger = nullptr;
-
-    void handleTerminate()
-    {
-        std::lock_guard<std::mutex> lock(terminateMutex);
-        if (g_logger == nullptr)
-        {
-            std::cout << "Logger not created." << std::endl;
-            return;
+        // Calculate total size needed for the output string
+        size_t total = 0;
+        for (size_t i = 0; i < size; ++i) {
+            total += strlen(symbols[i]) + 1;
         }
 
-        g_logger->onTerminate();
+        // Create a single string to hold the entire backtrace
+        std::string out;
+        out.reserve(total);
+        for (size_t i = 0; i < size; ++i) {
+            out.append("\n");
+            out.append(symbols[i]);
+        }
 
-        destroyLogger();
+        NARC_LOG_FATAL("Stack trace: {}", out);
 
-        std::abort();
+        free(symbols);
     }
 
-    void setSafeCloseCallback(std::function<void()> callback)
-    {
-        g_logger->setSafeCloseCallback(callback);
-    }
-
-    void createLogger()
-    {
-        if (g_logger != nullptr)
-        {
-            throw std::runtime_error("Logger already created.");
-        }
-
-        try
-        {
-            g_logger = CREATE_LOGGER();
-#ifdef ENABLE_TERMINATE
-            std::set_terminate(handleTerminate);
-#endif
-        }
-        catch (const std::exception& e)
-        {
-            throw std::runtime_error("Failed to create logger: " + std::string(e.what()));
+    void display_signal_log(int signal) {
+        switch (signal) {
+            case SIGINT:
+                NARC_LOG_FATAL("Caught SIGINT, terminating.");
+                break;
+            case SIGSEGV:
+                NARC_LOG_FATAL("Caught SIGSEGV, segmentation fault.");
+                break;
+            case SIGABRT:
+                NARC_LOG_FATAL("Caught SIGABRT, aborting.");
+                break;
+            default:
+                NARC_LOG_FATAL("Caught unknown signal {}, terminating.", signal);
+                break;
         }
     }
 
-    void destroyLogger()
-    {
-        if (g_logger == nullptr)
-        {
-            throw std::runtime_error("Logger already destroyed.");
-        }
+    void handle_signal(const int signal) {
+        display_signal_log(signal);
+        display_backtrace();
 
-        delete g_logger;
-        g_logger = nullptr;
+        std::exit(signal);
     }
+}
 
-    void logString(LogLevel level, const std::string& message)
-    {
-        std::lock_guard<std::mutex> lock(loggingMutex);
-
-        if (level == LogLevel::FATAL)
-        {
-            throw narclog::FatalException(message);
-        }
-
-        if (level == LogLevel::ERROR)
-        {
-            throw narclog::ErrorException(message);
-        }
-
-#if !defined(NARC_TEST_BUILD)
-        if (g_logger == nullptr)
-        {
-            std::cout << "Logger not created : " << message << std::endl;
-            throw std::runtime_error("Logger not created.");
-        }
-
-        g_logger->log(level, message);
-#endif
+namespace narc_log {
+    void init_signal_handling() {
+        std::signal(SIGSEGV, handle_signal);
+        std::signal(SIGABRT, handle_signal);
+        std::signal(SIGFPE, handle_signal);
+        std::signal(SIGINT, handle_signal);
     }
 }

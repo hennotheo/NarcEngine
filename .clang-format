@@ -4,47 +4,52 @@ BasedOnStyle: LLVM
 AccessModifierOffset: -4
 AlignConsecutiveAssignments: false
 AlignConsecutiveDeclarations: false
-AlignOperands: false
+AlignOperands: true
 AlignTrailingComments: false
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: false
+AlwaysBreakAfterDefinitionReturnType: false
 AlwaysBreakTemplateDeclarations: Yes
-BraceWrapping:
-  AfterCaseLabel: true
+BraceWrapping: 
+  AfterCaseLabel: false
   AfterClass: true
   AfterControlStatement: true
   AfterEnum: true
   AfterFunction: true
-  AfterNamespace: true
+  AfterNamespace: false
   AfterStruct: true
   AfterUnion: true
   AfterExternBlock: false
   BeforeCatch: true
   BeforeElse: true
-  BeforeLambdaBody: true
+  BeforeLambdaBody: false
   BeforeWhile: true
-  SplitEmptyFunction: true
-  SplitEmptyRecord: true
-  SplitEmptyNamespace: true
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
 BreakBeforeBraces: Custom
 BreakConstructorInitializers: AfterColon
 BreakConstructorInitializersBeforeComma: false
 ColumnLimit: 150
-ConstructorInitializerAllOnOneLineOrOnePerLine: false
-IncludeCategories:
-  - Regex: '^<.*'
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+ContinuationIndentWidth: 8
+IncludeCategories: 
+  - Regex: ^<.*
     Priority: 1
-  - Regex: '^".*'
+  - Regex: ^".*
     Priority: 2
-  - Regex: '.*'
+  - Regex: .*
     Priority: 3
-IncludeIsMainRegex: '([-_](test|unittest))?$'
-IndentCaseBlocks: true
+IncludeIsMainRegex: ([-_](test|unittest))?$
+IndentCaseLabels: true
 IndentWidth: 4
 InsertNewlineAtEOF: true
-MacroBlockBegin: ''
-MacroBlockEnd: ''
 MaxEmptyLinesToKeep: 2
 NamespaceIndentation: All
 PointerAlignment: Left
+SpaceAfterCStyleCast: true
+SpaceAfterTemplateKeyword: false
+SpaceBeforeRangeBasedForLoopColon: false
 SpaceInEmptyParentheses: false
 SpacesInAngles: false
 SpacesInConditionalStatement: false

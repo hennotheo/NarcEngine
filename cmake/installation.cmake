@@ -5,18 +5,18 @@ endif()
 
 set(CMAKE_INSTALL_MESSAGE LAZY)
 
-install(TARGETS
-        NarcEngineEditor
-        NarcEngine
-        NarcMath
-        NarcLog
-        NarcIO
-        RUNTIME DESTINATION /)
-install(DIRECTORY
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/shaders
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/textures
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/models
-        DESTINATION /)
+#install(TARGETS
+#        NarcEngineEditor
+#        NarcEngine
+#        NarcMath
+#        NarcLog
+#        NarcIO
+#        RUNTIME DESTINATION /)
+#install(DIRECTORY
+#        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/shaders
+#        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/textures
+#        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/models
+#        DESTINATION /)
 
 
 if (MINGW)
