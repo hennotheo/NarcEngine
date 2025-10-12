@@ -4,12 +4,13 @@
         {
             "name": "dev",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/build",
+            "binaryDir": "${sourceDir}/build/Debug",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_RULE_MESSAGES": "OFF",
                 "CMAKE_VERBOSE_MAKEFILE": "OFF",
-                "CMAKE_CXX_FLAGS": "-Wno-deprecated-declarations"
+                "CMAKE_CXX_FLAGS": "-Wno-deprecated-declarations",
+                "CMAKE_TOOLCHAIN_FILE":"generators/conan_toolchain.cmake"
             }
         },
         {

@@ -17,40 +17,6 @@ message(STATUS "Fetching dependencies...")
 
 set(FETCHCONTENT_FULLY_DISCONNECTED OFF CACHE BOOL "Permet à FetchContent de réutiliser un dépôt local")
 
-# --- GLM ---
-
-set(GLM_VERSION 1.0.1)
-
-find_package(glm ${GLM_VERSION} QUIET)
-if(glm_FOUND)
-    message(STATUS "GLM ${GLM_VERSION} found on system.")
-    add_library(glm_lib INTERFACE IMPORTED GLOBAL)
-    target_link_libraries(glm_lib INTERFACE glm::glm)
-else()
-    message(STATUS "GLM ${GLM_VERSION} not found, fetching from repository...")
-    FetchContent_Declare(
-        glm
-        GIT_REPOSITORY https://github.com/g-truc/glm.git
-        GIT_TAG ${GLM_VERSION}
-        SOURCE_DIR ${VENDOR_DIR}/glm
-        EXCLUDE_FROM_ALL
-    )
-    FetchContent_MakeAvailable(glm)
-
-    add_library(glm_lib INTERFACE IMPORTED GLOBAL)
-    target_include_directories(glm_lib INTERFACE ${VENDOR_DIR}/glm)
-
-endif()
-
-FetchContent_Declare(
-        spdlog
-        GIT_REPOSITORY https://github.com/gabime/spdlog.git
-        GIT_TAG v1.15.3
-        GIT_SHALLOW TRUE
-)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-FetchContent_MakeAvailable(spdlog)
-
 # --- VMA ---
 FetchContent_Declare(
         vma
