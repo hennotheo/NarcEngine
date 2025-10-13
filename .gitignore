@@ -8,6 +8,7 @@ cmake_*/
 .vscode/
 **/logs/**
 __cmake_systeminformation/
+CMakeUserPresets.json
 
 # Auto installed libraries
 vendors/**
