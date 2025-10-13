@@ -5,7 +5,11 @@
 #include "VulkanInstance.h"
 
 namespace narc_engine {
-    VulkanInstance::VulkanInstance() {  }
+    VulkanInstance::VulkanInstance(VulkanInstanceInfos creationInfos) :
+        m_creationInfos(std::move(creationInfos))
+    {
+
+    }
 
     VulkanInstance::~VulkanInstance() = default;
 
@@ -13,9 +17,9 @@ namespace narc_engine {
     {
         VkApplicationInfo appInfo;
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = "NarcEngine Editor";
+        appInfo.pApplicationName = m_creationInfos.ApplicationName.c_str();
         appInfo.applicationVersion = VK_MAKE_VERSION(0, 2, 0);
-        appInfo.pEngineName = "NarcEngine";
+        appInfo.pEngineName = m_creationInfos.EngineName.c_str();
         appInfo.engineVersion = VK_MAKE_VERSION(0, 2, 0);
         appInfo.apiVersion = VK_API_VERSION_1_3;
 
@@ -29,9 +33,11 @@ namespace narc_engine {
         createInfo.enabledExtensionCount = 0;
         createInfo.ppEnabledExtensionNames = nullptr;
 
-        vkCreateInstance(&createInfo, nullptr, &m_instance);
-        
-        NARC_LOG_DEBUG("Instance initialized.");
+        if (const VkResult creationResult = vkCreateInstance(&createInfo, nullptr, &m_instance);
+            creationResult != VK_SUCCESS)
+        {
+            NARC_ERROR_RUNTIME("CreateInstance failed!");
+        }
     }
 
     void VulkanInstance::shutdown() { vkDestroyInstance(m_instance, nullptr); }

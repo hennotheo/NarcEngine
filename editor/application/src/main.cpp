@@ -16,7 +16,11 @@ int main(int argc, char** argv)
 
     try
     {
-        narc_engine::VulkanInstance instance;
+        narc_engine::VulkanInstanceInfos instanceInfos;
+        instanceInfos.ApplicationName = "NarcEngine Editor";
+        instanceInfos.EngineName = "NarcEngine";
+
+        narc_engine::VulkanInstance instance(instanceInfos);
         instance.init();
         instance.shutdown();
     }
