@@ -5,11 +5,34 @@
 #include "VulkanInstance.h"
 
 namespace narc_engine {
-    VulkanInstance::VulkanInstance() { throw std::logic_error("Not implemented"); }
+    VulkanInstance::VulkanInstance() {  }
 
-    VulkanInstance::~VulkanInstance() { throw std::logic_error("Not implemented"); }
+    VulkanInstance::~VulkanInstance() = default;
 
-    void VulkanInstance::init() { throw std::logic_error("Not implemented"); }
+    void VulkanInstance::init()
+    {
+        VkApplicationInfo appInfo;
+        appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+        appInfo.pApplicationName = "NarcEngine Editor";
+        appInfo.applicationVersion = VK_MAKE_VERSION(0, 2, 0);
+        appInfo.pEngineName = "NarcEngine";
+        appInfo.engineVersion = VK_MAKE_VERSION(0, 2, 0);
+        appInfo.apiVersion = VK_API_VERSION_1_3;
 
-    void VulkanInstance::shutdown() { throw std::logic_error("Not implemented"); }
+        VkInstanceCreateInfo createInfo;
+        createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+        createInfo.pNext = nullptr;
+        createInfo.flags = 0;
+        createInfo.pApplicationInfo = &appInfo;
+        createInfo.enabledLayerCount = 0;
+        createInfo.ppEnabledLayerNames = nullptr;
+        createInfo.enabledExtensionCount = 0;
+        createInfo.ppEnabledExtensionNames = nullptr;
+
+        vkCreateInstance(&createInfo, nullptr, &m_instance);
+        
+        NARC_LOG_DEBUG("Instance initialized.");
+    }
+
+    void VulkanInstance::shutdown() { vkDestroyInstance(m_instance, nullptr); }
 } // namespace narc_engine

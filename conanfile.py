@@ -17,13 +17,14 @@ class NarcEngineConan(ConanFile):
         "vulkan-headers/1.3.243.0",
         "stb/cci.20240531",
         "tinyobjloader/2.0.0-rc10",
-        "imgui/1.92.2b"
+        "imgui/1.92.2b",
     )
 
     generators = ("CMakeDeps", "CMakeToolchain")
 
     tool_requires = (
         "ninja/1.11.1",
+        "shaderc/2025.3"
     )
 
     def configure(self):

@@ -16,5 +16,4 @@ narc_testable_link_library(NarcRHI PUBLIC
         NarcMath
         NarcEngineDependencies)
 narc_testable_link_library(NarcRHI PRIVATE
-        NarcEngineDependencies
         glfw)

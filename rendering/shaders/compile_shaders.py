@@ -1,9 +1,8 @@
 import subprocess
 import os
 
-
-def compile_shader(shader_path, output_path):
-    result = subprocess.run(['glslc', shader_path, '-o', output_path], capture_output=True, text=True)
+def compile_shader(shader_path, output_path, glslc_path):
+    result = subprocess.run([glslc_path, shader_path, '-o', output_path], capture_output=True, text=True)
     if result.returncode != 0:
         raise RuntimeError(f"Error compiling shader {shader_path}: {result.stderr}")
     else:
@@ -21,6 +20,8 @@ def find_files_with_extension(extension):
 
 def main():
     engine_bin_dir = os.getenv('ENGINE_BIN_DIR')
+    glslc_path = os.getenv('GLSLC_BIN')
+
     if engine_bin_dir is None:
         print("ENGINE_BIN_DIR environment variable not set. Please set it to the engine's binary directory.")
         return
@@ -38,7 +39,7 @@ def main():
         shaders[shader] = shader.replace('.vert', '_vert.spv')
 
     for shader_path, output_path in shaders.items():
-        compile_shader(shader_path, engine_bin_dir + output_path)
+        compile_shader(shader_path, engine_bin_dir + output_path, glslc_path)
 
 
 if __name__ == '__main__':

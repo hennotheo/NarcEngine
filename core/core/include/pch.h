@@ -11,6 +11,7 @@
 #include <cstring>
 #include <ctime>
 #include <exception>
+#include <expected>
 #include <filesystem>
 #include <fstream>
 #include <functional>

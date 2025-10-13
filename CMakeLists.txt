@@ -1,13 +1,23 @@
 cmake_minimum_required(VERSION 3.31)
 cmake_policy(VERSION 3.31)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(scripts/versionning.cmake)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "13.0")
+        message(FATAL_ERROR "GCC 13+ required for C++23. Current: ${CMAKE_CXX_COMPILER_VERSION}")
+    endif ()
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "16.0")
+        message(FATAL_ERROR "Clang 16+ required for C++23. Current: ${CMAKE_CXX_COMPILER_VERSION}")
+    endif ()
+endif ()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -std=c++23")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
