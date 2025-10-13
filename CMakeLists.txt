@@ -33,17 +33,11 @@ elseif (APPLE)
     message(FATAL_ERROR "Apple platform is not supported yet.")
 endif ()
 
-
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE})
-#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE})
-#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE})
-
 add_subdirectory(core/core)
 add_subdirectory(core/narc_math)
 
 
 add_subdirectory(core/narclog)
-return()
 add_subdirectory(core/narcio)
 
 add_subdirectory(rendering)

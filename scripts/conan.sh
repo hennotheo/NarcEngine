@@ -36,7 +36,7 @@ fi
 
 # build conan install command
 #CMD=(conan install . --output-folder "${OUT_DIR}" -s build_type="${BUILD_TYPE}")
-CMD=(conan install . -s build_type="${BUILD_TYPE}")
+CMD=(conan install . -s build_type="${BUILD_TYPE}" "${CONAN_ARGS[@]}" --build=missing)
 
 if [[ -n "${HOST_PROFILE}" ]]; then
   CMD+=(--profile:host "${HOST_PROFILE}")
