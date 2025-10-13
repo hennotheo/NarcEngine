@@ -81,7 +81,7 @@ namespace narc_io
 
                 vertex.tex = {attrib.texcoords[2 * index.texcoord_index + 0], 1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
 
-                if (!uniqueVertices.contains(vertex))
+                if (uniqueVertices.find(vertex) == uniqueVertices.end())
                 {
                     uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
                     vertices.push_back(vertex.pos);

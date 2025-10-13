@@ -1,59 +1,64 @@
 {
-    "version": 6,
-    "configurePresets": [
-        {
-            "name": "dev",
-            "generator": "Ninja",
-            "binaryDir": "${sourceDir}/build/Debug",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_CXX_FLAGS": "-Wno-deprecated-declarations",
-                "CMAKE_TOOLCHAIN_FILE":"generators/conan_toolchain.cmake"
-            }
-        },
-        {
-            "name": "release",
-            "generator": "Ninja",
-            "binaryDir": "${sourceDir}/build",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
-        },
-        {
-            "name": "dev_tests",
-            "inherits": "dev",
-            "binaryDir": "${sourceDir}/build_tests",
-            "cacheVariables": {
-                "ENABLE_TESTS": "ON",
-                "CMAKE_BUILD_TYPE": "Debug"
-            }
-        }
-    ],
-    "buildPresets": [
-        {
-            "name": "dev-editor",
-            "configurePreset": "dev",
-            "cleanFirst": false
-        },
-        {
-            "name": "release",
-            "configurePreset": "release",
-            "targets": [
-                "all"
-            ],
-            "cleanFirst": true
-        }
-    ],
-    "testPresets": [
-        {
-            "name": "tests",
-            "configurePreset": "dev_tests"
-        }
-    ],
-    "packagePresets": [
-        {
-            "name": "package",
-            "configurePreset": "release"
-        }
-    ]
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "dev",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/Debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_FLAGS": "-Wno-deprecated-declarations",
+        "CMAKE_TOOLCHAIN_FILE": "generators/conan_toolchain.cmake"
+      }
+    },
+    {
+      "name": "release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "dev_tests",
+      "inherits": "dev",
+      "binaryDir": "${sourceDir}/build_tests",
+      "cacheVariables": {
+        "ENABLE_TESTS": "ON",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "dev",
+      "configurePreset": "dev",
+      "cleanFirst": false
+    },
+    {
+      "name": "dev-clean",
+      "configurePreset": "dev",
+      "cleanFirst": true
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "targets": [
+        "all"
+      ],
+      "cleanFirst": true
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "tests",
+      "configurePreset": "dev_tests"
+    }
+  ],
+  "packagePresets": [
+    {
+      "name": "package",
+      "configurePreset": "release"
+    }
+  ]
 }
