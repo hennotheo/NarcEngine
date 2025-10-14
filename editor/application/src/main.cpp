@@ -16,13 +16,22 @@ int main(int argc, char** argv)
 
     try
     {
-        narc_engine::VulkanInstanceInfos instanceInfos;
-        instanceInfos.ApplicationName = "NarcEngine Editor";
-        instanceInfos.EngineName = "NarcEngine";
+        narc_engine::VulkanInstanceInfos instanceInfos{
+                .ApplicationName = "NarcEngine Editor",
+                .EngineName = "NarcEngine",
+        };
+        const auto instance = std::make_unique<narc_engine::VulkanInstance>(instanceInfos);
 
-        narc_engine::VulkanInstance instance(instanceInfos);
-        instance.init();
-        instance.shutdown();
+        narc_engine::VulkanDeviceCreationInfos deviceInfos{
+                .Instance = *instance
+        };
+        const auto device = std::make_unique<narc_engine::VulkanDevice>(deviceInfos);
+
+        instance->init();
+        device->init();
+
+        device->shutdown();
+        instance->shutdown();
     }
     catch (const std::exception& e)
     {

@@ -4,3 +4,4 @@
 
 #include "RhiCore.h"
 #include "VulkanInstance.h"
+#include "VulkanDevice.h"

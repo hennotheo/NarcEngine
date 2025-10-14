@@ -15,10 +15,12 @@ namespace narc_engine {
     class VulkanInstance final : public narc_core::IInitialisable
     {
     public:
-        explicit VulkanInstance(VulkanInstanceInfos  creationInfos);
+        explicit VulkanInstance(VulkanInstanceInfos creationInfos);
         ~VulkanInstance() override;
 
         NARC_IMPL_INITIALISABLE();
+
+        NARC_GETTER(VkInstance, getHandled, m_instance);
 
     private:
         VulkanInstanceInfos m_creationInfos;
