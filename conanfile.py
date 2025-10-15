@@ -33,5 +33,7 @@ class NarcEngineConan(ConanFile):
         self.options["glfw"].with_wayland = False  # Désactiver Wayland
         self.options["glfw"].with_x11 = True  # Garder X11 (nécessaire sur Linux)
 
+        self.options["di"].with_extensions = True  # Activer les extensions pour di
+
     def layout(self):
         cmake_layout(self)

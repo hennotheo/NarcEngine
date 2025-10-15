@@ -4,22 +4,25 @@
 
 #include "VulkanInstance.h"
 
-namespace narc_engine {
-    VulkanInstance::VulkanInstance(VulkanInstanceInfos creationInfos) :
-        m_creationInfos(std::move(creationInfos))
-    {
+#include <utility>
 
+namespace narc_engine {
+    VulkanInstance::VulkanInstance(std::weak_ptr<IVulkanInstanceConfigProvider> config) :
+        m_config(std::move(config))
+    {
     }
 
     VulkanInstance::~VulkanInstance() = default;
 
     void VulkanInstance::init()
     {
+        NARC_GUARD_WEAK(configPtr, m_config, "Failed to create VulkanInstanceInfos");
+
         VkApplicationInfo appInfo;
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = m_creationInfos.ApplicationName.c_str();
+        appInfo.pApplicationName = configPtr->getApplicationName().c_str();
         appInfo.applicationVersion = VK_MAKE_VERSION(0, 2, 0);
-        appInfo.pEngineName = m_creationInfos.EngineName.c_str();
+        appInfo.pEngineName = configPtr->getEngineName().c_str();
         appInfo.engineVersion = VK_MAKE_VERSION(0, 2, 0);
         appInfo.apiVersion = VK_API_VERSION_1_3;
 
@@ -38,6 +41,8 @@ namespace narc_engine {
         {
             NARC_ERROR_RUNTIME("CreateInstance failed!");
         }
+
+        NARC_LOG_DEBUG("Vulkan Instance created successfully for application: {}", configPtr->getApplicationName());
     }
 
     void VulkanInstance::shutdown() { vkDestroyInstance(m_instance, nullptr); }

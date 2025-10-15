@@ -3,19 +3,13 @@
 //
 
 #pragma once
+#include "config_provider/EngineConfigProvider.h"
 
 namespace narc_engine {
-
-    struct VulkanInstanceInfos
-    {
-        std::string ApplicationName;
-        std::string EngineName;
-    };
-
     class VulkanInstance final : public narc_core::IInitialisable
     {
     public:
-        explicit VulkanInstance(VulkanInstanceInfos creationInfos);
+        explicit VulkanInstance(std::weak_ptr<IVulkanInstanceConfigProvider> config);
         ~VulkanInstance() override;
 
         NARC_IMPL_INITIALISABLE();
@@ -23,9 +17,8 @@ namespace narc_engine {
         NARC_GETTER(VkInstance, getHandled, m_instance);
 
     private:
-        VulkanInstanceInfos m_creationInfos;
+        std::weak_ptr<IVulkanInstanceConfigProvider> m_config;
 
         VkInstance m_instance = VK_NULL_HANDLE;
     };
-
 } // namespace narc_engine

@@ -55,3 +55,5 @@
 #define NARC_DLL_IMPORT
 
 #endif
+
+namespace di = boost::di;

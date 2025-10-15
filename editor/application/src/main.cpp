@@ -1,9 +1,3 @@
-#include <csignal>
-#include <cstdlib>
-#include <execinfo.h>
-#include <iostream>
-#include <unistd.h>
-
 #ifndef NARC_TEST_BUILD
 
 #include <NarcLog.h>
@@ -14,18 +8,24 @@ int main(int argc, char** argv)
     spdlog::set_level(spdlog::level::debug);
     narc_log::init_signal_handling();
 
+    const auto injector = di::make_injector(
+            di::bind<narc_engine::IVulkanInstanceConfigProvider>.to<narc_engine::EngineConfigProvider>(),
+            di::bind<narc_engine::IVulkanDeviceConfigProvider>.to<narc_engine::EngineConfigProvider>()
+            );
+
     try
     {
-        narc_engine::VulkanInstanceInfos instanceInfos{
-                .ApplicationName = "NarcEngine Editor",
-                .EngineName = "NarcEngine",
-        };
-        const auto instance = std::make_unique<narc_engine::VulkanInstance>(instanceInfos);
+        {
+            const auto configProvider = injector.create<std::weak_ptr<narc_engine::EngineConfigProvider>>();
+            NARC_GUARD_WEAK(configProviderPtr, configProvider, "Failed to create VulkanInstanceInfos");
 
-        narc_engine::VulkanDeviceCreationInfos deviceInfos{
-                .Instance = *instance
-        };
-        const auto device = std::make_unique<narc_engine::VulkanDevice>(deviceInfos);
+            configProviderPtr->m_applicationName = "NarcEngine Editor";
+            configProviderPtr->m_engineName = "NarcEngine";
+        }
+
+
+        const auto instance = injector.create<std::shared_ptr<narc_engine::VulkanInstance>>();
+        const auto device = injector.create<std::shared_ptr<narc_engine::VulkanDevice>>();
 
         instance->init();
         device->init();

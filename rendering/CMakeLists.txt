@@ -7,7 +7,6 @@ add_subdirectory(shaders)
 find_package(Vulkan REQUIRED)
 
 find_package(vulkan-memory-allocator REQUIRED)
-find_package(di REQUIRED)
 find_package(VulkanHeaders REQUIRED)
 find_package(imgui REQUIRED)
 
@@ -16,7 +15,6 @@ target_include_directories(NarcEngineDependencies INTERFACE
         "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(NarcEngineDependencies INTERFACE
         Vulkan::Vulkan
-        di::di
         imgui::imgui
         vulkan-headers::vulkan-headers
         vulkan-memory-allocator::vulkan-memory-allocator)
