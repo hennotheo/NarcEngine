@@ -27,7 +27,7 @@ namespace narc_engine {
         VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
         VkDevice m_device = VK_NULL_HANDLE;
 
-        QUERY bool isDeviceSuitable(VkPhysicalDevice device);
+        NO_DISCARD bool isDeviceSuitable(VkPhysicalDevice device);
     };
 
 }

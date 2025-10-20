@@ -9,7 +9,7 @@
 #include "VulkanInstance.h"
 
 namespace narc_engine {
-    using QueryBestPhysicalDeviceError = std::string;
+    using QueryDeviceError = std::string;
 
     class PhysicalDeviceService
     {
@@ -17,8 +17,9 @@ namespace narc_engine {
         explicit PhysicalDeviceService(std::weak_ptr<VulkanInstance> instance);
         ~PhysicalDeviceService();
 
-        QUERY std::vector<VkPhysicalDevice> queryAllPhysicalDevices() const;
-        QUERY std::expected<VkPhysicalDevice, QueryBestPhysicalDeviceError> queryBestPhysicalDevices(std::vector<VkPhysicalDevice> devices, const PhysicalDeviceCriteria& criteria) const noexcept;
+        QUERY(std::vector<VkPhysicalDevice>, QueryDeviceError) queryAllPhysicalDevices() const;
+        QUERY(VkPhysicalDevice, QueryDeviceError) queryBestPhysicalDevices(std::vector<VkPhysicalDevice> devices,
+                                                                                    const PhysicalDeviceCriteria& criteria) const noexcept;
 
     private:
         std::weak_ptr<VulkanInstance> m_instance;

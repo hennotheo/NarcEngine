@@ -12,7 +12,7 @@ namespace narc_engine {
 
     PhysicalDeviceService::~PhysicalDeviceService() = default;
 
-    std::vector<VkPhysicalDevice> PhysicalDeviceService::queryAllPhysicalDevices() const
+    QUERY(std::vector<VkPhysicalDevice>, QueryDeviceError) PhysicalDeviceService::queryAllPhysicalDevices() const
     {
         NARC_GUARD_WEAK(instance, m_instance, "Failed to create PhysicalDeviceService");
 
@@ -30,12 +30,12 @@ namespace narc_engine {
         return devices;
     }
 
-    std::expected<VkPhysicalDevice, QueryBestPhysicalDeviceError> PhysicalDeviceService::queryBestPhysicalDevices(
+    QUERY(VkPhysicalDevice, QueryDeviceError) PhysicalDeviceService::queryBestPhysicalDevices(
             std::vector<VkPhysicalDevice> devices, const PhysicalDeviceCriteria& criteria) const noexcept
     {
         if (devices.empty())
         {
-            return std::unexpected(QueryBestPhysicalDeviceError{"No suitable GPU found."});
+            return std::unexpected(QueryDeviceError{"No suitable GPU found."});
         }
 
         return devices[0];

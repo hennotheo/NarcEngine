@@ -53,7 +53,12 @@ namespace narc_engine {
         NARC_GUARD_WEAK(deviceServivce, m_deviceService, "Failed to get PhysicalDeviceService");
 
         const auto devices = deviceServivce->queryAllPhysicalDevices();
-        const auto bestDeviceResult = deviceServivce->queryBestPhysicalDevices(devices, configPtr->getPhysicalDeviceCriteria());
+        if (!devices.has_value())
+        {
+            NARC_ERROR_RUNTIME("No suitable device found!");
+        }
+
+        const auto bestDeviceResult = deviceServivce->queryBestPhysicalDevices(devices.value(), configPtr->getPhysicalDeviceCriteria());
 
         if (!bestDeviceResult.has_value())
         {

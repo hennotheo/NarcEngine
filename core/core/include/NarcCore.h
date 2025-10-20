@@ -4,7 +4,9 @@
 
 #pragma once
 
-#define QUERY [[nodiscard]]
+#define NO_DISCARD [[nodiscard]]
+
+#define QUERY(result, error) NO_DISCARD std::expected<result, error>
 
 #define NARC_MUTABLE_THIS(type) const_cast<type*>(this)
 
