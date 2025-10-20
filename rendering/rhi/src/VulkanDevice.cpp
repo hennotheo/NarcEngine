@@ -9,30 +9,39 @@
 namespace narc_engine {
     struct QueueFamilyIndices
     {
-        uint32_t graphicsFamily;
+        std::optional<uint32_t> GraphicsFamily;
+        std::optional<uint32_t> PresentationFamily;
+
+        NARC_GETTER(bool, isComplete, GraphicsFamily.has_value() && PresentationFamily.has_value());
     };
 
-    QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice& device)
+    QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice& physicalDevice)
     {
         QueueFamilyIndices indices{};
 
         uint32_t queueFamilyCount = 0;
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
 
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
 
         int i = 0;
         for (const auto& queueFamily: queueFamilies)
         {
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
             {
-                indices.graphicsFamily = i;
+                indices.GraphicsFamily = i;
+            }
+
+            //TODO: Temporary Off-screen
+            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            {
+                indices.PresentationFamily = i;
             }
 
             i++;
         }
-        // Logic to find queue family indices to populate struct with
+
         return indices;
     }
 
@@ -59,20 +68,53 @@ namespace narc_engine {
         }
 
         const auto bestDeviceResult = deviceServivce->queryBestPhysicalDevices(devices.value(), configPtr->getPhysicalDeviceCriteria());
-
         if (!bestDeviceResult.has_value())
         {
             NARC_ERROR_RUNTIME("No suitable device found!");
         }
 
         m_physicalDevice = bestDeviceResult.value();
+        VkPhysicalDeviceProperties deviceProperties;
+        vkGetPhysicalDeviceProperties(m_physicalDevice, &deviceProperties);
+        NARC_LOG_DEBUG("Selected GPU: {}", deviceProperties.deviceName);
 
         NARC_GUARD_WEAK(instancePtr, m_instance, "Failed to create VulkanDevice");
+
+        const auto indices = findQueueFamilies(m_physicalDevice);
+        if (!indices.isComplete())
+        {
+            NARC_ERROR_RUNTIME("Failed to find required queue families!");
+        }
 
         VkDeviceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
         createInfo.enabledExtensionCount = 0;
         createInfo.enabledLayerCount = 0;
+
+        // create unique list of queue families to request
+        std::vector<uint32_t> uniqueQueueFamilies;
+        uniqueQueueFamilies.push_back(indices.GraphicsFamily.value());
+        if (indices.PresentationFamily.value() != indices.GraphicsFamily.value())
+            uniqueQueueFamilies.push_back(indices.PresentationFamily.value());
+
+        float queuePriority = 1.0f;
+        std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+        queueCreateInfos.reserve(uniqueQueueFamilies.size());
+        for (uint32_t family: uniqueQueueFamilies)
+        {
+            VkDeviceQueueCreateInfo queueCreateInfo{};
+            queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            queueCreateInfo.queueFamilyIndex = family;
+            queueCreateInfo.queueCount = 1;
+            queueCreateInfo.pQueuePriorities = &queuePriority;
+            queueCreateInfos.push_back(queueCreateInfo);
+        }
+
+        VkPhysicalDeviceFeatures deviceFeatures{};
+        createInfo.pQueueCreateInfos = queueCreateInfos.data();
+        createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+        createInfo.pEnabledFeatures = &deviceFeatures;
+
 
         if (vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device) != VK_SUCCESS)
         {
@@ -80,15 +122,19 @@ namespace narc_engine {
         }
 
         NARC_LOG_DEBUG("Vulkan Device created successfully!");
+
+        vkGetDeviceQueue(m_device, indices.GraphicsFamily.value(), 0, &m_graphicsQueue);
+        vkGetDeviceQueue(m_device, indices.PresentationFamily.value(), 0, &m_presentQueue);
     }
 
     void VulkanDevice::shutdown()
     {
         vkDestroyDevice(m_device, nullptr);
-    }
 
-    bool VulkanDevice::isDeviceSuitable(VkPhysicalDevice device)
-    {
-        return true;
+        m_presentQueue = VK_NULL_HANDLE;
+        m_graphicsQueue = VK_NULL_HANDLE;
+
+        m_device = VK_NULL_HANDLE;
+        m_physicalDevice = VK_NULL_HANDLE;
     }
 }
