@@ -67,34 +67,6 @@ namespace narc_engine {
 
         m_physicalDevice = bestDeviceResult.value();
 
-        // std::vector<VkPhysicalDevice> suitableDevices{};
-        // for (const auto device: devices)
-        // {
-        //     VkPhysicalDeviceProperties deviceProperties;
-        //     vkGetPhysicalDeviceProperties(device, &deviceProperties);
-        //
-        //     if (isDeviceSuitable(device))
-        //     {
-        //         suitableDevices.push_back(device);
-        //     }
-        // }
-        //
-        // if (suitableDevices.empty())
-        // {
-        //     NARC_ERROR_RUNTIME("Failed to find a suitable GPU!");
-        // }
-        //
-        // m_physicalDevice = suitableDevices[0];
-        // auto queueFamily = findQueueFamilies(m_physicalDevice);
-        //
-        // VkDeviceQueueCreateInfo queueCreateInfo{};
-        // queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        // queueCreateInfo.queueFamilyIndex = queueFamily.graphicsFamily;
-        // queueCreateInfo.queueCount = 1;
-        //
-        // float queuePriority = 1.0f;
-        // queueCreateInfo.pQueuePriorities = &queuePriority;
-
         NARC_GUARD_WEAK(instancePtr, m_instance, "Failed to create VulkanDevice");
 
         VkDeviceCreateInfo createInfo{};

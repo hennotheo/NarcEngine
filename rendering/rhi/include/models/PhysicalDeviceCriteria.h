@@ -7,5 +7,11 @@
 namespace narc_engine {
     struct PhysicalDeviceCriteria
     {
+        // Requirements
+        bool RequireGeometryShader{true};
+        bool RequireDiscreteGPU{true};
+
+        // Preferences
+        bool PreferDiscreteGPU{true};
     };
 } // namespace narc_engine
