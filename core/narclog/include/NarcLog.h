@@ -9,9 +9,9 @@
 
 #include "keywords/LogLevel.h"
 
-#define NARC_ERROR_LOGIC(...) throw narc_log::LogicError(narc_log::format(__VA_ARGS__));
-#define NARC_ERROR_RUNTIME(...) throw narc_log::RuntimeError(narc_log::format(__VA_ARGS__));
-#define NARC_ERROR_NOT_IMPLEMENTED(...) throw narc_log::NotImplementedError(narc_log::format(__VA_ARGS__));
+#define NARC_ERROR_LOGIC(...) throw narc_log::LogicError(narc_log::format(__VA_ARGS__))
+#define NARC_ERROR_RUNTIME(...) throw narc_log::RuntimeError(narc_log::format(__VA_ARGS__))
+#define NARC_ERROR_NOT_IMPLEMENTED(...) throw narc_log::NotImplementedError(narc_log::format(__VA_ARGS__))
 
 #define NARC_LOG_DEBUG(...) narc_log::log(DEBUG, __VA_ARGS__)
 #define NARC_LOG_INFO(...) narc_log::log(INFO, __VA_ARGS__)

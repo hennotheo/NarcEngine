@@ -5,12 +5,13 @@
 #pragma once
 
 namespace narc_engine {
+    struct PhysicalDeviceCriteria;
+
     class IVulkanDeviceConfigProvider
     {
     public:
         virtual ~IVulkanDeviceConfigProvider() = default;
 
-        NARC_PURE_VIRTUAL_GETTER(VkPhysicalDevice, getPreferredPhysicalDevice);
-        NARC_PURE_VIRTUAL_GETTER(VkPhysicalDevice, getPreferredPhysicalDevice);
+        NARC_PURE_VIRTUAL_GETTER(const PhysicalDeviceCriteria&, getPhysicalDeviceCriteria);
     };
 }

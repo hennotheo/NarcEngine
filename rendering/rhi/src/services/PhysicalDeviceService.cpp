@@ -31,8 +31,13 @@ namespace narc_engine {
     }
 
     std::expected<VkPhysicalDevice, QueryBestPhysicalDeviceError> PhysicalDeviceService::queryBestPhysicalDevices(
-            std::vector<VkPhysicalDevice> devices) const noexcept
+            std::vector<VkPhysicalDevice> devices, const PhysicalDeviceCriteria& criteria) const noexcept
     {
-        return std::unexpected(QueryBestPhysicalDeviceError{"No suitable GPU found."});
+        if (devices.empty())
+        {
+            return std::unexpected(QueryBestPhysicalDeviceError{"No suitable GPU found."});
+        }
+
+        return devices[0];
     }
 } // narc_engine

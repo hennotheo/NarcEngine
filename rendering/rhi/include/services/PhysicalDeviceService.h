@@ -3,6 +3,9 @@
 //
 
 #pragma once
+
+#include "models/PhysicalDeviceCriteria.h"
+
 #include "VulkanInstance.h"
 
 namespace narc_engine {
@@ -15,7 +18,7 @@ namespace narc_engine {
         ~PhysicalDeviceService();
 
         QUERY std::vector<VkPhysicalDevice> queryAllPhysicalDevices() const;
-        QUERY std::expected<VkPhysicalDevice, QueryBestPhysicalDeviceError> queryBestPhysicalDevices(std::vector<VkPhysicalDevice> devices) const noexcept;
+        QUERY std::expected<VkPhysicalDevice, QueryBestPhysicalDeviceError> queryBestPhysicalDevices(std::vector<VkPhysicalDevice> devices, const PhysicalDeviceCriteria& criteria) const noexcept;
 
     private:
         std::weak_ptr<VulkanInstance> m_instance;

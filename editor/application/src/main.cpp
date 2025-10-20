@@ -21,6 +21,7 @@ int main(int argc, char** argv)
 
             configProviderPtr->m_applicationName = "NarcEngine Editor";
             configProviderPtr->m_engineName = "NarcEngine";
+            configProviderPtr->m_physicalDeviceCriteria = narc_engine::PhysicalDeviceCriteria{};
         }
 
 
