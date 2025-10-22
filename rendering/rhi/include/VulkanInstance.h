@@ -3,10 +3,11 @@
 //
 
 #pragma once
+
 #include "config_provider/EngineConfigProvider.h"
 
 namespace narc_engine {
-    class VulkanInstance final : public narc_core::IInitialisable
+    class VulkanInstance final : public narc_core::IInitialisable, public std::enable_shared_from_this<VulkanInstance>
     {
     public:
         explicit VulkanInstance(std::weak_ptr<IVulkanInstanceConfigProvider> config);
@@ -20,5 +21,7 @@ namespace narc_engine {
         std::weak_ptr<IVulkanInstanceConfigProvider> m_config;
 
         VkInstance m_instance = VK_NULL_HANDLE;
+
+        VkDebugUtilsMessengerEXT m_debugMessenger = VK_NULL_HANDLE;
     };
 } // namespace narc_engine

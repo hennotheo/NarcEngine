@@ -6,7 +6,7 @@
 
 namespace narc_core {
 #define NARC_IMPL_INITIALISABLE()                                                                                                                    \
-    void init() override;                                                                                                                            \
+    void init() override;                                                                                                                  \
     void shutdown() override
 
     class IInitialisable

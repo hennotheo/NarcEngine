@@ -5,6 +5,7 @@
 #pragma once
 
 #define NO_DISCARD [[nodiscard]]
+#define NO_RETURN [[noreturn]]
 
 #define QUERY(result, error) NO_DISCARD std::expected<result, error>
 
