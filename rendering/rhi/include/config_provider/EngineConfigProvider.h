@@ -24,6 +24,6 @@ namespace narc_engine {
 
         std::string m_applicationName;
         std::string m_engineName;
-        PhysicalDeviceCriteria m_physicalDeviceCriteria{};
+        PhysicalDeviceCriteria m_physicalDeviceCriteria;
     };
 } // narc_engine

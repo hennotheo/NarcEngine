@@ -12,16 +12,16 @@ namespace narc_engine {
 
     PhysicalDeviceService::~PhysicalDeviceService() = default;
 
-    QUERY(std::vector<VkPhysicalDevice>, QueryDeviceError) PhysicalDeviceService::queryAllPhysicalDevices() const
+    QUERY(std::vector<VkPhysicalDevice>, QueryDeviceError) PhysicalDeviceService::queryAllPhysicalDevices() const noexcept
     {
-        NARC_GUARD_WEAK(instance, m_instance, "Failed to create PhysicalDeviceService");
+        NARC_GUARD_WEAK_UNEXPECTED(instance, m_instance, "Failed to create PhysicalDeviceService");
 
         uint32_t deviceCount = 0;
         vkEnumeratePhysicalDevices(instance->getHandled(), &deviceCount, nullptr);
 
         if (deviceCount == 0)
         {
-            NARC_ERROR_RUNTIME("Failed to find GPUs with Vulkan support!");
+            std::unexpected(QueryDeviceError{"Failed to find GPUs with Vulkan support!"});
         }
 
         std::vector<VkPhysicalDevice> devices(deviceCount);

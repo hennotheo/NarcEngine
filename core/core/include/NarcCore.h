@@ -44,6 +44,13 @@
         NARC_ERROR_RUNTIME(errorMsg);                                                                                                                \
     }
 
+#define NARC_GUARD_WEAK_UNEXPECTED(varName, weakPtr, errorMsg)                                                                                       \
+    const auto varName = (weakPtr).lock();                                                                                                           \
+    if (!(varName))                                                                                                                                  \
+    {                                                                                                                                                \
+        std::unexpected(QueryDeviceError{errorMsg});                                                                                                 \
+    }
+
 #if defined(NARC_ENGINE_PLATFORM_WINDOWS)
 #define NARC_DLL_EXPORT __declspec(dllexport)
 #define NARC_DLL_IMPORT __declspec(dllimport)

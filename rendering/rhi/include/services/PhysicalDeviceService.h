@@ -17,7 +17,7 @@ namespace narc_engine {
         explicit PhysicalDeviceService(std::weak_ptr<VulkanInstance> instance);
         ~PhysicalDeviceService();
 
-        QUERY(std::vector<VkPhysicalDevice>, QueryDeviceError) queryAllPhysicalDevices() const;
+        QUERY(std::vector<VkPhysicalDevice>, QueryDeviceError) queryAllPhysicalDevices() const noexcept;
         QUERY(VkPhysicalDevice, QueryDeviceError) queryBestPhysicalDevices(std::vector<VkPhysicalDevice> devices,
                                                                            const PhysicalDeviceCriteria& criteria) const noexcept;
 
