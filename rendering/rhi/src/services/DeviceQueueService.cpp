@@ -27,7 +27,7 @@ namespace narc_engine {
                 indices.GraphicsFamily = i;
             }
 
-            //TODO: Temporary Off-screen
+            // TODO: Temporary Off-screen
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
             {
                 indices.PresentationFamily = i;
@@ -50,4 +50,17 @@ namespace narc_engine {
 
         return uniqueQueueFamilies;
     }
-} // narc_engine
+
+    void DeviceQueueService::fillQueues(const std::weak_ptr<VulkanDevice>& device, const QueueFamilyIndices& queueFamilyIndices,
+                                        VulkanQueue& graphicsQueue, VulkanQueue& presentQueue) const
+    {
+        presentQueue.setDevice(device);
+        graphicsQueue.setDevice(device);
+
+        presentQueue.setQueueIndex(0);
+        graphicsQueue.setQueueIndex(0);
+
+        presentQueue.setQueueFamilyIndex(queueFamilyIndices.PresentationFamily.value_or(QUEUE_INDEX_NONE));
+        graphicsQueue.setQueueFamilyIndex(queueFamilyIndices.GraphicsFamily.value_or(QUEUE_INDEX_NONE));
+    }
+} // namespace narc_engine

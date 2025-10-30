@@ -6,6 +6,7 @@ build*/
 cmake_*/
 .idea/
 .vscode/
+.venv/
 **/logs/**
 __cmake_systeminformation/
 CMakeUserPresets.json

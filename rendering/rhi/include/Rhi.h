@@ -8,6 +8,7 @@
 #include "RhiCore.h"
 #include "VulkanInstance.h"
 #include "VulkanDevice.h"
+#include "VulkanQueue.h"
 
 #include "config_provider/EngineConfigProvider.h"
 

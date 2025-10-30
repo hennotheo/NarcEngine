@@ -5,6 +5,7 @@
 #include "VulkanDevice.h"
 
 #include "VulkanInstance.h"
+#include "VulkanQueue.h"
 
 namespace narc_engine {
     VulkanDevice::VulkanDevice(std::weak_ptr<IVulkanDeviceConfigProvider> config, std::weak_ptr<PhysicalDeviceService> deviceService,
@@ -13,8 +14,7 @@ namespace narc_engine {
         m_instance(std::move(instance)),
         m_deviceService(std::move(deviceService)),
         m_queueService(std::move(queueService))
-    {
-    }
+    {}
 
     VulkanDevice::~VulkanDevice() = default;
 
@@ -25,18 +25,22 @@ namespace narc_engine {
 
         createDevice();
 
-        NARC_LOG_DEBUG("Vulkan Device created successfully!");
+        NARC_GUARD_WEAK(queueService, m_queueService, "Queue Service doesn't exist.")
 
-        vkGetDeviceQueue(m_device, m_queueFamilyIndices.GraphicsFamily.value(), 0, &m_graphicsQueue);
-        vkGetDeviceQueue(m_device, m_queueFamilyIndices.PresentationFamily.value(), 0, &m_presentQueue);
+        queueService->fillQueues(shared_from_this(), m_queueFamilyIndices, m_graphicsQueue, m_presentQueue);
+
+        m_graphicsQueue.init();
+        m_presentQueue.init();
+
+        NARC_LOG_DEBUG("Vulkan Device created successfully!");
     }
 
     void VulkanDevice::shutdown()
     {
-        vkDestroyDevice(m_device, nullptr);
+        m_presentQueue.shutdown();
+        m_graphicsQueue.shutdown();
 
-        m_presentQueue = VK_NULL_HANDLE;
-        m_graphicsQueue = VK_NULL_HANDLE;
+        vkDestroyDevice(m_device, nullptr);
 
         m_device = VK_NULL_HANDLE;
         m_physicalDevice = VK_NULL_HANDLE;
@@ -113,4 +117,4 @@ namespace narc_engine {
             NARC_ERROR_RUNTIME("Failed to create logical device!");
         }
     }
-}
+} // namespace narc_engine

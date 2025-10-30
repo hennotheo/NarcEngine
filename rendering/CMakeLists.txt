@@ -6,7 +6,7 @@ add_subdirectory(shaders)
 
 find_package(Vulkan REQUIRED)
 
-find_package(vulkan-memory-allocator REQUIRED)
+find_package(VulkanMemoryAllocator  REQUIRED)
 find_package(VulkanHeaders REQUIRED)
 find_package(imgui REQUIRED)
 
@@ -17,7 +17,7 @@ target_link_libraries(NarcEngineDependencies INTERFACE
         Vulkan::Vulkan
         imgui::imgui
         vulkan-headers::vulkan-headers
-        vulkan-memory-allocator::vulkan-memory-allocator)
+        GPUOpen::VulkanMemoryAllocator)
 target_precompile_headers(NarcEngineDependencies INTERFACE "rhi/include/pch.h")
 
 add_dependencies(NarcEngineDependencies
