@@ -19,7 +19,7 @@ namespace narc_engine {
     void VulkanInstance::init()
     {
         NARC_GUARD_WEAK(configPtr, m_config, "Failed to create VulkanInstanceInfos");
-        
+
         m_extensions.emplace_back(std::make_unique<VulkanValidationLogger>(shared_from_this()));
         m_extensions.emplace_back(std::make_unique<VulkanGlfwExtension>());
 
@@ -38,19 +38,20 @@ namespace narc_engine {
                 "VK_LAYER_KHRONOS_validation"
         };
 
-        VkApplicationInfo appInfo;
-        appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = configPtr->getApplicationName().c_str();
-        appInfo.applicationVersion = VK_MAKE_VERSION(0, 2, 0);
-        appInfo.pEngineName = configPtr->getEngineName().c_str();
-        appInfo.engineVersion = VK_MAKE_VERSION(0, 2, 0);
-        appInfo.apiVersion = VK_API_VERSION_1_3;
-        appInfo.pNext = nullptr;
+        m_appInfo = {
+                .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+                .pNext = nullptr,
+                .pApplicationName = configPtr->getApplicationName().c_str(),
+                .applicationVersion = VK_MAKE_VERSION(0, 2, 0),
+                .pEngineName = configPtr->getEngineName().c_str(),
+                .engineVersion = VK_MAKE_VERSION(0, 2, 0),
+                .apiVersion = VK_API_VERSION_1_3
+        };
 
         VkInstanceCreateInfo createInfo;
         createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         createInfo.flags = 0;
-        createInfo.pApplicationInfo = &appInfo;
+        createInfo.pApplicationInfo = &m_appInfo;
         createInfo.enabledLayerCount = layerNames.size();
         createInfo.ppEnabledLayerNames = layerNames.data();
         createInfo.enabledExtensionCount = deviceExtensionNames.size();
@@ -71,7 +72,7 @@ namespace narc_engine {
     void VulkanInstance::shutdown()
     {
         //Shutdown Extensions
-        
+
         vkDestroyInstance(m_instance, nullptr);
 
         m_extensions.clear();

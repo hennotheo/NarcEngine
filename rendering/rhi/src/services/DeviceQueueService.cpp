@@ -4,13 +4,22 @@
 
 #include "services/DeviceQueueService.h"
 
+#include "IVulkanSurface.h"
+
 namespace narc_engine {
-    DeviceQueueService::DeviceQueueService() = default;
+    DeviceQueueService::DeviceQueueService(std::weak_ptr<IVulkanSurfacesManager> surfacesManager) :
+        m_surfacesManager(std::move(surfacesManager))
+    {
+
+    }
 
     DeviceQueueService::~DeviceQueueService() = default;
 
     QUERY(QueueFamilyIndices, QueryQueueError) DeviceQueueService::queryQueueFamilyIndices(const VkPhysicalDevice& physicalDevice) const
     {
+        NARC_GUARD_WEAK(surfacesManager, m_surfacesManager, "Failed to create DeviceQueueService");
+        const auto* surface = surfacesManager->getMainSurface();
+
         QueueFamilyIndices indices{};
 
         uint32_t queueFamilyCount = 0;
@@ -19,7 +28,7 @@ namespace narc_engine {
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
 
-        int i = 0;
+        uint32_t i = 0;
         for (const auto& queueFamily: queueFamilies)
         {
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
@@ -27,16 +36,41 @@ namespace narc_engine {
                 indices.GraphicsFamily = i;
             }
 
-            // TODO: Temporary Off-screen
-            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            if (queueFamilyIndexSupportPresentation(surface, physicalDevice, i))
             {
                 indices.PresentationFamily = i;
             }
+
+            // // TODO: Temporary Off-screen
+            // if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            // {
+            //     indices.PresentationFamily = i;
+            // }
 
             i++;
         }
 
         return indices;
+    }
+
+    bool DeviceQueueService::queueFamilyIndexSupportPresentation(const IVulkanSurface* surface, const VkPhysicalDevice& physicalDevice,
+                                                                 const uint32_t queueFamilyIndex) const
+    {
+        if (surface == nullptr || physicalDevice == nullptr)
+        {
+            return false;
+        }
+        
+        const auto surfacePtr = surface->getHandled();
+        if (surfacePtr == nullptr)
+        {
+            return false;
+        }
+
+        VkBool32 presentSupport = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, surfacePtr, &presentSupport); //TODO: CHANGE NULLTPR
+
+        return presentSupport;
     }
 
     std::vector<QueueFamilyIndex> DeviceQueueService::getUniqueIndices(const QueueFamilyIndices& queueFamilyIndices) const

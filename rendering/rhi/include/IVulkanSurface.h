@@ -7,13 +7,24 @@
 namespace narc_engine {
     class VulkanInstance;
 
-    class IIVulkanSurface : public narc_core::IInitialisable
+    class IVulkanSurface : public narc_core::IInitialisable
     {
-    protected:
-        ~IIVulkanSurface() override = default;
-
     public:
-        NARC_PURE_VIRTUAL_GETTER(VkSurfaceKHR, getSurface);
-        NARC_PURE_VIRTUAL_GETTER(bool, shouldClose);
+        ~IVulkanSurface() override = default;
+
+        NARC_PURE_VIRTUAL_GETTER(VkSurfaceKHR, getHandled);
+        NARC_PURE_VIRTUAL_GETTER(bool, shouldClose); //TODO: Create IWindow later
+    };
+
+    class IVulkanSurfacesManager : public narc_core::IInitialisable
+    {
+    public:
+        ~IVulkanSurfacesManager() override = default;
+
+        NARC_PURE_VIRTUAL_GETTER(const IVulkanSurface*, getMainSurface);
+
+        virtual void updateSurfaces() = 0;
+        
+        virtual void pushSurface(std::unique_ptr<IVulkanSurface> surface) = 0;
     };
 } // narc_engine

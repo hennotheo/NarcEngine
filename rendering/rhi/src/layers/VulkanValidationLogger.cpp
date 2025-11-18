@@ -58,7 +58,11 @@ namespace narc_engine {
 
     void VulkanValidationLogger::init()
     {
-        createVulkanUtilsMessenger(&m_debugUtilsMessengerCreateInfo, nullptr);
+        if (const auto result = createVulkanUtilsMessenger(&m_debugUtilsMessengerCreateInfo, nullptr);
+            result != VK_SUCCESS)
+        {
+            NARC_LOG_FATAL("Can't create Utils Messenger");
+        }
     }
 
     void VulkanValidationLogger::shutdown()
@@ -72,8 +76,7 @@ namespace narc_engine {
         NARC_GUARD_WEAK(instancePtr, m_instance, "Failed to create VulkanValidationLogger");
 
         const auto instance = instancePtr->getHandled();
-        auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-        if (func != nullptr)
+        if (const auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"); func != nullptr)
         {
             return func(instance, createInfos, allocator, &m_debugUtilsMessenger);
         }

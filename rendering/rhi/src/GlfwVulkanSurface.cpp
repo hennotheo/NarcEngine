@@ -25,7 +25,7 @@ namespace narc_engine {
 
         glfwInit();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        m_window = glfwCreateWindow(640, 480, "Window Title", NULL, NULL);
+        m_window = glfwCreateWindow(640, 480, instance->getAppInfos().pApplicationName, NULL, NULL);
 
         const auto err = glfwCreateWindowSurface(instance->getHandled(), m_window, nullptr, &m_surface);
         if (err != VK_SUCCESS)

@@ -12,7 +12,6 @@ namespace narc_core {
     class IInitialisable
     {
     public:
-        IInitialisable() noexcept = default;
         virtual ~IInitialisable() noexcept = default;
 
         virtual void init() = 0;

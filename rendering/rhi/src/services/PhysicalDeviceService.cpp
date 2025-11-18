@@ -5,6 +5,7 @@
 #include "services/PhysicalDeviceService.h"
 
 namespace narc_engine {
+
     PhysicalDeviceService::PhysicalDeviceService(std::weak_ptr<VulkanInstance> instance) :
         m_instance(std::move(instance))
     {

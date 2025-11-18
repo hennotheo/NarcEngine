@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "IVulkanSurface.h"
 #include "models/PhysicalDeviceCriteria.h"
 
 #include "VulkanInstance.h"

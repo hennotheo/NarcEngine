@@ -17,12 +17,14 @@ namespace narc_engine {
         NARC_IMPL_INITIALISABLE();
 
         NARC_GETTER(VkInstance, getHandled, m_instance);
+        NARC_GETTER(VkApplicationInfo, getAppInfos, m_appInfo);
 
     private:
         std::weak_ptr<IVulkanInstanceConfigProvider> m_config;
 
+        VkApplicationInfo m_appInfo{};
         VkInstance m_instance = VK_NULL_HANDLE;
-
+        
         VkDebugUtilsMessengerEXT m_debugMessenger = VK_NULL_HANDLE;
 
         std::vector<std::unique_ptr<IVulkanExtension>> m_extensions;

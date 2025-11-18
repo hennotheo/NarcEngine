@@ -11,15 +11,15 @@ class GLFWwindow;
 namespace narc_engine {
     class VulkanInstance;
 
-    class GlfwVulkanSurface final : public IIVulkanSurface
+    class GlfwVulkanSurface final : public IVulkanSurface
     {
     public:
         explicit GlfwVulkanSurface(std::weak_ptr<VulkanInstance> instance);
         ~GlfwVulkanSurface() override = default;
 
         NARC_IMPL_INITIALISABLE();
-        
-        NARC_OVERRIDE_GETTER(VkSurfaceKHR, getSurface, m_surface);
+
+        NARC_OVERRIDE_GETTER(VkSurfaceKHR, getHandled, m_surface);
         NO_DISCARD bool shouldClose() const noexcept override;
 
     private:
