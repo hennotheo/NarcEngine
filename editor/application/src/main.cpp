@@ -3,6 +3,8 @@
 #include <NarcLog.h>
 #include <Rhi.h>
 
+#include "../../../../../.conan2/p/b/glfwa6e2adfa5e8b8/p/include/GLFW/glfw3.h"
+
 int main(int argc, char** argv)
 {
     spdlog::set_level(spdlog::level::debug);
@@ -10,7 +12,8 @@ int main(int argc, char** argv)
 
     const auto injector = di::make_injector(
             di::bind<narc_engine::IVulkanInstanceConfigProvider>.to<narc_engine::EngineConfigProvider>(),
-            di::bind<narc_engine::IVulkanDeviceConfigProvider>.to<narc_engine::EngineConfigProvider>()
+            di::bind<narc_engine::IVulkanDeviceConfigProvider>.to<narc_engine::EngineConfigProvider>(),
+            di::bind<narc_engine::IIVulkanSurface>.to<narc_engine::GlfwVulkanSurface>()
             );
 
     try
@@ -27,10 +30,18 @@ int main(int argc, char** argv)
 
         const auto instance = injector.create<std::shared_ptr<narc_engine::VulkanInstance>>();
         const auto device = injector.create<std::shared_ptr<narc_engine::VulkanDevice>>();
+        const auto window = injector.create<std::shared_ptr<narc_engine::IIVulkanSurface>>();
 
         instance->init();
         device->init();
+        window->init();
 
+        while (!window->shouldClose())
+        {
+            glfwPollEvents();
+        }
+
+        window->shutdown();
         device->shutdown();
         instance->shutdown();
     }

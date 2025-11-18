@@ -9,6 +9,7 @@
 #include "VulkanInstance.h"
 #include "VulkanDevice.h"
 #include "VulkanQueue.h"
+#include "GlfwVulkanSurface.h"
 
 #include "config_provider/EngineConfigProvider.h"
 

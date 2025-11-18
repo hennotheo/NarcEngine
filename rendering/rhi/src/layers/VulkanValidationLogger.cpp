@@ -4,6 +4,8 @@
 
 #include "layers/VulkanValidationLogger.h"
 
+#include <utility>
+
 namespace narc_engine {
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback( //TODO: TEMP
             VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -37,7 +39,7 @@ namespace narc_engine {
     }
 
     VulkanValidationLogger::VulkanValidationLogger(std::weak_ptr<VulkanInstance> instance) :
-        IVulkanExtension(instance)
+        m_instance(std::move(instance))
     {
         m_debugUtilsMessengerCreateInfo = {
                 .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,

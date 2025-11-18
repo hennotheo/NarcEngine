@@ -1,0 +1,31 @@
+//
+// Created by theohenno on 11/18/25.
+//
+
+#pragma once
+
+#include "IVulkanSurface.h"
+
+class GLFWwindow;
+
+namespace narc_engine {
+    class VulkanInstance;
+
+    class GlfwVulkanSurface final : public IIVulkanSurface
+    {
+    public:
+        explicit GlfwVulkanSurface(std::weak_ptr<VulkanInstance> instance);
+        ~GlfwVulkanSurface() override = default;
+
+        NARC_IMPL_INITIALISABLE();
+        
+        NARC_OVERRIDE_GETTER(VkSurfaceKHR, getSurface, m_surface);
+        NO_DISCARD bool shouldClose() const noexcept override;
+
+    private:
+        std::weak_ptr<VulkanInstance> m_instance;
+
+        VkSurfaceKHR m_surface = VK_NULL_HANDLE;
+        GLFWwindow* m_window = nullptr;
+    };
+} // narc_engine

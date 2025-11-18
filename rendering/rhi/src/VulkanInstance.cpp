@@ -4,6 +4,8 @@
 
 #include "VulkanInstance.h"
 
+#include "IVulkanSurface.h"
+#include "layers/VulkanGlfwExtension.h"
 #include "layers/VulkanValidationLogger.h"
 
 namespace narc_engine {
@@ -17,15 +19,19 @@ namespace narc_engine {
     void VulkanInstance::init()
     {
         NARC_GUARD_WEAK(configPtr, m_config, "Failed to create VulkanInstanceInfos");
-
-        std::vector<std::unique_ptr<IVulkanExtension>> extensions;
-        extensions.emplace_back(std::make_unique<VulkanValidationLogger>(shared_from_this()));
+        
+        m_extensions.emplace_back(std::make_unique<VulkanValidationLogger>(shared_from_this()));
+        m_extensions.emplace_back(std::make_unique<VulkanGlfwExtension>());
 
         std::vector<const char*> deviceExtensionNames{};
-        deviceExtensionNames.reserve(extensions.size());
-        for (const auto& ext: extensions)
+        deviceExtensionNames.reserve(m_extensions.size());
+        for (const auto& ext: m_extensions)
         {
-            deviceExtensionNames.push_back(ext->getExtensionName());
+            for (const auto names = ext->getExtensionNames();
+                 const char* name: names)
+            {
+                deviceExtensionNames.push_back(name);
+            }
         }
 
         const std::vector layerNames = {
@@ -49,7 +55,7 @@ namespace narc_engine {
         createInfo.ppEnabledLayerNames = layerNames.data();
         createInfo.enabledExtensionCount = deviceExtensionNames.size();
         createInfo.ppEnabledExtensionNames = deviceExtensionNames.data();
-        createInfo.pNext = extensions[0]->getCreationInfos();
+        createInfo.pNext = m_extensions[0]->getCreationInfos();
 
         if (const VkResult creationResult = vkCreateInstance(&createInfo, nullptr, &m_instance);
             creationResult != VK_SUCCESS)
@@ -58,11 +64,17 @@ namespace narc_engine {
         }
 
         NARC_LOG_DEBUG("Vulkan Instance created successfully for application: {}", configPtr->getApplicationName());
+
+        //Init Extensions
     }
 
     void VulkanInstance::shutdown()
     {
+        //Shutdown Extensions
+        
         vkDestroyInstance(m_instance, nullptr);
+
+        m_extensions.clear();
 
         NARC_LOG_DEBUG("Vulkan Instance destroyed successfully");
     }

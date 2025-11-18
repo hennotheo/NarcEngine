@@ -8,6 +8,7 @@
 #define NO_RETURN [[noreturn]]
 
 #define QUERY(result, error) NO_DISCARD std::expected<result, error>
+#define NARC_VIRTUAL_QUERY(result, error) NO_DISCARD virtual std::expected<result, error>
 
 #define NARC_MUTABLE_THIS(type) const_cast<type*>(this)
 
