@@ -18,18 +18,17 @@ namespace narc_engine {
     QUERY(QueueFamilyIndices, QueryQueueError) DeviceQueueService::queryQueueFamilyIndices(const VkPhysicalDevice& physicalDevice) const
     {
         NARC_GUARD_WEAK(surfacesManager, m_surfacesManager, "Failed to create DeviceQueueService");
+
         const auto* surface = surfacesManager->getMainSurface();
-
-        QueueFamilyIndices indices{};
-
-        uint32_t queueFamilyCount = 0;
-        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
-
-        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
+        const auto queueFamilies = queryQueueFamilyProperties(physicalDevice);
+        if (!queueFamilies.has_value())
+        {
+            return std::unexpected(queueFamilies.error());
+        }
 
         uint32_t i = 0;
-        for (const auto& queueFamily: queueFamilies)
+        QueueFamilyIndices indices{};
+        for (const auto& queueFamily: queueFamilies.value())
         {
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
             {
@@ -41,11 +40,10 @@ namespace narc_engine {
                 indices.PresentationFamily = i;
             }
 
-            // // TODO: Temporary Off-screen
-            // if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-            // {
-            //     indices.PresentationFamily = i;
-            // }
+            if (indices.isComplete())
+            {
+                break;
+            }
 
             i++;
         }
@@ -60,7 +58,7 @@ namespace narc_engine {
         {
             return false;
         }
-        
+
         const auto surfacePtr = surface->getHandled();
         if (surfacePtr == nullptr)
         {
@@ -76,11 +74,23 @@ namespace narc_engine {
     std::vector<QueueFamilyIndex> DeviceQueueService::getUniqueIndices(const QueueFamilyIndices& queueFamilyIndices) const
     {
         std::vector<uint32_t> uniqueQueueFamilies;
-        uniqueQueueFamilies.push_back(queueFamilyIndices.GraphicsFamily.value());
-        if (queueFamilyIndices.PresentationFamily.value() != queueFamilyIndices.GraphicsFamily.value())
+
+        if (!queueFamilyIndices.GraphicsFamily.has_value())
         {
-            uniqueQueueFamilies.push_back(queueFamilyIndices.PresentationFamily.value());
+            return uniqueQueueFamilies;
         }
+
+        uniqueQueueFamilies.push_back(queueFamilyIndices.GraphicsFamily.value());
+
+        const bool presentSupport = queueFamilyIndices.PresentationFamily.has_value();
+        if (const bool isSameFamily = queueFamilyIndices.PresentationFamily.value_or(QUEUE_INDEX_NONE) == queueFamilyIndices.GraphicsFamily.
+                                      value_or(QUEUE_INDEX_NONE);
+            !presentSupport || isSameFamily)
+        {
+            return uniqueQueueFamilies;
+        }
+
+        uniqueQueueFamilies.push_back(queueFamilyIndices.PresentationFamily.value());
 
         return uniqueQueueFamilies;
     }
@@ -103,10 +113,28 @@ namespace narc_engine {
         presentQueue.setDevice(device);
         graphicsQueue.setDevice(device);
 
-        presentQueue.setQueueIndex(0);
+        presentQueue.setQueueIndex(0); //Cf vulkan doc
         graphicsQueue.setQueueIndex(0);
 
         presentQueue.setQueueFamilyIndex(queueFamilyIndices.PresentationFamily.value_or(QUEUE_INDEX_NONE));
         graphicsQueue.setQueueFamilyIndex(queueFamilyIndices.GraphicsFamily.value_or(QUEUE_INDEX_NONE));
+    }
+
+    QUERY(std::vector<VkQueueFamilyProperties>, QueryQueueError) DeviceQueueService::queryQueueFamilyProperties(
+            const VkPhysicalDevice& physicalDevice) const
+    {
+        uint32_t queueFamilyCount = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
+
+        if (queueFamilyCount == 0)
+        {
+            return std::unexpected<QueryQueueError>("Physical device has no queue families.");
+        }
+
+        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+        // queueFamilies.reserve(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
+
+        return queueFamilies;
     }
 } // namespace narc_engine

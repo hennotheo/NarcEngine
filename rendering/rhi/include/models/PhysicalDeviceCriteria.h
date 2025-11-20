@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "layers/IVulkanExtension.h"
+
 namespace narc_engine {
     struct PhysicalDeviceCriteria
     {
@@ -12,8 +14,11 @@ namespace narc_engine {
         bool RequireGeometryShader{true};
         bool RequireDiscreteGPU{true};
 
+        std::vector<std::shared_ptr<IVulkanExtension>> DeviceRequiredExtensions{};
+
+
         // Preferences
-        
+
         bool PreferDiscreteGPU{true};
     };
 } // namespace narc_engine

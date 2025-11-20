@@ -10,6 +10,7 @@ namespace narc_engine {
     class IVulkanExtension : public narc_core::IInitialisable
     {
     public:
+        IVulkanExtension() = default;
         ~IVulkanExtension() noexcept override = default;
 
         NARC_PURE_VIRTUAL_GETTER(ExtensionNameList, getExtensionNames);

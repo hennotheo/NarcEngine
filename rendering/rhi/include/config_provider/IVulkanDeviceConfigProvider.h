@@ -6,6 +6,7 @@
 
 namespace narc_engine {
     struct PhysicalDeviceCriteria;
+    class IVulkanExtension;
 
     class IVulkanDeviceConfigProvider
     {

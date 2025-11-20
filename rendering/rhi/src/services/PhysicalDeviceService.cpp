@@ -95,6 +95,11 @@ namespace narc_engine {
             return false;
         }
 
+        if (!areDeviceExtensionSupported(device, criteria.DeviceRequiredExtensions))
+        {
+            return false;
+        }
+
         return true;
     }
 
@@ -113,5 +118,41 @@ namespace narc_engine {
         }
 
         return score;
+    }
+
+    bool PhysicalDeviceService::areAllRequiredExtensionsAvailable(const std::vector<std::shared_ptr<IVulkanExtension>>& requiredExtensions,
+                                                                  const std::vector<VkExtensionProperties>& availableExtensions) const
+    {
+        std::set<std::string> remaining;
+        for (const auto& extension: requiredExtensions)
+        {
+            for (const auto& name: extension->getExtensionNames())
+            {
+                remaining.insert(name);
+            }
+        }
+
+        for (const auto& extension: availableExtensions)
+        {
+            remaining.erase(extension.extensionName);
+            if (remaining.empty())
+            {
+                return true;
+            }
+        }
+
+        return remaining.empty();
+    }
+
+    bool PhysicalDeviceService::areDeviceExtensionSupported(const VkPhysicalDevice& device,
+                                                            const std::vector<std::shared_ptr<IVulkanExtension>>& requiredExtensions) const noexcept
+    {
+        uint32_t extensionCount;
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+        std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+        return areAllRequiredExtensionsAvailable(requiredExtensions, availableExtensions);
     }
 } // narc_engine

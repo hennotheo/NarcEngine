@@ -4,12 +4,11 @@
 
 #pragma once
 
-#include "IVulkanSurface.h"
 #include "models/PhysicalDeviceCriteria.h"
 
 #include "VulkanInstance.h"
 
-namespace narc_engine {
+namespace narc_engine {    
     using QueryDeviceError = std::string;
 
     class PhysicalDeviceService final
@@ -29,5 +28,9 @@ namespace narc_engine {
 
         NO_DISCARD bool isDeviceSuitable(const VkPhysicalDevice& device, const PhysicalDeviceCriteria& criteria) const noexcept;
         NO_DISCARD device_score_t evaluateDeviceScore(const VkPhysicalDevice& device, const PhysicalDeviceCriteria& criteria) const noexcept;
+        bool areAllRequiredExtensionsAvailable(const std::vector<std::shared_ptr<IVulkanExtension>>& requiredExtensions, const std::vector<VkExtensionProperties>&
+                                               availableExtensions) const;
+        NO_DISCARD bool areDeviceExtensionSupported(const VkPhysicalDevice& device,
+                                                    const std::vector<std::shared_ptr<IVulkanExtension>>& requiredExtensions) const noexcept;
     };
 } // narc_engine

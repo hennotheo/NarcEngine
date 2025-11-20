@@ -30,5 +30,7 @@ namespace narc_engine {
 
     private:
         std::weak_ptr<IVulkanSurfacesManager> m_surfacesManager;
+
+        QUERY(std::vector<VkQueueFamilyProperties>, QueryQueueError) queryQueueFamilyProperties(const VkPhysicalDevice& physicalDevice) const;
     };
 } // narc_engine

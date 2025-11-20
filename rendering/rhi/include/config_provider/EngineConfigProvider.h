@@ -10,6 +10,8 @@
 #include "models/PhysicalDeviceCriteria.h"
 
 namespace narc_engine {
+    class IVulkanExtension;
+
     class EngineConfigProvider final :
             public IVulkanInstanceConfigProvider,
             public IVulkanDeviceConfigProvider
@@ -24,6 +26,7 @@ namespace narc_engine {
 
         std::string m_applicationName;
         std::string m_engineName;
+        std::vector<std::unique_ptr<IVulkanExtension>> m_extensionNames;
         PhysicalDeviceCriteria m_physicalDeviceCriteria;
     };
 } // narc_engine

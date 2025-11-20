@@ -6,6 +6,8 @@
 
 #include "VulkanInstance.h"
 #include "VulkanQueue.h"
+#include "layers/VulkanGlfwExtension.h"
+#include "layers/VulkanValidationLogger.h"
 
 namespace narc_engine {
     VulkanDevice::VulkanDevice(std::weak_ptr<IVulkanDeviceConfigProvider> config, std::weak_ptr<PhysicalDeviceService> deviceService,
@@ -106,7 +108,9 @@ namespace narc_engine {
 
         VkDeviceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+        createInfo.ppEnabledExtensionNames = nullptr;
         createInfo.enabledExtensionCount = 0;
+        createInfo.ppEnabledLayerNames = nullptr;
         createInfo.enabledLayerCount = 0;
         createInfo.pQueueCreateInfos = queueCreateInfos.data();
         createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());

@@ -3,6 +3,8 @@
 #include <NarcLog.h>
 #include <Rhi.h>
 
+#include <utility>
+
 #include "../../../../../.conan2/p/b/glfwa6e2adfa5e8b8/p/include/GLFW/glfw3.h"
 
 class SurfaceManager final : public narc_engine::IVulkanSurfacesManager
@@ -52,6 +54,36 @@ private:
     std::vector<std::unique_ptr<narc_engine::IVulkanSurface>> m_surfaces{};
 };
 
+class TestDeviceExtensions final : public narc_engine::IVulkanExtension
+{
+public:
+    TestDeviceExtensions() = default;
+    ~TestDeviceExtensions() noexcept override = default;
+
+    void init() override
+    {
+        //Tests
+    }
+
+    void shutdown() override
+    {
+        //Tests
+    }
+
+    NO_DISCARD narc_engine::ExtensionNameList getExtensionNames() const noexcept override
+    {
+        return {
+                VK_KHR_SWAPCHAIN_EXTENSION_NAME
+        };
+    }
+
+    NO_DISCARD const void* getCreationInfos() const noexcept override
+    {
+        return nullptr;
+    }
+
+};
+
 int main(int argc, char** argv)
 {
     spdlog::set_level(spdlog::level::debug);
@@ -72,7 +104,15 @@ int main(int argc, char** argv)
 
             configProviderPtr->m_applicationName = "NarcEngine Editor";
             configProviderPtr->m_engineName = "NarcEngine";
-            configProviderPtr->m_physicalDeviceCriteria = narc_engine::PhysicalDeviceCriteria{};
+
+            std::vector<std::shared_ptr<narc_engine::IVulkanExtension>> vulkanExtensions;
+            vulkanExtensions.push_back(std::make_shared<TestDeviceExtensions>());
+            configProviderPtr->m_physicalDeviceCriteria = narc_engine::PhysicalDeviceCriteria{
+                    .RequireGeometryShader = false,
+                    .RequireDiscreteGPU = false,
+                    .DeviceRequiredExtensions = vulkanExtensions,
+                    .PreferDiscreteGPU = true
+            };
         }
 
 
