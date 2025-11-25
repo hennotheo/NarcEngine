@@ -5,9 +5,10 @@
 #include "services/DeviceQueueService.h"
 
 #include "IVulkanSurface.h"
+#include "VulkanSurfacesManager.h"
 
 namespace narc_engine {
-    DeviceQueueService::DeviceQueueService(std::weak_ptr<IVulkanSurfacesManager> surfacesManager) :
+    DeviceQueueService::DeviceQueueService(std::weak_ptr<VulkanSurfacesManager> surfacesManager) :
         m_surfacesManager(std::move(surfacesManager))
     {
 

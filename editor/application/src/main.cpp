@@ -3,44 +3,24 @@
 #include <NarcLog.h>
 #include <Rhi.h>
 
-#include <utility>
-
 #include "../../../../../.conan2/p/b/glfwa6e2adfa5e8b8/p/include/GLFW/glfw3.h"
 
-class SurfaceManager final : public narc_engine::IVulkanSurfacesManager
+class SurfaceManager final : public narc_engine::VulkanSurfacesManager
 {
 public:
     SurfaceManager() = default;
     ~SurfaceManager() override = default;
 
-    void init() override
-    {
-        for (const auto& surface: m_surfaces)
-        {
-            surface->init();
-        }
-    }
-
-    void shutdown() override
-    {
-        for (const auto& surface: m_surfaces)
-        {
-            surface->shutdown();
-        }
-    }
-
     NO_DISCARD const narc_engine::IVulkanSurface* getMainSurface() const noexcept override
     {
+        const auto m_surfaces = getSurfaces();
         return m_surfaces.empty() ? nullptr : m_surfaces.front().get();
-    }
-
-    void pushSurface(std::unique_ptr<narc_engine::IVulkanSurface> surface) override
-    {
-        m_surfaces.push_back(std::move(surface));
     }
 
     void updateSurfaces() override
     {
+        const auto m_surfaces = getSurfaces();
+        
         for (const auto& surface: m_surfaces)
         {
             if (surface->shouldClose())
@@ -49,9 +29,6 @@ public:
             }
         }
     }
-
-private:
-    std::vector<std::unique_ptr<narc_engine::IVulkanSurface>> m_surfaces{};
 };
 
 class TestDeviceExtensions final : public narc_engine::IVulkanExtension
@@ -93,7 +70,7 @@ int main(int argc, char** argv)
             di::bind<narc_engine::IVulkanInstanceConfigProvider>.to<narc_engine::EngineConfigProvider>(),
             di::bind<narc_engine::IVulkanDeviceConfigProvider>.to<narc_engine::EngineConfigProvider>(),
             di::bind<narc_engine::IVulkanSurface>.to<narc_engine::GlfwVulkanSurface>(),
-            di::bind<narc_engine::IVulkanSurfacesManager>.to<SurfaceManager>()
+            di::bind<narc_engine::VulkanSurfacesManager>.to<SurfaceManager>()
             );
 
     try
@@ -117,15 +94,18 @@ int main(int argc, char** argv)
 
 
         const auto instance = injector.create<std::shared_ptr<narc_engine::VulkanInstance>>();
+        const auto surfacesManager = injector.create<std::shared_ptr<narc_engine::VulkanSurfacesManager>>();
         const auto device = injector.create<std::shared_ptr<narc_engine::VulkanDevice>>();
-        const auto surfacesManager = injector.create<std::shared_ptr<narc_engine::IVulkanSurfacesManager>>();
 
-        auto window = injector.create<std::unique_ptr<narc_engine::IVulkanSurface>>();
-        surfacesManager->pushSurface(std::move(window));
+        auto mainWindow = injector.create<std::shared_ptr<narc_engine::IVulkanSurface>>();
+        auto swapChain = injector.create<std::unique_ptr<narc_engine::VulkanSwapChain>>();
+        swapChain->setSurface(mainWindow);
+        surfacesManager->pushSurface(mainWindow, swapChain);
 
         instance->init();
-        surfacesManager->init();
+        mainWindow->init();
         device->init();
+        surfacesManager->init();
 
         while (!surfacesManager->getMainSurface()->shouldClose())
         {
@@ -133,8 +113,8 @@ int main(int argc, char** argv)
             surfacesManager->updateSurfaces();
         }
 
-        device->shutdown();
         surfacesManager->shutdown();
+        device->shutdown();
         instance->shutdown();
     }
     catch (const std::exception& e)

@@ -4,10 +4,20 @@
 
 #include "services/PhysicalDeviceService.h"
 
+#include "VulkanInstance.h"
+#include "VulkanSurfacesManager.h"
+#include "services/SwapChainService.h"
+
+#include "models/SwapChainSupportInfoVulkan.h"
+
 namespace narc_engine {
 
-    PhysicalDeviceService::PhysicalDeviceService(std::weak_ptr<VulkanInstance> instance) :
-        m_instance(std::move(instance))
+    PhysicalDeviceService::PhysicalDeviceService(std::weak_ptr<VulkanInstance> instance,
+                                                 const std::shared_ptr<SwapChainService>& swapChainService,
+                                                 std::weak_ptr<VulkanSurfacesManager> surfacesManager) :
+        m_instance(std::move(instance)),
+        m_surfacesManager(std::move(surfacesManager)),
+        m_swapChainService(swapChainService)
     {
     }
 
@@ -39,20 +49,6 @@ namespace narc_engine {
             return std::unexpected(QueryDeviceError{"No physical devices to evaluate"});
         }
 
-        std::vector<VkPhysicalDevice> suitableDevices(devices.size());
-        for (const auto device: devices)
-        {
-            if (isDeviceSuitable(device, criteria))
-            {
-                suitableDevices.push_back(device);
-            }
-        }
-
-        if (suitableDevices.empty())
-        {
-            return std::unexpected(QueryDeviceError{"Failed to find a suitable GPU!"});
-        }
-
         auto filtered = devices
                         | std::views::filter([this, criteria](const VkPhysicalDevice& device) {
                             return isDeviceSuitable(device, criteria);
@@ -81,8 +77,8 @@ namespace narc_engine {
     bool PhysicalDeviceService::isDeviceSuitable(const VkPhysicalDevice& device, const PhysicalDeviceCriteria& criteria) const noexcept
     {
         VkPhysicalDeviceProperties deviceProperties;
-        VkPhysicalDeviceFeatures deviceFeatures;
         vkGetPhysicalDeviceProperties(device, &deviceProperties);
+        VkPhysicalDeviceFeatures deviceFeatures;
         vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
         if (criteria.RequireGeometryShader && deviceFeatures.geometryShader == VK_FALSE)
@@ -98,6 +94,21 @@ namespace narc_engine {
         if (!areDeviceExtensionSupported(device, criteria.DeviceRequiredExtensions))
         {
             return false;
+        }
+
+        {
+            const auto surfaceManager = m_surfacesManager.lock();
+            if (!surfaceManager)
+            {
+                return false;
+            }
+
+            const auto surface = surfaceManager->getMainSurface()->getHandled();
+            if (const SwapChainSupportInfoVulkan swapChainSupport = m_swapChainService->querySwapChainSupportInfo(device, surface);
+                swapChainSupport.Formats.empty() || swapChainSupport.PresentModes.empty())
+            {
+                return false;
+            }
         }
 
         return true;

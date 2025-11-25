@@ -10,12 +10,14 @@
 #include "VulkanQueue.h"
 
 namespace narc_engine {
+    class VulkanSurfacesManager;
+    
     using QueryQueueError = std::string;
 
     class DeviceQueueService final
     {
     public:
-        explicit DeviceQueueService(std::weak_ptr<IVulkanSurfacesManager> surfacesManager);
+        explicit DeviceQueueService(std::weak_ptr<VulkanSurfacesManager> surfacesManager);
         ~DeviceQueueService();
 
         QUERY(QueueFamilyIndices, QueryQueueError) queryQueueFamilyIndices(
@@ -29,7 +31,7 @@ namespace narc_engine {
                         VulkanQueue& presentQueue) const;
 
     private:
-        std::weak_ptr<IVulkanSurfacesManager> m_surfacesManager;
+        std::weak_ptr<VulkanSurfacesManager> m_surfacesManager;
 
         QUERY(std::vector<VkQueueFamilyProperties>, QueryQueueError) queryQueueFamilyProperties(const VkPhysicalDevice& physicalDevice) const;
     };

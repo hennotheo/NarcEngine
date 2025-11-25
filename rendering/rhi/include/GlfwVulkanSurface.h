@@ -6,11 +6,11 @@
 
 #include "IVulkanSurface.h"
 
+#include "VulkanInstance.h"
+
 class GLFWwindow;
 
 namespace narc_engine {
-    class VulkanInstance;
-
     class GlfwVulkanSurface final : public IVulkanSurface
     {
     public:
@@ -21,6 +21,7 @@ namespace narc_engine {
 
         NARC_OVERRIDE_GETTER(VkSurfaceKHR, getHandled, m_surface);
         NO_DISCARD bool shouldClose() const noexcept override;
+        NO_DISCARD VkExtent2D getSurfaceExtent() const noexcept override;
 
     private:
         std::weak_ptr<VulkanInstance> m_instance;

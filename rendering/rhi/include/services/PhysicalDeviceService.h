@@ -4,17 +4,22 @@
 
 #pragma once
 
+#include "SwapChainService.h"
 #include "models/PhysicalDeviceCriteria.h"
 
-#include "VulkanInstance.h"
+namespace narc_engine {
+    class VulkanSurfacesManager;
+    class VulkanInstance;
+    class SwapChainService;
 
-namespace narc_engine {    
     using QueryDeviceError = std::string;
 
     class PhysicalDeviceService final
     {
     public:
-        explicit PhysicalDeviceService(std::weak_ptr<VulkanInstance> instance);
+        explicit PhysicalDeviceService(std::weak_ptr<VulkanInstance> instance,
+                                       const std::shared_ptr<SwapChainService>& swapChainService,
+                                       std::weak_ptr<VulkanSurfacesManager> surfacesManager);
         ~PhysicalDeviceService();
 
         QUERY(std::vector<VkPhysicalDevice>, QueryDeviceError) queryAllPhysicalDevices() const noexcept;
@@ -22,15 +27,19 @@ namespace narc_engine {
                                                                            const PhysicalDeviceCriteria& criteria) const noexcept;
 
     private:
-        std::weak_ptr<VulkanInstance> m_instance;
-
         using device_score_t = int;
+
+        std::weak_ptr<VulkanInstance> m_instance;
+        std::weak_ptr<VulkanSurfacesManager> m_surfacesManager;
+        std::shared_ptr<SwapChainService> m_swapChainService;
 
         NO_DISCARD bool isDeviceSuitable(const VkPhysicalDevice& device, const PhysicalDeviceCriteria& criteria) const noexcept;
         NO_DISCARD device_score_t evaluateDeviceScore(const VkPhysicalDevice& device, const PhysicalDeviceCriteria& criteria) const noexcept;
-        bool areAllRequiredExtensionsAvailable(const std::vector<std::shared_ptr<IVulkanExtension>>& requiredExtensions, const std::vector<VkExtensionProperties>&
+        bool areAllRequiredExtensionsAvailable(const std::vector<std::shared_ptr<IVulkanExtension>>& requiredExtensions,
+                                               const std::vector<VkExtensionProperties>&
                                                availableExtensions) const;
         NO_DISCARD bool areDeviceExtensionSupported(const VkPhysicalDevice& device,
                                                     const std::vector<std::shared_ptr<IVulkanExtension>>& requiredExtensions) const noexcept;
+
     };
 } // narc_engine

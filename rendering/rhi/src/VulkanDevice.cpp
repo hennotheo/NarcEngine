@@ -6,17 +6,25 @@
 
 #include "VulkanInstance.h"
 #include "VulkanQueue.h"
+
+#include "services/PhysicalDeviceService.h"
+#include "services/DeviceQueueService.h"
+
 #include "layers/VulkanGlfwExtension.h"
 #include "layers/VulkanValidationLogger.h"
 
 namespace narc_engine {
-    VulkanDevice::VulkanDevice(std::weak_ptr<IVulkanDeviceConfigProvider> config, std::weak_ptr<PhysicalDeviceService> deviceService,
-                               std::weak_ptr<VulkanInstance> instance, std::weak_ptr<DeviceQueueService> queueService) :
+    VulkanDevice::VulkanDevice(std::weak_ptr<IVulkanDeviceConfigProvider> config,
+                               const std::shared_ptr<PhysicalDeviceService>& deviceService,
+                               std::weak_ptr<VulkanInstance> instance,
+                               const std::shared_ptr<DeviceQueueService>& queueService) :
         m_config(std::move(config)),
         m_instance(std::move(instance)),
-        m_deviceService(std::move(deviceService)),
-        m_queueService(std::move(queueService))
-    {}
+        m_deviceService(deviceService),
+        m_queueService(queueService)
+    {
+
+    }
 
     VulkanDevice::~VulkanDevice() = default;
 
@@ -27,9 +35,7 @@ namespace narc_engine {
 
         createDevice();
 
-        NARC_GUARD_WEAK(queueService, m_queueService, "Queue Service doesn't exist.")
-
-        queueService->fillQueues(shared_from_this(), m_queueFamilyIndices, m_graphicsQueue, m_presentQueue);
+        m_queueService->fillQueues(shared_from_this(), m_queueFamilyIndices, m_graphicsQueue, m_presentQueue);
 
         m_graphicsQueue.init();
         m_presentQueue.init();
@@ -51,15 +57,14 @@ namespace narc_engine {
     void VulkanDevice::selectPhysicalDeviceFromCriteria()
     {
         NARC_GUARD_WEAK(configPtr, m_config, "Failed to create VulkanDevice");
-        NARC_GUARD_WEAK(deviceService, m_deviceService, "Failed to get PhysicalDeviceService");
 
-        const auto devices = deviceService->queryAllPhysicalDevices();
+        const auto devices = m_deviceService->queryAllPhysicalDevices();
         if (!devices.has_value())
         {
             NARC_ERROR_RUNTIME("No suitable device found!");
         }
 
-        const auto bestDeviceResult = deviceService->queryBestPhysicalDevices(devices.value(), configPtr->getPhysicalDeviceCriteria());
+        const auto bestDeviceResult = m_deviceService->queryBestPhysicalDevices(devices.value(), configPtr->getPhysicalDeviceCriteria());
         if (!bestDeviceResult.has_value())
         {
             NARC_ERROR_RUNTIME("No suitable device found!");
@@ -70,9 +75,7 @@ namespace narc_engine {
 
     void VulkanDevice::selectQueueFamily()
     {
-        NARC_GUARD_WEAK(queueServicePtr, m_queueService, "Failed to create QueueService");
-
-        const auto queueFamilyIndicesResult = queueServicePtr->queryQueueFamilyIndices(m_physicalDevice);
+        const auto queueFamilyIndicesResult = m_queueService->queryQueueFamilyIndices(m_physicalDevice);
         if (!queueFamilyIndicesResult.has_value())
         {
             NARC_ERROR_RUNTIME("Failed to find required queue families.");
@@ -89,9 +92,7 @@ namespace narc_engine {
     void VulkanDevice::createDevice()
     {
         VkPhysicalDeviceFeatures deviceFeatures{};
-
-        NARC_GUARD_WEAK(queueServicePtr, m_queueService, "Failed to create QueueService");
-        const auto uniqueQueueFamilies = queueServicePtr->getUniqueIndices(m_queueFamilyIndices);
+        const auto uniqueQueueFamilies = m_queueService->getUniqueIndices(m_queueFamilyIndices);
 
         float queuePriority = 1.0f;
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -106,10 +107,14 @@ namespace narc_engine {
             queueCreateInfos.push_back(queueCreateInfo);
         }
 
+        const std::vector<const char*> deviceExtensions = {
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME
+        };
+
         VkDeviceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-        createInfo.ppEnabledExtensionNames = nullptr;
-        createInfo.enabledExtensionCount = 0;
+        createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+        createInfo.enabledExtensionCount = deviceExtensions.size();
         createInfo.ppEnabledLayerNames = nullptr;
         createInfo.enabledLayerCount = 0;
         createInfo.pQueueCreateInfos = queueCreateInfos.data();

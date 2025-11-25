@@ -21,8 +21,14 @@ namespace narc_engine {
 
     void GlfwVulkanSurface::init()
     {
+        if (m_window != nullptr)
+        {
+            NARC_LOG_WARNING("Double initialisation of glfw window.");
+            return;
+        }
+        
         NARC_GUARD_WEAK(instance, m_instance, "Instance not defined."); //TODO: Set err msg
-
+        
         glfwInit();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         m_window = glfwCreateWindow(640, 480, instance->getAppInfos().pApplicationName, NULL, NULL);
@@ -44,5 +50,17 @@ namespace narc_engine {
     bool GlfwVulkanSurface::shouldClose() const noexcept
     {
         return glfwWindowShouldClose(m_window);
+    }
+
+    VkExtent2D GlfwVulkanSurface::getSurfaceExtent() const noexcept
+    {
+        int width;
+        int height;
+        glfwGetFramebufferSize(m_window, &width, &height);
+
+        return {
+                static_cast<uint32_t>(width),
+                static_cast<uint32_t>(height)
+        };
     }
 } // narc_engine

@@ -9,7 +9,7 @@
 #include "config_provider/IVulkanDeviceConfigProvider.h"
 
 #include "services/DeviceQueueService.h"
-#include "services/PhysicalDeviceService.h"
+#include "TypeDefs.h"
 
 namespace narc_engine {
     class VulkanQueue;
@@ -17,8 +17,10 @@ namespace narc_engine {
     class VulkanDevice final : public narc_core::IInitialisable, public std::enable_shared_from_this<VulkanDevice>
     {
     public:
-        explicit VulkanDevice(std::weak_ptr<IVulkanDeviceConfigProvider> config, std::weak_ptr<PhysicalDeviceService> deviceService,
-                              std::weak_ptr<VulkanInstance> instance, std::weak_ptr<DeviceQueueService> queueService);
+        explicit VulkanDevice(std::weak_ptr<IVulkanDeviceConfigProvider> config,
+                              const std::shared_ptr<PhysicalDeviceService>& deviceService,
+                              std::weak_ptr<VulkanInstance> instance,
+                              const std::shared_ptr<DeviceQueueService>& queueService);
         ~VulkanDevice() override;
 
         NARC_IMPL_INITIALISABLE();
@@ -26,14 +28,18 @@ namespace narc_engine {
         NARC_GETTER(const VulkanQueue*, getGraphicsQueue, &m_graphicsQueue);
         NARC_GETTER(const VulkanQueue*, getPresentQueue, &m_presentQueue);
 
+        NARC_GETTER(const QueueFamilyIndices&, getQueueFamilyIndices, m_queueFamilyIndices);
+
         NARC_GETTER(VkDevice, getHandle, m_device);
+        NARC_GETTER(VkPhysicalDevice, getPhysicalDeviceHandle, m_physicalDevice);
 
     private:
         // Services
         std::weak_ptr<IVulkanDeviceConfigProvider> m_config;
         std::weak_ptr<VulkanInstance> m_instance;
-        std::weak_ptr<PhysicalDeviceService> m_deviceService;
-        std::weak_ptr<DeviceQueueService> m_queueService;
+
+        PhysicalDeviceServicePtr m_deviceService;
+        DeviceQueueServicePtr m_queueService;
 
         VulkanQueue m_graphicsQueue;
         VulkanQueue m_presentQueue;

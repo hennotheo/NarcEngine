@@ -5,8 +5,6 @@
 #pragma once
 
 namespace narc_engine {
-    class VulkanInstance;
-
     class IVulkanSurface : public narc_core::IInitialisable
     {
     public:
@@ -14,17 +12,6 @@ namespace narc_engine {
 
         NARC_PURE_VIRTUAL_GETTER(VkSurfaceKHR, getHandled);
         NARC_PURE_VIRTUAL_GETTER(bool, shouldClose); //TODO: Create IWindow later
-    };
-
-    class IVulkanSurfacesManager : public narc_core::IInitialisable
-    {
-    public:
-        ~IVulkanSurfacesManager() override = default;
-
-        NARC_PURE_VIRTUAL_GETTER(const IVulkanSurface*, getMainSurface);
-
-        virtual void updateSurfaces() = 0;
-        
-        virtual void pushSurface(std::unique_ptr<IVulkanSurface> surface) = 0;
+        NARC_PURE_VIRTUAL_GETTER(VkExtent2D, getSurfaceExtent);
     };
 } // narc_engine
