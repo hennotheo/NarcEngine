@@ -21,7 +21,7 @@ namespace narc_engine {
         ~VulkanSwapChain() noexcept override;
 
         NARC_IMPL_INITIALISABLE();
-
+        
         void setSurface(const std::weak_ptr<IVulkanSurface>& surface) { m_surface = surface; }
 
     private:

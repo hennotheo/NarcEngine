@@ -8,7 +8,11 @@
 class SurfaceManager final : public narc_engine::VulkanSurfacesManager
 {
 public:
-    SurfaceManager() = default;
+    explicit SurfaceManager(std::shared_ptr<narc_core::ICreator<narc_engine::VulkanSwapChain>> swapChainCreator) :
+        VulkanSurfacesManager(std::move(swapChainCreator))
+    {
+    }
+
     ~SurfaceManager() override = default;
 
     NO_DISCARD const narc_engine::IVulkanSurface* getMainSurface() const noexcept override
@@ -20,7 +24,6 @@ public:
     void updateSurfaces() override
     {
         const auto m_surfaces = getSurfaces();
-        
         for (const auto& surface: m_surfaces)
         {
             if (surface->shouldClose())
@@ -61,6 +64,18 @@ public:
 
 };
 
+class Creator final : public narc_core::ICreator<narc_engine::VulkanSwapChain>
+{
+public:
+    std::function<std::unique_ptr<narc_engine::VulkanSwapChain>()> CreateVulkanSwapChain;
+
+    [[nodiscard]] std::unique_ptr<narc_engine::VulkanSwapChain> create() const noexcept override
+    {
+        return CreateVulkanSwapChain();
+    }
+
+};
+
 int main(int argc, char** argv)
 {
     spdlog::set_level(spdlog::level::debug);
@@ -70,8 +85,17 @@ int main(int argc, char** argv)
             di::bind<narc_engine::IVulkanInstanceConfigProvider>.to<narc_engine::EngineConfigProvider>(),
             di::bind<narc_engine::IVulkanDeviceConfigProvider>.to<narc_engine::EngineConfigProvider>(),
             di::bind<narc_engine::IVulkanSurface>.to<narc_engine::GlfwVulkanSurface>(),
-            di::bind<narc_engine::VulkanSurfacesManager>.to<SurfaceManager>()
+            di::bind<narc_engine::VulkanSurfacesManager>.to<SurfaceManager>(),
+            di::bind<narc_core::ICreator<narc_engine::VulkanSwapChain>>.to<Creator>().in(di::singleton)
             );
+
+    {
+        //Configure Creator
+        const auto creator = injector.create<std::shared_ptr<Creator>>();
+        creator->CreateVulkanSwapChain = [&injector] {
+            return injector.create<std::unique_ptr<narc_engine::VulkanSwapChain>>();
+        };
+    }
 
     try
     {
@@ -94,13 +118,11 @@ int main(int argc, char** argv)
 
 
         const auto instance = injector.create<std::shared_ptr<narc_engine::VulkanInstance>>();
-        const auto surfacesManager = injector.create<std::shared_ptr<narc_engine::VulkanSurfacesManager>>();
         const auto device = injector.create<std::shared_ptr<narc_engine::VulkanDevice>>();
+        const auto surfacesManager = injector.create<std::shared_ptr<narc_engine::VulkanSurfacesManager>>();
 
         auto mainWindow = injector.create<std::shared_ptr<narc_engine::IVulkanSurface>>();
-        auto swapChain = injector.create<std::unique_ptr<narc_engine::VulkanSwapChain>>();
-        swapChain->setSurface(mainWindow);
-        surfacesManager->pushSurface(mainWindow, swapChain);
+        surfacesManager->pushSurface(mainWindow);
 
         instance->init();
         mainWindow->init();

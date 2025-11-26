@@ -68,3 +68,14 @@
 #endif
 
 namespace di = boost::di;
+
+namespace narc_core {
+    template<typename T>
+    class ICreator
+    {
+    public:
+        virtual ~ICreator() = default;
+
+        NO_DISCARD virtual std::unique_ptr<T> create() const noexcept = 0;
+    };
+}

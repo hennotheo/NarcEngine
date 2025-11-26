@@ -5,6 +5,8 @@
 #pragma once
 
 namespace narc_engine {
+    class VulkanDevice;
+    
     class IVulkanSurface : public narc_core::IInitialisable
     {
     public:

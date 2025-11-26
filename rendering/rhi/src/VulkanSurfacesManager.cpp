@@ -4,10 +4,15 @@
 
 #include "VulkanSurfacesManager.h"
 
+#include <utility>
+
 #include "VulkanSwapChain.h"
 
 namespace narc_engine {
-    VulkanSurfacesManager::VulkanSurfacesManager() = default;
+    VulkanSurfacesManager::VulkanSurfacesManager(std::shared_ptr<narc_core::ICreator<VulkanSwapChain>> swapChainCreator) :
+        m_swapChainCreator(std::move(swapChainCreator))
+    {
+    }
 
     VulkanSurfacesManager::~VulkanSurfacesManager() = default;
 
@@ -37,11 +42,12 @@ namespace narc_engine {
         }
     }
 
-    void VulkanSurfacesManager::pushSurface(std::shared_ptr<IVulkanSurface>& surface, std::unique_ptr<VulkanSwapChain>& swapChain)
+    void VulkanSurfacesManager::pushSurface(std::shared_ptr<IVulkanSurface>& surface)
     {
-        swapChain->setSurface(surface);
-        
+        auto localSwapChain = m_swapChainCreator->create();
+        localSwapChain->setSurface(surface);
+
         m_surfaces.push_back(surface);
-        m_swapChains.push_back(std::move(swapChain));
+        m_swapChains.push_back(std::move(localSwapChain));
     }
 }

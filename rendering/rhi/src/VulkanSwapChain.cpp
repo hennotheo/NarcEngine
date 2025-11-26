@@ -36,7 +36,6 @@ namespace narc_engine {
         VkExtent2D extent = chooseSwapExtent(swapChainSupport.Capabilities);
 
         uint32_t imageCount = swapChainSupport.Capabilities.minImageCount + 1;
-
         if (swapChainSupport.Capabilities.maxImageCount > 0 && imageCount > swapChainSupport.Capabilities.maxImageCount)
         {
             imageCount = swapChainSupport.Capabilities.maxImageCount;
@@ -53,13 +52,13 @@ namespace narc_engine {
         createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
         const auto indices = device->getQueueFamilyIndices();
-        uint32_t queueFamilyIndices[] = {indices.GraphicsFamily.value(), indices.PresentationFamily.value()};
+        const std::array queueFamilyIndices = {indices.GraphicsFamily.value(), indices.PresentationFamily.value()};
 
         if (indices.GraphicsFamily != indices.PresentationFamily)
         {
             createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
             createInfo.queueFamilyIndexCount = 2;
-            createInfo.pQueueFamilyIndices = queueFamilyIndices;
+            createInfo.pQueueFamilyIndices = queueFamilyIndices.data();
         }
         else
         {
@@ -83,7 +82,7 @@ namespace narc_engine {
     void VulkanSwapChain::shutdown()
     {
         NARC_GUARD_WEAK(device, m_device, "Failed to get Device.");
-        
+
         vkDestroySwapchainKHR(device->getHandle(), m_swapChain, nullptr);
     }
 

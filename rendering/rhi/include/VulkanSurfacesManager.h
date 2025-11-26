@@ -14,7 +14,7 @@ namespace narc_engine {
     class VulkanSurfacesManager : public narc_core::IInitialisable
     {
     public:
-        explicit VulkanSurfacesManager();
+        explicit VulkanSurfacesManager(std::shared_ptr<narc_core::ICreator<VulkanSwapChain>> swapChainCreator);
         ~VulkanSurfacesManager() override;
 
         NARC_PURE_VIRTUAL_GETTER(const IVulkanSurface*, getMainSurface);
@@ -23,7 +23,7 @@ namespace narc_engine {
         virtual void updateSurfaces() = 0;
 
         std::vector<std::shared_ptr<IVulkanSurface>> getSurfaces() const noexcept { return m_surfaces; } //TODO: Temporary solution
-        std::vector<VulkanSwapChain*> getSwapChains() const noexcept
+        std::vector<VulkanSwapChain*> getSwapChains() const noexcept //TODO: Temporary solution
         {
             std::vector<VulkanSwapChain*> out;
             out.reserve(m_swapChains.size());
@@ -34,9 +34,11 @@ namespace narc_engine {
             return out;
         } //TODO: Temporary solution
 
-        virtual void pushSurface(std::shared_ptr<IVulkanSurface>& surface, std::unique_ptr<VulkanSwapChain>& swapChain);
+        virtual void pushSurface(std::shared_ptr<IVulkanSurface>& surface);
 
     private:
+        std::shared_ptr<narc_core::ICreator<VulkanSwapChain>> m_swapChainCreator;
+        
         std::vector<std::shared_ptr<IVulkanSurface>> m_surfaces{};
         std::vector<std::unique_ptr<VulkanSwapChain>> m_swapChains{};
     };
