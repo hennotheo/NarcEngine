@@ -18,6 +18,7 @@ namespace narc_engine {
 
         //TODO: move to another service?
         NO_DISCARD SwapChainSupportInfoVulkan querySwapChainSupportInfo(const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface) const noexcept;
+        NO_DISCARD std::vector<VkImage> getSwapChainImages(const VkDevice& device, const VkSwapchainKHR& swapChain) const noexcept;
 
     private:
         std::shared_ptr<VulkanSurfacesManager> m_surfacesManager;

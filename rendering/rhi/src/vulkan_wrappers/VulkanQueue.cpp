@@ -2,9 +2,9 @@
 // Created by theo on 10/30/25.
 //
 
-#include "VulkanQueue.h"
+#include "vulkan_wrappers/VulkanQueue.h"
 
-#include "VulkanDevice.h"
+#include "vulkan_wrappers/VulkanDevice.h"
 
 namespace narc_engine {
     VulkanQueue::VulkanQueue() = default;

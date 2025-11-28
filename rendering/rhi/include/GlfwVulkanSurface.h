@@ -6,7 +6,7 @@
 
 #include "IVulkanSurface.h"
 
-#include "VulkanInstance.h"
+#include "vulkan_wrappers/VulkanInstance.h"
 
 class GLFWwindow;
 

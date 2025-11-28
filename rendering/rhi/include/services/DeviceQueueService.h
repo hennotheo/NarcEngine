@@ -7,7 +7,7 @@
 #include "IVulkanSurface.h"
 #include "models/QueueFamilyIndices.h"
 
-#include "VulkanQueue.h"
+#include "../vulkan_wrappers/VulkanQueue.h"
 
 namespace narc_engine {
     class VulkanSurfacesManager;

@@ -5,7 +5,7 @@
 #pragma once
 
 #include "IVulkanExtension.h"
-#include "VulkanInstance.h"
+#include "../vulkan_wrappers/VulkanInstance.h"
 
 namespace narc_engine {
     class VulkanValidationLogger final : public IVulkanExtension

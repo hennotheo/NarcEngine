@@ -2,21 +2,21 @@
 // Created by theohenno on 11/20/25.
 //
 
-#include "VulkanSwapChain.h"
+#include "../../include/vulkan_wrappers/VulkanSwapChain.h"
 
 #include <GLFW/glfw3.h>
 
 #include <utility>
 
 #include "IVulkanSurface.h"
-#include "VulkanDevice.h"
+#include "../../include/vulkan_wrappers/VulkanDevice.h"
 #include "services/PhysicalDeviceService.h"
 #include "services/SwapChainService.h"
 
 namespace narc_engine {
     VulkanSwapChain::VulkanSwapChain(std::weak_ptr<VulkanDevice> device, const std::shared_ptr<SwapChainService>& swapChainService) :
         m_device(std::move(device)),
-        m_physicalDeviceService(swapChainService)
+        m_swapChainService(swapChainService)
     {
     }
 
@@ -28,7 +28,7 @@ namespace narc_engine {
         NARC_GUARD_WEAK(device, m_device, "Failed to get Device");
         const auto surface = surfaceHandler->getHandled();
 
-        const SwapChainSupportInfoVulkan swapChainSupport = m_physicalDeviceService->querySwapChainSupportInfo(
+        const SwapChainSupportInfoVulkan swapChainSupport = m_swapChainService->querySwapChainSupportInfo(
                 device->getPhysicalDeviceHandle(), surface);
 
         VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.Formats);
@@ -75,15 +75,58 @@ namespace narc_engine {
 
         if (vkCreateSwapchainKHR(device->getHandle(), &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create swap chain!");
+            NARC_ERROR_RUNTIME("Could not create Vulkan Swap Chain.");
         }
+
+        m_swapChainImages = m_swapChainService->getSwapChainImages(device->getHandle(), m_swapChain);
+        m_swapChainImageFormat = surfaceFormat.format;
+        m_swapChainExtent = extent;
+
+        createImageViews();
     }
 
     void VulkanSwapChain::shutdown()
     {
         NARC_GUARD_WEAK(device, m_device, "Failed to get Device.");
 
+        for (auto imageView : m_swapChainImageViews) {
+            vkDestroyImageView(device->getHandle(), imageView, nullptr);
+        }
+        
         vkDestroySwapchainKHR(device->getHandle(), m_swapChain, nullptr);
+        m_swapChain = VK_NULL_HANDLE;
+        m_swapChainImages = {};
+        m_swapChainExtent = {};
+        m_swapChainImageFormat = VK_FORMAT_UNDEFINED;
+    }
+
+    void VulkanSwapChain::createImageViews()
+    {
+        NARC_GUARD_WEAK(device, m_device, "Failed to get Device.");
+        
+        m_swapChainImageViews.resize(m_swapChainImages.size());
+        for (size_t i = 0; i < m_swapChainImages.size(); i++)
+        {
+            VkImageViewCreateInfo createInfo{};
+            createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            createInfo.image = m_swapChainImages[i];
+            createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+            createInfo.format = m_swapChainImageFormat;
+            createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+            createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+            createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+            createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+            createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            createInfo.subresourceRange.baseMipLevel = 0;
+            createInfo.subresourceRange.levelCount = 1;
+            createInfo.subresourceRange.baseArrayLayer = 0;
+            createInfo.subresourceRange.layerCount = 1;
+
+            if (vkCreateImageView(device->getHandle(), &createInfo, nullptr, &m_swapChainImageViews[i]) != VK_SUCCESS)
+            {
+                NARC_ERROR_RUNTIME("failed to create image views!");
+            }
+        }
     }
 
     VkPresentModeKHR VulkanSwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) const

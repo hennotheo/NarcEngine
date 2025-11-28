@@ -6,7 +6,7 @@
 
 #include <utility>
 
-#include "VulkanSwapChain.h"
+#include "../include/vulkan_wrappers/VulkanSwapChain.h"
 
 namespace narc_engine {
     VulkanSurfacesManager::VulkanSurfacesManager(std::shared_ptr<narc_core::ICreator<VulkanSwapChain>> swapChainCreator) :

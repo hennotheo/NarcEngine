@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include "IVulkanSurface.h"
+#include "../IVulkanSurface.h"
 
 #include "VulkanDevice.h"
 
-#include "services/SwapChainService.h"
+#include "../services/SwapChainService.h"
 
 namespace narc_engine {
     class PhysicalDeviceService;
@@ -21,15 +21,26 @@ namespace narc_engine {
         ~VulkanSwapChain() noexcept override;
 
         NARC_IMPL_INITIALISABLE();
+
+        NARC_GETTER(VkExtent2D, getSwapChainExtent, m_swapChainExtent);
+        NARC_GETTER(VkFormat, getSwapChainImageFormat, m_swapChainImageFormat);
         
         void setSurface(const std::weak_ptr<IVulkanSurface>& surface) { m_surface = surface; }
 
     private:
         std::weak_ptr<IVulkanSurface> m_surface;
         std::weak_ptr<VulkanDevice> m_device;
-        std::shared_ptr<SwapChainService> m_physicalDeviceService;
+        std::shared_ptr<SwapChainService> m_swapChainService;
 
         VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
+
+        std::vector<VkImage> m_swapChainImages;
+        VkFormat m_swapChainImageFormat = VK_FORMAT_UNDEFINED;
+        VkExtent2D m_swapChainExtent = {};
+
+        std::vector<VkImageView> m_swapChainImageViews;
+
+        void createImageViews();
 
         //TODO: To query
         NO_DISCARD VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) const;

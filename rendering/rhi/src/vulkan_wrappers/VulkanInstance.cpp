@@ -2,7 +2,7 @@
 // Created by theohenno on 10/11/25.
 //
 
-#include "VulkanInstance.h"
+#include "../../include/vulkan_wrappers/VulkanInstance.h"
 
 #include "IVulkanSurface.h"
 #include "layers/VulkanGlfwExtension.h"

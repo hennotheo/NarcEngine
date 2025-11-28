@@ -4,6 +4,7 @@
 #include <Rhi.h>
 
 #include "../../../../../.conan2/p/b/glfwa6e2adfa5e8b8/p/include/GLFW/glfw3.h"
+#include "vulkan_wrappers/VulkanGraphicsPipeline.h"
 
 class SurfaceManager final : public narc_engine::VulkanSurfacesManager
 {
@@ -123,7 +124,7 @@ int main(int argc, char** argv)
 
         auto mainWindow = injector.create<std::shared_ptr<narc_engine::IVulkanSurface>>();
         surfacesManager->pushSurface(mainWindow);
-
+        
         instance->init();
         mainWindow->init();
         device->init();

@@ -2,10 +2,10 @@
 // Created by theohenno on 10/14/25.
 //
 
-#include "VulkanDevice.h"
+#include "vulkan_wrappers/VulkanDevice.h"
 
-#include "VulkanInstance.h"
-#include "VulkanQueue.h"
+#include "vulkan_wrappers/VulkanInstance.h"
+#include "vulkan_wrappers/VulkanQueue.h"
 
 #include "services/PhysicalDeviceService.h"
 #include "services/DeviceQueueService.h"

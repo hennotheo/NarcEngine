@@ -34,4 +34,20 @@ namespace narc_engine {
 
         return supportInfo;
     }
+
+    std::vector<VkImage> SwapChainService::getSwapChainImages(const VkDevice& device, const VkSwapchainKHR& swapChain) const noexcept
+    {
+        uint32_t imageCount;
+        vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
+
+        if (imageCount == 0)
+        {
+            return {};
+        }
+
+        std::vector<VkImage> images(imageCount);
+        vkGetSwapchainImagesKHR(device, swapChain, &imageCount, images.data());
+
+        return images;
+    }
 }

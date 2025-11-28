@@ -4,15 +4,15 @@
 
 #pragma once
 
-#include "VulkanInstance.h"
+#include "VulkanQueue.h"
 
 #include "config_provider/IVulkanDeviceConfigProvider.h"
-
-#include "services/DeviceQueueService.h"
-#include "TypeDefs.h"
+#include "models/QueueFamilyIndices.h"
 
 namespace narc_engine {
-    class VulkanQueue;
+    class VulkanInstance;
+    class PhysicalDeviceService;
+    class DeviceQueueService;
 
     class VulkanDevice final : public narc_core::IInitialisable, public std::enable_shared_from_this<VulkanDevice>
     {
@@ -38,8 +38,8 @@ namespace narc_engine {
         std::weak_ptr<IVulkanDeviceConfigProvider> m_config;
         std::weak_ptr<VulkanInstance> m_instance;
 
-        PhysicalDeviceServicePtr m_deviceService;
-        DeviceQueueServicePtr m_queueService;
+        std::shared_ptr<PhysicalDeviceService> m_deviceService;
+        std::shared_ptr<DeviceQueueService> m_queueService;
 
         VulkanQueue m_graphicsQueue;
         VulkanQueue m_presentQueue;

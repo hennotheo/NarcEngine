@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "config_provider/EngineConfigProvider.h"
-#include "layers/IVulkanExtension.h"
+#include "../config_provider/EngineConfigProvider.h"
+#include "../layers/IVulkanExtension.h"
 
 namespace narc_engine {
     class VulkanInstance final : public narc_core::IInitialisable, public std::enable_shared_from_this<VulkanInstance>
