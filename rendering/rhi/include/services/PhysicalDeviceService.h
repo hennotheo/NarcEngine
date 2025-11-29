@@ -9,9 +9,8 @@
 
 namespace narc_engine {
     class VulkanSurfacesManager;
-    class VulkanInstance;
     class SwapChainService;
-
+    class VulkanInstance;
     using QueryDeviceError = std::string;
 
     class PhysicalDeviceService final

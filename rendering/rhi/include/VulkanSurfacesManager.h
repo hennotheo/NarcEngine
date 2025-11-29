@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include "IVulkanSurface.h"
-
 namespace narc_engine {
+    class VulkanDevice;
+    class IVulkanSurface;
+    class VulkanGraphicsPipeline;
     class PhysicalDeviceService;
     class VulkanInstance;
     class VulkanSwapChain;
@@ -20,9 +21,22 @@ namespace narc_engine {
         NARC_PURE_VIRTUAL_GETTER(const IVulkanSurface*, getMainSurface);
         NARC_IMPL_INITIALISABLE();
 
+        void setDevice(std::weak_ptr<VulkanDevice> device) noexcept
+        {
+            m_device = std::move(device);
+        }
         virtual void updateSurfaces() = 0;
 
-        std::vector<std::shared_ptr<IVulkanSurface>> getSurfaces() const noexcept { return m_surfaces; } //TODO: Temporary solution
+        std::vector<IVulkanSurface*> getSurfaces() const noexcept
+        {
+            auto out = std::vector<IVulkanSurface*>{};
+            out.reserve(m_surfaces.size());
+            std::transform(m_surfaces.begin(), m_surfaces.end(), std::back_inserter(out),
+                           [](const std::unique_ptr<IVulkanSurface>& surface) {
+                               return surface.get();
+                           });
+            return out;
+        } //TODO: Temporary solution
         std::vector<VulkanSwapChain*> getSwapChains() const noexcept //TODO: Temporary solution
         {
             std::vector<VulkanSwapChain*> out;
@@ -34,12 +48,14 @@ namespace narc_engine {
             return out;
         }
 
-        virtual void pushSurface(std::shared_ptr<IVulkanSurface>& surface);
+        virtual void pushSurface(std::unique_ptr<IVulkanSurface>& surface);
 
     private:
+        std::weak_ptr<VulkanDevice> m_device;
         std::shared_ptr<narc_core::ICreator<VulkanSwapChain>> m_swapChainCreator;
 
-        std::vector<std::shared_ptr<IVulkanSurface>> m_surfaces{};
+        std::vector<std::unique_ptr<IVulkanSurface>> m_surfaces{};
+        std::vector<std::unique_ptr<VulkanGraphicsPipeline>> m_pipelines{};
         std::vector<std::unique_ptr<VulkanSwapChain>> m_swapChains{};
     };
 } // narc_engine

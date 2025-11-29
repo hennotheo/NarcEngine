@@ -6,13 +6,13 @@
 
 #include "VulkanQueue.h"
 
-#include "config_provider/IVulkanDeviceConfigProvider.h"
 #include "models/QueueFamilyIndices.h"
+#include "services/DeviceQueueService.h"
+#include "services/PhysicalDeviceService.h"
 
 namespace narc_engine {
+    class IVulkanDeviceConfigProvider;
     class VulkanInstance;
-    class PhysicalDeviceService;
-    class DeviceQueueService;
 
     class VulkanDevice final : public narc_core::IInitialisable, public std::enable_shared_from_this<VulkanDevice>
     {

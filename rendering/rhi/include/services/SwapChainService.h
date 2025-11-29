@@ -7,9 +7,7 @@
 #include "VulkanSurfacesManager.h"
 #include "models/SwapChainSupportInfoVulkan.h"
 
-namespace narc_engine {
-    class VulkanSurfacesManager;
-    
+namespace narc_engine {    
     class SwapChainService final
     {
     public:

@@ -24,9 +24,12 @@ namespace narc_engine {
 
     void VulkanSwapChain::init()
     {
-        NARC_GUARD_WEAK(surfaceHandler, m_surface, "Failed to get Surface");
+        if (m_surface == nullptr)
+        {
+            NARC_ERROR_RUNTIME("Surface not set for VulkanSwapChain.");
+        }
         NARC_GUARD_WEAK(device, m_device, "Failed to get Device");
-        const auto surface = surfaceHandler->getHandled();
+        const auto surface = m_surface->getHandled();
 
         const SwapChainSupportInfoVulkan swapChainSupport = m_swapChainService->querySwapChainSupportInfo(
                 device->getPhysicalDeviceHandle(), surface);
@@ -144,14 +147,17 @@ namespace narc_engine {
 
     VkExtent2D VulkanSwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const
     {
-        NARC_GUARD_WEAK(surface, m_surface, "Failed to get Surface");
+        if (m_surface == nullptr)
+        {
+            NARC_ERROR_RUNTIME("Surface not set for VulkanSwapChain.");
+        }
 
         if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
         {
             return capabilities.currentExtent;
         }
 
-        auto extend = surface->getSurfaceExtent();
+        auto extend = m_surface->getSurfaceExtent();
         extend.width = std::clamp(extend.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
         extend.height = std::clamp(extend.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
 

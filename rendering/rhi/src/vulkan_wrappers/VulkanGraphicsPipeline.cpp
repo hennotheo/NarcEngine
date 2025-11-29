@@ -4,20 +4,37 @@
 
 #include "vulkan_wrappers/VulkanGraphicsPipeline.h"
 
+#include "vulkan_wrappers/VulkanDevice.h"
+#include "vulkan_wrappers/VulkanPipelineLayout.h"
+#include "vulkan_wrappers/VulkanRenderPass.h"
 #include "vulkan_wrappers/VulkanShaderModule.h"
 #include "vulkan_wrappers/VulkanSwapChain.h"
 
 namespace narc_engine {
-    VulkanGraphicsPipeline::VulkanGraphicsPipeline(const std::weak_ptr<VulkanDevice>& device, const std::weak_ptr<VulkanSwapChain>& swapchain) :
+    VulkanGraphicsPipeline::VulkanGraphicsPipeline(const std::weak_ptr<VulkanDevice>& device, const std::unique_ptr<VulkanSwapChain>& swapChain) :
         m_device(device),
-        m_swapChain(swapchain)
+        m_swapChain(swapChain.get())
     {
+        
     }
 
     VulkanGraphicsPipeline::~VulkanGraphicsPipeline() = default;
-
+    
     void VulkanGraphicsPipeline::init()
-    {
+    {        
+        if (m_renderPass == nullptr)
+        {
+            NARC_ERROR_RUNTIME("RenderPass not set for VulkanGraphicsPipeline.");
+        }
+        m_renderPass->init();
+
+        if (m_pipelineLayout == nullptr)
+        {
+            NARC_ERROR_RUNTIME("PipelineLayout not set for VulkanGraphicsPipeline.");
+        }
+        m_pipelineLayout->init();
+
+        
         auto vertShaderModule = VulkanShaderModule(m_device, "shaders/shader_frag.spv");
         vertShaderModule.init();
         auto fragShaderModule = VulkanShaderModule(m_device, "shaders/shader_vert.spv");
@@ -64,8 +81,11 @@ namespace narc_engine {
         inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         inputAssembly.primitiveRestartEnable = VK_FALSE;
 
-        NARC_GUARD_WEAK(swapchain, m_swapChain, "Failed to get SwapChain.");
-        const auto swapChainExtent = swapchain->getSwapChainExtent();
+        if (m_swapChain == nullptr)
+        {
+            NARC_ERROR_RUNTIME("SwapChain not set for VulkanGraphicsPipeline.");
+        }
+        const auto swapChainExtent = m_swapChain->getSwapChainExtent();
 
         //Viewport
         VkViewport viewport{};
@@ -97,6 +117,7 @@ namespace narc_engine {
         rasterizer.depthBiasConstantFactor = 0.0f; // Optional
         rasterizer.depthBiasClamp = 0.0f; // Optional
         rasterizer.depthBiasSlopeFactor = 0.0f; // Optional
+        rasterizer.lineWidth = 1.0f;
 
         VkPipelineMultisampleStateCreateInfo multisampling{};
         multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
@@ -129,17 +150,29 @@ namespace narc_engine {
         colorBlending.blendConstants[2] = 0.0f; // Optional
         colorBlending.blendConstants[3] = 0.0f; // Optional
 
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = 0; // Optional
-        pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
-        pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
-        pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Device.");
+        VkGraphicsPipelineCreateInfo pipelineInfo{};
+        pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+        pipelineInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
+        pipelineInfo.pStages = shaderStages.data();
 
-        if (vkCreatePipelineLayout(device->getHandle(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
+        pipelineInfo.pVertexInputState = &vertexInputInfo;
+        pipelineInfo.pInputAssemblyState = &inputAssembly;
+        pipelineInfo.pViewportState = &viewportState;
+        pipelineInfo.pRasterizationState = &rasterizer;
+        pipelineInfo.pMultisampleState = &multisampling;
+        pipelineInfo.pDepthStencilState = nullptr; // Optional
+        pipelineInfo.pColorBlendState = &colorBlending;
+        pipelineInfo.pDynamicState = &dynamicState;
+        pipelineInfo.layout = m_pipelineLayout->getHandle();
+        pipelineInfo.renderPass = m_renderPass->getHandle();
+        pipelineInfo.subpass = 0;
+        pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
+        pipelineInfo.basePipelineIndex = -1; // Optional
+
+        NARC_GUARD_WEAK(device, m_device, "Failed to get Vulkan Device.");
+        if (vkCreateGraphicsPipelines(device->getHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) != VK_SUCCESS)
         {
-            NARC_ERROR_RUNTIME("Failed to create pipeline layout!");
+            NARC_ERROR_RUNTIME("Failed to create graphics pipeline!");
         }
 
         vertShaderModule.shutdown();
@@ -148,8 +181,20 @@ namespace narc_engine {
 
     void VulkanGraphicsPipeline::shutdown()
     {
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Device.");
-        
-        vkDestroyPipelineLayout(device->getHandle(), m_pipelineLayout, nullptr);
+        NARC_GUARD_WEAK(device, m_device, "Failed to get Vulkan Device.");
+        vkDestroyPipeline(device->getHandle(), m_pipeline, nullptr);
+
+        m_renderPass->shutdown();
+        m_pipelineLayout->shutdown();
+    }
+
+    void VulkanGraphicsPipeline::setLayout(std::unique_ptr<VulkanPipelineLayout>& pipelineLayout)
+    {
+        m_pipelineLayout = std::move(pipelineLayout);
+    }
+
+    void VulkanGraphicsPipeline::setRenderPass(std::unique_ptr<VulkanRenderPass>& renderPass)
+    {
+        m_renderPass = std::move(renderPass);
     }
 } // narc_engine

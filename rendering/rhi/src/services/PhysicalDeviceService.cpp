@@ -4,6 +4,7 @@
 
 #include "services/PhysicalDeviceService.h"
 
+#include "IVulkanSurface.h"
 #include "../../include/vulkan_wrappers/VulkanInstance.h"
 #include "VulkanSurfacesManager.h"
 #include "services/SwapChainService.h"

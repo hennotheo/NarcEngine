@@ -11,12 +11,13 @@ namespace narc_engine {
         m_device(device),
         m_path(std::move(path))
     {
+        
     }
 
     VulkanShaderModule::~VulkanShaderModule() = default;
 
     void VulkanShaderModule::init()
-    {
+    {        
         const auto code = narc_io::FileReader::readFile(m_path);
 
         m_shaderModule = createShaderModule(code);

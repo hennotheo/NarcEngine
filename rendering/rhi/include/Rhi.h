@@ -11,6 +11,10 @@
 #include "vulkan_wrappers/VulkanDevice.h"
 #include "vulkan_wrappers/VulkanQueue.h"
 #include "vulkan_wrappers/VulkanSwapChain.h"
+#include "vulkan_wrappers/VulkanPipelineLayout.h"
+#include "vulkan_wrappers/VulkanGraphicsPipeline.h"
+#include "vulkan_wrappers/VulkanShaderModule.h"
+#include "vulkan_wrappers/VulkanRenderPass.h"
 #include "GlfwVulkanSurface.h"
 #include "VulkanSurfacesManager.h"
 

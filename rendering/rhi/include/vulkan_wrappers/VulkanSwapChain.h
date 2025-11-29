@@ -4,11 +4,9 @@
 
 #pragma once
 
-#include "../IVulkanSurface.h"
+#include "IVulkanSurface.h"
 
-#include "VulkanDevice.h"
-
-#include "../services/SwapChainService.h"
+#include "services/SwapChainService.h"
 
 namespace narc_engine {
     class PhysicalDeviceService;
@@ -25,12 +23,12 @@ namespace narc_engine {
         NARC_GETTER(VkExtent2D, getSwapChainExtent, m_swapChainExtent);
         NARC_GETTER(VkFormat, getSwapChainImageFormat, m_swapChainImageFormat);
         
-        void setSurface(const std::weak_ptr<IVulkanSurface>& surface) { m_surface = surface; }
+        void setSurface(const std::unique_ptr<IVulkanSurface>& surface) { m_surface = surface.get(); }
 
     private:
-        std::weak_ptr<IVulkanSurface> m_surface;
         std::weak_ptr<VulkanDevice> m_device;
         std::shared_ptr<SwapChainService> m_swapChainService;
+        IVulkanSurface* m_surface;
 
         VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
 

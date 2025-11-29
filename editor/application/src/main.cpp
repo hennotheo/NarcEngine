@@ -4,7 +4,6 @@
 #include <Rhi.h>
 
 #include "../../../../../.conan2/p/b/glfwa6e2adfa5e8b8/p/include/GLFW/glfw3.h"
-#include "vulkan_wrappers/VulkanGraphicsPipeline.h"
 
 class SurfaceManager final : public narc_engine::VulkanSurfacesManager
 {
@@ -19,7 +18,7 @@ public:
     NO_DISCARD const narc_engine::IVulkanSurface* getMainSurface() const noexcept override
     {
         const auto m_surfaces = getSurfaces();
-        return m_surfaces.empty() ? nullptr : m_surfaces.front().get();
+        return m_surfaces.empty() ? nullptr : m_surfaces.front();
     }
 
     void updateSurfaces() override
@@ -91,7 +90,6 @@ int main(int argc, char** argv)
             );
 
     {
-        //Configure Creator
         const auto creator = injector.create<std::shared_ptr<Creator>>();
         creator->CreateVulkanSwapChain = [&injector] {
             return injector.create<std::unique_ptr<narc_engine::VulkanSwapChain>>();
@@ -103,10 +101,10 @@ int main(int argc, char** argv)
         {
             const auto configProvider = injector.create<std::weak_ptr<narc_engine::EngineConfigProvider>>();
             NARC_GUARD_WEAK(configProviderPtr, configProvider, "Failed to create VulkanInstanceInfos");
-
+            
             configProviderPtr->m_applicationName = "NarcEngine Editor";
             configProviderPtr->m_engineName = "NarcEngine";
-
+            
             std::vector<std::shared_ptr<narc_engine::IVulkanExtension>> vulkanExtensions;
             vulkanExtensions.push_back(std::make_shared<TestDeviceExtensions>());
             configProviderPtr->m_physicalDeviceCriteria = narc_engine::PhysicalDeviceCriteria{
@@ -121,21 +119,22 @@ int main(int argc, char** argv)
         const auto instance = injector.create<std::shared_ptr<narc_engine::VulkanInstance>>();
         const auto device = injector.create<std::shared_ptr<narc_engine::VulkanDevice>>();
         const auto surfacesManager = injector.create<std::shared_ptr<narc_engine::VulkanSurfacesManager>>();
-
-        auto mainWindow = injector.create<std::shared_ptr<narc_engine::IVulkanSurface>>();
-        surfacesManager->pushSurface(mainWindow);
+        surfacesManager->setDevice(device);
+        
+        auto mainWindow = injector.create<std::unique_ptr<narc_engine::IVulkanSurface>>();
         
         instance->init();
         mainWindow->init();
+        surfacesManager->pushSurface(mainWindow);
         device->init();
         surfacesManager->init();
-
+        
         while (!surfacesManager->getMainSurface()->shouldClose())
         {
             glfwPollEvents();
             surfacesManager->updateSurfaces();
         }
-
+        
         surfacesManager->shutdown();
         device->shutdown();
         instance->shutdown();
