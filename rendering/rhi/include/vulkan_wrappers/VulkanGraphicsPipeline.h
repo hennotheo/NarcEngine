@@ -21,6 +21,8 @@ namespace narc_engine {
         void setLayout(std::unique_ptr<VulkanPipelineLayout>& pipelineLayout);
         void setRenderPass(std::unique_ptr<VulkanRenderPass>& renderPass);
 
+        NARC_GETTER(VulkanRenderPass*, getRenderPass, m_renderPass.get());
+        
     private:
         std::weak_ptr<VulkanDevice> m_device;
         VulkanSwapChain* m_swapChain;

@@ -9,6 +9,7 @@
 #include "vulkan_wrappers/VulkanPipelineLayout.h"
 #include "vulkan_wrappers/VulkanRenderPass.h"
 #include "vulkan_wrappers/VulkanSwapChain.h"
+#include "vulkan_wrappers/VulkanFramebuffer.h"
 
 namespace narc_engine {
     VulkanSurfacesManager::VulkanSurfacesManager(std::shared_ptr<narc_core::ICreator<VulkanSwapChain>> swapChainCreator) :
@@ -25,24 +26,56 @@ namespace narc_engine {
             surface->init();
         }
 
-        for (const auto& swapChains: m_swapChains)
+        m_frameBuffers.clear();
+        m_frameBuffers.resize(m_swapChains.size());
+        for (int i = 0; i < m_swapChains.size(); ++i)
         {
+            const auto& swapChains = m_swapChains[i];
+            const auto& pipeline = m_pipelines[i];
+            const auto* renderPass = pipeline->getRenderPass();
+
+            //Need to init swap chain before framebuffer creation
             swapChains->init();
+            pipeline->init();
+            
+            auto* framebufferArray = &m_frameBuffers[i];
+            const auto& imageViews = swapChains->getSwapChainImageViews();
+            framebufferArray->reserve(imageViews.size());
+            for (const auto& imageView: imageViews)
+            {
+                std::array attachments = {imageView};
+
+                auto framebuffer = std::make_unique<VulkanFramebuffer>(m_device, swapChains.get(), renderPass);
+                framebuffer->setAttachments(attachments);
+                
+                framebufferArray->push_back(std::move(framebuffer));
+            }
         }
 
-        for (const auto& pipelines: m_pipelines)
+        for (const auto& framebuffers: m_frameBuffers)
         {
-            pipelines->init();
+            for (const auto& framebuffer: framebuffers)
+            {
+                framebuffer->init();
+            }
         }
     }
 
     void VulkanSurfacesManager::shutdown()
     {
+        for (const auto& framebuffers: m_frameBuffers)
+        {
+            for (const auto& framebuffer: framebuffers)
+            {
+                framebuffer->shutdown();
+            }
+        }
+
         for (const auto& pipelines: m_pipelines)
         {
             pipelines->shutdown();
         }
-        
+
         for (const auto& swapChains: m_swapChains)
         {
             swapChains->shutdown();

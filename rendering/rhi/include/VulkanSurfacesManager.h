@@ -5,6 +5,7 @@
 #pragma once
 
 namespace narc_engine {
+    class VulkanFramebuffer;
     class VulkanDevice;
     class IVulkanSurface;
     class VulkanGraphicsPipeline;
@@ -57,5 +58,6 @@ namespace narc_engine {
         std::vector<std::unique_ptr<IVulkanSurface>> m_surfaces{};
         std::vector<std::unique_ptr<VulkanGraphicsPipeline>> m_pipelines{};
         std::vector<std::unique_ptr<VulkanSwapChain>> m_swapChains{};
+        std::vector<std::vector<std::unique_ptr<VulkanFramebuffer>>> m_frameBuffers{};
     };
 } // narc_engine

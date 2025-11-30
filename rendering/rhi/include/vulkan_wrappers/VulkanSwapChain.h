@@ -22,6 +22,8 @@ namespace narc_engine {
 
         NARC_GETTER(VkExtent2D, getSwapChainExtent, m_swapChainExtent);
         NARC_GETTER(VkFormat, getSwapChainImageFormat, m_swapChainImageFormat);
+
+        NARC_GETTER(std::span<const VkImageView>, getSwapChainImageViews, m_swapChainImageViews);
         
         void setSurface(const std::unique_ptr<IVulkanSurface>& surface) { m_surface = surface.get(); }
 
@@ -32,10 +34,10 @@ namespace narc_engine {
 
         VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
 
-        std::vector<VkImage> m_swapChainImages;
         VkFormat m_swapChainImageFormat = VK_FORMAT_UNDEFINED;
         VkExtent2D m_swapChainExtent = {};
 
+        std::vector<VkImage> m_swapChainImages;
         std::vector<VkImageView> m_swapChainImageViews;
 
         void createImageViews();
