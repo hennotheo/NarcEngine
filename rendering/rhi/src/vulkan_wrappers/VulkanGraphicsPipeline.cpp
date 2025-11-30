@@ -35,10 +35,10 @@ namespace narc_engine {
         m_pipelineLayout->init();
 
         
-        auto vertShaderModule = VulkanShaderModule(m_device, "shaders/shader_frag.spv");
-        vertShaderModule.init();
-        auto fragShaderModule = VulkanShaderModule(m_device, "shaders/shader_vert.spv");
+        auto fragShaderModule = VulkanShaderModule(m_device, "shaders/shader_frag.spv");
         fragShaderModule.init();
+        auto vertShaderModule = VulkanShaderModule(m_device, "shaders/shader_vert.spv");
+        vertShaderModule.init();
 
         VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
         vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
