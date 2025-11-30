@@ -122,12 +122,14 @@ int main(int argc, char** argv)
         surfacesManager->setDevice(device);
         
         auto mainWindow = injector.create<std::unique_ptr<narc_engine::IVulkanSurface>>();
+        const auto cmdPool = injector.create<std::shared_ptr<narc_engine::VulkanCommandPool>>();
         
         instance->init();
         mainWindow->init();
         surfacesManager->pushSurface(mainWindow);
         device->init();
         surfacesManager->init();
+        cmdPool->init();
         
         while (!surfacesManager->getMainSurface()->shouldClose())
         {
@@ -135,6 +137,7 @@ int main(int argc, char** argv)
             surfacesManager->updateSurfaces();
         }
         
+        cmdPool->shutdown();
         surfacesManager->shutdown();
         device->shutdown();
         instance->shutdown();
