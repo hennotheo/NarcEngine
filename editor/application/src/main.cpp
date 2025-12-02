@@ -79,7 +79,7 @@ public:
             VkPresentInfoKHR presentInfo{};
             presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
-            presentInfo.waitSemaphoreCount = 1;
+            presentInfo.waitSemaphoreCount = signalSemaphores.size();
             presentInfo.pWaitSemaphores = signalSemaphores.data();
 
             VkSwapchainKHR swapChains[] = {swapchain->getHandle()};

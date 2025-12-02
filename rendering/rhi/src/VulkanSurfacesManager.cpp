@@ -43,7 +43,7 @@ namespace narc_engine {
             framebufferArray->reserve(imageViews.size());
             for (const auto& imageView: imageViews)
             {
-                std::array attachments = {imageView};
+                std::vector attachments = {imageView};
 
                 auto framebuffer = std::make_unique<VulkanFramebuffer>(m_device, swapChains.get(), renderPass);
                 framebuffer->setAttachments(attachments);

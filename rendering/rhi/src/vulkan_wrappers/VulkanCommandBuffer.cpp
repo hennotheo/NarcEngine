@@ -65,6 +65,11 @@ namespace narc_engine {
         const auto infos = renderPass.getRenderPassBeginInfo(framebuffer);
         vkCmdBeginRenderPass(m_commandBuffer, &infos, VK_SUBPASS_CONTENTS_INLINE);
 
+        for (int i = 0; i < infos.clearValueCount; ++i)
+        {
+            const auto & tzname = infos.pClearValues[i];
+        }
+        
         return this;
     }
 
