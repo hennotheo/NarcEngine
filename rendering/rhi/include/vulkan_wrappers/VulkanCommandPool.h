@@ -15,6 +15,8 @@ namespace narc_engine {
 
         NARC_IMPL_INITIALISABLE();
 
+        NARC_GETTER(VkCommandPool, getHandle, m_commandPool);
+
     private:
         std::weak_ptr<VulkanDevice> m_device;
         

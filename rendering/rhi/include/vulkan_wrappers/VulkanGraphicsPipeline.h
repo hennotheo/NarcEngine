@@ -22,6 +22,7 @@ namespace narc_engine {
         void setRenderPass(std::unique_ptr<VulkanRenderPass>& renderPass);
 
         NARC_GETTER(VulkanRenderPass*, getRenderPass, m_renderPass.get());
+        NARC_GETTER(VkPipeline, getHandle, m_pipeline);
         
     private:
         std::weak_ptr<VulkanDevice> m_device;

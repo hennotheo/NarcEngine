@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include "vulkan_wrappers/VulkanGraphicsPipeline.h"
 
 namespace narc_engine {
     class VulkanFramebuffer;
@@ -26,6 +27,7 @@ namespace narc_engine {
         {
             m_device = std::move(device);
         }
+
         virtual void updateSurfaces() = 0;
 
         std::vector<IVulkanSurface*> getSurfaces() const noexcept
@@ -49,7 +51,27 @@ namespace narc_engine {
             return out;
         }
 
+        const std::vector<std::vector<std::unique_ptr<VulkanFramebuffer>>>& getFramebuffers() noexcept
+        {            
+            return m_frameBuffers;
+        }
+
+        std::vector<VulkanGraphicsPipeline*> getPipeline() const noexcept
+        {
+            std::vector<VulkanGraphicsPipeline*> out;
+            out.reserve(m_pipelines.size());
+            for (const auto& pipeline: m_pipelines)
+            {
+                    out.push_back(pipeline.get());
+            }
+            
+            return out;
+        }
+
         virtual void pushSurface(std::unique_ptr<IVulkanSurface>& surface);
+
+    protected:
+        NARC_GETTER(const std::weak_ptr<VulkanDevice>&, getDevice, m_device);
 
     private:
         std::weak_ptr<VulkanDevice> m_device;

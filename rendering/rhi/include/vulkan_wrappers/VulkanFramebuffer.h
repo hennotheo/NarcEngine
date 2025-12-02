@@ -19,6 +19,8 @@ namespace narc_engine {
 
         NARC_IMPL_INITIALISABLE();
 
+        NARC_GETTER(VkFramebuffer, getHandle, m_framebuffer);
+
         void setAttachments(const std::span<const VkImageView>& attachments) { m_attachments = attachments; }
     private:
         std::weak_ptr<VulkanDevice> m_device;

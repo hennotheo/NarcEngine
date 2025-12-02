@@ -21,16 +21,104 @@ public:
         return m_surfaces.empty() ? nullptr : m_surfaces.front();
     }
 
+    narc_engine::VulkanSemaphore* imageAvailableSemaphore;
+    narc_engine::VulkanSemaphore* renderFinishedSemaphore;
+    narc_engine::VulkanFence* inFlightFence;
+    narc_engine::VulkanCommandBuffer* cmdBuffer;
+    narc_engine::VulkanQueue* graphicsQueue;
+    narc_engine::VulkanQueue* presentQueue;
+
     void updateSurfaces() override
     {
-        const auto m_surfaces = getSurfaces();
-        for (const auto& surface: m_surfaces)
+        NARC_GUARD_WEAK(device, getDevice(), "Failed to get Vulkan Device.");
+
+        const auto surfaces = getSurfaces();
+        const auto swapChains = getSwapChains();
+        const auto& framebuffers = getFramebuffers();
+        const auto pipelines = getPipeline();
+        for (int i = 0; i < surfaces.size(); ++i)
         {
-            if (surface->shouldClose())
+            const auto surf = surfaces[i];
+            const auto swapchain = swapChains[i];
+            const auto& swapchainFBs = framebuffers[i];
+            const auto pipeline = pipelines[i];
+
+            inFlightFence->wait();
+            inFlightFence->reset();
+
+            uint32_t imageIndex;
+            vkAcquireNextImageKHR(device->getHandle(), swapchain->getHandle(), UINT64_MAX, imageAvailableSemaphore->getHandle(), VK_NULL_HANDLE,
+                                  &imageIndex);
+
+            const auto& framebuffer = swapchainFBs[imageIndex];
+            cmdBuffer->reset();
+            recordCommandBuffer(framebuffer.get(), swapchain, pipeline);
+
+            VkSubmitInfo submitInfo{};
+            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+            std::array waitSemaphores = {imageAvailableSemaphore->getHandle()};
+            constexpr VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+            submitInfo.waitSemaphoreCount = waitSemaphores.size();
+            submitInfo.pWaitSemaphores = waitSemaphores.data();
+            submitInfo.pWaitDstStageMask = waitStages;
+
+            std::array commandBuffers = {cmdBuffer->getHandle()};
+            submitInfo.commandBufferCount = commandBuffers.size();
+            submitInfo.pCommandBuffers = commandBuffers.data();
+
+            std::array signalSemaphores = {renderFinishedSemaphore->getHandle()};
+            submitInfo.signalSemaphoreCount = signalSemaphores.size();
+            submitInfo.pSignalSemaphores = signalSemaphores.data();
+
+            if (vkQueueSubmit(graphicsQueue->getHandle(), 1, &submitInfo, inFlightFence->getHandle()) != VK_SUCCESS)
             {
-                NARC_LOG_INFO("Surface requested to close.");
+                NARC_ERROR_RUNTIME("Failed to submit draw command buffer!");
             }
+
+            VkPresentInfoKHR presentInfo{};
+            presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+            presentInfo.waitSemaphoreCount = 1;
+            presentInfo.pWaitSemaphores = signalSemaphores.data();
+
+            VkSwapchainKHR swapChains[] = {swapchain->getHandle()};
+            presentInfo.swapchainCount = 1;
+            presentInfo.pSwapchains = swapChains;
+            presentInfo.pImageIndices = &imageIndex;
+            presentInfo.pResults = nullptr; // Optional
+
+            vkQueuePresentKHR(presentQueue->getHandle(), &presentInfo);
         }
+    }
+
+    void recordCommandBuffer(const narc_engine::VulkanFramebuffer* framebuffer, const narc_engine::VulkanSwapChain* swapchain, const narc_engine::VulkanGraphicsPipeline* pipeline)
+    {
+        cmdBuffer->begin();
+        cmdBuffer->beginRenderPass(*framebuffer, *pipeline->getRenderPass());
+
+        cmdBuffer->cmdBindPipeline(*pipeline);
+
+        const auto extend = swapchain->getSwapChainExtent();
+        
+        VkViewport viewport{};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = static_cast<float>(extend.width);
+        viewport.height = static_cast<float>(extend.height);
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        cmdBuffer->cmdSetViewport(viewport);
+
+        VkRect2D scissor{};
+        scissor.offset = {0, 0};
+        scissor.extent = extend;
+        cmdBuffer->cmdSetScissor(scissor);
+        
+        cmdBuffer->cmdDraw();
+
+        cmdBuffer->endRenderPass();
+        cmdBuffer->end();
     }
 };
 
@@ -101,10 +189,10 @@ int main(int argc, char** argv)
         {
             const auto configProvider = injector.create<std::weak_ptr<narc_engine::EngineConfigProvider>>();
             NARC_GUARD_WEAK(configProviderPtr, configProvider, "Failed to create VulkanInstanceInfos");
-            
+
             configProviderPtr->m_applicationName = "NarcEngine Editor";
             configProviderPtr->m_engineName = "NarcEngine";
-            
+
             std::vector<std::shared_ptr<narc_engine::IVulkanExtension>> vulkanExtensions;
             vulkanExtensions.push_back(std::make_shared<TestDeviceExtensions>());
             configProviderPtr->m_physicalDeviceCriteria = narc_engine::PhysicalDeviceCriteria{
@@ -120,24 +208,52 @@ int main(int argc, char** argv)
         const auto device = injector.create<std::shared_ptr<narc_engine::VulkanDevice>>();
         const auto surfacesManager = injector.create<std::shared_ptr<narc_engine::VulkanSurfacesManager>>();
         surfacesManager->setDevice(device);
-        
-        auto mainWindow = injector.create<std::unique_ptr<narc_engine::IVulkanSurface>>();
+
         const auto cmdPool = injector.create<std::shared_ptr<narc_engine::VulkanCommandPool>>();
-        
+        auto mainWindow = injector.create<std::unique_ptr<narc_engine::IVulkanSurface>>();
+
+        auto imageAvailableSemaphore = injector.create<narc_engine::VulkanSemaphore>();
+        auto renderFinishedSemaphore = injector.create<narc_engine::VulkanSemaphore>();
+        auto inFlightFence = injector.create<narc_engine::VulkanFence>();
+
+        const auto cmdBuffer = injector.create<std::unique_ptr<narc_engine::VulkanCommandBuffer>>();
         instance->init();
         mainWindow->init();
         surfacesManager->pushSurface(mainWindow);
         device->init();
         surfacesManager->init();
+        const auto surf = dynamic_cast<SurfaceManager*>(surfacesManager.get());
+        surf->imageAvailableSemaphore = &imageAvailableSemaphore;
+        surf->inFlightFence = &inFlightFence;
+        surf->renderFinishedSemaphore = &renderFinishedSemaphore;
+        surf->cmdBuffer = cmdBuffer.get();
+        surf->graphicsQueue = const_cast<narc_engine::VulkanQueue*>(device->getGraphicsQueue());
+        surf->presentQueue = const_cast<narc_engine::VulkanQueue*>(device->getPresentQueue());
+        surf->setDevice(device);
+
         cmdPool->init();
-        
+        cmdBuffer->init();
+
+        imageAvailableSemaphore.init();
+        renderFinishedSemaphore.init();
+        inFlightFence.init();
+
         while (!surfacesManager->getMainSurface()->shouldClose())
         {
             glfwPollEvents();
+
             surfacesManager->updateSurfaces();
         }
+        device->waitIdle();
+
         
+        inFlightFence.shutdown();
+        renderFinishedSemaphore.shutdown();
+        imageAvailableSemaphore.shutdown();
+
+        cmdBuffer->shutdown();
         cmdPool->shutdown();
+
         surfacesManager->shutdown();
         device->shutdown();
         instance->shutdown();

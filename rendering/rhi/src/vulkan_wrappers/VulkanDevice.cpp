@@ -54,6 +54,11 @@ namespace narc_engine {
         m_physicalDevice = VK_NULL_HANDLE;
     }
 
+    void VulkanDevice::waitIdle() const
+    {
+        vkDeviceWaitIdle(m_device);
+    }
+
     void VulkanDevice::selectPhysicalDeviceFromCriteria()
     {
         NARC_GUARD_WEAK(configPtr, m_config, "Failed to create VulkanDevice");

@@ -33,6 +33,8 @@ namespace narc_engine {
         NARC_GETTER(VkDevice, getHandle, m_device);
         NARC_GETTER(VkPhysicalDevice, getPhysicalDeviceHandle, m_physicalDevice);
 
+        void waitIdle() const;
+
     private:
         // Services
         std::weak_ptr<IVulkanDeviceConfigProvider> m_config;

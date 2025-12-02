@@ -25,6 +25,9 @@ namespace narc_engine {
 
         NARC_GETTER(std::span<const VkImageView>, getSwapChainImageViews, m_swapChainImageViews);
         
+        NARC_GETTER(VkSwapchainKHR, getHandle, m_swapChain);
+
+        
         void setSurface(const std::unique_ptr<IVulkanSurface>& surface) { m_surface = surface.get(); }
 
     private:

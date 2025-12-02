@@ -27,7 +27,7 @@ namespace narc_engine {
 
         if (vkCreateCommandPool(device->getHandle(), &poolInfo, nullptr, &m_commandPool) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create command pool!");
+            NARC_ERROR_RUNTIME("Failed to create command pool!");
         }
     }
 
