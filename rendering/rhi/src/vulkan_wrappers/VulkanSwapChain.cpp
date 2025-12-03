@@ -2,21 +2,19 @@
 // Created by theohenno on 11/20/25.
 //
 
-#include "../../include/vulkan_wrappers/VulkanSwapChain.h"
+#include "vulkan_wrappers/VulkanSwapChain.h"
 
 #include <GLFW/glfw3.h>
 
-#include <utility>
-
 #include "IVulkanSurface.h"
-#include "../../include/vulkan_wrappers/VulkanDevice.h"
-#include "services/PhysicalDeviceService.h"
+#include "vulkan_wrappers/VulkanDevice.h"
 #include "services/SwapChainService.h"
 
 namespace narc_engine {
-    VulkanSwapChain::VulkanSwapChain(std::weak_ptr<VulkanDevice> device, const std::shared_ptr<SwapChainService>& swapChainService) :
+    VulkanSwapChain::VulkanSwapChain(std::weak_ptr<VulkanDevice> device, NARC_DI_IMPORT_SERVICE(ISwapchainService)) :
+        NARC_DI_IMPL_SERVICE(ISwapchainService, m_swapChainService),
         m_device(std::move(device)),
-        m_swapChainService(swapChainService)
+        m_surface(nullptr)
     {
     }
 
@@ -28,20 +26,24 @@ namespace narc_engine {
         {
             NARC_ERROR_RUNTIME("Surface not set for VulkanSwapChain.");
         }
+        
         NARC_GUARD_WEAK(device, m_device, "Failed to get Device");
         const auto surface = m_surface->getHandled();
 
-        const SwapChainSupportInfoVulkan swapChainSupport = m_swapChainService->querySwapChainSupportInfo(
-                device->getPhysicalDeviceHandle(), surface);
+        const auto swapchainSupport = m_swapChainService->querySwapChainSupportInfo(device->getPhysicalDeviceHandle(), surface)
+                                                        .transform_error([](const auto& err) {
+                                                            NARC_ERROR_RUNTIME("Surface not supported by current device");
+                                                            return err;
+                                                        }).value();
 
-        VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.Formats);
-        VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.PresentModes);
-        VkExtent2D extent = chooseSwapExtent(swapChainSupport.Capabilities);
+        VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapchainSupport.Formats);
+        VkPresentModeKHR presentMode = chooseSwapPresentMode(swapchainSupport.PresentModes);
+        VkExtent2D extent = chooseSwapExtent(swapchainSupport.Capabilities);
 
-        uint32_t imageCount = swapChainSupport.Capabilities.minImageCount + 1;
-        if (swapChainSupport.Capabilities.maxImageCount > 0 && imageCount > swapChainSupport.Capabilities.maxImageCount)
+        uint32_t imageCount = swapchainSupport.Capabilities.minImageCount + 1;
+        if (swapchainSupport.Capabilities.maxImageCount > 0 && imageCount > swapchainSupport.Capabilities.maxImageCount)
         {
-            imageCount = swapChainSupport.Capabilities.maxImageCount;
+            imageCount = swapchainSupport.Capabilities.maxImageCount;
         }
 
         VkSwapchainCreateInfoKHR createInfo{};
@@ -70,7 +72,7 @@ namespace narc_engine {
             createInfo.pQueueFamilyIndices = nullptr; // Optional
         }
 
-        createInfo.preTransform = swapChainSupport.Capabilities.currentTransform;
+        createInfo.preTransform = swapchainSupport.Capabilities.currentTransform;
         createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
         createInfo.presentMode = presentMode;
         createInfo.clipped = VK_TRUE;
@@ -81,7 +83,10 @@ namespace narc_engine {
             NARC_ERROR_RUNTIME("Could not create Vulkan Swap Chain.");
         }
 
-        m_swapChainImages = m_swapChainService->getSwapChainImages(device->getHandle(), m_swapChain);
+        m_swapChainImages = m_swapChainService->querySwapChainImages(device->getHandle(), m_swapChain).transform_error([](const auto& err) {
+            NARC_ERROR_RUNTIME("Surface not supported by current device");
+            return err;
+        }).value();
         m_swapChainImageFormat = surfaceFormat.format;
         m_swapChainExtent = extent;
 
@@ -92,10 +97,11 @@ namespace narc_engine {
     {
         NARC_GUARD_WEAK(device, m_device, "Failed to get Device.");
 
-        for (auto imageView : m_swapChainImageViews) {
+        for (auto imageView: m_swapChainImageViews)
+        {
             vkDestroyImageView(device->getHandle(), imageView, nullptr);
         }
-        
+
         vkDestroySwapchainKHR(device->getHandle(), m_swapChain, nullptr);
         m_swapChain = VK_NULL_HANDLE;
         m_swapChainImages = {};
@@ -106,7 +112,7 @@ namespace narc_engine {
     void VulkanSwapChain::createImageViews()
     {
         NARC_GUARD_WEAK(device, m_device, "Failed to get Device.");
-        
+
         m_swapChainImageViews.resize(m_swapChainImages.size());
         for (size_t i = 0; i < m_swapChainImages.size(); i++)
         {

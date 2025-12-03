@@ -4,21 +4,21 @@
 
 #pragma once
 
-#include "VulkanSurfacesManager.h"
 #include "models/SwapChainSupportInfoVulkan.h"
 
 namespace narc_engine {    
-    class SwapChainService final
+    class SwapChainService final : public ISwapchainService
     {
     public:
         SwapChainService();
-        ~SwapChainService();
+        ~SwapChainService() override;
 
-        //TODO: move to another service?
-        NO_DISCARD SwapChainSupportInfoVulkan querySwapChainSupportInfo(const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface) const noexcept;
-        NO_DISCARD std::vector<VkImage> getSwapChainImages(const VkDevice& device, const VkSwapchainKHR& swapChain) const noexcept;
+        NARC_QUERY_OVERRIDE(VulkanServiceQuery<SwapChainSupportInfoVulkan>, querySwapChainSupportInfo,
+                                const VkPhysicalDevice& physicalDevice,
+                                const VkSurfaceKHR& surface);
 
-    private:
-        std::shared_ptr<VulkanSurfacesManager> m_surfacesManager;
+        NARC_QUERY_OVERRIDE(VulkanServiceQuery<std::vector<VkImage>>, querySwapChainImages,
+                        const VkDevice& device,
+                        const VkSwapchainKHR& swapChain);
     };
 }

@@ -9,13 +9,13 @@
 #include "services/SwapChainService.h"
 
 namespace narc_engine {
-    class PhysicalDeviceService;
+    class DeviceService;
 
     class VulkanSwapChain final : public narc_core::IInitialisable
     {
     public:
         explicit VulkanSwapChain(std::weak_ptr<VulkanDevice> device,
-                                 const std::shared_ptr<SwapChainService>& swapChainService);
+                                 NARC_DI_IMPORT_SERVICE(ISwapchainService));
         ~VulkanSwapChain() noexcept override;
 
         NARC_IMPL_INITIALISABLE();
@@ -26,13 +26,13 @@ namespace narc_engine {
         NARC_GETTER(std::span<const VkImageView>, getSwapChainImageViews, m_swapChainImageViews);
         
         NARC_GETTER(VkSwapchainKHR, getHandle, m_swapChain);
-
         
         void setSurface(const std::unique_ptr<IVulkanSurface>& surface) { m_surface = surface.get(); }
 
     private:
+        narc_core::injected_service<ISwapchainService> m_swapChainService;
+        
         std::weak_ptr<VulkanDevice> m_device;
-        std::shared_ptr<SwapChainService> m_swapChainService;
         IVulkanSurface* m_surface;
 
         VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;

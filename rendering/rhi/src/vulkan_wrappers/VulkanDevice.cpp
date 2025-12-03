@@ -17,7 +17,7 @@
 
 namespace narc_engine {
     VulkanDevice::VulkanDevice(std::weak_ptr<IVulkanDeviceConfigProvider> config,
-                               const std::shared_ptr<PhysicalDeviceService>& deviceService,
+                               const std::shared_ptr<DeviceService>& deviceService,
                                std::weak_ptr<VulkanInstance> instance,
                                const std::shared_ptr<DeviceQueueService>& queueService) :
         m_config(std::move(config)),

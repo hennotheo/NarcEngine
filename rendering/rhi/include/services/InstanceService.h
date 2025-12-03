@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "interfaces/services/IInstanceService.h"
-
 namespace narc_engine {
     struct ApplicationInfo;
 
@@ -17,7 +15,7 @@ namespace narc_engine {
 
         NARC_MAP_OVERRIDE(ApplicationInfo, VkApplicationInfo);
 
-        NARC_QUERY_OVERRIDE(VulkanCreationQuery<VkInstance>, createVkInstance,
+        NARC_QUERY_OVERRIDE(VulkanServiceQuery<VkInstance>, createVkInstance,
                             const VkApplicationInfo& appInfos,
                             const std::span<std::unique_ptr<IVulkanExtension>>& extensions,
                             const std::span<const char*>& layerNames);

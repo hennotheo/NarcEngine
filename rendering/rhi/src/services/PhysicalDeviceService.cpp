@@ -4,50 +4,48 @@
 
 #include "services/PhysicalDeviceService.h"
 
-#include "IVulkanSurface.h"
-#include "../../include/vulkan_wrappers/VulkanInstance.h"
-#include "VulkanSurfacesManager.h"
-#include "services/SwapChainService.h"
-
 #include "models/SwapChainSupportInfoVulkan.h"
+#include "models/PhysicalDeviceCriteria.h"
+
+#include "IVulkanSurface.h"
+#include "vulkan_wrappers/VulkanInstance.h"
+#include "VulkanSurfacesManager.h"
+
 
 namespace narc_engine {
-
-    PhysicalDeviceService::PhysicalDeviceService(std::weak_ptr<VulkanInstance> instance,
-                                                 const std::shared_ptr<SwapChainService>& swapChainService,
-                                                 std::weak_ptr<VulkanSurfacesManager> surfacesManager) :
-        m_instance(std::move(instance)),
-        m_surfacesManager(std::move(surfacesManager)),
-        m_swapChainService(swapChainService)
+    DeviceService::DeviceService(NARC_DI_IMPORT_COMPONENT(VulkanInstance),
+                                 NARC_DI_IMPORT_SERVICE(ISwapchainService),
+                                 NARC_DI_IMPORT_COMPONENT(VulkanSurfacesManager)) :
+        NARC_DI_IMPL_SERVICE(VulkanInstance, m_instance),
+        NARC_DI_IMPL_SERVICE(VulkanSurfacesManager, m_surfacesManager),
+        NARC_DI_IMPL_SERVICE(ISwapchainService, m_swapChainService)
     {
     }
 
-    PhysicalDeviceService::~PhysicalDeviceService() = default;
+    DeviceService::~DeviceService() = default;
 
-    QUERY(std::vector<VkPhysicalDevice>, QueryDeviceError) PhysicalDeviceService::queryAllPhysicalDevices() const noexcept
+    VulkanServiceQuery<std::vector<VkPhysicalDevice>> DeviceService::queryAllPhysicalDevices() const noexcept
     {
-        NARC_GUARD_WEAK_UNEXPECTED(instance, m_instance, "Failed to create PhysicalDeviceService");
-
         uint32_t deviceCount = 0;
-        vkEnumeratePhysicalDevices(instance->getHandled(), &deviceCount, nullptr);
+        vkEnumeratePhysicalDevices(m_instance->getHandled(), &deviceCount, nullptr);
 
         if (deviceCount == 0)
         {
-            std::unexpected(QueryDeviceError{"Failed to find GPUs with Vulkan support!"});
+            return vulkanServiceUnexpected("Failed to find GPUs with Vulkan support!");
         }
 
         std::vector<VkPhysicalDevice> devices(deviceCount);
-        vkEnumeratePhysicalDevices(instance->getHandled(), &deviceCount, devices.data());
+        vkEnumeratePhysicalDevices(m_instance->getHandled(), &deviceCount, devices.data());
 
         return devices;
     }
 
-    QUERY(VkPhysicalDevice, QueryDeviceError) PhysicalDeviceService::queryBestPhysicalDevices(
+    VulkanServiceQuery<VkPhysicalDevice> DeviceService::queryBestPhysicalDevices(
             std::vector<VkPhysicalDevice> devices, const PhysicalDeviceCriteria& criteria) const noexcept
     {
         if (devices.empty())
         {
-            return std::unexpected(QueryDeviceError{"No physical devices to evaluate"});
+            return vulkanServiceUnexpected("No physical devices to evaluate");
         }
 
         auto filtered = devices
@@ -69,13 +67,13 @@ namespace narc_engine {
 
         if (output.empty())
         {
-            return std::unexpected(QueryDeviceError{"Failed to find a suitable GPU!"});
+            return vulkanServiceUnexpected("Failed to find a suitable GPU!");
         }
 
         return output[0].second;
     }
 
-    bool PhysicalDeviceService::isDeviceSuitable(const VkPhysicalDevice& device, const PhysicalDeviceCriteria& criteria) const noexcept
+    bool DeviceService::isDeviceSuitable(const VkPhysicalDevice& device, const PhysicalDeviceCriteria& criteria) const noexcept
     {
         VkPhysicalDeviceProperties deviceProperties;
         vkGetPhysicalDeviceProperties(device, &deviceProperties);
@@ -97,26 +95,28 @@ namespace narc_engine {
             return false;
         }
 
+        const auto surface = m_surfacesManager->getMainSurface();
+        if (surface == nullptr)//TODO: Handle multiple surfaces
         {
-            const auto surfaceManager = m_surfacesManager.lock();
-            if (!surfaceManager)
-            {
-                return false;
-            }
-
-            const auto surface = surfaceManager->getMainSurface()->getHandled();
-            if (const SwapChainSupportInfoVulkan swapChainSupport = m_swapChainService->querySwapChainSupportInfo(device, surface);
-                swapChainSupport.Formats.empty() || swapChainSupport.PresentModes.empty())
-            {
-                return false;
-            }
+            return false;
+        }
+        const auto vkSurface = surface->getHandled();
+        
+        if (const SwapChainSupportInfoVulkan swapChainSupport = m_swapChainService->querySwapChainSupportInfo(device, vkSurface).transform_error(
+                    [](const auto& err) {
+                        NARC_ERROR_RUNTIME("Surface not supported by current device");
+                        return err;
+                    }).value();
+            swapChainSupport.Formats.empty() || swapChainSupport.PresentModes.empty())
+        {
+            return false;
         }
 
         return true;
     }
 
-    PhysicalDeviceService::device_score_t PhysicalDeviceService::evaluateDeviceScore(const VkPhysicalDevice& device,
-                                                                                     const PhysicalDeviceCriteria& criteria) const noexcept
+    DeviceService::device_score_t DeviceService::evaluateDeviceScore(const VkPhysicalDevice& device,
+                                                                     const PhysicalDeviceCriteria& criteria) const noexcept
     {
         device_score_t score = 0;
         VkPhysicalDeviceProperties deviceProperties;
@@ -132,8 +132,8 @@ namespace narc_engine {
         return score;
     }
 
-    bool PhysicalDeviceService::areAllRequiredExtensionsAvailable(const std::vector<std::shared_ptr<IVulkanExtension>>& requiredExtensions,
-                                                                  const std::vector<VkExtensionProperties>& availableExtensions) const
+    bool DeviceService::areAllRequiredExtensionsAvailable(const std::vector<std::shared_ptr<IVulkanExtension>>& requiredExtensions,
+                                                          const std::vector<VkExtensionProperties>& availableExtensions) const
     {
         std::set<std::string> remaining;
         for (const auto& extension: requiredExtensions)
@@ -156,8 +156,8 @@ namespace narc_engine {
         return remaining.empty();
     }
 
-    bool PhysicalDeviceService::areDeviceExtensionSupported(const VkPhysicalDevice& device,
-                                                            const std::vector<std::shared_ptr<IVulkanExtension>>& requiredExtensions) const noexcept
+    bool DeviceService::areDeviceExtensionSupported(const VkPhysicalDevice& device,
+                                                    const std::vector<std::shared_ptr<IVulkanExtension>>& requiredExtensions) const noexcept
     {
         uint32_t extensionCount;
         vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);

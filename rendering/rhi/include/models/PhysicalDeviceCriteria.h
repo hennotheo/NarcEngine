@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "layers/IVulkanExtension.h"
-
 namespace narc_engine {
+    class IVulkanExtension;
+    
     struct PhysicalDeviceCriteria
     {
         // Requirements

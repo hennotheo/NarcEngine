@@ -10,7 +10,7 @@ namespace narc_engine {
     class VulkanDevice;
     class IVulkanSurface;
     class VulkanGraphicsPipeline;
-    class PhysicalDeviceService;
+    class DeviceService;
     class VulkanInstance;
     class VulkanSwapChain;
 

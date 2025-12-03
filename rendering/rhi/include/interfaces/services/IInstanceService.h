@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "interfaces/services/Interfaces.h"
+#include "./Interfaces.h"
 
 namespace narc_engine {
     struct ApplicationInfo;
@@ -17,7 +17,7 @@ namespace narc_engine {
 
         NARC_PURE_VIRTUAL_MAP(ApplicationInfo, VkApplicationInfo);
 
-        NARC_PURE_VIRTUAL_QUERY(VulkanCreationQuery<VkInstance>, createVkInstance,
+        NARC_PURE_VIRTUAL_QUERY(VulkanServiceQuery<VkInstance>, createVkInstance,
                                 const VkApplicationInfo& appInfos,
                                 const std::span<std::unique_ptr<IVulkanExtension>>& extensions,
                                 const std::span<const char*>& layerNames);

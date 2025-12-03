@@ -5,16 +5,18 @@
 #pragma once
 
 namespace narc_engine {
-    using VulkanCreationQueryError = std::string;
+    using VulkanServiceQueryError = std::string;
+    
+    constexpr std::unexpected<VulkanServiceQueryError> vulkanServiceUnexpected(const std::string_view& msg)
+    {
+        return std::unexpected(VulkanServiceQueryError{msg});
+    }
     
     template<typename T>
-    using VulkanCreationQuery = std::expected<T, VulkanCreationQueryError>;
-    
-    class IService
-    {
-    public:
-        virtual ~IService() = default;
-    };
+    using VulkanServiceQuery = std::expected<T, VulkanServiceQueryError>;
 }
 
+#include "IService.h"
 #include "IInstanceService.h"
+#include "ISwapchainService.h"
+#include "IDeviceService.h"

@@ -174,44 +174,49 @@ int main(int argc, char** argv)
             di::bind<narc_engine::IVulkanDeviceConfigProvider>.to<narc_engine::EngineConfigProvider>(),
             di::bind<narc_engine::IVulkanSurface>.to<narc_engine::GlfwVulkanSurface>(),
             di::bind<narc_engine::IInstanceService>.to<narc_engine::InstanceService>(),
+            di::bind<narc_engine::ISwapchainService>.to<narc_engine::SwapChainService>(),
+            di::bind<narc_engine::IDeviceService>.to<narc_engine::DeviceService>(),
             di::bind<narc_engine::VulkanSurfacesManager>.to<SurfaceManager>(),
             di::bind<narc_core::ICreator<narc_engine::VulkanSwapChain>>.to<Creator>().in(di::singleton)
             );
 
-    // {
-    //     const auto creator = injector.create<std::shared_ptr<Creator>>();
-    //     creator->CreateVulkanSwapChain = [&injector] {
-    //         return injector.create<std::unique_ptr<narc_engine::VulkanSwapChain>>();
-    //     };
-    // }
+    {
+        const auto creator = injector.create<std::shared_ptr<Creator>>();
+        creator->CreateVulkanSwapChain = [&injector] {
+            return injector.create<std::unique_ptr<narc_engine::VulkanSwapChain>>();
+        };
+    }
 
     try
     {
-        // {
-        //     const auto configProvider = injector.create<std::weak_ptr<narc_engine::EngineConfigProvider>>();
-        //     NARC_GUARD_WEAK(configProviderPtr, configProvider, "Failed to create VulkanInstanceInfos");
-        //
-        //     configProviderPtr->m_applicationName = "NarcEngine Editor";
-        //     configProviderPtr->m_engineName = "NarcEngine";
-        //
-        //     std::vector<std::shared_ptr<narc_engine::IVulkanExtension>> vulkanExtensions;
-        //     vulkanExtensions.push_back(std::make_shared<TestDeviceExtensions>());
-        //     configProviderPtr->m_physicalDeviceCriteria = narc_engine::PhysicalDeviceCriteria{
-        //             .RequireGeometryShader = false,
-        //             .RequireDiscreteGPU = false,
-        //             .DeviceRequiredExtensions = vulkanExtensions,
-        //             .PreferDiscreteGPU = true
-        //     };
-        // }
+        {
+            const auto configProvider = injector.create<std::weak_ptr<narc_engine::EngineConfigProvider>>();
+            NARC_GUARD_WEAK(configProviderPtr, configProvider, "Failed to create VulkanInstanceInfos");
+
+            std::vector<std::shared_ptr<narc_engine::IVulkanExtension>> vulkanExtensions;
+            vulkanExtensions.push_back(std::make_shared<TestDeviceExtensions>());
+            configProviderPtr->m_physicalDeviceCriteria = narc_engine::PhysicalDeviceCriteria{
+                    .RequireGeometryShader = false,
+                    .RequireDiscreteGPU = false,
+                    .DeviceRequiredExtensions = vulkanExtensions,
+                    .PreferDiscreteGPU = true
+            };
+        }
 
 
         const auto instance = injector.create<std::shared_ptr<narc_engine::VulkanInstance>>();
-        // const auto device = injector.create<std::shared_ptr<narc_engine::VulkanDevice>>();
-        // const auto surfacesManager = injector.create<std::shared_ptr<narc_engine::VulkanSurfacesManager>>();
-        // surfacesManager->setDevice(device);
+        instance->setApplicationInfo(narc_engine::ApplicationInfo{
+                        .ApplicationName = "NarcEngine Editor",
+                        .EngineName = "NarcEngine"
+        });
+
+        const auto device = injector.create<std::shared_ptr<narc_engine::VulkanDevice>>();
+        
+        const auto surfacesManager = injector.create<std::shared_ptr<narc_engine::VulkanSurfacesManager>>();
+        surfacesManager->setDevice(device);
         //
         // const auto cmdPool = injector.create<std::shared_ptr<narc_engine::VulkanCommandPool>>();
-        // auto mainWindow = injector.create<std::unique_ptr<narc_engine::IVulkanSurface>>();
+        auto mainWindow = injector.create<std::unique_ptr<narc_engine::IVulkanSurface>>();
         //
         // auto imageAvailableSemaphore = injector.create<narc_engine::VulkanSemaphore>();
         // auto renderFinishedSemaphore = injector.create<narc_engine::VulkanSemaphore>();
@@ -225,10 +230,10 @@ int main(int argc, char** argv)
         });
 
         instance->init();
-        // mainWindow->init();
-        // surfacesManager->pushSurface(mainWindow);
-        // device->init();
-        // surfacesManager->init();
+        mainWindow->init();
+        surfacesManager->pushSurface(mainWindow);
+        device->init();
+        surfacesManager->init();
         // const auto surf = dynamic_cast<SurfaceManager*>(surfacesManager.get());
         // surf->imageAvailableSemaphore = &imageAvailableSemaphore;
         // surf->inFlightFence = &inFlightFence;
@@ -261,11 +266,15 @@ int main(int argc, char** argv)
         // cmdBuffer->shutdown();
         // cmdPool->shutdown();
         //
-        // surfacesManager->shutdown();
-        // device->shutdown();
+        surfacesManager->shutdown();
+        device->shutdown();
         instance->shutdown();
     }
-    catch (const std::exception& e)
+
+    catch
+    (
+        const std::exception& e
+    )
     {
         NARC_LOG_ERROR("Exception caught: {}", e.what());
     }

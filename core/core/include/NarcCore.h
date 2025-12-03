@@ -59,7 +59,7 @@
     const auto varName = (weakPtr).lock();                                                                                                           \
     if (!(varName))                                                                                                                                  \
     {                                                                                                                                                \
-        std::unexpected(QueryDeviceError{errorMsg});                                                                                                 \
+        std::unexpected(std::string{errorMsg});                                                                                                 \
     }
 
 #if defined(NARC_ENGINE_PLATFORM_WINDOWS)
@@ -80,12 +80,17 @@ namespace di = boost::di;
 
 namespace narc_core {
 
+#define NARC_DI_SERVICE_NAME(type) type##Injected
+
     template<typename T>
     using injected_service = std::shared_ptr<T>;
-
-#define NARC_DI_SERVICE_NAME(type) type##Injected
 #define NARC_DI_IMPORT_SERVICE(type) narc_core::injected_service<type> NARC_DI_SERVICE_NAME(type)
 #define NARC_DI_IMPL_SERVICE(type, property) property(std::move(NARC_DI_SERVICE_NAME(type)))
+
+    template<typename T>
+    using injected_component = std::shared_ptr<T>;
+#define NARC_DI_IMPORT_COMPONENT(type) narc_core::injected_component<type> NARC_DI_SERVICE_NAME(type)
+#define NARC_DI_IMPL_COMPONENT(type, property) property(std::move(NARC_DI_SERVICE_NAME(type)))
 
     template<typename T>
     class ICreator

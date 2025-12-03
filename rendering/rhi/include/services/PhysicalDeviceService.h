@@ -4,33 +4,29 @@
 
 #pragma once
 
-#include "SwapChainService.h"
-#include "models/PhysicalDeviceCriteria.h"
-
 namespace narc_engine {
     class VulkanSurfacesManager;
-    class SwapChainService;
     class VulkanInstance;
-    using QueryDeviceError = std::string;
 
-    class PhysicalDeviceService final
+    class DeviceService final : public IDeviceService
     {
     public:
-        explicit PhysicalDeviceService(std::weak_ptr<VulkanInstance> instance,
-                                       const std::shared_ptr<SwapChainService>& swapChainService,
-                                       std::weak_ptr<VulkanSurfacesManager> surfacesManager);
-        ~PhysicalDeviceService();
+        explicit DeviceService(NARC_DI_IMPORT_COMPONENT(VulkanInstance),
+                               NARC_DI_IMPORT_SERVICE(ISwapchainService),
+                               NARC_DI_IMPORT_COMPONENT(VulkanSurfacesManager));
+        ~DeviceService() override;
 
-        QUERY(std::vector<VkPhysicalDevice>, QueryDeviceError) queryAllPhysicalDevices() const noexcept;
-        QUERY(VkPhysicalDevice, QueryDeviceError) queryBestPhysicalDevices(std::vector<VkPhysicalDevice> devices,
-                                                                           const PhysicalDeviceCriteria& criteria) const noexcept;
+        NARC_QUERY_OVERRIDE(VulkanServiceQuery<std::vector<VkPhysicalDevice>>, queryAllPhysicalDevices);
+        NARC_QUERY_OVERRIDE(VulkanServiceQuery<VkPhysicalDevice>, queryBestPhysicalDevices,
+                            std::vector<VkPhysicalDevice> devices,
+                            const PhysicalDeviceCriteria& criteria);
 
     private:
         using device_score_t = int;
 
-        std::weak_ptr<VulkanInstance> m_instance;
-        std::weak_ptr<VulkanSurfacesManager> m_surfacesManager;
-        std::shared_ptr<SwapChainService> m_swapChainService;
+        narc_core::injected_service<VulkanInstance> m_instance;
+        narc_core::injected_service<VulkanSurfacesManager> m_surfacesManager;
+        narc_core::injected_service<ISwapchainService> m_swapChainService;
 
         NO_DISCARD bool isDeviceSuitable(const VkPhysicalDevice& device, const PhysicalDeviceCriteria& criteria) const noexcept;
         NO_DISCARD device_score_t evaluateDeviceScore(const VkPhysicalDevice& device, const PhysicalDeviceCriteria& criteria) const noexcept;
@@ -39,6 +35,5 @@ namespace narc_engine {
                                                availableExtensions) const;
         NO_DISCARD bool areDeviceExtensionSupported(const VkPhysicalDevice& device,
                                                     const std::vector<std::shared_ptr<IVulkanExtension>>& requiredExtensions) const noexcept;
-
     };
 } // narc_engine

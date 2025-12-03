@@ -9,8 +9,8 @@ namespace narc_engine {
 
     SwapChainService::~SwapChainService() = default;
 
-    SwapChainSupportInfoVulkan SwapChainService::querySwapChainSupportInfo(const VkPhysicalDevice& physicalDevice,
-                                                                           const VkSurfaceKHR& surface) const noexcept
+    VulkanServiceQuery<SwapChainSupportInfoVulkan> SwapChainService::querySwapChainSupportInfo(const VkPhysicalDevice& physicalDevice,
+                                                                                               const VkSurfaceKHR& surface) const noexcept
     {
         SwapChainSupportInfoVulkan supportInfo{};
 
@@ -35,7 +35,7 @@ namespace narc_engine {
         return supportInfo;
     }
 
-    std::vector<VkImage> SwapChainService::getSwapChainImages(const VkDevice& device, const VkSwapchainKHR& swapChain) const noexcept
+    VulkanServiceQuery<std::vector<VkImage>> SwapChainService::querySwapChainImages(const VkDevice& device, const VkSwapchainKHR& swapChain) const noexcept
     {
         uint32_t imageCount;
         vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);

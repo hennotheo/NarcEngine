@@ -21,7 +21,7 @@ namespace narc_engine {
         };
     }
 
-    VulkanCreationQuery<VkInstance> InstanceService::createVkInstance(const VkApplicationInfo& appInfos,
+    VulkanServiceQuery<VkInstance> InstanceService::createVkInstance(const VkApplicationInfo& appInfos,
                                                                       const std::span<std::unique_ptr<IVulkanExtension>>& extensions,
                                                                       const std::span<const char*>& layerNames) const noexcept
     {
