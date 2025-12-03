@@ -29,6 +29,7 @@
 #include "config_provider/EngineConfigProvider.h"
 
 //TODO: TEMP
+#include "services/InstanceService.h"
 #include "services/PhysicalDeviceService.h"
 #include "services/DeviceQueueService.h"
 #include "services/SwapChainService.h"
