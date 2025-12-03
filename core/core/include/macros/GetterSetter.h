@@ -17,7 +17,7 @@ NO_DISCARD inline type displayName(__VA_ARGS__) const noexcept { return result; 
 NO_DISCARD virtual type displayName(__VA_ARGS__) const noexcept { return result; }
 
 #define NARC_PURE_VIRTUAL_GETTER(type, displayName, ...) \
-NO_DISCARD virtual type displayName(__VA_ARGS__) const noexcept = 0;
+NO_DISCARD virtual type displayName(__VA_ARGS__) const noexcept = 0
 
 #define NARC_OVERRIDE_GETTER(type, displayName, result, ...) \
 NO_DISCARD inline type displayName(__VA_ARGS__) const noexcept override { return result; }
@@ -26,7 +26,7 @@ NO_DISCARD inline type displayName(__VA_ARGS__) const noexcept override { return
 NO_DISCARD inline bool displayName(__VA_ARGS__) const noexcept { return result; }
 
 #define NARC_PURE_VIRTUAL_BOOL_GETTER(displayName, ...) \
-NO_DISCARD virtual bool displayName(__VA_ARGS__) const noexcept = 0;
+NO_DISCARD virtual bool displayName(__VA_ARGS__) const noexcept = 0
 
 #define NARC_VIRTUAL_BOOL_GETTER(displayName, result, ...) \
 NO_DISCARD virtual bool displayName(__VA_ARGS__) const noexcept { return result; }
@@ -34,4 +34,8 @@ NO_DISCARD virtual bool displayName(__VA_ARGS__) const noexcept { return result;
 #define NARC_OVERRIDE_BOOL_GETTER(displayName, result, ...) \
 NO_DISCARD inline bool displayName(__VA_ARGS__) const noexcept override { return result; }
 
-#define SETTER inline
+#define NARC_SETTER(type, displayName, property) \
+inline void set##displayName(const type& value) noexcept { property = value; }
+
+#define NARC_PURE_VIRTUAL_SETTER(type, displayName) \
+inline void set##displayName(const type& value) noexcept = 0

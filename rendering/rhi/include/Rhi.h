@@ -4,8 +4,11 @@
 
 #include "RhiCore.h"
 
+#include "models/ApplicationInfo.h"
 #include "models/QueueFamilyIndices.h"
 #include "models/PhysicalDeviceCriteria.h"
+
+#include "interfaces/services/Interfaces.h"
 
 #include "vulkan_wrappers/VulkanInstance.h"
 #include "vulkan_wrappers/VulkanDevice.h"
@@ -25,6 +28,7 @@
 
 #include "config_provider/EngineConfigProvider.h"
 
+//TODO: TEMP
 #include "services/PhysicalDeviceService.h"
 #include "services/DeviceQueueService.h"
 #include "services/SwapChainService.h"

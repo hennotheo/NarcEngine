@@ -6,14 +6,23 @@
 
 #define NO_DISCARD [[nodiscard]]
 #define NO_RETURN [[noreturn]]
+#define DEPRECATED [[deprecated("Deprecated. This code will be removed in the future.")]]
+#define TEMP_CODE [[deprecated("Temporary code just for testing purposes")]]
 
-#define QUERY(result, error) NO_DISCARD std::expected<result, error>
-#define NARC_VIRTUAL_QUERY(result, error) NO_DISCARD virtual std::expected<result, error>
+#define QUERY(result, error) DEPRECATED NO_DISCARD std::expected<result, error>
+#define NARC_VIRTUAL_QUERY(type, displayName, ...) NO_DISCARD virtual type displayName(__VA_ARGS__) const noexcept
+#define NARC_PURE_VIRTUAL_QUERY(type, displayName, ...) NO_DISCARD virtual type displayName(__VA_ARGS__) const noexcept = 0
+#define NARC_QUERY_OVERRIDE(type, displayName, ...) NO_DISCARD virtual type displayName(__VA_ARGS__) const noexcept override
+
+#define NARC_MAP(typeA, typeB) \
+    NO_DISCARD typeB map##typeA##To##typeB(const typeA& value) const noexcept
+#define NARC_PURE_VIRTUAL_MAP(typeA, typeB) \
+    NO_DISCARD virtual typeB map##typeA##To##typeB(const typeA& value) const noexcept = 0
+#define NARC_MAP_OVERRIDE(typeA, typeB) \
+    NO_DISCARD typeB map##typeA##To##typeB(const typeA& value) const noexcept override
 
 #define NARC_MUTABLE_THIS(type) const_cast<type*>(this)
 
-#define DEPRECATED [[deprecated("Deprecated. This code will be removed in the future.")]]
-#define TEMP_CODE [[deprecated("Temporary code just for testing purposes")]]
 
 #ifdef NARC_TEST_BUILD
 
@@ -70,6 +79,14 @@
 namespace di = boost::di;
 
 namespace narc_core {
+
+    template<typename T>
+    using injected_service = std::shared_ptr<T>;
+
+#define NARC_DI_SERVICE_NAME(type) type##Injected
+#define NARC_DI_IMPORT_SERVICE(type) narc_core::injected_service<type> NARC_DI_SERVICE_NAME(type)
+#define NARC_DI_IMPL_SERVICE(type, property) property(std::move(NARC_DI_SERVICE_NAME(type)))
+
     template<typename T>
     class ICreator
     {

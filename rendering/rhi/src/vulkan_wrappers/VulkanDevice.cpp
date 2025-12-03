@@ -10,6 +10,8 @@
 #include "services/PhysicalDeviceService.h"
 #include "services/DeviceQueueService.h"
 
+#include "config_provider/IVulkanDeviceConfigProvider.h"
+
 #include "layers/VulkanGlfwExtension.h"
 #include "layers/VulkanValidationLogger.h"
 

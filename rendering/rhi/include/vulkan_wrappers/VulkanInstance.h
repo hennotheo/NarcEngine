@@ -4,23 +4,28 @@
 
 #pragma once
 
-#include "config_provider/EngineConfigProvider.h"
+#include "interfaces/services/IInstanceService.h"
 #include "layers/IVulkanExtension.h"
+#include "models/ApplicationInfo.h"
 
 namespace narc_engine {
     class VulkanInstance final : public narc_core::IInitialisable, public std::enable_shared_from_this<VulkanInstance>
     {
     public:
-        explicit VulkanInstance(std::weak_ptr<IVulkanInstanceConfigProvider> config);
+        explicit VulkanInstance(NARC_DI_IMPORT_SERVICE(IInstanceService));
         ~VulkanInstance() override;
 
         NARC_IMPL_INITIALISABLE();
+
+        NARC_SETTER(ApplicationInfo, ApplicationInfo, m_applicationInfo);
 
         NARC_GETTER(VkInstance, getHandled, m_instance);
         NARC_GETTER(VkApplicationInfo, getAppInfos, m_appInfo);
 
     private:
-        std::weak_ptr<IVulkanInstanceConfigProvider> m_config;
+        narc_core::injected_service<IInstanceService> m_instanceService;
+
+        ApplicationInfo m_applicationInfo{};
 
         VkApplicationInfo m_appInfo{};
         VkInstance m_instance = VK_NULL_HANDLE;
