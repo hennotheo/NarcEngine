@@ -9,15 +9,13 @@
 
 #include "IVulkanSurface.h"
 #include "vulkan_wrappers/VulkanInstance.h"
-#include "VulkanSurfacesManager.h"
-
 
 namespace narc_engine {
     DeviceService::DeviceService(NARC_DI_IMPORT_COMPONENT(VulkanInstance),
                                  NARC_DI_IMPORT_SERVICE(ISwapchainService),
-                                 NARC_DI_IMPORT_COMPONENT(VulkanSurfacesManager)) :
+                                 NARC_DI_IMPORT_COMPONENT(ISurfacesHandler)) :
         NARC_DI_IMPL_SERVICE(VulkanInstance, m_instance),
-        NARC_DI_IMPL_SERVICE(VulkanSurfacesManager, m_surfacesManager),
+        NARC_DI_IMPL_SERVICE(ISurfacesHandler, m_surfacesManager),
         NARC_DI_IMPL_SERVICE(ISwapchainService, m_swapChainService)
     {
     }

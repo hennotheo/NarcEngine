@@ -8,7 +8,7 @@
 #include "models/QueueFamilyIndices.h"
 #include "models/PhysicalDeviceCriteria.h"
 
-#include "interfaces/services/Interfaces.h"
+#include "interfaces/Interfaces.h"
 
 #include "vulkan_wrappers/VulkanInstance.h"
 #include "vulkan_wrappers/VulkanDevice.h"
@@ -25,8 +25,6 @@
 #include "vulkan_wrappers/VulkanFence.h"
 #include "GlfwVulkanSurface.h"
 #include "VulkanSurfacesManager.h"
-
-#include "config_provider/EngineConfigProvider.h"
 
 //TODO: TEMP
 #include "services/InstanceService.h"

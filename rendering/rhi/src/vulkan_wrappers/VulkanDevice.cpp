@@ -5,25 +5,17 @@
 #include "vulkan_wrappers/VulkanDevice.h"
 
 #include "vulkan_wrappers/VulkanInstance.h"
-#include "vulkan_wrappers/VulkanQueue.h"
-
-#include "services/PhysicalDeviceService.h"
-#include "services/DeviceQueueService.h"
-
-#include "config_provider/IVulkanDeviceConfigProvider.h"
 
 #include "layers/VulkanGlfwExtension.h"
 #include "layers/VulkanValidationLogger.h"
 
 namespace narc_engine {
-    VulkanDevice::VulkanDevice(std::weak_ptr<IVulkanDeviceConfigProvider> config,
-                               const std::shared_ptr<DeviceService>& deviceService,
-                               std::weak_ptr<VulkanInstance> instance,
-                               const std::shared_ptr<DeviceQueueService>& queueService) :
-        m_config(std::move(config)),
-        m_instance(std::move(instance)),
-        m_deviceService(deviceService),
-        m_queueService(queueService)
+    VulkanDevice::VulkanDevice(NARC_DI_IMPORT_SERVICE(IDeviceService),
+                               NARC_DI_IMPORT_COMPONENT(VulkanInstance),
+                               NARC_DI_IMPORT_SERVICE(IDeviceQueueService)) :
+        NARC_DI_IMPL_COMPONENT(VulkanInstance, m_instance),
+        NARC_DI_IMPL_SERVICE(IDeviceService, m_deviceService),
+        NARC_DI_IMPL_SERVICE(IDeviceQueueService, m_queueService)
     {
 
     }
@@ -63,15 +55,13 @@ namespace narc_engine {
 
     void VulkanDevice::selectPhysicalDeviceFromCriteria()
     {
-        NARC_GUARD_WEAK(configPtr, m_config, "Failed to create VulkanDevice");
-
         const auto devices = m_deviceService->queryAllPhysicalDevices();
         if (!devices.has_value())
         {
             NARC_ERROR_RUNTIME("No suitable device found!");
         }
 
-        const auto bestDeviceResult = m_deviceService->queryBestPhysicalDevices(devices.value(), configPtr->getPhysicalDeviceCriteria());
+        const auto bestDeviceResult = m_deviceService->queryBestPhysicalDevices(devices.value(), m_physicalDeviceCriteria);
         if (!bestDeviceResult.has_value())
         {
             NARC_ERROR_RUNTIME("No suitable device found!");
@@ -99,7 +89,11 @@ namespace narc_engine {
     void VulkanDevice::createDevice()
     {
         VkPhysicalDeviceFeatures deviceFeatures{};
-        const auto uniqueQueueFamilies = m_queueService->getUniqueIndices(m_queueFamilyIndices);
+        const auto uniqueQueueFamilies = m_queueService->getUniqueIndices(m_queueFamilyIndices).transform_error(
+                [](const auto& err) {
+                    NARC_ERROR_RUNTIME("Uniques queues not supported by current device");
+                    return err;
+                }).value();
 
         float queuePriority = 1.0f;
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -115,7 +109,7 @@ namespace narc_engine {
         }
 
         const std::vector<const char*> deviceExtensions = {
-            VK_KHR_SWAPCHAIN_EXTENSION_NAME
+                VK_KHR_SWAPCHAIN_EXTENSION_NAME
         };
 
         VkDeviceCreateInfo createInfo{};

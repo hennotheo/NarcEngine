@@ -14,13 +14,12 @@ namespace narc_engine {
     class VulkanInstance;
     class VulkanSwapChain;
 
-    class VulkanSurfacesManager : public narc_core::IInitialisable
+    class VulkanSurfacesManager : public ISurfacesHandler, public narc_core::IInitialisable
     {
     public:
         explicit VulkanSurfacesManager(std::shared_ptr<narc_core::ICreator<VulkanSwapChain>> swapChainCreator);
         ~VulkanSurfacesManager() override;
-
-        NARC_PURE_VIRTUAL_GETTER(const IVulkanSurface*, getMainSurface);
+        
         NARC_IMPL_INITIALISABLE();
 
         void setDevice(std::weak_ptr<VulkanDevice> device) noexcept

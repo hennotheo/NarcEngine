@@ -7,11 +7,6 @@
 namespace narc_engine {
     class VulkanDevice;
 
-    using QueueFamilyIndex = uint32_t;
-    using QueueIndex = uint32_t;
-
-    inline static constexpr uint32_t QUEUE_INDEX_NONE = std::numeric_limits<uint32_t>::max();
-
     class VulkanQueue final : public narc_core::IInitialisable
     {
     public:

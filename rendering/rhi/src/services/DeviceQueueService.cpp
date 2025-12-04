@@ -7,6 +7,8 @@
 #include "IVulkanSurface.h"
 #include "VulkanSurfacesManager.h"
 
+#include "vulkan_wrappers/VulkanQueue.h"
+
 namespace narc_engine {
     DeviceQueueService::DeviceQueueService(std::weak_ptr<VulkanSurfacesManager> surfacesManager) :
         m_surfacesManager(std::move(surfacesManager))
@@ -16,15 +18,15 @@ namespace narc_engine {
 
     DeviceQueueService::~DeviceQueueService() = default;
 
-    QUERY(QueueFamilyIndices, QueryQueueError) DeviceQueueService::queryQueueFamilyIndices(const VkPhysicalDevice& physicalDevice) const
+    VulkanServiceQuery<QueueFamilyIndices> DeviceQueueService::queryQueueFamilyIndices(const VkPhysicalDevice& physicalDevice) const noexcept
     {
-        NARC_GUARD_WEAK(surfacesManager, m_surfacesManager, "Failed to create DeviceQueueService");
+        NARC_GUARD_WEAK_UNEXPECTED(surfacesManager, m_surfacesManager, "Failed to create DeviceQueueService");
 
         const auto* surface = surfacesManager->getMainSurface();
         const auto queueFamilies = queryQueueFamilyProperties(physicalDevice);
         if (!queueFamilies.has_value())
         {
-            return std::unexpected(queueFamilies.error());
+            return  vulkanServiceUnexpected(queueFamilies.error());
         }
 
         uint32_t i = 0;
@@ -53,7 +55,7 @@ namespace narc_engine {
     }
 
     bool DeviceQueueService::queueFamilyIndexSupportPresentation(const IVulkanSurface* surface, const VkPhysicalDevice& physicalDevice,
-                                                                 const uint32_t queueFamilyIndex) const
+                                                                 const uint32_t queueFamilyIndex) const noexcept
     {
         if (surface == nullptr || physicalDevice == nullptr)
         {
@@ -72,7 +74,7 @@ namespace narc_engine {
         return presentSupport;
     }
 
-    std::vector<QueueFamilyIndex> DeviceQueueService::getUniqueIndices(const QueueFamilyIndices& queueFamilyIndices) const
+    VulkanServiceQuery<std::vector<QueueFamilyIndex>> DeviceQueueService::getUniqueIndices(const QueueFamilyIndices& queueFamilyIndices) const noexcept
     {
         std::vector<uint32_t> uniqueQueueFamilies;
 

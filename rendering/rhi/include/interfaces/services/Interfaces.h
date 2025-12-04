@@ -20,3 +20,4 @@ namespace narc_engine {
 #include "IInstanceService.h"
 #include "ISwapchainService.h"
 #include "IDeviceService.h"
+#include "IDeviceQueueService.h"

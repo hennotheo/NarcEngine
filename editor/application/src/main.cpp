@@ -171,11 +171,12 @@ int main(int argc, char** argv)
     narc_log::init_signal_handling();
 
     const auto injector = di::make_injector(
-            di::bind<narc_engine::IVulkanDeviceConfigProvider>.to<narc_engine::EngineConfigProvider>(),
             di::bind<narc_engine::IVulkanSurface>.to<narc_engine::GlfwVulkanSurface>(),
             di::bind<narc_engine::IInstanceService>.to<narc_engine::InstanceService>(),
             di::bind<narc_engine::ISwapchainService>.to<narc_engine::SwapChainService>(),
             di::bind<narc_engine::IDeviceService>.to<narc_engine::DeviceService>(),
+            di::bind<narc_engine::IDeviceQueueService>.to<narc_engine::DeviceQueueService>(),
+            di::bind<narc_engine::ISurfacesHandler>.to<SurfaceManager>(),
             di::bind<narc_engine::VulkanSurfacesManager>.to<SurfaceManager>(),
             di::bind<narc_core::ICreator<narc_engine::VulkanSwapChain>>.to<Creator>().in(di::singleton)
             );
@@ -189,40 +190,34 @@ int main(int argc, char** argv)
 
     try
     {
-        {
-            const auto configProvider = injector.create<std::weak_ptr<narc_engine::EngineConfigProvider>>();
-            NARC_GUARD_WEAK(configProviderPtr, configProvider, "Failed to create VulkanInstanceInfos");
-
-            std::vector<std::shared_ptr<narc_engine::IVulkanExtension>> vulkanExtensions;
-            vulkanExtensions.push_back(std::make_shared<TestDeviceExtensions>());
-            configProviderPtr->m_physicalDeviceCriteria = narc_engine::PhysicalDeviceCriteria{
-                    .RequireGeometryShader = false,
-                    .RequireDiscreteGPU = false,
-                    .DeviceRequiredExtensions = vulkanExtensions,
-                    .PreferDiscreteGPU = true
-            };
-        }
-
+        std::vector<std::shared_ptr<narc_engine::IVulkanExtension>> vulkanExtensions;
+        vulkanExtensions.push_back(std::make_shared<TestDeviceExtensions>());
 
         const auto instance = injector.create<std::shared_ptr<narc_engine::VulkanInstance>>();
         instance->setApplicationInfo(narc_engine::ApplicationInfo{
-                        .ApplicationName = "NarcEngine Editor",
-                        .EngineName = "NarcEngine"
+                .ApplicationName = "NarcEngine Editor",
+                .EngineName = "NarcEngine"
         });
 
         const auto device = injector.create<std::shared_ptr<narc_engine::VulkanDevice>>();
-        
+        device->setPhysicalDeviceCriteria(narc_engine::PhysicalDeviceCriteria{
+                .RequireGeometryShader = false,
+                .RequireDiscreteGPU = false,
+                .DeviceRequiredExtensions = vulkanExtensions,
+                .PreferDiscreteGPU = true
+        });
+
         const auto surfacesManager = injector.create<std::shared_ptr<narc_engine::VulkanSurfacesManager>>();
         surfacesManager->setDevice(device);
-        //
-        // const auto cmdPool = injector.create<std::shared_ptr<narc_engine::VulkanCommandPool>>();
+
+        const auto cmdPool = injector.create<std::shared_ptr<narc_engine::VulkanCommandPool>>();
         auto mainWindow = injector.create<std::unique_ptr<narc_engine::IVulkanSurface>>();
-        //
-        // auto imageAvailableSemaphore = injector.create<narc_engine::VulkanSemaphore>();
-        // auto renderFinishedSemaphore = injector.create<narc_engine::VulkanSemaphore>();
-        // auto inFlightFence = injector.create<narc_engine::VulkanFence>();
-        //
-        // const auto cmdBuffer = injector.create<std::unique_ptr<narc_engine::VulkanCommandBuffer>>();
+
+        auto imageAvailableSemaphore = injector.create<narc_engine::VulkanSemaphore>();
+        auto renderFinishedSemaphore = injector.create<narc_engine::VulkanSemaphore>();
+        auto inFlightFence = injector.create<narc_engine::VulkanFence>();
+
+        const auto cmdBuffer = injector.create<std::unique_ptr<narc_engine::VulkanCommandBuffer>>();
 
         instance->setApplicationInfo(narc_engine::ApplicationInfo{
                 .ApplicationName = "NarcEngine Editor",
@@ -234,38 +229,38 @@ int main(int argc, char** argv)
         surfacesManager->pushSurface(mainWindow);
         device->init();
         surfacesManager->init();
-        // const auto surf = dynamic_cast<SurfaceManager*>(surfacesManager.get());
-        // surf->imageAvailableSemaphore = &imageAvailableSemaphore;
-        // surf->inFlightFence = &inFlightFence;
-        // surf->renderFinishedSemaphore = &renderFinishedSemaphore;
-        // surf->cmdBuffer = cmdBuffer.get();
-        // surf->graphicsQueue = const_cast<narc_engine::VulkanQueue*>(device->getGraphicsQueue());
-        // surf->presentQueue = const_cast<narc_engine::VulkanQueue*>(device->getPresentQueue());
-        // surf->setDevice(device);
-        //
-        // cmdPool->init();
-        // cmdBuffer->init();
-        //
-        // imageAvailableSemaphore.init();
-        // renderFinishedSemaphore.init();
-        // inFlightFence.init();
-        //
-        // while (!surfacesManager->getMainSurface()->shouldClose())
-        // {
-        //     glfwPollEvents();
-        //
-        //     surfacesManager->updateSurfaces();
-        // }
-        // device->waitIdle();
-        //
-        //
-        // inFlightFence.shutdown();
-        // renderFinishedSemaphore.shutdown();
-        // imageAvailableSemaphore.shutdown();
-        //
-        // cmdBuffer->shutdown();
-        // cmdPool->shutdown();
-        //
+        const auto surf = dynamic_cast<SurfaceManager*>(surfacesManager.get());
+        surf->imageAvailableSemaphore = &imageAvailableSemaphore;
+        surf->inFlightFence = &inFlightFence;
+        surf->renderFinishedSemaphore = &renderFinishedSemaphore;
+        surf->cmdBuffer = cmdBuffer.get();
+        surf->graphicsQueue = const_cast<narc_engine::VulkanQueue*>(device->getGraphicsQueue());
+        surf->presentQueue = const_cast<narc_engine::VulkanQueue*>(device->getPresentQueue());
+        surf->setDevice(device);
+
+        cmdPool->init();
+        cmdBuffer->init();
+
+        imageAvailableSemaphore.init();
+        renderFinishedSemaphore.init();
+        inFlightFence.init();
+
+        while (!surfacesManager->getMainSurface()->shouldClose())
+        {
+            glfwPollEvents();
+
+            surfacesManager->updateSurfaces();
+        }
+        device->waitIdle();
+
+
+        inFlightFence.shutdown();
+        renderFinishedSemaphore.shutdown();
+        imageAvailableSemaphore.shutdown();
+
+        cmdBuffer->shutdown();
+        cmdPool->shutdown();
+
         surfacesManager->shutdown();
         device->shutdown();
         instance->shutdown();

@@ -7,28 +7,27 @@
 #include "IVulkanSurface.h"
 #include "models/QueueFamilyIndices.h"
 
-#include "vulkan_wrappers/VulkanQueue.h"
-
 namespace narc_engine {
     class VulkanSurfacesManager;
-    
+
     using QueryQueueError = std::string;
 
-    class DeviceQueueService final
+    class DeviceQueueService final : public IDeviceQueueService
     {
     public:
         explicit DeviceQueueService(std::weak_ptr<VulkanSurfacesManager> surfacesManager);
-        ~DeviceQueueService();
+        ~DeviceQueueService() override;
 
-        QUERY(QueueFamilyIndices, QueryQueueError) queryQueueFamilyIndices(
-                const VkPhysicalDevice& physicalDevice) const;
-        NO_DISCARD bool queueFamilyIndexSupportPresentation(const IVulkanSurface* surface, const VkPhysicalDevice& physicalDevice,
-                                                            uint32_t queueFamilyIndex) const;
+        NARC_QUERY_OVERRIDE(VulkanServiceQuery<QueueFamilyIndices>, queryQueueFamilyIndices, const VkPhysicalDevice& physicalDevice);
+        NARC_QUERY_OVERRIDE(bool, queueFamilyIndexSupportPresentation,
+                            const IVulkanSurface* surface,
+                            const VkPhysicalDevice& physicalDevice,
+                            uint32_t queueFamilyIndex);
 
-        NO_DISCARD std::vector<QueueFamilyIndex> getUniqueIndices(const QueueFamilyIndices& queueFamilyIndices) const;
+        NARC_QUERY_OVERRIDE(VulkanServiceQuery<std::vector<QueueFamilyIndex>>, getUniqueIndices, const QueueFamilyIndices& queueFamilyIndices);
 
         void fillQueues(const std::weak_ptr<VulkanDevice>& device, const QueueFamilyIndices& queueFamilyIndices, VulkanQueue& graphicsQueue,
-                        VulkanQueue& presentQueue) const;
+                        VulkanQueue& presentQueue) const override;
 
     private:
         std::weak_ptr<VulkanSurfacesManager> m_surfacesManager;

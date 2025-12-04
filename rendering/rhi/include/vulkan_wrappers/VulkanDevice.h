@@ -4,23 +4,23 @@
 
 #pragma once
 
-#include "VulkanQueue.h"
-
+#include "models/PhysicalDeviceCriteria.h"
 #include "models/QueueFamilyIndices.h"
-#include "services/DeviceQueueService.h"
-#include "services/PhysicalDeviceService.h"
+
+#include "VulkanQueue.h"
 
 namespace narc_engine {
     class IVulkanDeviceConfigProvider;
     class VulkanInstance;
+    class IDeviceService;
+    class IDeviceQueueService;
 
     class VulkanDevice final : public narc_core::IInitialisable, public std::enable_shared_from_this<VulkanDevice>
     {
     public:
-        explicit VulkanDevice(std::weak_ptr<IVulkanDeviceConfigProvider> config,
-                              const std::shared_ptr<DeviceService>& deviceService,
-                              std::weak_ptr<VulkanInstance> instance,
-                              const std::shared_ptr<DeviceQueueService>& queueService);
+        explicit VulkanDevice(NARC_DI_IMPORT_SERVICE(IDeviceService),
+                              NARC_DI_IMPORT_COMPONENT(VulkanInstance),
+                              NARC_DI_IMPORT_SERVICE(IDeviceQueueService));
         ~VulkanDevice() override;
 
         NARC_IMPL_INITIALISABLE();
@@ -33,23 +33,25 @@ namespace narc_engine {
         NARC_GETTER(VkDevice, getHandle, m_device);
         NARC_GETTER(VkPhysicalDevice, getPhysicalDeviceHandle, m_physicalDevice);
 
+        NARC_SETTER(PhysicalDeviceCriteria, PhysicalDeviceCriteria, m_physicalDeviceCriteria);
+        
         void waitIdle() const;
 
     private:
-        // Services
-        std::weak_ptr<IVulkanDeviceConfigProvider> m_config;
-        std::weak_ptr<VulkanInstance> m_instance;
+        narc_core::injected_component<VulkanInstance> m_instance;
 
-        std::shared_ptr<DeviceService> m_deviceService;
-        std::shared_ptr<DeviceQueueService> m_queueService;
+        narc_core::injected_service<IDeviceService> m_deviceService;
+        narc_core::injected_service<IDeviceQueueService> m_queueService;
 
-        VulkanQueue m_graphicsQueue;
-        VulkanQueue m_presentQueue;
+        PhysicalDeviceCriteria m_physicalDeviceCriteria{};
 
         // Raw Handles
         VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
         VkDevice m_device = VK_NULL_HANDLE;
 
+        VulkanQueue m_graphicsQueue;
+        VulkanQueue m_presentQueue;
+        
         // Computed Infos
         QueueFamilyIndices m_queueFamilyIndices{};
 

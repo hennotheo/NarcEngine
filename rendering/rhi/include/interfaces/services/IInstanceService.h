@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "./Interfaces.h"
+#include "Interfaces.h"
 
 namespace narc_engine {
     struct ApplicationInfo;
