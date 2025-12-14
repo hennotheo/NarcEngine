@@ -27,6 +27,7 @@ fi
 #OUT_DIR="build/${BUILD_TYPE}"
 OUT_DIR="./" # Use root dir to simplify CMake presets usage
 CONAN_ARGS=(--build=missing)
+SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # check conan
 if ! command -v conan >/dev/null 2>&1; then
@@ -35,8 +36,7 @@ if ! command -v conan >/dev/null 2>&1; then
 fi
 
 # build conan install command
-#CMD=(conan install . --output-folder "${OUT_DIR}" -s build_type="${BUILD_TYPE}")
-CMD=(conan install . -s build_type="${BUILD_TYPE}" "${CONAN_ARGS[@]}" --build=missing)
+CMD=(conan install . -s build_type="${BUILD_TYPE}" "${CONAN_ARGS[@]}" --build=missing --profile:build="${SCRIPT_PATH}/profile" --profile:host="${SCRIPT_PATH}/profile" -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True)
 
 if [[ -n "${HOST_PROFILE}" ]]; then
   CMD+=(--profile:host "${HOST_PROFILE}")

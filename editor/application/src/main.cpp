@@ -3,7 +3,7 @@
 #include <NarcLog.h>
 #include <Rhi.h>
 
-#include "../../../../../.conan2/p/b/glfwa6e2adfa5e8b8/p/include/GLFW/glfw3.h"
+#include "../../../../../.conan2/p/b/glfw2edb4475c5857/p/include/GLFW/glfw3.h"
 
 class SurfaceManager final : public narc_engine::VulkanSurfacesManager
 {
