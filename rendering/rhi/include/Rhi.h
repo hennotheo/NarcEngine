@@ -1,6 +1,10 @@
 #pragma once
 
 #include <vulkan/vulkan.h>
+#include <GLFW/glfw3.h>
+
+#define VMA_IMPLEMENTATION
+#include <vk_mem_alloc.h>
 
 #include "RhiCore.h"
 
@@ -23,6 +27,7 @@
 #include "vulkan_wrappers/VulkanCommandBuffer.h"
 #include "vulkan_wrappers/VulkanSemaphore.h"
 #include "vulkan_wrappers/VulkanFence.h"
+#include "vulkan_wrappers/VulkanVertexBuffer.h"
 #include "GlfwVulkanSurface.h"
 #include "VulkanSurfacesManager.h"
 
@@ -31,3 +36,4 @@
 #include "services/PhysicalDeviceService.h"
 #include "services/DeviceQueueService.h"
 #include "services/SwapChainService.h"
+#include "services/MemoryAllocationService.h"

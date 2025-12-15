@@ -42,7 +42,7 @@ namespace narc_engine {
 
         if (imageCount == 0)
         {
-            return {};
+            return vulkanServiceUnexpected("Failed to find swapchain images!");
         }
 
         std::vector<VkImage> images(imageCount);

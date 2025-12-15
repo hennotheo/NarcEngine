@@ -6,12 +6,12 @@
 
 namespace narc_engine {
     using VulkanServiceQueryError = std::string;
-    
+
     constexpr std::unexpected<VulkanServiceQueryError> vulkanServiceUnexpected(const std::string_view& msg)
     {
         return std::unexpected(VulkanServiceQueryError{msg});
     }
-    
+
     template<typename T>
     using VulkanServiceQuery = std::expected<T, VulkanServiceQueryError>;
 }
@@ -21,3 +21,4 @@ namespace narc_engine {
 #include "ISwapchainService.h"
 #include "IDeviceService.h"
 #include "IDeviceQueueService.h"
+#include "IVulkanMemoryAllocationService.h"

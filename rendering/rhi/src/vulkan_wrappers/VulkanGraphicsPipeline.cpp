@@ -10,6 +10,8 @@
 #include "vulkan_wrappers/VulkanShaderModule.h"
 #include "vulkan_wrappers/VulkanSwapChain.h"
 
+#include "models/Vertex.h"
+
 namespace narc_engine {
     VulkanGraphicsPipeline::VulkanGraphicsPipeline(const std::weak_ptr<VulkanDevice>& device, const std::unique_ptr<VulkanSwapChain>& swapChain) :
         m_device(device),
@@ -69,10 +71,14 @@ namespace narc_engine {
         //Vert input
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputInfo.vertexBindingDescriptionCount = 0;
-        vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
-        vertexInputInfo.vertexAttributeDescriptionCount = 0;
-        vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
+        
+        auto bindingDescription = Vertex::getBindingDescription();
+        auto attributeDescriptions = Vertex::getAttributeDescriptions();
+
+        vertexInputInfo.vertexBindingDescriptionCount = 1;
+        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+        vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+        vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
 
         //Input Assembly
@@ -108,10 +114,6 @@ namespace narc_engine {
         multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
         multisampling.sampleShadingEnable = VK_FALSE;
         multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-        // multisampling.minSampleShading = 1.0f; // Optional
-        // multisampling.pSampleMask = nullptr; // Optional
-        // multisampling.alphaToCoverageEnable = VK_FALSE; // Optional
-        // multisampling.alphaToOneEnable = VK_FALSE; // Optional
 
         VkPipelineColorBlendAttachmentState colorBlendAttachment{};
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT |

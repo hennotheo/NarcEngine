@@ -5,6 +5,7 @@
 #pragma once
 
 namespace narc_engine {
+    class VulkanVertexBuffer;
     class VulkanFramebuffer;
     class VulkanGraphicsPipeline;
     class VulkanRenderPass;
@@ -19,6 +20,7 @@ namespace narc_engine {
 
     public:
         virtual void cmdBindPipeline(const VulkanGraphicsPipeline& pipeline) = 0;
+        virtual void cmdBindVertexBuffers(VulkanVertexBuffer& vertexBuffer) = 0;
         virtual void cmdSetViewport(const VkViewport& viewport) = 0;
         virtual void cmdSetScissor(const VkRect2D& scissor) = 0;
         virtual void cmdDraw() = 0;
@@ -40,6 +42,7 @@ namespace narc_engine {
         void endRenderPass() override;
         
         void cmdBindPipeline(const VulkanGraphicsPipeline& pipeline) override;
+        void cmdBindVertexBuffers(VulkanVertexBuffer& vertexBuffer) override;
         void cmdSetViewport(const VkViewport& viewport) override;
         void cmdSetScissor(const VkRect2D& scissor) override;
         void cmdDraw() override;

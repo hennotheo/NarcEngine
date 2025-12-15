@@ -8,6 +8,7 @@
 #include "vulkan_wrappers/VulkanDevice.h"
 #include "vulkan_wrappers/VulkanGraphicsPipeline.h"
 #include "vulkan_wrappers/VulkanRenderPass.h"
+#include "vulkan_wrappers/VulkanVertexBuffer.h"
 
 namespace narc_engine {
     VulkanCommandBuffer::VulkanCommandBuffer(std::weak_ptr<VulkanDevice> device, std::shared_ptr<VulkanCommandPool> commandPool) :
@@ -36,7 +37,7 @@ namespace narc_engine {
 
     void VulkanCommandBuffer::shutdown()
     {
-
+        //No action for shutdown
     }
 
     void VulkanCommandBuffer::begin()
@@ -67,9 +68,9 @@ namespace narc_engine {
 
         for (int i = 0; i < infos.clearValueCount; ++i)
         {
-            const auto & tzname = infos.pClearValues[i];
+            const auto& name = infos.pClearValues[i];
         }
-        
+
         return this;
     }
 
@@ -81,6 +82,13 @@ namespace narc_engine {
     void VulkanCommandBuffer::cmdBindPipeline(const VulkanGraphicsPipeline& pipeline)
     {
         vkCmdBindPipeline(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.getHandle());
+    }
+
+    void VulkanCommandBuffer::cmdBindVertexBuffers(VulkanVertexBuffer& vertexBuffer)
+    {
+        const std::array vertexBuffers = {vertexBuffer.getHandle()};
+        const std::vector<VkDeviceSize> offsets = {0};
+        vkCmdBindVertexBuffers(m_commandBuffer, 0, 1, vertexBuffers.data(), offsets.data());
     }
 
     void VulkanCommandBuffer::cmdSetViewport(const VkViewport& viewport)
