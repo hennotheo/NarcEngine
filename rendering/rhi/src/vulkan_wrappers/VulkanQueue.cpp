@@ -5,6 +5,7 @@
 #include "vulkan_wrappers/VulkanQueue.h"
 
 #include "vulkan_wrappers/VulkanDevice.h"
+#include "vulkan_wrappers/VulkanFence.h"
 
 namespace narc_engine {
     VulkanQueue::VulkanQueue() = default;
@@ -21,6 +22,18 @@ namespace narc_engine {
     }
 
     void VulkanQueue::shutdown() { m_queue = VK_NULL_HANDLE; }
+
+    VkResult VulkanQueue::submit(const uint32_t submitCount, const VkSubmitInfo& infos, const VulkanFence* fence) const
+    {
+        VkFence pfence = fence == nullptr ? VK_NULL_HANDLE : fence->getHandle();
+        
+        return vkQueueSubmit(m_queue, submitCount, &infos, pfence);
+    }
+
+    void VulkanQueue::waitIdle() const
+    {
+        vkQueueWaitIdle(m_queue);
+    }
 
     void VulkanQueue::assertIndexDefined(const uint32_t& index)
     {

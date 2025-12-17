@@ -63,7 +63,7 @@ public:
             submitInfo.waitSemaphoreCount = waitSemaphores.size();
             submitInfo.pWaitSemaphores = waitSemaphores.data();
             submitInfo.pWaitDstStageMask = waitStages;
-
+            
             std::array commandBuffers = {cmdBuffer->getHandle()};
             submitInfo.commandBufferCount = commandBuffers.size();
             submitInfo.pCommandBuffers = commandBuffers.data();
@@ -71,8 +71,8 @@ public:
             std::array signalSemaphores = {renderFinishedSemaphore->getHandle()};
             submitInfo.signalSemaphoreCount = signalSemaphores.size();
             submitInfo.pSignalSemaphores = signalSemaphores.data();
-
-            if (vkQueueSubmit(graphicsQueue->getHandle(), 1, &submitInfo, inFlightFence->getHandle()) != VK_SUCCESS)
+            
+            if (graphicsQueue->submit(1, submitInfo, inFlightFence) != VK_SUCCESS)
             {
                 NARC_ERROR_RUNTIME("Failed to submit draw command buffer!");
             }
@@ -222,8 +222,6 @@ int main(int argc, char** argv)
         auto renderFinishedSemaphore = injector.create<narc_engine::VulkanSemaphore>();
         auto inFlightFence = injector.create<narc_engine::VulkanFence>();
 
-        const auto cmdBuffer = injector.create<std::unique_ptr<narc_engine::VulkanCommandBuffer> >();
-
         instance->setApplicationInfo(narc_engine::ApplicationInfo{
                 .ApplicationName = "NarcEngine Editor",
                 .EngineName = "NarcEngine"
@@ -238,27 +236,34 @@ int main(int argc, char** argv)
         surf->imageAvailableSemaphore = &imageAvailableSemaphore;
         surf->inFlightFence = &inFlightFence;
         surf->renderFinishedSemaphore = &renderFinishedSemaphore;
-        surf->cmdBuffer = cmdBuffer.get();
         surf->graphicsQueue = const_cast<narc_engine::VulkanQueue*>(device->getGraphicsQueue());
         surf->presentQueue = const_cast<narc_engine::VulkanQueue*>(device->getPresentQueue());
         surf->setDevice(device);
 
         cmdPool->init();
-        cmdBuffer->init();
 
         imageAvailableSemaphore.init();
         renderFinishedSemaphore.init();
         inFlightFence.init();
 
         {
-            auto vertexBuffer = injector.create<std::unique_ptr<narc_engine::VulkanVertexBuffer>>();
-            vertexBuffer->setData(narc_engine::s_vertices.data(), narc_engine::s_vertices.size() * sizeof(narc_engine::s_vertices[0]));
-            surf->vertexBuffer = vertexBuffer.get() ;
+            const auto cmdBuffer = cmdPool->allocateCommandBuffer();
+            surf->cmdBuffer = cmdBuffer.get();
+
+            auto vertexBuffer = injector.create<std::unique_ptr<narc_engine::VulkanVertexBuffer> >();
+            auto stagingBuffer = injector.create<std::unique_ptr<narc_engine::VulkanStagingBuffer> >();
+            stagingBuffer->allocate(narc_engine::s_vertices.size() * sizeof(narc_engine::s_vertices[0]));
+            stagingBuffer->setData(narc_engine::s_vertices.data(), narc_engine::s_vertices.size() * sizeof(narc_engine::s_vertices[0]));
+            stagingBuffer->copyTo(*cmdPool, *device->getGraphicsQueue(), *vertexBuffer);
+            stagingBuffer->deallocate();
+            
+            //Store size in class
+            surf->vertexBuffer = vertexBuffer.get();
 
             while (!surfacesManager->getMainSurface()->shouldClose())
             {
                 glfwPollEvents();
-
+                
                 surfacesManager->updateSurfaces();
             }
             device->waitIdle();
@@ -268,7 +273,6 @@ int main(int argc, char** argv)
         renderFinishedSemaphore.shutdown();
         imageAvailableSemaphore.shutdown();
 
-        cmdBuffer->shutdown();
         cmdPool->shutdown();
 
         surfacesManager->shutdown();

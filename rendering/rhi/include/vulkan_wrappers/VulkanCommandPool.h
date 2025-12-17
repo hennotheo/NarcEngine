@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "VulkanCommandBuffer.h"
+
 namespace narc_engine {
     class VulkanDevice;
     
@@ -16,6 +18,12 @@ namespace narc_engine {
         NARC_IMPL_INITIALISABLE();
 
         NARC_GETTER(VkCommandPool, getHandle, m_commandPool);
+        
+        std::unique_ptr<VulkanCommandBuffer> allocateCopyBuffer() const;
+        std::unique_ptr<VulkanCommandBuffer> allocateCommandBuffer() const;
+        
+        // void freeBuffers(std::vector<VulkanCommandBuffer> buffers);
+        void freeBuffer(const VulkanCommandBuffer& buffers);
 
     private:
         std::weak_ptr<VulkanDevice> m_device;

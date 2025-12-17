@@ -5,6 +5,7 @@
 #pragma once
 
 namespace narc_engine {
+    class VulkanFence;
     class VulkanDevice;
 
     class VulkanQueue final : public narc_core::IInitialisable
@@ -18,6 +19,9 @@ namespace narc_engine {
         void setQueueFamilyIndex(const QueueFamilyIndex index) { m_queueFamilyIndex = index; }
         void setQueueIndex(const QueueIndex index) { m_queueIndex = index; }
         void setDevice(std::weak_ptr<VulkanDevice> device) { m_device = std::move(device); }
+        
+        VkResult submit(uint32_t submitCount, const VkSubmitInfo& infos, const VulkanFence* fence) const;
+        void waitIdle() const;
 
         NARC_GETTER(VkQueue, getHandle, m_queue);
 

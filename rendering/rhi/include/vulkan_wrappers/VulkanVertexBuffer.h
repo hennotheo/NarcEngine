@@ -6,17 +6,14 @@
 
 #include <vk_mem_alloc.h>
 
-namespace narc_engine {
-    class VulkanVertexBuffer
+namespace narc_engine {    
+    class VulkanVertexBuffer : public IVulkanBuffer
     {
     public:
         explicit VulkanVertexBuffer(NARC_DI_IMPORT_COMPONENT(IVulkanMemoryAllocationService));
         ~VulkanVertexBuffer();
 
-
-        void setData(const void* data, size_t size);
-
-        NARC_GETTER(VkBuffer, getHandle, m_vertexBuffer);
+        NARC_OVERRIDE_GETTER(const VkBuffer&, getHandle, m_vertexBuffer);
 
     private:
         narc_core::injected_component<IVulkanMemoryAllocationService> m_allocator;

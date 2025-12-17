@@ -27,13 +27,14 @@ namespace narc_engine {
         virtual void endRenderPass() = 0;
     };
 
-    class VulkanCommandBuffer final : public narc_core::IInitialisable, public IRenderPassCmdBuffer
+    class VulkanCommandBuffer final : public IRenderPassCmdBuffer
     {
     public:
-        explicit VulkanCommandBuffer(std::weak_ptr<VulkanDevice> device, std::shared_ptr<VulkanCommandPool> commandPool);
-        ~VulkanCommandBuffer() noexcept override;
-
-        NARC_IMPL_INITIALISABLE();
+        VkCommandBufferUsageFlags Flags = 0;
+        
+    public:
+        explicit VulkanCommandBuffer(VkCommandBuffer m_commandBuffer);
+        ~VulkanCommandBuffer() noexcept;
 
         void begin();
         void end();
@@ -46,6 +47,7 @@ namespace narc_engine {
         void cmdSetViewport(const VkViewport& viewport) override;
         void cmdSetScissor(const VkRect2D& scissor) override;
         void cmdDraw() override;
+        void cmdCopyBuffer(const VkBufferCopy& infos, const IVulkanBuffer& src, const IVulkanBuffer& dst);
 
         void reset();
 

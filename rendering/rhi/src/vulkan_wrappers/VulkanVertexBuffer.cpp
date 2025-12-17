@@ -13,7 +13,7 @@ namespace narc_engine {
         VkBufferCreateInfo bufferInfo{};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         bufferInfo.size = sizeof(s_vertices[0]) * s_vertices.size();
-        bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
         if (!m_allocator->allocBuffer(bufferInfo, m_vertexBuffer, m_allocation))
@@ -28,15 +28,5 @@ namespace narc_engine {
         {
             m_allocator->deallocBuffer(m_vertexBuffer, m_allocation);
         }
-    }
-
-    void VulkanVertexBuffer::setData(const void* data, size_t size)
-    {
-        if (m_allocation == VK_NULL_HANDLE)
-        {
-            NARC_LOG_FATAL("Allocation is null.");
-        }
-
-        m_allocator->mapMemory(data, size, m_allocation);
     }
 } // narc_engine

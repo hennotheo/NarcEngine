@@ -11,41 +11,19 @@
 #include "vulkan_wrappers/VulkanVertexBuffer.h"
 
 namespace narc_engine {
-    VulkanCommandBuffer::VulkanCommandBuffer(std::weak_ptr<VulkanDevice> device, std::shared_ptr<VulkanCommandPool> commandPool) :
-        m_commandPool(std::move(commandPool)),
-        m_device(std::move(device))
+    VulkanCommandBuffer::VulkanCommandBuffer(const VkCommandBuffer commandBuffer) :
+        m_commandBuffer(commandBuffer)
     {
     }
 
     VulkanCommandBuffer::~VulkanCommandBuffer() noexcept = default;
 
-    void VulkanCommandBuffer::init()
-    {
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Vulkan Device.");
-
-        VkCommandBufferAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = m_commandPool->getHandle();
-        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandBufferCount = 1;
-
-        if (vkAllocateCommandBuffers(device->getHandle(), &allocInfo, &m_commandBuffer) != VK_SUCCESS)
-        {
-            NARC_ERROR_RUNTIME("Failed to allocate command buffers!");
-        }
-    }
-
-    void VulkanCommandBuffer::shutdown()
-    {
-        //No action for shutdown
-    }
-
     void VulkanCommandBuffer::begin()
     {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = 0; // Optional
-        beginInfo.pInheritanceInfo = nullptr; // Optional
+        beginInfo.flags = Flags;
+        beginInfo.pInheritanceInfo = nullptr;
 
         if (vkBeginCommandBuffer(m_commandBuffer, &beginInfo) != VK_SUCCESS)
         {
@@ -104,6 +82,11 @@ namespace narc_engine {
     void VulkanCommandBuffer::cmdDraw()
     {
         vkCmdDraw(m_commandBuffer, 3, 1, 0, 0);
+    }
+
+    void VulkanCommandBuffer::cmdCopyBuffer(const VkBufferCopy& infos, const IVulkanBuffer& src, const IVulkanBuffer& dst)
+    {
+        vkCmdCopyBuffer(m_commandBuffer, src.getHandle(), dst.getHandle(), 1, &infos);
     }
 
     void VulkanCommandBuffer::reset()
