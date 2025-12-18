@@ -28,6 +28,7 @@ public:
     narc_engine::VulkanQueue* graphicsQueue;
     narc_engine::VulkanQueue* presentQueue;
     narc_engine::VulkanVertexBuffer* vertexBuffer;
+    narc_engine::VulkanIndexBuffer* indexBuffer;
 
     void updateSurfaces() override
     {
@@ -63,7 +64,7 @@ public:
             submitInfo.waitSemaphoreCount = waitSemaphores.size();
             submitInfo.pWaitSemaphores = waitSemaphores.data();
             submitInfo.pWaitDstStageMask = waitStages;
-            
+
             std::array commandBuffers = {cmdBuffer->getHandle()};
             submitInfo.commandBufferCount = commandBuffers.size();
             submitInfo.pCommandBuffers = commandBuffers.data();
@@ -71,7 +72,7 @@ public:
             std::array signalSemaphores = {renderFinishedSemaphore->getHandle()};
             submitInfo.signalSemaphoreCount = signalSemaphores.size();
             submitInfo.pSignalSemaphores = signalSemaphores.data();
-            
+
             if (graphicsQueue->submit(1, submitInfo, inFlightFence) != VK_SUCCESS)
             {
                 NARC_ERROR_RUNTIME("Failed to submit draw command buffer!");
@@ -102,6 +103,7 @@ public:
         cmdBuffer->cmdBindPipeline(*pipeline);
 
         cmdBuffer->cmdBindVertexBuffers(*vertexBuffer);
+        cmdBuffer->cmdBindIndexBuffers(*indexBuffer);
 
         const auto extend = swapchain->getSwapChainExtent();
 
@@ -119,7 +121,7 @@ public:
         scissor.extent = extend;
         cmdBuffer->cmdSetScissor(scissor);
 
-        cmdBuffer->cmdDraw();
+        cmdBuffer->cmdDrawIndexed(static_cast<uint32_t>(narc_engine::s_indices.size()));
 
         cmdBuffer->endRenderPass();
         cmdBuffer->end();
@@ -257,13 +259,20 @@ int main(int argc, char** argv)
             stagingBuffer->copyTo(*cmdPool, *device->getGraphicsQueue(), *vertexBuffer);
             stagingBuffer->deallocate();
             
+            auto indexBuffer = injector.create<std::unique_ptr<narc_engine::VulkanIndexBuffer> >();
+            stagingBuffer->allocate(narc_engine::s_indices.size() * sizeof(narc_engine::s_indices[0]));
+            stagingBuffer->setData(narc_engine::s_indices.data(), narc_engine::s_indices.size() * sizeof(narc_engine::s_indices[0]));
+            stagingBuffer->copyTo(*cmdPool, *device->getGraphicsQueue(), *indexBuffer);
+            stagingBuffer->deallocate();
+
             //Store size in class
             surf->vertexBuffer = vertexBuffer.get();
+            surf->indexBuffer = indexBuffer.get();
 
             while (!surfacesManager->getMainSurface()->shouldClose())
             {
                 glfwPollEvents();
-                
+
                 surfacesManager->updateSurfaces();
             }
             device->waitIdle();

@@ -2,7 +2,7 @@
 // Created by theo on 12/16/25.
 //
 
-#include "vulkan_wrappers/VulkanStagingBuffer.h"
+#include "vulkan_wrappers/buffers/VulkanStagingBuffer.h"
 
 #include "vulkan_wrappers/VulkanCommandPool.h"
 #include "vulkan_wrappers/VulkanQueue.h"

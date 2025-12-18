@@ -2,7 +2,7 @@
 // Created by theo on 12/15/25.
 //
 
-#include "vulkan_wrappers/VulkanVertexBuffer.h"
+#include "vulkan_wrappers/buffers/VulkanVertexBuffer.h"
 
 #include "models/Vertex.h"
 

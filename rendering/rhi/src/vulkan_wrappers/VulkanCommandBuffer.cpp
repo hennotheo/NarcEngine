@@ -8,10 +8,11 @@
 #include "vulkan_wrappers/VulkanDevice.h"
 #include "vulkan_wrappers/VulkanGraphicsPipeline.h"
 #include "vulkan_wrappers/VulkanRenderPass.h"
-#include "vulkan_wrappers/VulkanVertexBuffer.h"
+#include "vulkan_wrappers/buffers/VulkanVertexBuffer.h"
+#include "vulkan_wrappers/buffers/VulkanIndexBuffer.h"
 
 namespace narc_engine {
-    VulkanCommandBuffer::VulkanCommandBuffer(const VkCommandBuffer commandBuffer) :
+        VulkanCommandBuffer::VulkanCommandBuffer(const VkCommandBuffer commandBuffer) :
         m_commandBuffer(commandBuffer)
     {
     }
@@ -68,6 +69,12 @@ namespace narc_engine {
         const std::vector<VkDeviceSize> offsets = {0};
         vkCmdBindVertexBuffers(m_commandBuffer, 0, 1, vertexBuffers.data(), offsets.data());
     }
+    
+    void VulkanCommandBuffer::cmdBindIndexBuffers(VulkanIndexBuffer& indexBuffer)
+    {
+        const std::vector<VkDeviceSize> offsets = {0};
+        vkCmdBindIndexBuffer(m_commandBuffer, indexBuffer.getHandle(), 0, VK_INDEX_TYPE_UINT16);
+    }
 
     void VulkanCommandBuffer::cmdSetViewport(const VkViewport& viewport)
     {
@@ -82,6 +89,11 @@ namespace narc_engine {
     void VulkanCommandBuffer::cmdDraw()
     {
         vkCmdDraw(m_commandBuffer, 3, 1, 0, 0);
+    }
+
+    void VulkanCommandBuffer::cmdDrawIndexed(const uint32_t indexCount)
+    {
+        vkCmdDrawIndexed(m_commandBuffer, indexCount, 1, 0, 0, 0);
     }
 
     void VulkanCommandBuffer::cmdCopyBuffer(const VkBufferCopy& infos, const IVulkanBuffer& src, const IVulkanBuffer& dst)

@@ -27,8 +27,9 @@
 #include "vulkan_wrappers/VulkanCommandBuffer.h"
 #include "vulkan_wrappers/VulkanSemaphore.h"
 #include "vulkan_wrappers/VulkanFence.h"
-#include "vulkan_wrappers/VulkanVertexBuffer.h"
-#include "vulkan_wrappers/VulkanStagingBuffer.h"
+#include "vulkan_wrappers/buffers/VulkanVertexBuffer.h"
+#include "vulkan_wrappers/buffers/VulkanStagingBuffer.h"
+#include "vulkan_wrappers/buffers/VulkanIndexBuffer.h"
 #include "GlfwVulkanSurface.h"
 #include "VulkanSurfacesManager.h"
 
