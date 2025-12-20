@@ -8,6 +8,7 @@
 
 #include "RhiCore.h"
 
+#include "models/Vertex.h"
 #include "models/ApplicationInfo.h"
 #include "models/QueueFamilyIndices.h"
 #include "models/PhysicalDeviceCriteria.h"
@@ -30,6 +31,8 @@
 #include "vulkan_wrappers/buffers/VulkanVertexBuffer.h"
 #include "vulkan_wrappers/buffers/VulkanStagingBuffer.h"
 #include "vulkan_wrappers/buffers/VulkanIndexBuffer.h"
+#include "vulkan_wrappers/buffers/VulkanUniformBuffer.h"
+#include "vulkan_wrappers/VulkanDescriptorSetLayout.h"
 #include "GlfwVulkanSurface.h"
 #include "VulkanSurfacesManager.h"
 

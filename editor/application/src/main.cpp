@@ -3,7 +3,13 @@
 #include <NarcLog.h>
 #include <Rhi.h>
 
-#include "models/Vertex.h"
+
+struct UniformBufferObject
+{
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
+};
 
 class SurfaceManager final : public narc_engine::VulkanSurfacesManager
 {
@@ -29,6 +35,8 @@ public:
     narc_engine::VulkanQueue* presentQueue;
     narc_engine::VulkanVertexBuffer* vertexBuffer;
     narc_engine::VulkanIndexBuffer* indexBuffer;
+    narc_engine::VulkanDescriptorSetLayout* descriptor_set_layout;
+    std::vector<narc_engine::VulkanUniformBuffer>* uniform_buffers;
 
     void updateSurfaces() override
     {
@@ -51,6 +59,8 @@ public:
             uint32_t imageIndex;
             vkAcquireNextImageKHR(device->getHandle(), swapchain->getHandle(), UINT64_MAX, imageAvailableSemaphore->getHandle(), VK_NULL_HANDLE,
                                   &imageIndex);
+
+            updateUniformBuffer(imageIndex, swapchain);
 
             const auto& framebuffer = swapchainFBs[imageIndex];
             cmdBuffer->reset();
@@ -126,6 +136,23 @@ public:
         cmdBuffer->endRenderPass();
         cmdBuffer->end();
     }
+
+    void updateUniformBuffer(uint32_t currentImage, const narc_engine::VulkanSwapChain* swapchain)
+    {
+        static auto startTime = std::chrono::high_resolution_clock::now();
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+        UniformBufferObject ubo{};
+        ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.proj = glm::perspective(glm::radians(45.0f), swapchain->getSwapChainExtent().width / (float) swapchain->getSwapChainExtent().height, 0.1f,
+                                    10.0f);
+        ubo.proj[1][1] *= -1;
+
+        uniform_buffers->at(currentImage).setData(sizeof(ubo), &ubo);
+    }
 };
 
 class TestDeviceExtensions final : public narc_engine::IVulkanExtension
@@ -170,6 +197,23 @@ public:
     }
 
 };
+
+class AllocHandle
+{
+    narc_core::injected_service<narc_engine::IVulkanMemoryAllocationService> alloc;
+
+public:
+    using svc = narc_engine::IVulkanMemoryAllocationService;
+
+    explicit AllocHandle(NARC_DI_IMPORT_SERVICE(svc)) :
+        NARC_DI_IMPL_SERVICE(svc, alloc)
+    {
+
+    }
+
+    ~AllocHandle() = default;
+};
+
 
 int main(int argc, char** argv)
 {
@@ -229,12 +273,16 @@ int main(int argc, char** argv)
                 .EngineName = "NarcEngine"
         });
 
+        auto descriptorSetLayout = injector.create<narc_engine::VulkanDescriptorSetLayout>();
+
         instance->init();
         mainWindow->init();
         surfacesManager->pushSurface(mainWindow);
         device->init();
         surfacesManager->init();
+        descriptorSetLayout.init();
         const auto surf = dynamic_cast<SurfaceManager*>(surfacesManager.get());
+        surf->descriptor_set_layout = &descriptorSetLayout;
         surf->imageAvailableSemaphore = &imageAvailableSemaphore;
         surf->inFlightFence = &inFlightFence;
         surf->renderFinishedSemaphore = &renderFinishedSemaphore;
@@ -242,48 +290,74 @@ int main(int argc, char** argv)
         surf->presentQueue = const_cast<narc_engine::VulkanQueue*>(device->getPresentQueue());
         surf->setDevice(device);
 
-        cmdPool->init();
-
-        imageAvailableSemaphore.init();
-        renderFinishedSemaphore.init();
-        inFlightFence.init();
-
         {
-            const auto cmdBuffer = cmdPool->allocateCommandBuffer();
-            surf->cmdBuffer = cmdBuffer.get();
+            auto svc = injector.create<std::unique_ptr<AllocHandle> >();
 
-            auto vertexBuffer = injector.create<std::unique_ptr<narc_engine::VulkanVertexBuffer> >();
-            auto stagingBuffer = injector.create<std::unique_ptr<narc_engine::VulkanStagingBuffer> >();
-            stagingBuffer->allocate(narc_engine::s_vertices.size() * sizeof(narc_engine::s_vertices[0]));
-            stagingBuffer->setData(narc_engine::s_vertices.data(), narc_engine::s_vertices.size() * sizeof(narc_engine::s_vertices[0]));
-            stagingBuffer->copyTo(*cmdPool, *device->getGraphicsQueue(), *vertexBuffer);
-            stagingBuffer->deallocate();
-            
-            auto indexBuffer = injector.create<std::unique_ptr<narc_engine::VulkanIndexBuffer> >();
-            stagingBuffer->allocate(narc_engine::s_indices.size() * sizeof(narc_engine::s_indices[0]));
-            stagingBuffer->setData(narc_engine::s_indices.data(), narc_engine::s_indices.size() * sizeof(narc_engine::s_indices[0]));
-            stagingBuffer->copyTo(*cmdPool, *device->getGraphicsQueue(), *indexBuffer);
-            stagingBuffer->deallocate();
+            cmdPool->init();
 
-            //Store size in class
-            surf->vertexBuffer = vertexBuffer.get();
-            surf->indexBuffer = indexBuffer.get();
+            imageAvailableSemaphore.init();
+            renderFinishedSemaphore.init();
+            inFlightFence.init();
 
-            while (!surfacesManager->getMainSurface()->shouldClose())
+            std::vector<narc_engine::VulkanUniformBuffer> uniformBuffers;
+            uniformBuffers.reserve(10);
+            for (int i = 0; i < 10; ++i)
             {
-                glfwPollEvents();
-
-                surfacesManager->updateSurfaces();
+                uniformBuffers.push_back(injector.create<narc_engine::VulkanUniformBuffer>());
             }
-            device->waitIdle();
+            {
+
+
+                const auto cmdBuffer = cmdPool->allocateCommandBuffer();
+                surf->cmdBuffer = cmdBuffer.get();
+
+                auto vertexBuffer = injector.create<std::unique_ptr<narc_engine::VulkanVertexBuffer> >();
+                auto stagingBuffer = injector.create<std::unique_ptr<narc_engine::VulkanStagingBuffer> >();
+                stagingBuffer->allocate(narc_engine::s_vertices.size() * sizeof(narc_engine::s_vertices[0]));
+                stagingBuffer->setData(narc_engine::s_vertices.data(), narc_engine::s_vertices.size() * sizeof(narc_engine::s_vertices[0]));
+                stagingBuffer->copyTo(*cmdPool, *device->getGraphicsQueue(), *vertexBuffer);
+                stagingBuffer->deallocate();
+
+                auto indexBuffer = injector.create<std::unique_ptr<narc_engine::VulkanIndexBuffer> >();
+                stagingBuffer->allocate(narc_engine::s_indices.size() * sizeof(narc_engine::s_indices[0]));
+                stagingBuffer->setData(narc_engine::s_indices.data(), narc_engine::s_indices.size() * sizeof(narc_engine::s_indices[0]));
+                stagingBuffer->copyTo(*cmdPool, *device->getGraphicsQueue(), *indexBuffer);
+                stagingBuffer->deallocate();
+
+                //Store size in class
+                surf->vertexBuffer = vertexBuffer.get();
+                surf->indexBuffer = indexBuffer.get();
+
+                for (auto& uniform_buffer: uniformBuffers)
+                {
+                    uniform_buffer.allocate(sizeof(UniformBufferObject));
+                }
+
+                surf->uniform_buffers = &uniformBuffers;
+
+                while (!surfacesManager->getMainSurface()->shouldClose())
+                {
+                    glfwPollEvents();
+
+                    surfacesManager->updateSurfaces();
+                }
+                device->waitIdle();
+
+                for (auto& uniform_buffer: uniformBuffers)
+                {
+                    uniform_buffer.deallocate();
+                }
+            }
+
+
+            inFlightFence.shutdown();
+            renderFinishedSemaphore.shutdown();
+            imageAvailableSemaphore.shutdown();
+
+            cmdPool->shutdown();
         }
 
-        inFlightFence.shutdown();
-        renderFinishedSemaphore.shutdown();
-        imageAvailableSemaphore.shutdown();
-
-        cmdPool->shutdown();
-
+        descriptorSetLayout.shutdown();
         surfacesManager->shutdown();
         device->shutdown();
         instance->shutdown();
