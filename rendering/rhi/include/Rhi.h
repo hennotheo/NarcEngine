@@ -32,6 +32,7 @@
 #include "vulkan_wrappers/buffers/VulkanStagingBuffer.h"
 #include "vulkan_wrappers/buffers/VulkanIndexBuffer.h"
 #include "vulkan_wrappers/buffers/VulkanUniformBuffer.h"
+#include "vulkan_wrappers/VulkanDescriptorPool.h"
 #include "vulkan_wrappers/VulkanDescriptorSetLayout.h"
 #include "GlfwVulkanSurface.h"
 #include "VulkanSurfacesManager.h"
