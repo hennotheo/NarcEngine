@@ -43,6 +43,10 @@ elseif (APPLE)
     message(FATAL_ERROR "Apple platform is not supported yet.")
 endif ()
 
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/arch")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
 add_subdirectory(core/core)
 add_subdirectory(core/narc_math)
 

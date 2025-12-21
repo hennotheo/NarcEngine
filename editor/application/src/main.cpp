@@ -94,11 +94,12 @@ int main(int argc, char** argv)
 
         instance->init();
         mainWindow->init();
-        surfacesManager->pushSurface(mainWindow);
+
+        const auto surfaceComponent = surfacesManager->pushSurface(mainWindow);
+        surfaceComponent.Layout->addDescriptorSetLayoutBinding(&descriptorSetLayout);
         device->init();
-        surfacesManager->init();
-        descriptorSetPool->init();
         descriptorSetLayout.init();
+        surfacesManager->init();
         const auto surf = dynamic_cast<SurfaceManager*>(surfacesManager.get());
         surf->descriptor_set_layout = &descriptorSetLayout;
         surf->imageAvailableSemaphores = &imageAvailableSemaphores;
@@ -110,28 +111,7 @@ int main(int argc, char** argv)
 
         cmdPool->init();
 
-        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
         {
-            imageAvailableSemaphores[i]->init();
-            renderFinishedSemaphores[i]->init();
-            inFlightFences[i]->init();
-        }
-
-        std::vector<narc_engine::VulkanUniformBuffer> uniformBuffers;
-        uniformBuffers.reserve(10);
-        for (int i = 0; i < 10; ++i)
-        {
-            uniformBuffers.push_back(injector.create<narc_engine::VulkanUniformBuffer>());
-        }
-
-        {
-            std::vector<std::unique_ptr<narc_engine::VulkanCommandBuffer> > commandBuffers;
-            for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-            {
-                commandBuffers.push_back(cmdPool->allocateCommandBuffer());
-            }
-            surf->cmdBuffer = &commandBuffers;
-
             auto vertexBuffer = injector.create<std::unique_ptr<narc_engine::VulkanVertexBuffer> >();
             auto stagingBuffer = injector.create<std::unique_ptr<narc_engine::VulkanStagingBuffer> >();
             stagingBuffer->allocate(narc_engine::s_vertices.size() * sizeof(narc_engine::s_vertices[0]));
@@ -149,10 +129,58 @@ int main(int argc, char** argv)
             surf->vertexBuffer = vertexBuffer.get();
             surf->indexBuffer = indexBuffer.get();
 
+
+            std::vector<narc_engine::VulkanUniformBuffer> uniformBuffers;
+            uniformBuffers.reserve(MAX_FRAMES_IN_FLIGHT);
+            for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+            {
+                uniformBuffers.push_back(injector.create<narc_engine::VulkanUniformBuffer>());
+            }
+
             for (auto& uniform_buffer: uniformBuffers)
             {
                 uniform_buffer.allocate(sizeof(UniformBufferObject));
             }
+
+            descriptorSetPool->init();
+
+            auto sets = descriptorSetPool->allocateDescriptorSet(std::vector(2, descriptorSetLayout));
+            for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+            {
+                VkDescriptorBufferInfo bufferInfo{};
+                bufferInfo.buffer = uniformBuffers[i].getHandle();
+                bufferInfo.offset = 0;
+                bufferInfo.range = sizeof(UniformBufferObject);
+
+                VkWriteDescriptorSet descriptorWrite{};
+                descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                descriptorWrite.dstSet = sets[i].getHandle();
+                descriptorWrite.dstBinding = 0;
+                descriptorWrite.dstArrayElement = 0;
+                descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                descriptorWrite.descriptorCount = 1;
+                descriptorWrite.pBufferInfo = &bufferInfo;
+                descriptorWrite.pImageInfo = nullptr; // Optional
+                descriptorWrite.pTexelBufferView = nullptr; // Optional
+
+                vkUpdateDescriptorSets(device->getHandle(), 1, &descriptorWrite, 0, nullptr);
+            }
+            surf->descriptor_sets = sets;
+
+            for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+            {
+                imageAvailableSemaphores[i]->init();
+                renderFinishedSemaphores[i]->init();
+                inFlightFences[i]->init();
+            }
+
+
+            std::vector<std::unique_ptr<narc_engine::VulkanCommandBuffer> > commandBuffers;
+            for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+            {
+                commandBuffers.push_back(cmdPool->allocateCommandBuffer());
+            }
+            surf->cmdBuffer = &commandBuffers;
 
             surf->uniform_buffers = &uniformBuffers;
 
@@ -164,24 +192,27 @@ int main(int argc, char** argv)
             }
             device->waitIdle();
 
+
+            for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+            {
+                imageAvailableSemaphores[i]->shutdown();
+                renderFinishedSemaphores[i]->shutdown();
+                inFlightFences[i]->shutdown();
+            }
+
+            descriptorSetPool->shutdown();
+
             for (auto& uniform_buffer: uniformBuffers)
             {
                 uniform_buffer.deallocate();
             }
         }
 
-        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-        {
-            imageAvailableSemaphores[i]->shutdown();
-            renderFinishedSemaphores[i]->shutdown();
-            inFlightFences[i]->shutdown();
-        }
 
         cmdPool->shutdown();
 
-        descriptorSetLayout.shutdown();
-        descriptorSetPool->shutdown();
         surfacesManager->shutdown();
+        descriptorSetLayout.shutdown();
         device->shutdown();
         instance->shutdown();
     }

@@ -31,6 +31,7 @@ public:
     narc_engine::VulkanVertexBuffer* vertexBuffer;
     narc_engine::VulkanIndexBuffer* indexBuffer;
     narc_engine::VulkanDescriptorSetLayout* descriptor_set_layout;
+    std::span<narc_engine::VulkanDescriptorSet> descriptor_sets;
     std::vector<narc_engine::VulkanUniformBuffer>* uniform_buffers;
 
     uint32_t currentFrame = 0;
@@ -61,7 +62,7 @@ public:
             vkAcquireNextImageKHR(device->getHandle(), swapchain->getHandle(), UINT64_MAX, imageAvailableSemaphore->getHandle(), VK_NULL_HANDLE,
                                   &imageIndex);
 
-            updateUniformBuffer(imageIndex, swapchain);
+            updateUniformBuffer(currentFrame, swapchain);
 
             const auto& framebuffer = swapchainFBs[imageIndex];
             cmd->reset();
@@ -135,6 +136,9 @@ public:
         scissor.offset = {0, 0};
         scissor.extent = extend;
         cmd->cmdSetScissor(scissor);
+        
+        std::vector sets = { descriptor_sets[currentFrame] };
+        cmd->cmdBindDescriptorSets(sets, *pipeline->getLayout());
 
         cmd->cmdDrawIndexed(static_cast<uint32_t>(narc_engine::s_indices.size()));
 

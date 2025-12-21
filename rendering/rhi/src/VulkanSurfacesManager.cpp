@@ -87,7 +87,7 @@ namespace narc_engine {
         }
     }
 
-    void VulkanSurfacesManager::pushSurface(std::unique_ptr<IVulkanSurface>& surface)
+    SurfaceComponentReferences VulkanSurfacesManager::pushSurface(std::unique_ptr<IVulkanSurface>& surface)
     {
         auto localSwapChain = m_swapChainCreator->create();
         localSwapChain->setSurface(surface);
@@ -101,5 +101,11 @@ namespace narc_engine {
         m_pipelines.push_back(std::move(pipeline));
         m_surfaces.push_back(std::move(surface));
         m_swapChains.push_back(std::move(localSwapChain));
+
+        const uint32_t newSurfaceComponentsIndex = m_pipelines.size() - 1;
+        return SurfaceComponentReferences
+        {
+             m_pipelines[newSurfaceComponentsIndex]->getLayout()
+        };
     }
 }

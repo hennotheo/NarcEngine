@@ -5,6 +5,8 @@
 #include "vulkan_wrappers/VulkanDescriptorPool.h"
 
 #include "vulkan_wrappers/VulkanDevice.h"
+#include "vulkan_wrappers/VulkanDescriptorSet.h"
+#include "vulkan_wrappers/VulkanDescriptorSetLayout.h"
 
 namespace narc_engine {
     VulkanDescriptorPool::VulkanDescriptorPool(NARC_DI_IMPORT_COMPONENT(VulkanDevice)) :
@@ -35,5 +37,38 @@ namespace narc_engine {
     void VulkanDescriptorPool::shutdown()
     {
         vkDestroyDescriptorPool(m_device->getHandle(), descriptorPool, nullptr);
+    }
+
+    std::vector<VulkanDescriptorSet> VulkanDescriptorPool::allocateDescriptorSet(std::vector<VulkanDescriptorSetLayout> layouts)
+    {
+        const auto layoutCount = static_cast<uint32_t>(layouts.size());
+
+        std::vector<VkDescriptorSetLayout> out;
+        out.reserve(layoutCount);
+        std::ranges::transform(layouts,
+                               std::back_inserter(out),
+                               [](const VulkanDescriptorSetLayout& layout) {
+                                   return layout.getHandle();
+                               });
+
+        VkDescriptorSetAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        allocInfo.descriptorPool = descriptorPool;
+        allocInfo.descriptorSetCount = m_descriptorCount;
+        allocInfo.pSetLayouts = out.data();
+
+        std::vector<VkDescriptorSet> descriptorSets;
+        descriptorSets.resize(m_descriptorCount);
+        vkAllocateDescriptorSets(m_device->getHandle(), &allocInfo, descriptorSets.data());
+
+        std::vector<VulkanDescriptorSet> sets;
+        sets.reserve(m_descriptorCount);
+        std::ranges::transform(descriptorSets,
+                               std::back_inserter(sets),
+                               [](const VkDescriptorSet& set) {
+                                   return VulkanDescriptorSet(set);
+                               });
+
+        return sets;
     }
 } // narc_engine

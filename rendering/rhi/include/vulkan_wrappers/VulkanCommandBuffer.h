@@ -5,6 +5,8 @@
 #pragma once
 
 namespace narc_engine {
+    class VulkanPipelineLayout;
+    class VulkanDescriptorSet;
     class VulkanIndexBuffer;
     class VulkanVertexBuffer;
     class VulkanFramebuffer;
@@ -23,6 +25,7 @@ namespace narc_engine {
         virtual void cmdBindPipeline(const VulkanGraphicsPipeline& pipeline) = 0;
         virtual void cmdBindVertexBuffers(VulkanVertexBuffer& vertexBuffer) = 0;
         virtual void cmdBindIndexBuffers(VulkanIndexBuffer& indexBuffer) = 0;
+        virtual void cmdBindDescriptorSets(std::span<VulkanDescriptorSet> descriptorSets, VulkanPipelineLayout& pipelineLayout) = 0;
         virtual void cmdSetViewport(const VkViewport& viewport) = 0;
         virtual void cmdSetScissor(const VkRect2D& scissor) = 0;
         virtual void cmdDraw() = 0;
@@ -48,6 +51,7 @@ namespace narc_engine {
         void cmdBindPipeline(const VulkanGraphicsPipeline& pipeline) override;
         void cmdBindVertexBuffers(VulkanVertexBuffer& vertexBuffer) override;
         void cmdBindIndexBuffers(VulkanIndexBuffer& indexBuffer) override;
+        void cmdBindDescriptorSets(std::span<VulkanDescriptorSet> descriptorSets, VulkanPipelineLayout& pipelineLayout) override;
         void cmdSetViewport(const VkViewport& viewport) override;
         void cmdSetScissor(const VkRect2D& scissor) override;
         void cmdDraw() override;

@@ -5,6 +5,8 @@
 #pragma once
 
 namespace narc_engine {
+    class VulkanDescriptorSetLayout;
+    class VulkanDescriptorSet;
     class VulkanDevice;
     
     class VulkanDescriptorPool : narc_core::IInitialisable
@@ -16,6 +18,8 @@ namespace narc_engine {
         NARC_IMPL_INITIALISABLE();
         
         NARC_SETTER(uint32_t, DescriptorCount, m_descriptorCount);
+        
+        NO_DISCARD std::vector<VulkanDescriptorSet> allocateDescriptorSet(std::vector<VulkanDescriptorSetLayout> layouts);
         
     private:
         narc_core::injected_component<VulkanDevice> m_device;

@@ -13,6 +13,11 @@ namespace narc_engine {
     class DeviceService;
     class VulkanInstance;
     class VulkanSwapChain;
+    
+    struct SurfaceComponentReferences
+    {
+        VulkanPipelineLayout* Layout;
+    };
 
     class VulkanSurfacesManager : public ISurfacesHandler, public narc_core::IInitialisable
     {
@@ -67,7 +72,7 @@ namespace narc_engine {
             return out;
         }
 
-        virtual void pushSurface(std::unique_ptr<IVulkanSurface>& surface);
+        virtual SurfaceComponentReferences pushSurface(std::unique_ptr<IVulkanSurface>& surface);
 
     protected:
         NARC_GETTER(const std::weak_ptr<VulkanDevice>&, getDevice, m_device);

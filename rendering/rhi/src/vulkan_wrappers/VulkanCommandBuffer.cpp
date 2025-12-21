@@ -5,14 +5,16 @@
 #include "vulkan_wrappers/VulkanCommandBuffer.h"
 
 #include "vulkan_wrappers/VulkanCommandPool.h"
+#include "vulkan_wrappers/VulkanDescriptorSet.h"
 #include "vulkan_wrappers/VulkanDevice.h"
 #include "vulkan_wrappers/VulkanGraphicsPipeline.h"
+#include "vulkan_wrappers/VulkanPipelineLayout.h"
 #include "vulkan_wrappers/VulkanRenderPass.h"
 #include "vulkan_wrappers/buffers/VulkanVertexBuffer.h"
 #include "vulkan_wrappers/buffers/VulkanIndexBuffer.h"
 
 namespace narc_engine {
-        VulkanCommandBuffer::VulkanCommandBuffer(const VkCommandBuffer commandBuffer) :
+    VulkanCommandBuffer::VulkanCommandBuffer(const VkCommandBuffer commandBuffer) :
         m_commandBuffer(commandBuffer)
     {
     }
@@ -69,11 +71,30 @@ namespace narc_engine {
         const std::vector<VkDeviceSize> offsets = {0};
         vkCmdBindVertexBuffers(m_commandBuffer, 0, 1, vertexBuffers.data(), offsets.data());
     }
-    
+
     void VulkanCommandBuffer::cmdBindIndexBuffers(VulkanIndexBuffer& indexBuffer)
     {
         const std::vector<VkDeviceSize> offsets = {0};
         vkCmdBindIndexBuffer(m_commandBuffer, indexBuffer.getHandle(), 0, VK_INDEX_TYPE_UINT16);
+    }
+
+    void VulkanCommandBuffer::cmdBindDescriptorSets(std::span<VulkanDescriptorSet> descriptorSets, VulkanPipelineLayout& pipelineLayout)
+    {
+        std::vector<VkDescriptorSet> layouts;
+        layouts.reserve(descriptorSets.size());
+        std::ranges::transform(descriptorSets, std::back_inserter(layouts),
+                               [](const VulkanDescriptorSet& descriptorSet) {
+                                   return descriptorSet.getHandle();
+                               });
+
+        vkCmdBindDescriptorSets(m_commandBuffer,
+                                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                pipelineLayout.getHandle(),
+                                0,
+                                descriptorSets.size(),
+                                layouts.data(),
+                                0,
+                                nullptr);
     }
 
     void VulkanCommandBuffer::cmdSetViewport(const VkViewport& viewport)

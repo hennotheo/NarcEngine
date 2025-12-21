@@ -4,6 +4,7 @@
 
 #include "vulkan_wrappers/VulkanPipelineLayout.h"
 
+#include "vulkan_wrappers/VulkanDescriptorSetLayout.h"
 #include "vulkan_wrappers/VulkanDevice.h"
 
 namespace narc_engine {
@@ -18,10 +19,19 @@ namespace narc_engine {
 
     void VulkanPipelineLayout::init()
     {
+        std::vector<VkDescriptorSetLayout> setLayouts;
+        setLayouts.reserve(m_setLayouts.size());
+        std::ranges::transform(
+                m_setLayouts,
+                std::back_inserter(setLayouts),
+                [](const VulkanDescriptorSetLayout* layout) {
+                    return layout->getHandle();
+                });
+
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = 0; // Optional
-        pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
+        pipelineLayoutInfo.setLayoutCount = setLayouts.size();
+        pipelineLayoutInfo.pSetLayouts = setLayouts.data();
         pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
         pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
         NARC_GUARD_WEAK(device, m_device, "Failed to get Device.");
@@ -37,5 +47,15 @@ namespace narc_engine {
         NARC_GUARD_WEAK(device, m_device, "Failed to get Device.");
 
         vkDestroyPipelineLayout(device->getHandle(), m_pipelineLayout, nullptr);
+    }
+
+    void VulkanPipelineLayout::addDescriptorSetLayoutBinding(const VulkanDescriptorSetLayout* layout)
+    {
+        if (layout == nullptr)
+        {
+            return;
+        }
+
+        m_setLayouts.push_back(layout);
     }
 } // narc_engine

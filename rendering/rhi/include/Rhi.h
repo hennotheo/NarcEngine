@@ -34,6 +34,7 @@
 #include "vulkan_wrappers/buffers/VulkanUniformBuffer.h"
 #include "vulkan_wrappers/VulkanDescriptorPool.h"
 #include "vulkan_wrappers/VulkanDescriptorSetLayout.h"
+#include "vulkan_wrappers/VulkanDescriptorSet.h"
 #include "GlfwVulkanSurface.h"
 #include "VulkanSurfacesManager.h"
 

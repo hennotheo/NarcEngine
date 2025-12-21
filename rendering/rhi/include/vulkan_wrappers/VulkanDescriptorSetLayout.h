@@ -13,6 +13,8 @@ namespace narc_engine {
         
         NARC_IMPL_INITIALISABLE();
         
+        NARC_GETTER(VkDescriptorSetLayout, getHandle, m_descriptorSetLayout);
+        
     private:
         narc_core::injected_component<VulkanDevice> m_device;
         
