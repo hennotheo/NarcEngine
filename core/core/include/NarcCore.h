@@ -99,7 +99,7 @@ namespace narc_core {
 
 #define NARC_VIRTUAL_CMD(displayName, ...) virtual narc_core::result displayName(__VA_ARGS__) const noexcept
 #define NARC_PURE_VIRTUAL_CMD(displayName, ...) virtual narc_core::result displayName(__VA_ARGS__) const noexcept = 0
-#define NARC_CMD_OVERRIDE(displayName, ...) virtual narc_core::result displayName(__VA_ARGS__) const noexcept override
+#define NARC_CMD_OVERRIDE(displayName, ...) narc_core::result displayName(__VA_ARGS__) const noexcept override
 
 #define NARC_MAP(typeA, typeB) \
 NO_DISCARD typeB map##typeA##To##typeB(const typeA& value) const noexcept

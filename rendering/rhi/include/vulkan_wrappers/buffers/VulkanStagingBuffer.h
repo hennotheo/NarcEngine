@@ -10,7 +10,7 @@ namespace narc_engine {
     class VulkanStagingBuffer : public IVulkanBuffer
     {
     public:
-        explicit VulkanStagingBuffer(NARC_DI_IMPORT_COMPONENT(IVulkanMemoryAllocationService));
+        explicit VulkanStagingBuffer(NARC_DI_IMPORT_SERVICE(IVulkanMemoryAllocationService), NARC_DI_IMPORT_SERVICE(ICmdService));
         ~VulkanStagingBuffer() override;
         
         NARC_OVERRIDE_GETTER(const VkBuffer&, getHandle, m_vertexBuffer);
@@ -18,11 +18,12 @@ namespace narc_engine {
         void allocate(const VkDeviceSize& size);
         void deallocate();
         
-        void setData(const void* data, size_t size);
-        void copyTo(const VulkanCommandPool &commandPool, const VulkanQueue &graphicsQueue, const IVulkanBuffer &buffer);
+        void setData(const void *data);
+        void copyToBuffer(const IVulkanBuffer &buffer);
     
     private:
         narc_core::injected_component<IVulkanMemoryAllocationService> m_allocator;
+        narc_core::injected_component<ICmdService> m_cmdService;
         
         VkBuffer m_vertexBuffer = VK_NULL_HANDLE;
         VmaAllocation m_allocation = VK_NULL_HANDLE;

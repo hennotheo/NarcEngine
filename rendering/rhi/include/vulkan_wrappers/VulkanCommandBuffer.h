@@ -48,6 +48,7 @@ namespace narc_engine {
         IRenderPassCmdBuffer* beginRenderPass(const VulkanFramebuffer& framebuffer, const VulkanRenderPass& renderPass);
         void endRenderPass() override;
         
+        void cmdPipelineBarrier(const VkPipelineStageFlags& srcStage, const VkPipelineStageFlags& dstStage, uint32_t imageBarrierCount, const VkImageMemoryBarrier& barrier) const;
         void cmdBindPipeline(const VulkanGraphicsPipeline& pipeline) override;
         void cmdBindVertexBuffers(VulkanVertexBuffer& vertexBuffer) override;
         void cmdBindIndexBuffers(VulkanIndexBuffer& indexBuffer) override;
@@ -57,6 +58,7 @@ namespace narc_engine {
         void cmdDraw() override;
         void cmdDrawIndexed(uint32_t indexCount) override;
         void cmdCopyBuffer(const VkBufferCopy& infos, const IVulkanBuffer& src, const IVulkanBuffer& dst);
+        void cmdCopyBufferToImage(const IVulkanBuffer& src, const VkImage& dst, const VkBufferImageCopy& infos);
 
         void reset();
 

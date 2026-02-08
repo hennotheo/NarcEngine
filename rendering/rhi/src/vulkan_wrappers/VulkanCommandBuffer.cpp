@@ -60,6 +60,23 @@ namespace narc_engine {
         vkCmdEndRenderPass(m_commandBuffer);
     }
 
+    void VulkanCommandBuffer::cmdPipelineBarrier(const VkPipelineStageFlags& srcStage,
+                                                 const VkPipelineStageFlags& dstStage,
+                                                 const uint32_t imageBarrierCount,
+                                                 const VkImageMemoryBarrier& barrier) const
+    {
+        vkCmdPipelineBarrier(m_commandBuffer,
+                             srcStage,
+                             dstStage,
+                             0,
+                             0,
+                             nullptr,
+                             0,
+                             nullptr,
+                             imageBarrierCount,
+                             &barrier);
+    }
+
     void VulkanCommandBuffer::cmdBindPipeline(const VulkanGraphicsPipeline& pipeline)
     {
         vkCmdBindPipeline(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.getHandle());
@@ -125,5 +142,10 @@ namespace narc_engine {
     void VulkanCommandBuffer::reset()
     {
         vkResetCommandBuffer(m_commandBuffer, 0);
+    }
+
+    void VulkanCommandBuffer::cmdCopyBufferToImage(const IVulkanBuffer& src, const VkImage& dst, const VkBufferImageCopy& infos)//TODO: Edit vkimg to img
+    {
+        vkCmdCopyBufferToImage(m_commandBuffer, src.getHandle(), dst, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,1, &infos);
     }
 } // narc_engine

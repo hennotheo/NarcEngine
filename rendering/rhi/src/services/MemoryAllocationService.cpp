@@ -18,15 +18,6 @@ namespace narc_engine {
 
     MemoryAllocationService::~MemoryAllocationService() = default;
 
-    bool MemoryAllocationService::deallocBuffer(VkBuffer& buffer, VmaAllocation& alloc) const noexcept
-    {
-        vmaDestroyBuffer(m_allocator, buffer, alloc);
-        
-        checkAfterDeallocItem();
-        
-        return true;
-    }
-
     VulkanServiceQuery<VmaAllocationInfo> MemoryAllocationService::allocBuffer(const VkBufferCreateInfo& infos, VkBuffer& buffer, VmaAllocation& alloc) const noexcept
     {
         if (infos.size == 0)
@@ -50,6 +41,54 @@ namespace narc_engine {
         
         return stagingInfo;
     }
+    
+    bool MemoryAllocationService::deallocBuffer(VkBuffer& buffer, VmaAllocation& alloc) const noexcept
+    {
+        if (alloc == VK_NULL_HANDLE)
+        {
+            return false;
+        }
+        
+        vmaDestroyBuffer(m_allocator, buffer, alloc);
+        
+        checkAfterDeallocItem();
+        
+        return true;
+    }
+
+    VulkanServiceQuery<VmaAllocationInfo> MemoryAllocationService::allocImage(const VkImageCreateInfo& infos, VkImage& buffer,
+            VmaAllocation& alloc) const noexcept
+    {        
+        checkBeforeAllocItem();
+
+        VmaAllocationCreateInfo allocationInfo{};
+        allocationInfo.usage = VMA_MEMORY_USAGE_AUTO;
+        // For very big textures (>128MB for example)
+        // allocationInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+        allocationInfo.pUserData = (void*)this;
+        
+        VmaAllocationInfo stagingInfo;
+        if (vmaCreateImage(m_allocator, &infos, &allocationInfo, &buffer, &alloc, &stagingInfo)!= VK_SUCCESS)
+        {
+            return vulkanServiceUnexpected("Can't create image.");
+        }
+        
+        return stagingInfo;
+    }
+
+    bool MemoryAllocationService::deallocImage(VkImage& image, VmaAllocation& alloc) const noexcept
+    {
+        if (alloc == VK_NULL_HANDLE)
+        {
+            return false;
+        }
+        
+        vmaDestroyImage(m_allocator, image, alloc);
+        
+        checkAfterDeallocItem();
+        
+        return true;
+    }
 
     narc_core::result MemoryAllocationService::mapMemory(const void* data, const VkDeviceSize& dataSize, const VmaAllocation& alloc) const noexcept
     {
@@ -57,11 +96,6 @@ namespace narc_engine {
         {
             return false;
         }
-
-        // VmaAllocationInfo info{};
-        // vmaGetAllocationInfo(m_allocator, alloc, &info);
-        // if (dataSize > info.size)
-        //     return false;
 
         void* ptr = nullptr;
         VkResult r = vmaMapMemory(m_allocator, alloc, &ptr);

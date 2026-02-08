@@ -14,7 +14,7 @@ namespace narc_io
 
     struct NARC_IO_API Model3D final
     {
-        friend class FileReader;
+        friend class FileReaderService;
 
         NARC_GETTER(uint32_t, getVerticesCount, m_vertices.size());
         NARC_GETTER(const VertexList&, getVertices, m_vertices);

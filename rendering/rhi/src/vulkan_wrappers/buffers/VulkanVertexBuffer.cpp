@@ -24,9 +24,6 @@ namespace narc_engine {
 
     VulkanVertexBuffer::~VulkanVertexBuffer()
     {
-        if (m_allocation != VK_NULL_HANDLE)
-        {
-            m_allocator->deallocBuffer(m_vertexBuffer, m_allocation);
-        }
+        m_allocator->deallocBuffer(m_vertexBuffer, m_allocation);
     }
 } // narc_engine

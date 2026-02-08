@@ -1,13 +1,11 @@
-﻿#include "FileReader.h"
+﻿#include "FileReaderService.h"
 
 #include <NarcLog.h>
 #include <NarcMath.h>
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
-#include "models/Image.h"
+#include "models/ImageStream.h"
 #include "models/Model3D.h"
 
 struct vertex
@@ -19,9 +17,8 @@ struct vertex
     bool operator==(const vertex& other) const { return pos == other.pos && tex == other.tex && color == other.color; }
 };
 
-namespace std
-{
-    template <>
+namespace std {
+    template<>
     struct hash<vertex>
     {
         size_t operator()(vertex const& vertex) const
@@ -31,9 +28,8 @@ namespace std
     };
 } // namespace std
 
-namespace narc_io
-{
-    std::vector<char> FileReader::readFile(const std::string& filename)
+namespace narc_io {
+    std::vector<char> FileReaderService::readFile(const std::string& filename)
     {
         std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
@@ -42,7 +38,7 @@ namespace narc_io
             NARC_ERROR_RUNTIME("Failed to open file!");
         }
 
-        const size_t fileSize = (size_t)file.tellg();
+        const size_t fileSize = (size_t) file.tellg();
         std::vector<char> buffer(fileSize);
 
         file.seekg(0);
@@ -53,7 +49,7 @@ namespace narc_io
         return buffer;
     }
 
-    Model3D FileReader::load3DModel(const std::string& filename)
+    Model3D FileReaderService::load3DModel(const std::string& filename)
     {
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
@@ -71,9 +67,9 @@ namespace narc_io
         TexCoordList texCoords;
         ColorList colors;
         IndexList indices;
-        for (const auto& shape : shapes)
+        for (const auto& shape: shapes)
         {
-            for (const auto& index : shape.mesh.indices)
+            for (const auto& index: shape.mesh.indices)
             {
                 vertex vertex{};
                 vertex.pos = {attrib.vertices[3 * index.vertex_index + 0], attrib.vertices[3 * index.vertex_index + 1],
@@ -102,20 +98,8 @@ namespace narc_io
         return model;
     }
 
-    Image FileReader::readImage(const std::string& filename)
+    std::unique_ptr<IImageStream> FileReaderService::readImage(const std::string& filename)
     {
-        int texWidth, texHeight, texChannels;
-        stbi_uc* pixels = stbi_load(filename.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-
-        if (!pixels)
-        {
-            NARC_ERROR_RUNTIME("Failed to load texture image!");
-        }
-
-        Image image(texWidth, texHeight, texChannels, pixels);
-
-        return image;
+        return std::make_unique<ImageStream>(filename);
     }
-
-    void FileReader::releaseImage(void* imageData) { stbi_image_free(imageData); }
 } // namespace narc_io

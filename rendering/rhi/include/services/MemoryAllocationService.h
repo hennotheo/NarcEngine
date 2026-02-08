@@ -15,8 +15,11 @@ namespace narc_engine {
         explicit MemoryAllocationService(NARC_DI_IMPORT_COMPONENT(VulkanInstance), NARC_DI_IMPORT_COMPONENT(VulkanDevice));
         ~MemoryAllocationService() override;
 
-        NARC_QUERY_OVERRIDE(bool, deallocBuffer, VkBuffer& buffer, VmaAllocation& alloc);
         NARC_QUERY_OVERRIDE(VulkanServiceQuery<VmaAllocationInfo>, allocBuffer, const VkBufferCreateInfo& infos, VkBuffer& buffer, VmaAllocation& alloc);
+        NARC_QUERY_OVERRIDE(bool, deallocBuffer, VkBuffer& buffer, VmaAllocation& alloc);
+        
+        NARC_QUERY_OVERRIDE(VulkanServiceQuery<VmaAllocationInfo>, allocImage, const VkImageCreateInfo& infos, VkImage& buffer, VmaAllocation& alloc);
+        NARC_QUERY_OVERRIDE(bool, deallocImage, VkImage& image, VmaAllocation& alloc);
         
         NARC_CMD_OVERRIDE(mapMemory, const void* data, const VkDeviceSize& dataSize, const VmaAllocation& alloc);
 

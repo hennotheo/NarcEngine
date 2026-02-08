@@ -22,3 +22,4 @@ namespace narc_engine {
 #include "IDeviceService.h"
 #include "IDeviceQueueService.h"
 #include "IVulkanMemoryAllocationService.h"
+#include "ICmdService.h"

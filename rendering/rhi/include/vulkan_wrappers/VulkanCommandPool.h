@@ -19,10 +19,9 @@ namespace narc_engine {
 
         NARC_GETTER(VkCommandPool, getHandle, m_commandPool);
         
-        std::unique_ptr<VulkanCommandBuffer> allocateCopyBuffer() const;
+        std::unique_ptr<VulkanCommandBuffer> allocateOneTimeBuffer() const;
         std::unique_ptr<VulkanCommandBuffer> allocateCommandBuffer() const;
         
-        // void freeBuffers(std::vector<VulkanCommandBuffer> buffers);
         void freeBuffer(const VulkanCommandBuffer& buffers);
 
     private:

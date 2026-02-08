@@ -39,7 +39,7 @@ namespace narc_engine {
         vkDestroyCommandPool(device->getHandle(), m_commandPool, nullptr);
     }
 
-    std::unique_ptr<VulkanCommandBuffer> VulkanCommandPool::allocateCopyBuffer() const
+    std::unique_ptr<VulkanCommandBuffer> VulkanCommandPool::allocateOneTimeBuffer() const
     {
         NARC_GUARD_WEAK(device, m_device, "Failed to get Vulkan Device.");
 

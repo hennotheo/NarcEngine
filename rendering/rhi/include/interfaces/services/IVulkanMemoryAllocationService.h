@@ -12,8 +12,11 @@ namespace narc_engine {
     public:
         ~IVulkanMemoryAllocationService() override = default;
 
-        NARC_PURE_VIRTUAL_QUERY(bool, deallocBuffer, VkBuffer& buffer, VmaAllocation& alloc);
         NARC_PURE_VIRTUAL_QUERY(VulkanServiceQuery<VmaAllocationInfo>, allocBuffer, const VkBufferCreateInfo& infos, VkBuffer& buffer, VmaAllocation& alloc);
+        NARC_PURE_VIRTUAL_QUERY(bool, deallocBuffer, VkBuffer& buffer, VmaAllocation& alloc);
+        
+        NARC_PURE_VIRTUAL_QUERY(VulkanServiceQuery<VmaAllocationInfo>, allocImage, const VkImageCreateInfo& infos, VkImage& buffer, VmaAllocation& alloc);
+        NARC_PURE_VIRTUAL_QUERY(bool, deallocImage, VkImage& buffer, VmaAllocation& alloc);
         
         NARC_PURE_VIRTUAL_CMD(mapMemory, const void* data, const VkDeviceSize& dataSize, const VmaAllocation& alloc);
     };

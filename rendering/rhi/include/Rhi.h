@@ -44,3 +44,4 @@
 #include "services/DeviceQueueService.h"
 #include "services/SwapChainService.h"
 #include "services/MemoryAllocationService.h"
+#include "services/CmdService.h"

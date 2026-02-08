@@ -6,6 +6,7 @@
 #include "Ubo.h"
 #include "SurfaceManager.h"
 #include "TestDeviceExtension.h"
+#include "vulkan_wrappers/VulkanTextureImage.h"
 
 class Creator final : public narc_core::ICreator<narc_engine::VulkanSwapChain>
 {
@@ -33,6 +34,7 @@ int main(int argc, char** argv)
             di::bind<narc_engine::IDeviceQueueService>.to<narc_engine::DeviceQueueService>(),
             di::bind<narc_engine::ISurfacesHandler>.to<SurfaceManager>(),
             di::bind<narc_engine::IVulkanMemoryAllocationService>.to<narc_engine::MemoryAllocationService>(),
+            di::bind<narc_engine::ICmdService>.to<narc_engine::CmdService>(),
             di::bind<narc_engine::VulkanSurfacesManager>.to<SurfaceManager>(),
             di::bind<narc_core::ICreator<narc_engine::VulkanSwapChain> >.to<Creator>().in(di::singleton)
             );
@@ -115,15 +117,19 @@ int main(int argc, char** argv)
             auto vertexBuffer = injector.create<std::unique_ptr<narc_engine::VulkanVertexBuffer> >();
             auto stagingBuffer = injector.create<std::unique_ptr<narc_engine::VulkanStagingBuffer> >();
             stagingBuffer->allocate(narc_engine::s_vertices.size() * sizeof(narc_engine::s_vertices[0]));
-            stagingBuffer->setData(narc_engine::s_vertices.data(), narc_engine::s_vertices.size() * sizeof(narc_engine::s_vertices[0]));
-            stagingBuffer->copyTo(*cmdPool, *device->getGraphicsQueue(), *vertexBuffer);
+            stagingBuffer->setData(narc_engine::s_vertices.data());
+            stagingBuffer->copyToBuffer(*vertexBuffer);
             stagingBuffer->deallocate();
 
             auto indexBuffer = injector.create<std::unique_ptr<narc_engine::VulkanIndexBuffer> >();
             stagingBuffer->allocate(narc_engine::s_indices.size() * sizeof(narc_engine::s_indices[0]));
-            stagingBuffer->setData(narc_engine::s_indices.data(), narc_engine::s_indices.size() * sizeof(narc_engine::s_indices[0]));
-            stagingBuffer->copyTo(*cmdPool, *device->getGraphicsQueue(), *indexBuffer);
+            stagingBuffer->setData(narc_engine::s_indices.data());
+            stagingBuffer->copyToBuffer(*indexBuffer);
             stagingBuffer->deallocate();
+
+            auto textureImage = injector.create<std::unique_ptr<narc_engine::VulkanTextureImage> >();
+            textureImage->setpath(std::string("textures/tex_test_uv_0.png"));
+            textureImage->init();
 
             //Store size in class
             surf->vertexBuffer = vertexBuffer.get();
@@ -183,15 +189,22 @@ int main(int argc, char** argv)
             surf->cmdBuffer = &commandBuffers;
 
             surf->uniform_buffers = &uniformBuffers;
+            
+
+            //---------------- RUNTIME ----------------------
 
             while (!surfacesManager->getMainSurface()->shouldClose())
             {
                 glfwPollEvents();
 
                 surfacesManager->updateSurfaces();
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
             device->waitIdle();
 
+            //---------------- END RUNTIME ----------------------
+            
+            textureImage->shutdown();
 
             for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
             {

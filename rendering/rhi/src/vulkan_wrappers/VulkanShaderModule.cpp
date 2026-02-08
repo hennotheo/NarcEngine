@@ -18,7 +18,7 @@ namespace narc_engine {
 
     void VulkanShaderModule::init()
     {        
-        const auto code = narc_io::FileReader::readFile(m_path);
+        const auto code = narc_io::FileReaderService::readFile(m_path);
 
         m_shaderModule = createShaderModule(code);
     }

@@ -11,7 +11,7 @@ namespace narc_engine {
     {
     public:
         explicit VulkanVertexBuffer(NARC_DI_IMPORT_COMPONENT(IVulkanMemoryAllocationService));
-        ~VulkanVertexBuffer();
+        ~VulkanVertexBuffer() override;
 
         NARC_OVERRIDE_GETTER(const VkBuffer&, getHandle, m_vertexBuffer);
 
