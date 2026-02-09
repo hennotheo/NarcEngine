@@ -33,8 +33,10 @@ namespace narc_engine {
         NARC_GETTER(VkDevice, getHandle, m_device);
         NARC_GETTER(VkPhysicalDevice, getPhysicalDeviceHandle, m_physicalDevice);
 
+        NARC_GETTER(VkPhysicalDeviceProperties, getPhysicalDeviceProperties, m_properties);
+
         NARC_SETTER(PhysicalDeviceCriteria, PhysicalDeviceCriteria, m_physicalDeviceCriteria);
-        
+
         void waitIdle() const;
 
     private:
@@ -51,7 +53,9 @@ namespace narc_engine {
 
         VulkanQueue m_graphicsQueue;
         VulkanQueue m_presentQueue;
-        
+
+        VkPhysicalDeviceProperties m_properties{};
+
         // Computed Infos
         QueueFamilyIndices m_queueFamilyIndices{};
 

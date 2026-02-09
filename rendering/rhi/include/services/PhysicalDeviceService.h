@@ -21,6 +21,10 @@ namespace narc_engine {
                             std::vector<VkPhysicalDevice> devices,
                             const PhysicalDeviceCriteria& criteria);
 
+        NARC_QUERY_OVERRIDE(VulkanServiceQuery<VkPhysicalDeviceProperties>,
+                            queryDeviceProperties,
+                            VkPhysicalDevice device);
+
     private:
         using device_score_t = int;
 

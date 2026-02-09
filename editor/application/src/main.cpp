@@ -198,7 +198,6 @@ int main(int argc, char** argv)
                 glfwPollEvents();
 
                 surfacesManager->updateSurfaces();
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
             device->waitIdle();
 

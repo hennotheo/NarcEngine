@@ -71,6 +71,14 @@ namespace narc_engine {
         return output[0].second;
     }
 
+    VulkanServiceQuery<VkPhysicalDeviceProperties> DeviceService::queryDeviceProperties(VkPhysicalDevice device) const noexcept
+    {
+        VkPhysicalDeviceProperties props;
+        vkGetPhysicalDeviceProperties(device, &props);
+
+        return props;
+    }
+
     bool DeviceService::isDeviceSuitable(const VkPhysicalDevice& device, const PhysicalDeviceCriteria& criteria) const noexcept
     {
         VkPhysicalDeviceProperties deviceProperties;
@@ -84,6 +92,11 @@ namespace narc_engine {
         }
 
         if (criteria.RequireDiscreteGPU && deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+        {
+            return false;
+        }
+
+        if (deviceFeatures.samplerAnisotropy == VK_FALSE)
         {
             return false;
         }

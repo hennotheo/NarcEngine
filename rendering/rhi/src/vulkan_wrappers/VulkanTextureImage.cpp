@@ -73,22 +73,51 @@ namespace narc_engine {
             region.imageOffset = {0, 0, 0};
             region.imageExtent = {static_cast<uint32_t>(imageStream->getWidth()), static_cast<uint32_t>(imageStream->getHeight()), 1};
 
-            cmd.cmdCopyBufferToImage(staging, m_image,region);
+            cmd.cmdCopyBufferToImage(staging, m_image, region);
         });
 
         m_cmdService->doCmdActionAndSubmit([this](auto& cmd) {
-    transitionImageLayout(cmd,
-                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                          VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                          VK_IMAGE_ASPECT_COLOR_BIT,
-                          1);
-});
+            transitionImageLayout(cmd,
+                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                  VK_IMAGE_ASPECT_COLOR_BIT,
+                                  1);
+        });
 
         staging.deallocate();
+
+        createImageViewCreateInfo();
+
+        VkSamplerCreateInfo samplerInfo{};
+        samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+        samplerInfo.magFilter = VK_FILTER_LINEAR;
+        samplerInfo.minFilter = VK_FILTER_LINEAR;
+        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.anisotropyEnable = VK_TRUE;
+        samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+        samplerInfo.unnormalizedCoordinates = VK_FALSE;
+        samplerInfo.compareEnable = VK_FALSE;
+        samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        samplerInfo.mipLodBias = 0.0f;
+        samplerInfo.minLod = 0.0f;
+        samplerInfo.maxLod = 0.0f;
+
+        const auto& result = m_allocator->allocSampler(samplerInfo);
+        if (!result.has_value())
+        {
+            NARC_LOG_FATAL("Failed to create texture sampler!");
+        }
+
+        m_sampler = result.value();
     }
 
     void VulkanTextureImage::shutdown()
     {
+        m_allocator->deallocSampler(m_sampler);
+        m_allocator->deallocImageView(m_view);
         m_allocator->deallocImage(m_image, m_allocation);
     }
 
@@ -130,5 +159,27 @@ namespace narc_engine {
         }
 
         cmd.cmdPipelineBarrier(srcStage, dstStage, 1, barrier);
+    }
+
+    void VulkanTextureImage::createImageViewCreateInfo()
+    {
+        VkImageViewCreateInfo viewInfo{};
+        viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        viewInfo.image = m_image;
+        viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        viewInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+        viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        viewInfo.subresourceRange.baseMipLevel = 0;
+        viewInfo.subresourceRange.levelCount = 1;
+        viewInfo.subresourceRange.baseArrayLayer = 0;
+        viewInfo.subresourceRange.layerCount = 1;
+
+        const auto result = m_allocator->allocImageView(viewInfo);
+        if (!result.has_value())
+        {
+            NARC_ERROR_RUNTIME("Failed to allocate image view.");
+        }
+
+        m_view = result.value();
     }
 } // narc_engine

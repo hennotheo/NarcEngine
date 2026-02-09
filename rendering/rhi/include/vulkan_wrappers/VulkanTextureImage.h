@@ -26,16 +26,20 @@ namespace narc_engine {
     private:
         narc_core::injected_service<IVulkanMemoryAllocationService> m_allocator;
         narc_core::injected_component<VulkanCommandPool> m_commandPool;
-        narc_core::injected_component<ICmdService> m_cmdService;
+        narc_core::injected_service<ICmdService> m_cmdService;
 
         std::string m_path;
 
         VkImage m_image = VK_NULL_HANDLE;
+        VkImageView m_view = VK_NULL_HANDLE;
+        VkSampler m_sampler = VK_NULL_HANDLE;
         VmaAllocation m_allocation = VK_NULL_HANDLE;
         VmaAllocationInfo m_allocationInfo{};
 
         void transitionImageLayout(const VulkanCommandBuffer& cmd, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlags aspectMask,
                                    uint32_t
                                    mipLevels);
+
+        void createImageViewCreateInfo();
     };
 } // narc_engine

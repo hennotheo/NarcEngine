@@ -16,5 +16,7 @@ namespace narc_engine {
         NARC_PURE_VIRTUAL_QUERY(VulkanServiceQuery<VkPhysicalDevice>, queryBestPhysicalDevices,
                                 std::vector<VkPhysicalDevice> devices,
                                 const PhysicalDeviceCriteria& criteria);
+        NARC_PURE_VIRTUAL_QUERY(VulkanServiceQuery<VkPhysicalDeviceProperties >, queryDeviceProperties,
+                        VkPhysicalDevice device);
     };
 }

@@ -20,6 +20,12 @@ namespace narc_engine {
         
         NARC_QUERY_OVERRIDE(VulkanServiceQuery<VmaAllocationInfo>, allocImage, const VkImageCreateInfo& infos, VkImage& buffer, VmaAllocation& alloc);
         NARC_QUERY_OVERRIDE(bool, deallocImage, VkImage& image, VmaAllocation& alloc);
+
+        NARC_QUERY_OVERRIDE(VulkanServiceQuery<VkImageView>, allocImageView, const VkImageViewCreateInfo& infos);
+        NARC_QUERY_OVERRIDE(bool, deallocImageView, const VkImageView& imageView);
+
+        NARC_QUERY_OVERRIDE(VulkanServiceQuery<VkSampler>, allocSampler, VkSamplerCreateInfo& infos);
+        NARC_QUERY_OVERRIDE(bool, deallocSampler, const VkSampler& sampler);
         
         NARC_CMD_OVERRIDE(mapMemory, const void* data, const VkDeviceSize& dataSize, const VmaAllocation& alloc);
 

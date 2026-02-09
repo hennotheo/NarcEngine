@@ -90,6 +90,45 @@ namespace narc_engine {
         return true;
     }
 
+    VulkanServiceQuery<VkImageView> MemoryAllocationService::allocImageView(const VkImageViewCreateInfo& infos) const noexcept
+    {
+        VkImageView imageView = VK_NULL_HANDLE;
+        if (vkCreateImageView(m_device->getHandle(), &infos, nullptr, &imageView) != VK_SUCCESS)
+        {
+            return vulkanServiceUnexpected("Can't create image view.");
+        }
+
+        return imageView;
+    }
+
+    bool MemoryAllocationService::deallocImageView(const VkImageView& imageView) const noexcept
+    {
+        vkDestroyImageView(m_device->getHandle(), imageView, nullptr);
+
+        return true;
+    }
+
+    VulkanServiceQuery<VkSampler> MemoryAllocationService::allocSampler(VkSamplerCreateInfo& infos) const noexcept
+    {
+        VkSampler sampler = VK_NULL_HANDLE;
+
+        infos.maxAnisotropy = m_device->getPhysicalDeviceProperties().limits.maxSamplerAnisotropy;
+
+        if (vkCreateSampler(m_device->getHandle(), &infos, nullptr, &sampler) != VK_SUCCESS)
+        {
+            return vulkanServiceUnexpected("Can't create sampler.");
+        }
+
+        return sampler;
+    }
+
+    bool MemoryAllocationService::deallocSampler(const VkSampler& sampler) const noexcept
+    {
+        vkDestroySampler(m_device->getHandle(), sampler, nullptr);
+
+        return true;
+    }
+
     narc_core::result MemoryAllocationService::mapMemory(const void* data, const VkDeviceSize& dataSize, const VmaAllocation& alloc) const noexcept
     {
         if (!m_allocator || !data || dataSize == 0 || alloc == VK_NULL_HANDLE)

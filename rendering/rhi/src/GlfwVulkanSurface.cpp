@@ -26,9 +26,9 @@ namespace narc_engine {
             NARC_LOG_WARNING("Double initialisation of glfw window.");
             return;
         }
-        
+
         NARC_GUARD_WEAK(instance, m_instance, "Instance not defined."); //TODO: Set err msg
-        
+
         glfwInit();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         m_window = glfwCreateWindow(640, 480, instance->getAppInfos().pApplicationName, NULL, NULL);

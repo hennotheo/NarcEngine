@@ -17,7 +17,13 @@ namespace narc_engine {
         
         NARC_PURE_VIRTUAL_QUERY(VulkanServiceQuery<VmaAllocationInfo>, allocImage, const VkImageCreateInfo& infos, VkImage& buffer, VmaAllocation& alloc);
         NARC_PURE_VIRTUAL_QUERY(bool, deallocImage, VkImage& buffer, VmaAllocation& alloc);
-        
+
+        NARC_PURE_VIRTUAL_QUERY(VulkanServiceQuery<VkSampler>, allocSampler, VkSamplerCreateInfo& infos);
+        NARC_PURE_VIRTUAL_QUERY(bool, deallocSampler, const VkSampler& sampler);
+
+        NARC_PURE_VIRTUAL_QUERY(VulkanServiceQuery<VkImageView>, allocImageView, const VkImageViewCreateInfo& infos);
+        NARC_PURE_VIRTUAL_QUERY(bool, deallocImageView, const VkImageView& imageView);
+
         NARC_PURE_VIRTUAL_CMD(mapMemory, const void* data, const VkDeviceSize& dataSize, const VmaAllocation& alloc);
     };
 }
