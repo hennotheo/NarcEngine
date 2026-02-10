@@ -22,6 +22,8 @@ namespace narc_engine {
         NARC_SETTER(std::string_view, path, m_path);
 
         NARC_GETTER(uint32_t, getSize, m_allocationInfo.size);
+        NARC_GETTER(VkImageView, getView, m_view);
+        NARC_GETTER(VkSampler, getSampler, m_sampler);
 
     private:
         narc_core::injected_service<IVulkanMemoryAllocationService> m_allocator;
