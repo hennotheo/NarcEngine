@@ -63,6 +63,9 @@ namespace narc_engine {
 
         VmaAllocationCreateInfo allocationInfo{};
         allocationInfo.usage = VMA_MEMORY_USAGE_AUTO;
+        // allocationInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
+        //                        VMA_ALLOCATION_CREATE_MAPPED_BIT |
+        //                            VMA_ALLOCATION_CREATE_;
         // For very big textures (>128MB for example)
         // allocationInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
         allocationInfo.pUserData = (void*)this;

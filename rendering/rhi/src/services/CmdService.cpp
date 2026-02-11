@@ -38,6 +38,7 @@ namespace narc_engine {
             NARC_LOG_FATAL("Submit command buffers failed.");
         }
 
+        //TODO: Replace this later by a fence, vkQueueWaitIdle is overkill and high cost but fine in tests
         graphicsQueue->waitIdle();
         
         return true;

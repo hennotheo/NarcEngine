@@ -24,7 +24,6 @@ namespace narc_engine {
 
     void VulkanTextureImage::init()
     {
-        void* pixelData;
         const auto imageStream = narc_io::FileReaderService::readImage(m_path);
 
         VkImageCreateInfo imageInfo{};
@@ -51,17 +50,15 @@ namespace narc_engine {
 
         VulkanStagingBuffer staging{m_allocator, m_cmdService};
         staging.allocate(m_allocationInfo.size);
-        staging.setData(m_allocationInfo.pMappedData);
-
-        m_cmdService->doCmdActionAndSubmit([this](auto& cmd) {
-            transitionImageLayout(cmd,
-                                  VK_IMAGE_LAYOUT_UNDEFINED,
-                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                  VK_IMAGE_ASPECT_COLOR_BIT,
-                                  1);
-        });
+        staging.setData(imageStream->getData());
 
         m_cmdService->doCmdActionAndSubmit([this, staging, &imageStream](auto& cmd) {
+            transitionImageLayout(cmd,
+                      VK_IMAGE_LAYOUT_UNDEFINED,
+                      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                      VK_IMAGE_ASPECT_COLOR_BIT,
+                      1);
+
             VkBufferImageCopy region{};
             region.bufferOffset = 0;
             region.bufferRowLength = 0; // tightly packed
@@ -74,14 +71,12 @@ namespace narc_engine {
             region.imageExtent = {static_cast<uint32_t>(imageStream->getWidth()), static_cast<uint32_t>(imageStream->getHeight()), 1};
 
             cmd.cmdCopyBufferToImage(staging, m_image, region);
-        });
 
-        m_cmdService->doCmdActionAndSubmit([this](auto& cmd) {
             transitionImageLayout(cmd,
-                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                  VK_IMAGE_ASPECT_COLOR_BIT,
-                                  1);
+                      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                      VK_IMAGE_ASPECT_COLOR_BIT,
+                      1);
         });
 
         staging.deallocate();
