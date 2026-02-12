@@ -14,9 +14,9 @@ namespace narc_engine {
         
         void allocate(const VkDeviceSize& size);
         void deallocate();
-        
-        void setData(const VkDeviceSize& size, const void* data);
-        
+
+        void setData(const VkDeviceSize& size, const VulkanMemory* data);
+
     private:
         narc_core::injected_component<IVulkanMemoryAllocationService> m_allocator;
         

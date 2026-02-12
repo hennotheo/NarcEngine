@@ -11,4 +11,6 @@
 #include "NarcLog.h"
 #include "NarcMath.h"
 
+#include "RhiCore.h"
+
 #include "interfaces/Interfaces.h"

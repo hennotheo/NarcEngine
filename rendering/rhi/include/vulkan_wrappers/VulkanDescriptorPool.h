@@ -26,6 +26,6 @@ namespace narc_engine {
         
         VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
         
-        uint32_t m_descriptorCount;
+        uint32_t m_descriptorCount = 0;
     };
 } // narc_engine

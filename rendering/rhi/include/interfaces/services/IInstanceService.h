@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "Interfaces.h"
-
 namespace narc_engine {
     struct ApplicationInfo;
     class IVulkanExtension;
@@ -13,7 +11,7 @@ namespace narc_engine {
     class IInstanceService : public IService
     {
     public:
-        virtual ~IInstanceService() override = default;
+        ~IInstanceService() override = default;
 
         NARC_PURE_VIRTUAL_MAP(ApplicationInfo, VkApplicationInfo);
 

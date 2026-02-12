@@ -17,7 +17,7 @@ namespace narc_engine {
         NARC_DI_IMPL_SERVICE(IDeviceService, m_deviceService),
         NARC_DI_IMPL_SERVICE(IDeviceQueueService, m_queueService)
     {
-
+        //Empty constructor.
     }
 
     VulkanDevice::~VulkanDevice() = default;

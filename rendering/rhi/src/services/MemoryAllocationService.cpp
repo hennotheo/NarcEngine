@@ -14,6 +14,7 @@ namespace narc_engine {
         NARC_DI_IMPL_SERVICE(VulkanInstance, m_instance),
         NARC_DI_IMPL_SERVICE(VulkanDevice, m_device)
     {
+        //Empty Constructor.
     }
 
     MemoryAllocationService::~MemoryAllocationService() = default;
@@ -31,7 +32,7 @@ namespace narc_engine {
         allocationInfo.usage = VMA_MEMORY_USAGE_AUTO;
         allocationInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
                                VMA_ALLOCATION_CREATE_MAPPED_BIT;
-        allocationInfo.pUserData = (void*)this;
+        allocationInfo.pUserData = const_cast<void*>(static_cast<const void*>(this));
         
         VmaAllocationInfo stagingInfo;
         if (vmaCreateBuffer(m_allocator, &infos, &allocationInfo, &buffer, &alloc, &stagingInfo)!= VK_SUCCESS)
@@ -132,7 +133,7 @@ namespace narc_engine {
         return true;
     }
 
-    narc_core::result MemoryAllocationService::mapMemory(const void* data, const VkDeviceSize& dataSize, const VmaAllocation& alloc) const noexcept
+    narc_core::result MemoryAllocationService::mapMemory(const VulkanMemory* data, const VkDeviceSize& dataSize, const VmaAllocation& alloc) const noexcept
     {
         if (!m_allocator || !data || dataSize == 0 || alloc == VK_NULL_HANDLE)
         {
@@ -140,13 +141,16 @@ namespace narc_engine {
         }
 
         void* ptr = nullptr;
-        VkResult r = vmaMapMemory(m_allocator, alloc, &ptr);
-        if (r != VK_SUCCESS || !ptr)
+        VkResult result = vmaMapMemory(m_allocator, alloc, &ptr);
+        if (result != VK_SUCCESS || !ptr)
+        {
             return false;
+        }
 
         memcpy(ptr, data, dataSize);
         vmaFlushAllocation(m_allocator, alloc, 0, VK_WHOLE_SIZE);
         vmaUnmapMemory(m_allocator, alloc);
+
         return true;
     }
 

@@ -18,7 +18,7 @@ namespace narc_engine {
     class IDeviceQueueService : public IService
     {
     public:
-        virtual ~IDeviceQueueService() override = default;
+        ~IDeviceQueueService() override = default;
 
         NARC_PURE_VIRTUAL_QUERY(VulkanServiceQuery<QueueFamilyIndices>, queryQueueFamilyIndices, const VkPhysicalDevice& physicalDevice);
         NARC_PURE_VIRTUAL_QUERY(bool, queueFamilyIndexSupportPresentation,

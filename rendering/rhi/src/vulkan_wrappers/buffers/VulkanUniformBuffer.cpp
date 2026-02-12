@@ -10,11 +10,10 @@ namespace narc_engine {
     VulkanUniformBuffer::VulkanUniformBuffer(NARC_DI_IMPORT_COMPONENT(IVulkanMemoryAllocationService)) :
         NARC_DI_IMPL_COMPONENT(IVulkanMemoryAllocationService, m_allocator)
     {
+        //Empty Constructor
     }
 
-    VulkanUniformBuffer::~VulkanUniformBuffer()
-    {
-    }
+    VulkanUniformBuffer::~VulkanUniformBuffer() = default;
 
     void VulkanUniformBuffer::allocate(const VkDeviceSize& size)
     {
@@ -35,7 +34,7 @@ namespace narc_engine {
         m_allocator->deallocBuffer(m_buffer, m_allocation);
     }
 
-    void VulkanUniformBuffer::setData(const VkDeviceSize& size, const void* data)
+    void VulkanUniformBuffer::setData(const VkDeviceSize& size, const VulkanMemory* data)
     {
         m_allocator->mapMemory(data, size, m_allocation);
     }

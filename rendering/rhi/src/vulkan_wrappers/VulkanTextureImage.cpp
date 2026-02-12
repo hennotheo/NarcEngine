@@ -16,11 +16,10 @@ namespace narc_engine {
         NARC_DI_IMPL_COMPONENT(VulkanCommandPool, m_commandPool),
         NARC_DI_IMPL_SERVICE(ICmdService, m_cmdService)
     {
+        //Empty Constructor.
     }
 
-    VulkanTextureImage::~VulkanTextureImage()
-    {
-    }
+    VulkanTextureImage::~VulkanTextureImage() = default;
 
     void VulkanTextureImage::init()
     {

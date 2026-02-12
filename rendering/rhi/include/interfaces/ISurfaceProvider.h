@@ -8,7 +8,7 @@ namespace narc_engine {
     class ISurfacesHandler : public IService
     {
     public:
-        virtual ~ISurfacesHandler() override = default;
+        ~ISurfacesHandler() override = default;
 
         NARC_PURE_VIRTUAL_GETTER(const IVulkanSurface*, getMainSurface);
     };

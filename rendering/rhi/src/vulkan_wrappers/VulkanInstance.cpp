@@ -11,6 +11,7 @@ namespace narc_engine {
     VulkanInstance::VulkanInstance(NARC_DI_IMPORT_SERVICE(IInstanceService)) :
         NARC_DI_IMPL_SERVICE(IInstanceService, m_instanceService)
     {
+        //Empty constructor.
     }
 
     VulkanInstance::~VulkanInstance() = default;

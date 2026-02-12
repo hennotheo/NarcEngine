@@ -10,11 +10,10 @@ namespace narc_engine {
     VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(NARC_DI_IMPORT_COMPONENT(VulkanDevice)) :
         NARC_DI_IMPL_COMPONENT(VulkanDevice, m_device)
     {
+        //Empty constructor.
     }
 
-    VulkanDescriptorSetLayout::~VulkanDescriptorSetLayout()
-    {
-    }
+    VulkanDescriptorSetLayout::~VulkanDescriptorSetLayout() = default;
 
     void VulkanDescriptorSetLayout::init()
     {

@@ -17,6 +17,7 @@ namespace narc_engine {
     VulkanCommandBuffer::VulkanCommandBuffer(const VkCommandBuffer commandBuffer) :
         m_commandBuffer(commandBuffer)
     {
+        //Empty constructor.
     }
 
     VulkanCommandBuffer::~VulkanCommandBuffer() noexcept = default;
@@ -139,13 +140,13 @@ namespace narc_engine {
         vkCmdCopyBuffer(m_commandBuffer, src.getHandle(), dst.getHandle(), 1, &infos);
     }
 
-    void VulkanCommandBuffer::reset()
-    {
-        vkResetCommandBuffer(m_commandBuffer, 0);
-    }
-
     void VulkanCommandBuffer::cmdCopyBufferToImage(const IVulkanBuffer& src, const VkImage& dst, const VkBufferImageCopy& infos)//TODO: Edit vkimg to img
     {
         vkCmdCopyBufferToImage(m_commandBuffer, src.getHandle(), dst, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,1, &infos);
+    }
+
+    void VulkanCommandBuffer::reset()
+    {
+        vkResetCommandBuffer(m_commandBuffer, 0);
     }
 } // narc_engine

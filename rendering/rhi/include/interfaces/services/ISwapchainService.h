@@ -10,7 +10,7 @@ namespace narc_engine {
     class ISwapchainService : public IService
     {
     public:
-        virtual ~ISwapchainService() override = default;
+        ~ISwapchainService() override = default;
 
         NARC_PURE_VIRTUAL_QUERY(VulkanServiceQuery<SwapChainSupportInfoVulkan>, querySwapChainSupportInfo,
                                 const VkPhysicalDevice& physicalDevice,

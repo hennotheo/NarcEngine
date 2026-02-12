@@ -10,7 +10,7 @@ namespace narc_engine {
     class IDeviceService : public IService
     {
     public:
-        virtual ~IDeviceService() override = default;
+        ~IDeviceService() override = default;
 
         NARC_PURE_VIRTUAL_QUERY(VulkanServiceQuery<std::vector<VkPhysicalDevice>>, queryAllPhysicalDevices);
         NARC_PURE_VIRTUAL_QUERY(VulkanServiceQuery<VkPhysicalDevice>, queryBestPhysicalDevices,

@@ -14,4 +14,4 @@
 
 #endif
 
-#define NARC_LOG_FILE_LINE __FILE__, __LINE__
+#define NARC_LOG_FILE_LINE std::source_location

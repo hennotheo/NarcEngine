@@ -6,6 +6,8 @@
 
 #include <vk_mem_alloc.h>
 
+#include "interfaces/services/IVulkanMemoryAllocationService.h"
+
 namespace narc_engine {
     class VulkanInstance;
 
@@ -27,7 +29,7 @@ namespace narc_engine {
         NARC_QUERY_OVERRIDE(VulkanServiceQuery<VkSampler>, allocSampler, VkSamplerCreateInfo& infos);
         NARC_QUERY_OVERRIDE(bool, deallocSampler, const VkSampler& sampler);
         
-        NARC_CMD_OVERRIDE(mapMemory, const void* data, const VkDeviceSize& dataSize, const VmaAllocation& alloc);
+        NARC_CMD_OVERRIDE(mapMemory, const VulkanMemory* data, const VkDeviceSize& dataSize, const VmaAllocation& alloc);
 
     private:
         narc_core::injected_component<VulkanInstance> m_instance;

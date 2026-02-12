@@ -58,7 +58,7 @@ namespace narc_engine {
         auto cmdBuffer = std::make_unique<VulkanCommandBuffer>(commandBuffer);
         cmdBuffer->Flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
         
-        return std::move(cmdBuffer);
+        return cmdBuffer;
     }
 
     std::unique_ptr<VulkanCommandBuffer> VulkanCommandPool::allocateCommandBuffer() const

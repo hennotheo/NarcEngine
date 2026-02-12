@@ -18,6 +18,7 @@ namespace narc_engine {
         NARC_DI_IMPL_SERVICE(ISurfacesHandler, m_surfacesManager),
         NARC_DI_IMPL_SERVICE(ISwapchainService, m_swapChainService)
     {
+        //Empty Constructor.
     }
 
     DeviceService::~DeviceService() = default;

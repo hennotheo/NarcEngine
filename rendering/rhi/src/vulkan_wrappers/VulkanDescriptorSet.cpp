@@ -8,10 +8,8 @@ namespace narc_engine {
     VulkanDescriptorSet::VulkanDescriptorSet(const VkDescriptorSet& descriptorSet)
         : m_descriptorSet(descriptorSet)
     {
+        //Empty constructor.
     }
 
-    VulkanDescriptorSet::~VulkanDescriptorSet()
-    {
-        
-    }
+    VulkanDescriptorSet::~VulkanDescriptorSet() = default;
 } // narc_engine

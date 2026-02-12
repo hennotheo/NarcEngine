@@ -4,35 +4,11 @@
 #include "NarcLog.h"
 
 #include <csignal>
-#include <execinfo.h>
 
 namespace {
     void display_backtrace()
     {
-        // Get void*'s for all entries on the stack
-        void* array[20];
-        const size_t size = backtrace(array, 20);
-        char** symbols = backtrace_symbols(array, static_cast<int>(size));
-
-        // Calculate total size needed for the output string
-        size_t total = 0;
-        for (size_t i = 0; i < size; ++i)
-        {
-            total += strlen(symbols[i]) + 1;
-        }
-
-        // Create a single string to hold the entire backtrace
-        std::string out;
-        out.reserve(total);
-        for (size_t i = 0; i < size; ++i)
-        {
-            out.append("\n");
-            out.append(symbols[i]);
-        }
-
-        NARC_LOG_FATAL("Stack trace: {}", out);
-
-        free(symbols);
+        //TODO: Display backtrace here.
     }
 
     void display_signal_log(int signal)
@@ -54,7 +30,7 @@ namespace {
         }
     }
 
-    void handle_signal(const int signal)
+    NO_RETURN void handle_signal(const int signal)
     {
         display_signal_log(signal);
         display_backtrace();

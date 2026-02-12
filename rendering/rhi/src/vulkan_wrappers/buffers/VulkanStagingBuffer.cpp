@@ -12,6 +12,7 @@ namespace narc_engine {
         NARC_DI_IMPL_SERVICE(IVulkanMemoryAllocationService, m_allocator),
         NARC_DI_IMPL_SERVICE(ICmdService, m_cmdService)
     {
+        //Empty Constructor.
     }
 
     VulkanStagingBuffer::~VulkanStagingBuffer() = default;
@@ -38,7 +39,7 @@ namespace narc_engine {
         m_allocator->deallocBuffer(m_vertexBuffer, m_allocation);
     }
 
-    void VulkanStagingBuffer::setData(const void* data)
+    void VulkanStagingBuffer::setData(const VulkanMemory* data)
     {
         if (m_allocation == VK_NULL_HANDLE)
         {

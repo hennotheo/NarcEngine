@@ -38,7 +38,7 @@ namespace narc_io {
             NARC_ERROR_RUNTIME("Failed to open file!");
         }
 
-        const size_t fileSize = (size_t) file.tellg();
+        const auto fileSize = file.tellg();
         std::vector<char> buffer(fileSize);
 
         file.seekg(0);
@@ -54,7 +54,8 @@ namespace narc_io {
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
         std::vector<tinyobj::material_t> materials;
-        std::string warn, err;
+        std::string warn;
+        std::string err;
 
         if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str()))
         {

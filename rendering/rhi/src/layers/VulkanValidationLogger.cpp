@@ -7,11 +7,13 @@
 #include <utility>
 
 namespace narc_engine {
+    using VulkanDebugCallbackUserDataPtr = void*;
+
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback( //TODO: TEMP
             VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
             VkDebugUtilsMessageTypeFlagsEXT messageType,
             const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-            void* pUserData)
+            VulkanDebugCallbackUserDataPtr pUserData)
     {
         switch (messageSeverity)
         {

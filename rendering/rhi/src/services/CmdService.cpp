@@ -12,6 +12,7 @@ namespace narc_engine {
         NARC_DI_IMPL_COMPONENT(VulkanDevice, m_device),
         NARC_DI_IMPL_COMPONENT(VulkanCommandPool, m_commandPool)
     {
+        //Empty constructor
     }
 
     CmdService::~CmdService() = default;

@@ -24,13 +24,12 @@ public:
     NO_DISCARD narc_engine::ExtensionNameList getExtensionNames() const noexcept override
     {
         return {
-            VK_KHR_SWAPCHAIN_EXTENSION_NAME
-    };
+                VK_KHR_SWAPCHAIN_EXTENSION_NAME
+        };
     }
 
     NO_DISCARD const void* getCreationInfos() const noexcept override
     {
         return nullptr;
     }
-
 };

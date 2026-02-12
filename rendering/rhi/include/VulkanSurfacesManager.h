@@ -55,7 +55,7 @@ namespace narc_engine {
             return out;
         }
 
-        const std::vector<std::vector<std::unique_ptr<VulkanFramebuffer>>>& getFramebuffers() noexcept
+        const std::vector<std::vector<std::unique_ptr<VulkanFramebuffer>>>& getFramebuffers() const noexcept
         {            
             return m_frameBuffers;
         }

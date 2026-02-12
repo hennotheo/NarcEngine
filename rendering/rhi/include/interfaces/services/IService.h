@@ -10,4 +10,14 @@ namespace narc_engine {
     public:
         virtual ~IService() = default;
     };
+
+    using VulkanServiceQueryError = std::string;
+
+    constexpr std::unexpected<VulkanServiceQueryError> vulkanServiceUnexpected(const std::string_view& msg)
+    {
+        return std::unexpected(VulkanServiceQueryError{msg});
+    }
+
+    template<typename T>
+    using VulkanServiceQuery = std::expected<T, VulkanServiceQueryError>;
 }
