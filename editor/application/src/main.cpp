@@ -36,28 +36,28 @@ int main(int argc, char** argv)
             di::bind<narc_engine::IVulkanMemoryAllocationService>.to<narc_engine::MemoryAllocationService>(),
             di::bind<narc_engine::ICmdService>.to<narc_engine::CmdService>(),
             di::bind<narc_engine::VulkanSurfacesManager>.to<SurfaceManager>(),
-            di::bind<narc_core::ICreator<narc_engine::VulkanSwapChain> >.to<Creator>().in(di::singleton)
+            di::bind<narc_core::ICreator<narc_engine::VulkanSwapChain>>.to<Creator>().in(di::singleton)
             );
 
     {
-        const auto creator = injector.create<std::shared_ptr<Creator> >();
+        const auto creator = injector.create<std::shared_ptr<Creator>>();
         creator->CreateVulkanSwapChain = [&injector] {
-            return injector.create<std::unique_ptr<narc_engine::VulkanSwapChain> >();
+            return injector.create<std::unique_ptr<narc_engine::VulkanSwapChain>>();
         };
     }
 
     try
     {
-        std::vector<std::shared_ptr<narc_engine::IVulkanExtension> > vulkanExtensions;
+        std::vector<std::shared_ptr<narc_engine::IVulkanExtension>> vulkanExtensions;
         vulkanExtensions.push_back(std::make_shared<TestDeviceExtensions>());
 
-        const auto instance = injector.create<std::shared_ptr<narc_engine::VulkanInstance> >();
+        const auto instance = injector.create<std::shared_ptr<narc_engine::VulkanInstance>>();
         instance->setApplicationInfo(narc_engine::ApplicationInfo{
                 .ApplicationName = "NarcEngine Editor",
                 .EngineName = "NarcEngine"
         });
 
-        const auto device = injector.create<std::shared_ptr<narc_engine::VulkanDevice> >();
+        const auto device = injector.create<std::shared_ptr<narc_engine::VulkanDevice>>();
         device->setPhysicalDeviceCriteria(narc_engine::PhysicalDeviceCriteria{
                 .RequireGeometryShader = false,
                 .RequireDiscreteGPU = false,
@@ -65,20 +65,20 @@ int main(int argc, char** argv)
                 .PreferDiscreteGPU = true
         });
 
-        const auto surfacesManager = injector.create<std::shared_ptr<narc_engine::VulkanSurfacesManager> >();
+        const auto surfacesManager = injector.create<std::shared_ptr<narc_engine::VulkanSurfacesManager>>();
         surfacesManager->setDevice(device);
 
-        const auto cmdPool = injector.create<std::shared_ptr<narc_engine::VulkanCommandPool> >();
-        auto mainWindow = injector.create<std::unique_ptr<narc_engine::IVulkanSurface> >();
+        const auto cmdPool = injector.create<std::shared_ptr<narc_engine::VulkanCommandPool>>();
+        auto mainWindow = injector.create<std::unique_ptr<narc_engine::IVulkanSurface>>();
 
-        std::vector<std::unique_ptr<narc_engine::VulkanSemaphore> > imageAvailableSemaphores;
-        std::vector<std::unique_ptr<narc_engine::VulkanSemaphore> > renderFinishedSemaphores;
-        std::vector<std::unique_ptr<narc_engine::VulkanFence> > inFlightFences;
+        std::vector<std::unique_ptr<narc_engine::VulkanSemaphore>> imageAvailableSemaphores;
+        std::vector<std::unique_ptr<narc_engine::VulkanSemaphore>> renderFinishedSemaphores;
+        std::vector<std::unique_ptr<narc_engine::VulkanFence>> inFlightFences;
         for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
         {
-            auto imageAvailableSemaphore = injector.create<std::unique_ptr<narc_engine::VulkanSemaphore> >();
-            auto renderFinishedSemaphore = injector.create<std::unique_ptr<narc_engine::VulkanSemaphore> >();
-            auto inFlightFence = injector.create<std::unique_ptr<narc_engine::VulkanFence> >();
+            auto imageAvailableSemaphore = injector.create<std::unique_ptr<narc_engine::VulkanSemaphore>>();
+            auto renderFinishedSemaphore = injector.create<std::unique_ptr<narc_engine::VulkanSemaphore>>();
+            auto inFlightFence = injector.create<std::unique_ptr<narc_engine::VulkanFence>>();
 
             imageAvailableSemaphores.push_back(std::move(imageAvailableSemaphore));
             renderFinishedSemaphores.push_back(std::move(renderFinishedSemaphore));
@@ -90,9 +90,20 @@ int main(int argc, char** argv)
                 .EngineName = "NarcEngine"
         });
 
-        auto descriptorSetPool = injector.create<std::shared_ptr<narc_engine::VulkanDescriptorPool> >();
+        auto descriptorSetPool = injector.create<std::shared_ptr<narc_engine::VulkanDescriptorPool>>();
         descriptorSetPool->setDescriptorCount(MAX_FRAMES_IN_FLIGHT);
+
         auto descriptorSetLayout = injector.create<narc_engine::VulkanDescriptorSetLayout>();
+        descriptorSetLayout.addBinding({
+                .BindingIndex = 0,
+                .Stage = narc_engine::Vertex,
+                .Type = narc_engine::UniformBuffer
+        });
+        descriptorSetLayout.addBinding({
+                .BindingIndex = 1,
+                .Stage = narc_engine::Fragment,
+                .Type = narc_engine::Sampler
+        });
 
         instance->init();
         mainWindow->init();
@@ -114,20 +125,20 @@ int main(int argc, char** argv)
         cmdPool->init();
 
         {
-            auto vertexBuffer = injector.create<std::unique_ptr<narc_engine::VulkanVertexBuffer> >();
-            auto stagingBuffer = injector.create<std::unique_ptr<narc_engine::VulkanStagingBuffer> >();
+            auto vertexBuffer = injector.create<std::unique_ptr<narc_engine::VulkanVertexBuffer>>();
+            auto stagingBuffer = injector.create<std::unique_ptr<narc_engine::VulkanStagingBuffer>>();
             stagingBuffer->allocate(narc_engine::s_vertices.size() * sizeof(narc_engine::s_vertices[0]));
             stagingBuffer->setData(narc_engine::s_vertices.data());
             stagingBuffer->copyToBuffer(*vertexBuffer);
             stagingBuffer->deallocate();
 
-            auto indexBuffer = injector.create<std::unique_ptr<narc_engine::VulkanIndexBuffer> >();
+            auto indexBuffer = injector.create<std::unique_ptr<narc_engine::VulkanIndexBuffer>>();
             stagingBuffer->allocate(narc_engine::s_indices.size() * sizeof(narc_engine::s_indices[0]));
             stagingBuffer->setData(narc_engine::s_indices.data());
             stagingBuffer->copyToBuffer(*indexBuffer);
             stagingBuffer->deallocate();
 
-            auto textureImage = injector.create<std::unique_ptr<narc_engine::VulkanTextureImage> >();
+            auto textureImage = injector.create<std::unique_ptr<narc_engine::VulkanTextureImage>>();
             textureImage->setpath(std::string("textures/tex_test_uv_0.png"));
             textureImage->init();
 
@@ -150,7 +161,7 @@ int main(int argc, char** argv)
 
             descriptorSetPool->init();
 
-            auto sets = descriptorSetPool->allocateDescriptorSet(std::vector(2, descriptorSetLayout));
+            auto sets = descriptorSetPool->allocateDescriptorSet(std::vector(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout));
             for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
             {
                 VkDescriptorBufferInfo bufferInfo{};
@@ -194,7 +205,7 @@ int main(int argc, char** argv)
             }
 
 
-            std::vector<std::unique_ptr<narc_engine::VulkanCommandBuffer> > commandBuffers;
+            std::vector<std::unique_ptr<narc_engine::VulkanCommandBuffer>> commandBuffers;
             for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
             {
                 commandBuffers.push_back(cmdPool->allocateCommandBuffer());
@@ -202,7 +213,7 @@ int main(int argc, char** argv)
             surf->cmdBuffer = &commandBuffers;
 
             surf->uniform_buffers = &uniformBuffers;
-            
+
 
             //---------------- RUNTIME ----------------------
 
@@ -215,7 +226,7 @@ int main(int argc, char** argv)
             device->waitIdle();
 
             //---------------- END RUNTIME ----------------------
-            
+
             textureImage->shutdown();
 
             for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)

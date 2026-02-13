@@ -17,25 +17,20 @@ namespace narc_engine {
 
     void VulkanDescriptorSetLayout::init()
     {
-        VkDescriptorSetLayoutBinding uboLayoutBinding{};
-        uboLayoutBinding.binding = 0;
-        uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        uboLayoutBinding.descriptorCount = 1;
-        uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-        uboLayoutBinding.pImmutableSamplers = nullptr;
+        std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings;
+        setLayoutBindings.reserve(m_bindings.size());
 
-        VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-        samplerLayoutBinding.binding = 1;
-        samplerLayoutBinding.descriptorCount = 1;
-        samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        samplerLayoutBinding.pImmutableSamplers = nullptr;
-        samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        std::ranges::transform(
+                m_bindings,
+                std::back_inserter(setLayoutBindings),
+                [this](const auto& x) {
+                    return mapFromDescriptorSetBindingInfo(x);
+                });
 
-        const std::array bindings = {uboLayoutBinding, samplerLayoutBinding};
         VkDescriptorSetLayoutCreateInfo layoutInfo{};
         layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-        layoutInfo.pBindings = bindings.data();
+        layoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+        layoutInfo.pBindings = setLayoutBindings.data();
 
         if (vkCreateDescriptorSetLayout(m_device->getHandle(), &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS)
         {
@@ -46,5 +41,49 @@ namespace narc_engine {
     void VulkanDescriptorSetLayout::shutdown()
     {
         vkDestroyDescriptorSetLayout(m_device->getHandle(), m_descriptorSetLayout, nullptr);
+    }
+
+    void VulkanDescriptorSetLayout::addBinding(DescriptorSetBindingInfo binding)
+    {
+        m_bindings.push_back(binding);
+    }
+
+    VkDescriptorSetLayoutBinding VulkanDescriptorSetLayout::mapFromDescriptorSetBindingInfo(DescriptorSetBindingInfo binding)
+    {
+        return {
+                .binding = binding.BindingIndex,
+                .descriptorType = mapFromDescriptorType(binding.Type),
+                .descriptorCount = 1,
+                .stageFlags = mapFromShaderStage(binding.Stage),
+                .pImmutableSamplers = nullptr
+        };
+    }
+
+    VkShaderStageFlags VulkanDescriptorSetLayout::mapFromShaderStage(const ShaderStage stage)
+    {
+        VkShaderStageFlags flags = 0;
+
+        if (stage == ShaderStage::Vertex)
+        {
+            flags |= VK_SHADER_STAGE_VERTEX_BIT;
+        }
+
+        if (stage == ShaderStage::Fragment)
+        {
+            flags |= VK_SHADER_STAGE_FRAGMENT_BIT;
+        }
+
+        return flags;
+    }
+
+    VkDescriptorType VulkanDescriptorSetLayout::mapFromDescriptorType(const DescriptorType type)
+    {
+        switch (type)
+        {
+            case Sampler: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            case UniformBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        }
+
+        NARC_ERROR_RUNTIME("Invalid descriptor type!");
     }
 } // narc_engine
