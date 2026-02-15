@@ -77,4 +77,6 @@ namespace narc_core
         std::unordered_map<size_t, HandlerFunc> m_handlers;
         std::atomic<size_t> m_nextId{ 0 };
     };
+
+    using PureEvent = Event<>;
 }

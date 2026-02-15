@@ -8,6 +8,8 @@
 
 #include "NarcIO.h"
 
+namespace fs = std::filesystem;
+
 TEST(NarcIOLoading, ReadFile)
 {
     EXPECT_NO_THROW(narc_io::FileReader::readFile("shaders/shader_vert.spv"););
@@ -15,12 +17,12 @@ TEST(NarcIOLoading, ReadFile)
 
 TEST(NarcIOLoading, Load3DModel)
 {
-    EXPECT_NO_THROW(narc_io::FileReader::load3DModel("models/test.obj"););
+    EXPECT_NO_THROW(narc_io::FileReader::load3DModel("models/mdl_cube.obj"););
 }
 
 TEST(NarcIOLoading, ReadImage)
 {
-    EXPECT_NO_THROW(narc_io::Image image = narc_io::FileReader::readImage("textures/test.png"););
+    EXPECT_NO_THROW(narc_io::Image image = narc_io::FileReader::readImage("textures/tex_test_uv_0.png"););
 }
 
 int main(int argc, char** argv)

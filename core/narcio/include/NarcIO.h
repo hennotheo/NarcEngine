@@ -4,7 +4,6 @@
 
 #include "Core.h"
 
-#include "models/Image.h"
-#include "models/Model3D.h"
+#include "interfaces/IImageStream.h"
 
-#include "FileReader.h"
+#include "FileReaderService.h"

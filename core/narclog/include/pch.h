@@ -5,5 +5,8 @@
 #pragma once
 
 #include <NarcCore.h>
+#include <spdlog/spdlog.h>
 
-#include "NarcLog.h"
+#include "Core.h"
+
+#include "keywords/LogLevel.h"

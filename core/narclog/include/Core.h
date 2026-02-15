@@ -4,14 +4,14 @@
 
 #pragma once
 
-#ifdef NARCLOG_BUILD_DLL
+#ifdef NARC_LOG_BUILD_DLL
 
-#define NARCLOG_API __declspec(dllexport)
+#define NARC_LOG_API NARC_DLL_EXPORT
 
 #else
 
-#define NARCLOG_API __declspec(dllimport)
+#define NARC_LOG_API NARC_DLL_IMPORT
 
 #endif
 
-typedef std::vector<const char*> KeywordList;
+#define NARC_LOG_FILE_LINE std::source_location

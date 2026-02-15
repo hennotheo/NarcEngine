@@ -6,8 +6,10 @@ build*/
 cmake_*/
 .idea/
 .vscode/
+.venv/
 **/logs/**
 __cmake_systeminformation/
+CMakeUserPresets.json
 
 # Auto installed libraries
 vendors/**
@@ -48,3 +50,5 @@ vendors/**
 
 #Shaders
 *.spv
+
+!resources/**

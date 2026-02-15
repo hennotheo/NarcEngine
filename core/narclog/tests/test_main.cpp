@@ -3,73 +3,70 @@
 //
 
 #include <gtest/gtest.h>
-
 #include <gmock/gmock.h>
 
 #include "NarcLog.h"
 
-#define INITIALISATION_TESTS(testName) TEST(NarcLog_Initialisation, testName)
-#define LOG_TESTS(testName) TEST(NarcLog_Logging, testName)
-
-class LogTests
+TEST(LOGGING_TESTS, ERROR_THROW_SPECIFIC_TYPES)
 {
-public:
-    LogTests()
-    {
-        narclog::createLogger();
-    };
+    EXPECT_THROW({ NARC_ERROR_LOGIC("Logic debug message"); }, narc_log::LogicError)
+        << "NARC_ERROR_LOGIC should throw narc_log::LogicError";
+    EXPECT_THROW({ NARC_ERROR_RUNTIME("Runtime debug message"); }, narc_log::RuntimeError)
+        << "NARC_ERROR_RUNTIME should throw narc_log::RuntimeError";
+}
 
-    ~LogTests()
+TEST(LOGGING_TESTS, ERROR_THROW_MESSAGE_CONTENT)
+{
+    try
     {
-        narclog::destroyLogger();
+        NARC_ERROR_LOGIC("Logic debug message");
+        FAIL() << "Expected LogicError to be thrown";
     }
-};
+    catch (const narc_log::LogicError& e)
+    {
+        EXPECT_STREQ(e.what(), std::string("Logic debug message").c_str());
+    }
+    catch (...)
+    {
+        FAIL() << "Caught wrong exception type for LogicError";
+    }
 
-INITIALISATION_TESTS(LoggerCreation_NoThrow)
-{
-    EXPECT_NO_THROW(LogTests log{};);
+    try
+    {
+        NARC_ERROR_RUNTIME("Runtime debug message");
+        FAIL() << "Expected RuntimeError to be thrown";
+    }
+    catch (const narc_log::RuntimeError& e)
+    {
+        EXPECT_STREQ(e.what(), std::string("Runtime debug message").c_str());
+    }
+    catch (...)
+    {
+        FAIL() << "Caught wrong exception type for RuntimeError";
+    }
 }
 
-INITIALISATION_TESTS(LoggerDestroy_NoThrow)
+TEST(LOGGING_TESTS, LOG_NO_THROW)
 {
-    narclog::createLogger();
-    EXPECT_NO_THROW(narclog::destroyLogger(););
+    EXPECT_NO_THROW(NARC_LOG_DEBUG("Debug"));
+    EXPECT_NO_THROW(NARC_LOG_INFO("Info"));
+    EXPECT_NO_THROW(NARC_LOG_WARNING("Warning"));
+    EXPECT_NO_THROW(NARC_LOG_ERROR("Error"));
+    EXPECT_NO_THROW(NARC_LOG_FATAL("Fatal"));
 }
 
-LOG_TESTS(Log_Infos)
+TEST(LOGGING_TESTS, LOG_FORMATTING_NO_THROW)
 {
-    LogTests logger;
-
-    testing::internal::CaptureStdout();
-    NARCLOG_INFO("MESSAGE");
-    std::string output = testing::internal::GetCapturedStdout();
-    EXPECT_THAT(output, ::testing::HasSubstr("MESSAGE"));
+    EXPECT_NO_THROW(NARC_LOG_INFO("Value: {}", 42));
+    EXPECT_NO_THROW(NARC_LOG_WARNING("Pair: {} - {}", "left", "right"));
 }
 
-LOG_TESTS(Log_Warning)
+TEST(LOGGING_TESTS, INIT_SIGNAL_HANDLING_NO_THROW)
 {
-    LogTests logger;
-
-    testing::internal::CaptureStdout();
-    NARCLOG_WARNING("MESSAGE");
-    std::string output = testing::internal::GetCapturedStdout();
-    EXPECT_THAT(output, ::testing::HasSubstr("MESSAGE"));
+    EXPECT_NO_THROW(narc_log::init_signal_handling());
 }
 
-LOG_TESTS(Log_Error)
-{
-    LogTests logger;
-
-    EXPECT_THROW(NARCLOG_ERROR("MESSAGE");, narclog::ErrorException);
-}
-
-LOG_TESTS(Log_Fatal)
-{
-    LogTests logger;
-    EXPECT_THROW(NARCLOG_FATAL("MESSAGE");, narclog::FatalException);
-}
-
-int main(int argc, char** argv)
+int main (int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

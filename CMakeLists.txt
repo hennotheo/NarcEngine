@@ -1,50 +1,63 @@
 cmake_minimum_required(VERSION 3.31)
 cmake_policy(VERSION 3.31)
 
-include(cmake/versionning.cmake)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+include(scripts/versionning.cmake)
 
-set(CMAKE_CXX_COMPILER g++)
-set(CMAKE_C_COMPILER gcc)
-set(CMAKE_CXX_FLAGS -std=c++20)
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_RULE_MESSAGES OFF)
-
-if (NOT DEFINED CMAKE_BUILD_TYPE)
-set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "13.0")
+        message(FATAL_ERROR "GCC 13+ required for C++23. Current: ${CMAKE_CXX_COMPILER_VERSION}")
+    endif ()
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "16.0")
+        message(FATAL_ERROR "Clang 16+ required for C++23. Current: ${CMAKE_CXX_COMPILER_VERSION}")
+    endif ()
 endif ()
 
-project(NarcEngineEditor
-VERSION ${NARC_VERSION}
-LANGUAGES CXX)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -std=c++23")
 
-include(cmake/helpers.cmake)
-include(cmake/dependencies.cmake)
-include(cmake/tests.cmake)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+project(NarcEngineEditor
+        VERSION ${NARC_VERSION}
+        LANGUAGES CXX)
+
+include(scripts/helpers.cmake)
+include(scripts/dependencies.cmake)
+include(scripts/tests.cmake)
 
 narc_set_shared_lib()
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS "NARC_BUILD_DEBUG" APPEND)
-endif()
+endif ()
 
-set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS "NARC_ENGINE_PLATFORM_WINDOWS" APPEND)
+if (WIN32)
+    set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS "NARC_ENGINE_PLATFORM_WINDOWS" APPEND)
+elseif (UNIX AND NOT APPLE)
+    set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS "NARC_ENGINE_PLATFORM_LINUX" APPEND)
+elseif (APPLE)
+    message(FATAL_ERROR "Apple platform is not supported yet.")
+endif ()
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE})
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/arch")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 add_subdirectory(core/core)
 add_subdirectory(core/narc_math)
+
+
 add_subdirectory(core/narclog)
 add_subdirectory(core/narcio)
 
-add_subdirectory(rendering/shaders)
-add_subdirectory(rendering/narc_engine)
+add_subdirectory(rendering)
 
 add_subdirectory(editor/application)
 
-include(cmake/installation.cmake)
+add_subdirectory(resources)
+
+include(scripts/installation.cmake)
