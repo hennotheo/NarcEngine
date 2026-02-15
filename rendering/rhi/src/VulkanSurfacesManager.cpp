@@ -4,13 +4,6 @@
 
 #include "VulkanSurfacesManager.h"
 
-#include "IVulkanSurface.h"
-#include "vulkan_wrappers/VulkanGraphicsPipeline.h"
-#include "vulkan_wrappers/VulkanPipelineLayout.h"
-#include "vulkan_wrappers/VulkanRenderPass.h"
-#include "vulkan_wrappers/VulkanSwapChain.h"
-#include "vulkan_wrappers/VulkanFramebuffer.h"
-
 namespace narc_engine {
     VulkanSurfacesManager::VulkanSurfacesManager(std::shared_ptr<narc_core::ICreator<VulkanSwapChain>> swapChainCreator) :
         m_swapChainCreator(std::move(swapChainCreator))
@@ -87,7 +80,7 @@ namespace narc_engine {
         }
     }
 
-    SurfaceComponentReferences VulkanSurfacesManager::pushSurface(std::unique_ptr<IVulkanSurface>& surface)
+    SurfaceComponentReferences VulkanSurfacesManager::pushSurface(std::unique_ptr<ISurface>& surface)
     {
         auto localSwapChain = m_swapChainCreator->create();
         localSwapChain->setSurface(surface);

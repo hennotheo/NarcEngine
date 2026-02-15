@@ -3,7 +3,8 @@
 //
 
 #pragma once
-#include "IVulkanExtension.h"
+
+#include <NarcRenderingCore.h>
 
 namespace narc_engine
 {

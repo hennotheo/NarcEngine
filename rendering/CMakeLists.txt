@@ -10,6 +10,7 @@ find_package(VulkanMemoryAllocator REQUIRED)
 find_package(VulkanHeaders REQUIRED)
 find_package(imgui REQUIRED)
 
+# TODO: TEMPORARY SOLUTION
 add_library(NarcEngineDependencies INTERFACE)
 target_include_directories(NarcEngineDependencies INTERFACE
         "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -18,7 +19,7 @@ target_link_libraries(NarcEngineDependencies INTERFACE
         imgui::imgui
         vulkan-headers::vulkan-headers
         GPUOpen::VulkanMemoryAllocator)
-target_precompile_headers(NarcEngineDependencies INTERFACE "rhi/include/pch.h")
+#target_precompile_headers(NarcEngineDependencies INTERFACE "rhi/include/pch.h")
 
 add_dependencies(NarcEngineDependencies
         CompileShaderCommand
@@ -30,6 +31,8 @@ add_dependencies(NarcEngineDependencies
 #----- SOURCE -----
 #------------------
 
+add_subdirectory(rendering_core)
+add_subdirectory(wrappers)
 add_subdirectory(rhi)
 
 #------------------

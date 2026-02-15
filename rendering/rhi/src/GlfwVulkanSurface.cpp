@@ -11,8 +11,6 @@
 // #define GLFW_EXPOSE_NATIVE_WIN32
 // #include <GLFW/glfw3native.h>
 
-#include "vulkan_wrappers/VulkanInstance.h"
-
 namespace narc_engine {
     GlfwVulkanSurface::GlfwVulkanSurface(std::weak_ptr<VulkanInstance> instance) :
         m_instance(std::move(instance))
@@ -52,7 +50,7 @@ namespace narc_engine {
         return glfwWindowShouldClose(m_window);
     }
 
-    VkExtent2D GlfwVulkanSurface::getSurfaceExtent() const noexcept
+    SurfaceExtend GlfwVulkanSurface::getSurfaceExtent() const noexcept
     {
         int width;
         int height;

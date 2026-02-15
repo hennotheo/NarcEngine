@@ -6,7 +6,7 @@
 #include "Ubo.h"
 #include "SurfaceManager.h"
 #include "TestDeviceExtension.h"
-#include "vulkan_wrappers/VulkanTextureImage.h"
+#include "layers/VulkanValidationLogger.h"
 
 class Creator final : public narc_core::ICreator<narc_engine::VulkanSwapChain>
 {
@@ -27,7 +27,7 @@ int main(int argc, char** argv)
     narc_log::init_signal_handling();
 
     const auto injector = di::make_injector(
-            di::bind<narc_engine::IVulkanSurface>.to<narc_engine::GlfwVulkanSurface>(),
+            di::bind<narc_engine::ISurface>.to<narc_engine::GlfwVulkanSurface>(),
             di::bind<narc_engine::IInstanceService>.to<narc_engine::InstanceService>(),
             di::bind<narc_engine::ISwapchainService>.to<narc_engine::SwapChainService>(),
             di::bind<narc_engine::IDeviceService>.to<narc_engine::DeviceService>(),
@@ -56,6 +56,8 @@ int main(int argc, char** argv)
                 .ApplicationName = "NarcEngine Editor",
                 .EngineName = "NarcEngine"
         });
+        instance->addExtension(injector.create<std::unique_ptr<narc_engine::VulkanGlfwExtension>>());
+        instance->addExtension(injector.create<std::unique_ptr<narc_engine::VulkanValidationLogger>>());
 
         const auto device = injector.create<std::shared_ptr<narc_engine::VulkanDevice>>();
         device->setPhysicalDeviceCriteria(narc_engine::PhysicalDeviceCriteria{
@@ -69,7 +71,7 @@ int main(int argc, char** argv)
         surfacesManager->setDevice(device);
 
         const auto cmdPool = injector.create<std::shared_ptr<narc_engine::VulkanCommandPool>>();
-        auto mainWindow = injector.create<std::unique_ptr<narc_engine::IVulkanSurface>>();
+        auto mainWindow = injector.create<std::unique_ptr<narc_engine::ISurface>>();
 
         std::vector<std::unique_ptr<narc_engine::VulkanSemaphore>> imageAvailableSemaphores;
         std::vector<std::unique_ptr<narc_engine::VulkanSemaphore>> renderFinishedSemaphores;

@@ -18,4 +18,13 @@
 
 #define NARC_KB_SIZEOF(obj) (static_cast<double>(sizeof(obj)) / 1024.0)
 
+namespace narc_math {
+    using Vec2 = glm::vec2;
+    using Vec2Int = glm::ivec2;
+
+    using Vec3 = glm::vec3;
+    using Vec3Int = glm::ivec3;
+}
+
 #include "Transform.h"
+#include "Extent.h"

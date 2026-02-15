@@ -3,12 +3,13 @@
 //
 
 #pragma once
-#include "vulkan_wrappers/VulkanGraphicsPipeline.h"
+
+#include <NarcRenderingCore.h>
+#include <NarcVulkanWrapper.h>
 
 namespace narc_engine {
     class VulkanFramebuffer;
     class VulkanDevice;
-    class IVulkanSurface;
     class VulkanGraphicsPipeline;
     class DeviceService;
     class VulkanInstance;
@@ -34,12 +35,12 @@ namespace narc_engine {
 
         virtual void updateSurfaces() = 0;
 
-        std::vector<IVulkanSurface*> getSurfaces() const noexcept
+        std::vector<ISurface*> getSurfaces() const noexcept
         {
-            auto out = std::vector<IVulkanSurface*>{};
+            auto out = std::vector<ISurface*>{};
             out.reserve(m_surfaces.size());
             std::transform(m_surfaces.begin(), m_surfaces.end(), std::back_inserter(out),
-                           [](const std::unique_ptr<IVulkanSurface>& surface) {
+                           [](const std::unique_ptr<ISurface>& surface) {
                                return surface.get();
                            });
             return out;
@@ -72,7 +73,7 @@ namespace narc_engine {
             return out;
         }
 
-        virtual SurfaceComponentReferences pushSurface(std::unique_ptr<IVulkanSurface>& surface);
+        virtual SurfaceComponentReferences pushSurface(std::unique_ptr<ISurface>& surface);
 
     protected:
         NARC_GETTER(const std::weak_ptr<VulkanDevice>&, getDevice, m_device);
@@ -81,7 +82,7 @@ namespace narc_engine {
         std::weak_ptr<VulkanDevice> m_device;
         std::shared_ptr<narc_core::ICreator<VulkanSwapChain>> m_swapChainCreator;
 
-        std::vector<std::unique_ptr<IVulkanSurface>> m_surfaces{};
+        std::vector<std::unique_ptr<ISurface>> m_surfaces{};
         std::vector<std::unique_ptr<VulkanGraphicsPipeline>> m_pipelines{};
         std::vector<std::unique_ptr<VulkanSwapChain>> m_swapChains{};
         std::vector<std::vector<std::unique_ptr<VulkanFramebuffer>>> m_frameBuffers{};

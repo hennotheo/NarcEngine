@@ -4,13 +4,12 @@
 
 #pragma once
 
-#include <vulkan/vulkan.h>
+#include <NarcCore.h>
+#include <NarcIO.h>
+#include <NarcLog.h>
+#include <NarcMath.h>
 
-#include "NarcCore.h"
-#include "NarcIO.h"
-#include "NarcLog.h"
-#include "NarcMath.h"
+#include <NarcRenderingCore.h>
+#include <NarcVulkanWrapper.h>
 
 #include "RhiCore.h"
-
-#include "interfaces/Interfaces.h"

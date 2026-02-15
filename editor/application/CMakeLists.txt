@@ -3,10 +3,10 @@ file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 
 
 add_executable(NarcEngineEditor src/main.cpp ${CPP_FILES} ${HPP_FILES})
-add_dependencies(NarcEngineEditor NarcRHI NarcLog)
+add_dependencies(NarcEngineEditor NarcRHI)
 
 target_include_directories(NarcEngineEditor PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-target_link_libraries(NarcEngineEditor PRIVATE NarcRHI NarcLog)
+target_link_libraries(NarcEngineEditor PRIVATE NarcRHI NarcLog NarcVulkanWrapper NarcRenderingCore NarcCore NarcMath NarcIO)
 target_precompile_headers(NarcEngineEditor PRIVATE "include/pch.h")

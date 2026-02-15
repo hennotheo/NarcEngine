@@ -16,7 +16,7 @@ public:
 
     ~SurfaceManager() override = default;
 
-    NO_DISCARD const narc_engine::IVulkanSurface* getMainSurface() const noexcept override
+    NO_DISCARD const narc_engine::ISurface* getMainSurface() const noexcept override
     {
         const auto m_surfaces = getSurfaces();
         return m_surfaces.empty() ? nullptr : m_surfaces.front();
@@ -126,15 +126,18 @@ public:
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = static_cast<float>(extend.width);
-        viewport.height = static_cast<float>(extend.height);
+        viewport.width = static_cast<float>(extend.Width);
+        viewport.height = static_cast<float>(extend.Height);
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
         cmd->cmdSetViewport(viewport);
 
         VkRect2D scissor{};
         scissor.offset = {0, 0};
-        scissor.extent = extend;
+        scissor.extent = {
+                extend.Width,
+                extend.Height
+        }; //narc_engine::mapping::mapFromExtend(extend);
         cmd->cmdSetScissor(scissor);
         
         std::vector sets = { descriptor_sets[currentFrame] };
@@ -157,7 +160,7 @@ public:
         UniformBufferObject ubo{};
         ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.proj = glm::perspective(glm::radians(45.0f), swapchain->getSwapChainExtent().width / (float) swapchain->getSwapChainExtent().height, 0.1f,
+        ubo.proj = glm::perspective(glm::radians(45.0f), swapchain->getSwapChainExtent().Width / (float) swapchain->getSwapChainExtent().Height, 0.1f,
                                     10.0f);
         ubo.proj[1][1] *= -1;
 

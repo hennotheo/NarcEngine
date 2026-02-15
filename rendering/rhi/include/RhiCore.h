@@ -20,5 +20,3 @@
 #define ENABLE_VALIDATION_LAYERS
 
 #endif
-
-using VulkanMemory = void;
