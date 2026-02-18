@@ -5,13 +5,13 @@
 #pragma once
 
 namespace narc_engine {
-    class ISurface;
+    class IWindow;
 
     class ISurfacesHandler : public narc_core::IService
     {
     public:
         ~ISurfacesHandler() override = default;
 
-        NARC_PURE_VIRTUAL_GETTER(const ISurface*, getMainSurface);
+        NARC_PURE_VIRTUAL_GETTER(const IWindow*, getMainSurface);
     };
 }

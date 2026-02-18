@@ -80,7 +80,7 @@ namespace narc_engine {
         }
     }
 
-    SurfaceComponentReferences VulkanSurfacesManager::pushSurface(std::unique_ptr<ISurface>& surface)
+    SurfaceComponentReferences VulkanSurfacesManager::pushSurface(std::unique_ptr<IWindow>& surface)
     {
         auto localSwapChain = m_swapChainCreator->create();
         localSwapChain->setSurface(surface);

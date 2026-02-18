@@ -4,12 +4,6 @@
 #include <Rhi.h>
 
 
-// #include "Ubo.h"
-// #include "SurfaceManager.h"
-// #include "TestDeviceExtension.h"
-// #include "layers/VulkanValidationLogger.h"
-
-
 int main(int argc, char** argv)
 {
     spdlog::set_level(spdlog::level::debug);
@@ -17,6 +11,10 @@ int main(int argc, char** argv)
 
     try
     {
+        const auto window = narc_engine::createWindow(narc_engine::Glfw);
+        window->setTitle("NarcEngine Editor");
+        window->init();
+
         const auto graphicsInstance = narc_engine::createGraphicsInstance(narc_engine::Vulkan);
         graphicsInstance->setApplicationInfo({
                 .ApplicationName = "NarcEngine Editor",
@@ -31,7 +29,14 @@ int main(int argc, char** argv)
 
         graphicsInstance->init();
 
+        while (!window->shouldClose())
+        {
+            
+        }
+
         graphicsInstance->shutdown();
+
+        window->shutdown();
     }
     catch (const std::exception& e)
     {

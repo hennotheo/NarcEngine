@@ -9,7 +9,7 @@
 #include "ApplicationInfo.h"
 
 #include "surface/ISurfaceHandler.h"
-#include "surface/ISurface.h"
+#include "surface/IWindow.h"
 
 #include "device/IVulkanExtension.h"
 #include "device/PhysicalDeviceCriteria.h"

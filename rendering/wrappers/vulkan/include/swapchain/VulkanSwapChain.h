@@ -24,13 +24,13 @@ namespace narc_engine {
         
         NARC_GETTER(VkSwapchainKHR, getHandle, m_swapChain);
         
-        void setSurface(const std::unique_ptr<ISurface>& surface) { m_surface = surface.get(); }
+        void setSurface(const std::unique_ptr<IWindow>& surface) { m_surface = surface.get(); }
 
     private:
         narc_core::injected_service<ISwapchainService> m_swapChainService;
         
         std::weak_ptr<VulkanDevice> m_device;
-        ISurface* m_surface;
+        IWindow* m_surface;
 
         VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
 

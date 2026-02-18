@@ -4,7 +4,7 @@
 
 #include "swapchain/VulkanSwapChain.h"
 
-#include "surface/ISurface.h"
+#include "surface/IWindow.h"
 #include "device/VulkanDevice.h"
 #include "mapping/mappingFromVk.h"
 #include "mapping/mappingToVk.h"
@@ -28,7 +28,8 @@ namespace narc_engine {
         }
         
         NARC_GUARD_WEAK(device, m_device, "Failed to get Device");
-        const auto surface = narc_core::getAndCastHandle<VkSurfaceKHR>(m_surface);
+        const auto surface = nullptr;
+        NARC_ERROR_NOT_IMPLEMENTED("Surface is not defined");
 
         const auto swapchainSupport = m_swapChainService->querySwapChainSupportInfo(device->getPhysicalDeviceHandle(), surface)
                                                         .transform_error([](const auto& err) {

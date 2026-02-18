@@ -36,7 +36,6 @@
 #include "interfaces/IGetter.h"
 #include "interfaces/IInitialisable.h"
 #include "interfaces/ILoadable.h"
-#include "interfaces/IHandler.h"
 
 #include "utils/UtilsFunctions.h"
 

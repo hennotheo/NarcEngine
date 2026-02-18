@@ -6,6 +6,7 @@
 
 #include <RhiCore.h>
 #include <NarcVulkanWrapper.h>
+#include <NarcGlfwWrapper.h>
 
 namespace narc_engine {
     std::unique_ptr<IGraphicsInstance> createVulkanGraphicsInstance()
@@ -29,4 +30,13 @@ namespace narc_engine {
         return nullptr;
     }
 
+    std::unique_ptr<IWindow> createWindow(const WindowBackend backend)
+    {
+        switch (backend)
+        {
+            case Glfw: return std::make_unique<GlfwWindow>();
+        }
+
+        return nullptr;
+    }
 }

@@ -9,7 +9,7 @@ namespace narc_engine {
 
     VulkanServiceQuery<QueueFamilyIndices> queryQueueFamilyIndices(const VkPhysicalDevice& physicalDevice) noexcept;
 
-    bool queueFamilyIndexSupportPresentation(const ISurface* surface, const VkPhysicalDevice& physicalDevice,
+    bool queueFamilyIndexSupportPresentation(const IWindow* surface, const VkPhysicalDevice& physicalDevice,
                                              uint32_t queueFamilyIndex) noexcept;
 
     VulkanServiceQuery<std::vector<QueueFamilyIndex>> getUniqueIndices(const QueueFamilyIndices& queueFamilyIndices) noexcept;

@@ -1,0 +1,21 @@
+//
+// Created by theohenno on 11/17/25.
+//
+
+#pragma once
+
+namespace narc_engine {
+    class IWindow : public narc_core::IInitialisable
+    {
+    public:
+        ~IWindow() override = default;
+
+        NARC_PURE_VIRTUAL_SETTER(std::string, setTitle);
+
+        NARC_PURE_VIRTUAL_QUERY(bool, shouldClose);
+        NARC_PURE_VIRTUAL_QUERY(SurfaceExtend, getSurfaceExtent);
+        NARC_PURE_VIRTUAL_GETTER(void*, getNativeHandle);
+
+        NARC_PURE_VIRTUAL_GETTER(std::string_view, getTitle);
+    };
+} // narc_engine

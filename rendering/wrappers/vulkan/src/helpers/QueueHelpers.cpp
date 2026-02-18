@@ -40,14 +40,15 @@ namespace narc_engine {
         return indices;
     }
 
-    bool queueFamilyIndexSupportPresentation(const ISurface* surface, const VkPhysicalDevice& physicalDevice, uint32_t queueFamilyIndex) noexcept
+    bool queueFamilyIndexSupportPresentation(const IWindow* surface, const VkPhysicalDevice& physicalDevice, uint32_t queueFamilyIndex) noexcept
     {
         if (surface == nullptr || physicalDevice == nullptr)
         {
             return false;
         }
 
-        const auto surfacePtr = surface->getHandle();
+        //TODO: Change cause surface is not vkSu
+        const auto surfacePtr = surface->getNativeHandle();
         if (surfacePtr == nullptr)
         {
             return false;

@@ -4,10 +4,14 @@
 
 #pragma once
 
-#include "interface/enums/GraphicBackend.h"
+#include "enums/GraphicBackend.h"
+#include "enums/WindowBackend.h"
 
 namespace narc_engine {
+    class IWindow;
     class IGraphicsInstance;
 
     std::unique_ptr<IGraphicsInstance> createGraphicsInstance(GraphicBackend backend);
+
+    std::unique_ptr<IWindow> createWindow(WindowBackend backend);
 }

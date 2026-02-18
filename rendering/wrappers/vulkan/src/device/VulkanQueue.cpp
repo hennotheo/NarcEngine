@@ -28,6 +28,7 @@ namespace narc_engine {
         NARC_GUARD_RAW_PTR(m_device, "Device not defined.");
 
         vkGetDeviceQueue(m_device->getHandle(), m_queueFamilyIndex, m_queueIndex, &m_queue);
+        NARC_LOG_DEBUG("Vulkan Queue created successfully!");
     }
 
     void VulkanQueue::shutdown() { m_queue = VK_NULL_HANDLE; }
