@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <NarcRenderingCore.h>
+#include <RhiCore.h>
 #include <NarcVulkanWrapper.h>
 
 namespace narc_engine {

@@ -12,12 +12,10 @@ namespace narc_engine {
     class IDeviceService;
     class IDeviceQueueService;
 
-    class VulkanDevice final : public narc_core::IInitialisable, public std::enable_shared_from_this<VulkanDevice>
+    class VulkanDevice final : public narc_core::IInitialisable
     {
     public:
-        explicit VulkanDevice(NARC_DI_IMPORT_SERVICE(IDeviceService),
-                              NARC_DI_IMPORT_COMPONENT(VulkanInstance),
-                              NARC_DI_IMPORT_SERVICE(IDeviceQueueService));
+        explicit VulkanDevice(const VulkanInstance* instance);
         ~VulkanDevice() override;
 
         NARC_IMPL_INITIALISABLE();
@@ -32,15 +30,12 @@ namespace narc_engine {
 
         NARC_GETTER(VkPhysicalDeviceProperties, getPhysicalDeviceProperties, m_properties);
 
-        NARC_SETTER(PhysicalDeviceCriteria, PhysicalDeviceCriteria, m_physicalDeviceCriteria);
+        NARC_SETTER(PhysicalDeviceCriteria, setPhysicalDeviceCriteria, m_physicalDeviceCriteria);
 
         void waitIdle() const;
 
     private:
-        narc_core::injected_component<VulkanInstance> m_instance;
-
-        narc_core::injected_service<IDeviceService> m_deviceService;
-        narc_core::injected_service<IDeviceQueueService> m_queueService;
+        const VulkanInstance* m_instance;
 
         PhysicalDeviceCriteria m_physicalDeviceCriteria{};
 
@@ -61,5 +56,7 @@ namespace narc_engine {
         void selectQueueFamily();
 
         void createDevice();
+
+        void fillQueues(const QueueFamilyIndices& queueFamilyIndices);
     };
 } // namespace narc_engine

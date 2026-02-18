@@ -11,5 +11,8 @@ narc_testable_add_include_directory(NarcRHI PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 narc_testable_link_library(NarcRHI PUBLIC
-        NarcVulkanWrapper
+        RhiCore
         glfw)
+
+narc_testable_link_library(NarcRHI PRIVATE
+        NarcVulkanWrapper)

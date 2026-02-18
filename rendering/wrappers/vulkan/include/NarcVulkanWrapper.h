@@ -46,8 +46,7 @@
 #include "VulkanTextureImage.h"
 
 #include "services/CmdService.h"
-#include "services/DeviceQueueService.h"
-#include "services/InstanceService.h"
 #include "services/MemoryAllocationService.h"
-#include "services/PhysicalDeviceService.h"
 #include "services/SwapChainService.h"
+
+#include "instance/VulkanGraphicsInstance.h"

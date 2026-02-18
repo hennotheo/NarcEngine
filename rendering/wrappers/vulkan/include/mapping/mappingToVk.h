@@ -5,5 +5,7 @@
 #pragma once
 
 namespace narc_engine::mapping {
-    VkExtent2D mapFromExtend(const narc_math::Extent& extent);
+    VkExtent2D mapFromExtend(const narc_math::Extent& extent) noexcept;
+
+    VkApplicationInfo mapFromApplicationInfo(const ApplicationInfo& value) noexcept;
 }

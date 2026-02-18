@@ -11,6 +11,6 @@
 
 #include <vulkan/vulkan.h>
 
-#include <NarcRenderingCore.h>
+#include <RhiCore.h>
 
 #include "VulkanWrapperInterfaces.h"

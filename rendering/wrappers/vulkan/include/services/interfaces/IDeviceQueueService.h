@@ -10,8 +10,6 @@ namespace narc_engine {
     class VulkanDevice;
     class VulkanQueue;
 
-    inline static constexpr uint32_t QUEUE_INDEX_NONE = std::numeric_limits<uint32_t>::max();
-
     class IDeviceQueueService : public narc_core::IService
     {
     public:

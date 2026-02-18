@@ -31,7 +31,7 @@ add_dependencies(NarcEngineDependencies
 #----- SOURCE -----
 #------------------
 
-add_subdirectory(rendering_core)
+add_subdirectory(rhi_core)
 add_subdirectory(wrappers)
 add_subdirectory(rhi)
 

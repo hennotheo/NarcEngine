@@ -40,6 +40,12 @@
 
 #include "utils/UtilsFunctions.h"
 
+#define NARC_GUARD_RAW_PTR(ptr, errorMsg)                                                                                                                                                                                                        \
+    if (ptr == nullptr)                                                                                                                                  \
+    {                                                                                                                                                \
+        NARC_ERROR_RUNTIME(errorMsg);                                                                                                                \
+    }
+
 #define NARC_GUARD_WEAK(varName, weakPtr, errorMsg)                                                                                                  \
     const auto varName = (weakPtr).lock();                                                                                                           \
     if (!(varName))                                                                                                                                  \
@@ -100,6 +106,7 @@ namespace narc_core {
 #define NARC_VIRTUAL_QUERY(type, displayName, ...) NO_DISCARD virtual type displayName(__VA_ARGS__) const noexcept
 #define NARC_PURE_VIRTUAL_QUERY(type, displayName, ...) NO_DISCARD virtual type displayName(__VA_ARGS__) const noexcept = 0
 #define NARC_QUERY_OVERRIDE(type, displayName, ...) NO_DISCARD virtual type displayName(__VA_ARGS__) const noexcept override
+#define NARC_QUERY(type, displayName, ...) NO_DISCARD type displayName(__VA_ARGS__) const noexcept
 
 #define NARC_VIRTUAL_CMD(displayName, ...) virtual narc_core::result displayName(__VA_ARGS__) const noexcept
 #define NARC_PURE_VIRTUAL_CMD(displayName, ...) virtual narc_core::result displayName(__VA_ARGS__) const noexcept = 0

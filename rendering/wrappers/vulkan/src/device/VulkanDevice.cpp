@@ -6,18 +6,14 @@
 
 #include "instance/VulkanInstance.h"
 
-#include "../../../../rhi/include/layers/VulkanGlfwExtension.h"
-#include "layers/VulkanValidationLogger.h"
+#include "helpers/DeviceHelpers.h"
+#include "helpers/QueueHelpers.h"
 
 namespace narc_engine {
-    VulkanDevice::VulkanDevice(NARC_DI_IMPORT_SERVICE(IDeviceService),
-                               NARC_DI_IMPORT_COMPONENT(VulkanInstance),
-                               NARC_DI_IMPORT_SERVICE(IDeviceQueueService)) :
-        NARC_DI_IMPL_COMPONENT(VulkanInstance, m_instance),
-        NARC_DI_IMPL_SERVICE(IDeviceService, m_deviceService),
-        NARC_DI_IMPL_SERVICE(IDeviceQueueService, m_queueService)
+    VulkanDevice::VulkanDevice(const VulkanInstance* instance) :
+        m_instance(instance)
     {
-        //Empty constructor.
+
     }
 
     VulkanDevice::~VulkanDevice() = default;
@@ -29,8 +25,7 @@ namespace narc_engine {
 
         createDevice();
 
-        m_queueService->fillQueues(shared_from_this(), m_queueFamilyIndices, m_graphicsQueue, m_presentQueue);
-
+        fillQueues(m_queueFamilyIndices);
         m_graphicsQueue.init();
         m_presentQueue.init();
 
@@ -55,13 +50,13 @@ namespace narc_engine {
 
     void VulkanDevice::selectPhysicalDeviceFromCriteria()
     {
-        const auto devices = m_deviceService->queryAllPhysicalDevices();
+        const auto devices = m_instance->queryAllPhysicalDevices();
         if (!devices.has_value())
         {
             NARC_ERROR_RUNTIME("No suitable device found!");
         }
 
-        const auto bestDeviceResult = m_deviceService->queryBestPhysicalDevices(devices.value(), m_physicalDeviceCriteria);
+        const auto bestDeviceResult = queryBestPhysicalDevices(devices.value(), m_physicalDeviceCriteria);
         if (!bestDeviceResult.has_value())
         {
             NARC_ERROR_RUNTIME("No suitable device found!");
@@ -73,7 +68,7 @@ namespace narc_engine {
 
     void VulkanDevice::selectQueueFamily()
     {
-        const auto queueFamilyIndicesResult = m_queueService->queryQueueFamilyIndices(m_physicalDevice);
+        const auto queueFamilyIndicesResult = queryQueueFamilyIndices(m_physicalDevice);
         if (!queueFamilyIndicesResult.has_value())
         {
             NARC_ERROR_RUNTIME("Failed to find required queue families.");
@@ -89,7 +84,7 @@ namespace narc_engine {
 
     void VulkanDevice::createDevice()
     {
-        const auto uniqueQueueFamilies = m_queueService->getUniqueIndices(m_queueFamilyIndices).transform_error(
+        const auto uniqueQueueFamilies = getUniqueIndices(m_queueFamilyIndices).transform_error(
                 [](const auto& err) {
                     NARC_ERROR_RUNTIME("Uniques queues not supported by current device");
                     return err;
@@ -129,5 +124,17 @@ namespace narc_engine {
         {
             NARC_ERROR_RUNTIME("Failed to create logical device!");
         }
+    }
+
+    void VulkanDevice::fillQueues(const QueueFamilyIndices& queueFamilyIndices)
+    {
+        m_presentQueue.setDevice(this);
+        m_graphicsQueue.setDevice(this);
+
+        m_presentQueue.setQueueIndex(0); //Cf vulkan doc
+        m_graphicsQueue.setQueueIndex(0);
+
+        m_presentQueue.setQueueFamilyIndex(queueFamilyIndices.PresentationFamily.value_or(QUEUE_INDEX_NONE));
+        m_graphicsQueue.setQueueFamilyIndex(queueFamilyIndices.GraphicsFamily.value_or(QUEUE_INDEX_NONE));
     }
 } // namespace narc_engine

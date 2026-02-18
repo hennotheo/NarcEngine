@@ -6,19 +6,28 @@
 
 #include "device/VulkanDevice.h"
 #include "sync/VulkanFence.h"
+#include "helpers/QueueHelpers.h"
 
 namespace narc_engine {
-    VulkanQueue::VulkanQueue() = default;
+    VulkanQueue::VulkanQueue() :
+        m_queueFamilyIndex(QUEUE_INDEX_NONE),
+        m_queueIndex(QUEUE_INDEX_NONE)
+    {
+
+    }
+
     VulkanQueue::~VulkanQueue() = default;
 
     void VulkanQueue::init()
     {
-        assertIndexDefined(m_queueIndex);
-        assertIndexDefined(m_queueFamilyIndex);
+        if (!checkIndicesDefined())
+        {
+            return;
+        }
 
-        NARC_GUARD_WEAK(device, m_device, "Device not defined.");
+        NARC_GUARD_RAW_PTR(m_device, "Device not defined.");
 
-        vkGetDeviceQueue(device->getHandle(), m_queueFamilyIndex, m_queueIndex, &m_queue);
+        vkGetDeviceQueue(m_device->getHandle(), m_queueFamilyIndex, m_queueIndex, &m_queue);
     }
 
     void VulkanQueue::shutdown() { m_queue = VK_NULL_HANDLE; }
@@ -35,11 +44,27 @@ namespace narc_engine {
         vkQueueWaitIdle(m_queue);
     }
 
-    void VulkanQueue::assertIndexDefined(const uint32_t& index)
+    bool VulkanQueue::isIndexDefined(const uint32_t& index)
     {
-        if (QUEUE_INDEX_NONE == index)
+        return QUEUE_INDEX_NONE != index;
+    }
+
+    bool VulkanQueue::checkIndicesDefined()
+    {
+        bool defined = true;
+
+        if (!isIndexDefined(m_queueIndex))
         {
-            NARC_ERROR_RUNTIME("Queue Index is not defined.");
+            NARC_LOG_WARNING("Queue Index is not defined.");
+            defined = false;
         }
+
+        if (!isIndexDefined(m_queueFamilyIndex))
+        {
+            NARC_LOG_WARNING("Queue Family Index is not defined.");
+            defined = false;
+        }
+
+        return defined;
     }
 } // namespace narc_engine

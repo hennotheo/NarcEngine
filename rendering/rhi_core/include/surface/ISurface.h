@@ -12,5 +12,6 @@ namespace narc_engine {
 
         NARC_PURE_VIRTUAL_GETTER(bool, shouldClose); //TODO: Create IWindow later
         NARC_PURE_VIRTUAL_GETTER(SurfaceExtend, getSurfaceExtent);
+        NARC_PURE_VIRTUAL_GETTER(void*, getNativeHandle);
     };
 } // narc_engine
