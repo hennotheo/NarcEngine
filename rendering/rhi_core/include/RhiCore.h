@@ -4,12 +4,17 @@
 
 #pragma once
 
+#ifdef NARC_ENGINE_PLATFORM_LINUX
+#include <xcb/xcb.h>
+#else
+#error Not Implemented.
+#endif
+
 #include "Typedefs.h"
 
 #include "ApplicationInfo.h"
 
-#include "surface/ISurfaceHandler.h"
-#include "surface/IWindow.h"
+#include "models/NativeWindowHandle.h"
 
 #include "device/IVulkanExtension.h"
 #include "device/PhysicalDeviceCriteria.h"
@@ -17,6 +22,8 @@
 
 #include "geometry/Vertex.h"
 
+#include "interfaces/surface/ISurfaceHandler.h"
+#include "interfaces/surface/IWindow.h"
 #include "interfaces/IGraphicsInstance.h"
 #include "interfaces/ICommandBuffer.h"
 #include "interfaces/IFence.h"

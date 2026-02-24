@@ -4,6 +4,7 @@
 
 #pragma once
 
+#define VK_USE_PLATFORM_XLIB_KHR
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
 
@@ -48,5 +49,7 @@
 #include "services/CmdService.h"
 #include "services/MemoryAllocationService.h"
 #include "services/SwapChainService.h"
+
+#include "surface/ISurface.h"
 
 #include "instance/VulkanGraphicsInstance.h"

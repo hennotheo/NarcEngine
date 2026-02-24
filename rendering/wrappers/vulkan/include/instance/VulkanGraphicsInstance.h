@@ -8,6 +8,8 @@
 #include "device/VulkanDevice.h"
 
 namespace narc_engine {
+    class ISurface;
+
     class VulkanGraphicsInstance : public IGraphicsInstance
     {
     public:
@@ -21,8 +23,12 @@ namespace narc_engine {
         void setApplicationInfo(const ApplicationInfo& value) noexcept override;
         void setDeviceCriteria(const PhysicalDeviceCriteria& value) noexcept override;
 
+        void attachWindow(const IWindow* window) noexcept override;
+
     private:
         std::unique_ptr<VulkanInstance> m_instance;
         std::unique_ptr<VulkanDevice> m_device;
+
+        std::unique_ptr<ISurface> m_surface;
     };
 }

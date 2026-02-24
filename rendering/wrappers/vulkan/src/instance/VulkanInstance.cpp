@@ -15,7 +15,7 @@ namespace narc_engine {
     void VulkanInstance::init()
     {
         std::vector<const char*> layerNames = {
-                // "VK_LAYER_KHRONOS_validation"
+                "VK_LAYER_KHRONOS_validation"
         };
 
         m_appInfo = mapping::mapFromApplicationInfo(m_applicationInfo);
@@ -61,7 +61,10 @@ namespace narc_engine {
                                           const std::span<std::unique_ptr<IVulkanExtension>>& extensions,
                                           const std::span<const char*>& layerNames)
     {
-        std::vector<const char*> deviceExtensionNames{};
+        std::vector<const char*> deviceExtensionNames{
+                VK_KHR_SURFACE_EXTENSION_NAME,
+                VK_KHR_XCB_SURFACE_EXTENSION_NAME
+        };
         deviceExtensionNames.reserve(extensions.size());
         for (const auto& ext: extensions)
         {

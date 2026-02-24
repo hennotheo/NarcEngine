@@ -27,6 +27,7 @@ int main(int argc, char** argv)
                 .PreferDiscreteGPU = true
         });
 
+        graphicsInstance->attachWindow(window.get());
         graphicsInstance->init();
 
         while (!window->shouldClose())

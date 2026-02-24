@@ -16,5 +16,7 @@ namespace narc_engine {
 
         NARC_PURE_VIRTUAL_SETTER(ApplicationInfo, setApplicationInfo);
         NARC_PURE_VIRTUAL_SETTER(PhysicalDeviceCriteria, setDeviceCriteria);
+
+        virtual void attachWindow(const IWindow* window) noexcept = 0;
     };
 }

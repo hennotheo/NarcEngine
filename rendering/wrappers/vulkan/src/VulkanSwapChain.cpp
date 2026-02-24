@@ -4,7 +4,6 @@
 
 #include "swapchain/VulkanSwapChain.h"
 
-#include "surface/IWindow.h"
 #include "device/VulkanDevice.h"
 #include "mapping/mappingFromVk.h"
 #include "mapping/mappingToVk.h"

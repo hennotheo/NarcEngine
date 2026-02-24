@@ -56,7 +56,7 @@ namespace narc_engine {
             NARC_ERROR_RUNTIME("No suitable device found!");
         }
 
-        const auto bestDeviceResult = queryBestPhysicalDevices(devices.value(), m_physicalDeviceCriteria);
+        const auto bestDeviceResult = queryBestPhysicalDevices(devices.value(), m_physicalDeviceCriteria, m_mainWindowSurface);
         if (!bestDeviceResult.has_value())
         {
             NARC_ERROR_RUNTIME("No suitable device found!");
@@ -68,7 +68,7 @@ namespace narc_engine {
 
     void VulkanDevice::selectQueueFamily()
     {
-        const auto queueFamilyIndicesResult = queryQueueFamilyIndices(m_physicalDevice);
+        const auto queueFamilyIndicesResult = queryQueueFamilyIndices(m_physicalDevice, m_mainWindowSurface);
         if (!queueFamilyIndicesResult.has_value())
         {
             NARC_ERROR_RUNTIME("Failed to find required queue families.");

@@ -9,6 +9,7 @@
 #include <NarcLog.h>
 #include <NarcMath.h>
 
+#define VK_USE_PLATFORM_XCB_KHR
 #include <vulkan/vulkan.h>
 
 #include <RhiCore.h>

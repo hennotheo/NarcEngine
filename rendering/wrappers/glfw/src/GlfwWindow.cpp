@@ -4,7 +4,11 @@
 
 #include "GlfwWindow.h"
 
-#include "GLFW/glfw3.h"
+#include <X11/Xlib-xcb.h>
+
+#define GLFW_EXPOSE_NATIVE_X11
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
 
 namespace narc_engine {
     GlfwWindow::GlfwWindow() = default;
@@ -21,6 +25,13 @@ namespace narc_engine {
         {
             NARC_ERROR_RUNTIME("failed to create window surface!");
         }
+
+        const auto display = glfwGetX11Display();
+        const auto window = glfwGetX11Window(m_window);
+
+        m_handles = NativeWindowHandle{};
+        m_handles.Connection = XGetXCBConnection(display);
+        m_handles.Window = static_cast<xcb_window_t>(window);
 
         m_isOpen = true;
 

@@ -4,9 +4,13 @@
 
 #include "helpers/DeviceHelpers.h"
 
+#include "helpers/QueueHelpers.h"
+#include "helpers/SwapChainHelpers.h"
+#include "surface/ISurface.h"
+
 namespace narc_engine {
 
-    bool isDeviceSuitable(const VkPhysicalDevice& device, const PhysicalDeviceCriteria& criteria) noexcept
+    bool isDeviceSuitable(const VkPhysicalDevice& device, const PhysicalDeviceCriteria& criteria, const ISurface* surface) noexcept
     {
         VkPhysicalDeviceProperties deviceProperties;
         vkGetPhysicalDeviceProperties(device, &deviceProperties);
@@ -28,28 +32,27 @@ namespace narc_engine {
             return false;
         }
 
-        if (!areDeviceExtensionSupported(device, criteria.DeviceRequiredExtensions))
+        if (!areDeviceExtensionsSupported(device, criteria.DeviceRequiredExtensions, surface))
         {
             return false;
         }
 
-        // const auto surface = m_surfacesManager->getMainSurface();
-        // if (surface == nullptr)//TODO: Handle multiple surfaces
-        // {
-        //     return false;
-        // }
-        //
-        // const auto vkSurface = narc_core::getAndCastHandle<VkSurfaceKHR>(surface);
-        //
-        // if (const SwapChainSupportInfoVulkan swapChainSupport = m_swapChainService->querySwapChainSupportInfo(device, vkSurface).transform_error(
-        //             [](const auto& err) {
-        //                 NARC_ERROR_RUNTIME("Surface not supported by current device");
-        //                 return err;
-        //             }).value();
-        //     swapChainSupport.Formats.empty() || swapChainSupport.PresentModes.empty())
-        // {
-        //     return false;
-        // }
+        if (surface == nullptr)
+        {
+            return false;
+        }
+
+        const auto vkSurface = surface->getHandle();
+
+        if (const SwapChainSupportInfoVulkan swapChainSupport = querySwapChainSupportInfo(device, vkSurface).transform_error(
+                    [](const auto& err) {
+                        NARC_ERROR_RUNTIME("Surface not supported by current device");
+                        return err;
+                    }).value();
+            swapChainSupport.Formats.empty() || swapChainSupport.PresentModes.empty())
+        {
+            return false;
+        }
 
         return true;
     }
@@ -94,8 +97,9 @@ namespace narc_engine {
         return remaining.empty();
     }
 
-    bool areDeviceExtensionSupported(const VkPhysicalDevice& device,
-                                     const std::vector<std::shared_ptr<IVulkanExtension>>& requiredExtensions) noexcept
+    bool areDeviceExtensionsSupported(const VkPhysicalDevice& device,
+                                     const std::vector<std::shared_ptr<IVulkanExtension>>& requiredExtensions,
+                                     const ISurface* surface) noexcept
     {
         uint32_t extensionCount;
         vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
@@ -103,11 +107,24 @@ namespace narc_engine {
         std::vector<VkExtensionProperties> availableExtensions(extensionCount);
         vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
+        const auto result = queryQueueFamilyIndices(device, surface);
+        if (!result.has_value())
+        {
+            return false;
+        }
+
+        const auto indices = result.value();
+        if (!queueFamilyIndexSupportPresentation(surface, device, indices.PresentationFamily.value_or(0)))
+        {
+            return false;
+        }
+
         return areAllRequiredExtensionsAvailable(requiredExtensions, availableExtensions);
     }
 
     VulkanServiceQuery<VkPhysicalDevice> queryBestPhysicalDevices(std::vector<VkPhysicalDevice> devices,
-                                                                  const PhysicalDeviceCriteria& criteria) noexcept
+                                                                  const PhysicalDeviceCriteria& criteria,
+                                                                  const ISurface* surface) noexcept
     {
         if (devices.empty())
         {
@@ -115,8 +132,8 @@ namespace narc_engine {
         }
 
         auto filtered = devices
-                        | std::views::filter([criteria](const VkPhysicalDevice& device) {
-                            return isDeviceSuitable(device, criteria);
+                        | std::views::filter([criteria, surface](const VkPhysicalDevice& device) {
+                            return isDeviceSuitable(device, criteria, surface);
                         })
                         | std::views::transform([criteria](VkPhysicalDevice device) {
                             return std::pair{

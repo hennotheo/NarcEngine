@@ -4,6 +4,9 @@
 
 #include "instance/VulkanGraphicsInstance.h"
 
+#include "surface/ISurface.h"
+#include "surface/VulkanLinuxSurface.h"
+
 namespace narc_engine {
     VulkanGraphicsInstance::VulkanGraphicsInstance()
     {
@@ -16,12 +19,24 @@ namespace narc_engine {
     void VulkanGraphicsInstance::init()
     {
         m_instance->init();
+
+        if (m_surface != nullptr)
+        {
+            m_surface->init();
+        }
+
         m_device->init();
     }
 
     void VulkanGraphicsInstance::shutdown()
     {
         m_device->shutdown();
+
+        if (m_surface != nullptr)
+        {
+            m_surface->shutdown();
+        }
+
         m_instance->shutdown();
     }
 
@@ -33,5 +48,22 @@ namespace narc_engine {
     void VulkanGraphicsInstance::setDeviceCriteria(const PhysicalDeviceCriteria& value) noexcept
     {
         m_device->setPhysicalDeviceCriteria(value);
+    }
+
+    void VulkanGraphicsInstance::attachWindow(const IWindow* window) noexcept
+    {
+        if (m_surface != nullptr) //TODO: Implement multi surfacer
+        {
+            NARC_LOG_WARNING("VulkanGraphicInstance multiple surfaces not yet implemented.");
+            return;
+        }
+
+#ifdef NARC_ENGINE_PLATFORM_LINUX
+        m_surface = std::make_unique<VulkanLinuxSurface>(m_instance.get(), window);
+#else
+#error Platform surface not implemented.
+#endif
+
+        m_device->setMainWindowSurface(m_surface.get());
     }
 }

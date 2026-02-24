@@ -4,9 +4,11 @@
 
 #include "helpers/QueueHelpers.h"
 
+#include "surface/ISurface.h"
+
 namespace narc_engine {
 
-    VulkanServiceQuery<QueueFamilyIndices> queryQueueFamilyIndices(const VkPhysicalDevice& physicalDevice) noexcept
+    VulkanServiceQuery<QueueFamilyIndices> queryQueueFamilyIndices(const VkPhysicalDevice& physicalDevice, const ISurface* surface) noexcept
     {
         const auto queueFamilies = queryQueueFamilyProperties(physicalDevice);
         if (!queueFamilies.has_value())
@@ -23,11 +25,10 @@ namespace narc_engine {
                 indices.GraphicsFamily = i;
             }
 
-            //TODO: Reimplement presentation
-            // if (queueFamilyIndexSupportPresentation(surface, physicalDevice, i))
-            // {
-            //     indices.PresentationFamily = i;
-            // }
+             if (queueFamilyIndexSupportPresentation(surface, physicalDevice, i))
+             {
+                 indices.PresentationFamily = i;
+             }
 
             if (indices.isComplete())
             {
@@ -40,23 +41,21 @@ namespace narc_engine {
         return indices;
     }
 
-    bool queueFamilyIndexSupportPresentation(const IWindow* surface, const VkPhysicalDevice& physicalDevice, uint32_t queueFamilyIndex) noexcept
+    bool queueFamilyIndexSupportPresentation(const ISurface* surface, const VkPhysicalDevice& physicalDevice, const uint32_t queueFamilyIndex) noexcept
     {
         if (surface == nullptr || physicalDevice == nullptr)
         {
             return false;
         }
 
-        //TODO: Change cause surface is not vkSu
-        const auto surfacePtr = surface->getNativeHandle();
+        const auto surfacePtr = surface->getHandle();
         if (surfacePtr == nullptr)
         {
             return false;
         }
 
         VkBool32 presentSupport = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, static_cast<VkSurfaceKHR>(surfacePtr), &presentSupport);
-        //TODO: CHANGE NULLTPR
+        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, surfacePtr, &presentSupport);
 
         return presentSupport;
     }
