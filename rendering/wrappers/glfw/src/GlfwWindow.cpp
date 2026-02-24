@@ -53,7 +53,7 @@ namespace narc_engine {
         return glfwWindowShouldClose(m_window);
     }
 
-    SurfaceExtend GlfwWindow::getSurfaceExtent() const noexcept
+    SurfaceExtent GlfwWindow::getSurfaceExtent() const noexcept
     {
         int width;
         int height;

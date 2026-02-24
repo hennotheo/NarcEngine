@@ -3,3 +3,7 @@
 //
 
 #include "RhiCore.h"
+
+namespace narc_engine {
+    IGraphicsInstance::~IGraphicsInstance() noexcept = default;
+}

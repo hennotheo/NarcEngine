@@ -5,8 +5,9 @@
 #pragma once
 
 namespace narc_engine {
-    class ISwapchain
+    class ISwapchain : public narc_core::IInitialisable
     {
-
+    public:
+        ~ISwapchain() override = default;
     };
 }

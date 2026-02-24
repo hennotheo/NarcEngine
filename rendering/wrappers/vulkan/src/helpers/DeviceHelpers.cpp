@@ -6,11 +6,11 @@
 
 #include "helpers/QueueHelpers.h"
 #include "helpers/SwapChainHelpers.h"
-#include "surface/ISurface.h"
+#include "surface/IVulkanSurface.h"
 
 namespace narc_engine {
 
-    bool isDeviceSuitable(const VkPhysicalDevice& device, const PhysicalDeviceCriteria& criteria, const ISurface* surface) noexcept
+    bool isDeviceSuitable(const VkPhysicalDevice& device, const PhysicalDeviceCriteria& criteria, const IVulkanSurface* surface) noexcept
     {
         VkPhysicalDeviceProperties deviceProperties;
         vkGetPhysicalDeviceProperties(device, &deviceProperties);
@@ -99,7 +99,7 @@ namespace narc_engine {
 
     bool areDeviceExtensionsSupported(const VkPhysicalDevice& device,
                                      const std::vector<std::shared_ptr<IVulkanExtension>>& requiredExtensions,
-                                     const ISurface* surface) noexcept
+                                     const IVulkanSurface* surface) noexcept
     {
         uint32_t extensionCount;
         vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
@@ -124,7 +124,7 @@ namespace narc_engine {
 
     VulkanServiceQuery<VkPhysicalDevice> queryBestPhysicalDevices(std::vector<VkPhysicalDevice> devices,
                                                                   const PhysicalDeviceCriteria& criteria,
-                                                                  const ISurface* surface) noexcept
+                                                                  const IVulkanSurface* surface) noexcept
     {
         if (devices.empty())
         {

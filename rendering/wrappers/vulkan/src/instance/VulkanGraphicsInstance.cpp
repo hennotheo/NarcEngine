@@ -4,39 +4,36 @@
 
 #include "instance/VulkanGraphicsInstance.h"
 
-#include "surface/ISurface.h"
+#include "instance/VulkanInstance.h"
 #include "surface/VulkanLinuxSurface.h"
+#include "swapchain/VulkanSwapChain.h"
 
 namespace narc_engine {
-    VulkanGraphicsInstance::VulkanGraphicsInstance()
+    VulkanGraphicsInstance::VulkanGraphicsInstance() :
+        m_mainWindow(nullptr)
     {
         m_instance = std::make_unique<VulkanInstance>();
         m_device = std::make_unique<VulkanDevice>(m_instance.get());
     }
 
-    VulkanGraphicsInstance::~VulkanGraphicsInstance() = default;
+    VulkanGraphicsInstance::~VulkanGraphicsInstance() noexcept = default;
 
     void VulkanGraphicsInstance::init()
     {
         m_instance->init();
 
-        if (m_surface != nullptr)
-        {
-            m_surface->init();
-        }
+        const auto surface = createSurface(m_mainWindow);
+        surface->init();
 
+        m_device->setMainWindowSurface(static_cast<IVulkanSurface*>(surface.get()));
         m_device->init();
+
+        surface->shutdown();
     }
 
     void VulkanGraphicsInstance::shutdown()
     {
         m_device->shutdown();
-
-        if (m_surface != nullptr)
-        {
-            m_surface->shutdown();
-        }
-
         m_instance->shutdown();
     }
 
@@ -50,20 +47,18 @@ namespace narc_engine {
         m_device->setPhysicalDeviceCriteria(value);
     }
 
+    std::unique_ptr<ISwapchain> VulkanGraphicsInstance::createSwapChain(const ISurface* surface) const noexcept
+    {
+        return std::make_unique<VulkanSwapChain>(m_device.get(), static_cast<const IVulkanSurface*>(surface));
+    }
+
+    std::unique_ptr<ISurface> VulkanGraphicsInstance::createSurface(const IWindow* window) const noexcept
+    {
+        return std::make_unique<VulkanLinuxSurface>(m_instance.get(), window);
+    }
+
     void VulkanGraphicsInstance::attachWindow(const IWindow* window) noexcept
     {
-        if (m_surface != nullptr) //TODO: Implement multi surfacer
-        {
-            NARC_LOG_WARNING("VulkanGraphicInstance multiple surfaces not yet implemented.");
-            return;
-        }
-
-#ifdef NARC_ENGINE_PLATFORM_LINUX
-        m_surface = std::make_unique<VulkanLinuxSurface>(m_instance.get(), window);
-#else
-#error Platform surface not implemented.
-#endif
-
-        m_device->setMainWindowSurface(m_surface.get());
+        m_mainWindow = window;
     }
 }

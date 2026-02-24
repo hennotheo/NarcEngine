@@ -5,10 +5,10 @@
 #pragma once
 
 namespace narc_engine {
-    class ISurface;
+    class IVulkanSurface;
     using device_score_t = int;
 
-    NO_DISCARD bool isDeviceSuitable(const VkPhysicalDevice& device, const PhysicalDeviceCriteria& criteria, const ISurface* surface) noexcept;
+    NO_DISCARD bool isDeviceSuitable(const VkPhysicalDevice& device, const PhysicalDeviceCriteria& criteria, const IVulkanSurface* surface) noexcept;
 
     NO_DISCARD device_score_t evaluateDeviceScore(const VkPhysicalDevice& device, const PhysicalDeviceCriteria& criteria) noexcept;
 
@@ -18,9 +18,9 @@ namespace narc_engine {
 
     NO_DISCARD bool areDeviceExtensionsSupported(const VkPhysicalDevice& device,
                                                 const std::vector<std::shared_ptr<IVulkanExtension>>& requiredExtensions,
-                                                const ISurface* surface) noexcept;
+                                                const IVulkanSurface* surface) noexcept;
 
     NO_DISCARD VulkanServiceQuery<VkPhysicalDevice> queryBestPhysicalDevices(std::vector<VkPhysicalDevice> devices,
                                                                              const PhysicalDeviceCriteria& criteria,
-                                                                             const ISurface* surface) noexcept;
+                                                                             const IVulkanSurface* surface) noexcept;
 }

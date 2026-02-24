@@ -1,9 +1,5 @@
 #ifndef NARC_TEST_BUILD
 
-#include <NarcLog.h>
-#include <Rhi.h>
-
-
 int main(int argc, char** argv)
 {
     spdlog::set_level(spdlog::level::debug);
@@ -30,10 +26,18 @@ int main(int argc, char** argv)
         graphicsInstance->attachWindow(window.get());
         graphicsInstance->init();
 
+        const auto surface = graphicsInstance->createSurface(window.get());
+        const auto swapChain = graphicsInstance->createSwapChain(surface.get());
+        surface->init();
+        swapChain->init();
+
         while (!window->shouldClose())
         {
             
         }
+
+        swapChain->shutdown();
+        surface->shutdown();
 
         graphicsInstance->shutdown();
 

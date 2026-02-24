@@ -3,12 +3,12 @@
 //
 
 #pragma once
-#include "ISurface.h"
+#include "IVulkanSurface.h"
 
 namespace narc_engine {
     class VulkanInstance;
 
-    class VulkanLinuxSurface : public ISurface
+    class VulkanLinuxSurface : public IVulkanSurface
     {
     public:
         explicit VulkanLinuxSurface(const VulkanInstance* instance, const IWindow* window);
@@ -17,10 +17,15 @@ namespace narc_engine {
         NARC_IMPL_INITIALISABLE();
 
         NARC_OVERRIDE_GETTER(VkSurfaceKHR, getHandle, m_surface);
+        NARC_OVERRIDE_GETTER(SurfaceExtent, getSurfaceExtent, m_extent)
+
+        NARC_OVERRIDE_GETTER(const IWindow*, getMainSurface, m_window)
 
     private:
-        VkSurfaceKHR m_surface = VK_NULL_HANDLE;
         const IWindow* m_window = nullptr;
-        const VulkanInstance* m_instance;
+        const VulkanInstance* m_instance = nullptr;
+
+        VkSurfaceKHR m_surface = VK_NULL_HANDLE;
+        SurfaceExtent m_extent{};
     };
 }

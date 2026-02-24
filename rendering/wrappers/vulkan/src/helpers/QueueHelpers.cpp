@@ -4,11 +4,11 @@
 
 #include "helpers/QueueHelpers.h"
 
-#include "surface/ISurface.h"
+#include "surface/IVulkanSurface.h"
 
 namespace narc_engine {
 
-    VulkanServiceQuery<QueueFamilyIndices> queryQueueFamilyIndices(const VkPhysicalDevice& physicalDevice, const ISurface* surface) noexcept
+    VulkanServiceQuery<QueueFamilyIndices> queryQueueFamilyIndices(const VkPhysicalDevice& physicalDevice, const IVulkanSurface* surface) noexcept
     {
         const auto queueFamilies = queryQueueFamilyProperties(physicalDevice);
         if (!queueFamilies.has_value())
@@ -41,7 +41,7 @@ namespace narc_engine {
         return indices;
     }
 
-    bool queueFamilyIndexSupportPresentation(const ISurface* surface, const VkPhysicalDevice& physicalDevice, const uint32_t queueFamilyIndex) noexcept
+    bool queueFamilyIndexSupportPresentation(const IVulkanSurface* surface, const VkPhysicalDevice& physicalDevice, const uint32_t queueFamilyIndex) noexcept
     {
         if (surface == nullptr || physicalDevice == nullptr)
         {

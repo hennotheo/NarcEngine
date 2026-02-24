@@ -7,7 +7,7 @@
 #include "VulkanQueue.h"
 
 namespace narc_engine {
-    class ISurface;
+    class IVulkanSurface;
     class IVulkanDeviceConfigProvider;
     class VulkanInstance;
     class IDeviceService;
@@ -32,7 +32,7 @@ namespace narc_engine {
         NARC_GETTER(VkPhysicalDeviceProperties, getPhysicalDeviceProperties, m_properties);
 
         NARC_SETTER(PhysicalDeviceCriteria&, setPhysicalDeviceCriteria, m_physicalDeviceCriteria);
-        NARC_SETTER(ISurface*, setMainWindowSurface, m_mainWindowSurface);
+        NARC_SETTER(IVulkanSurface*, setMainWindowSurface, m_mainWindowSurface);
 
         void waitIdle() const;
 
@@ -40,7 +40,7 @@ namespace narc_engine {
         const VulkanInstance* m_instance;
 
         PhysicalDeviceCriteria m_physicalDeviceCriteria{};
-        const ISurface* m_mainWindowSurface = nullptr;
+        const IVulkanSurface* m_mainWindowSurface = nullptr;
 
         // Raw Handles
         VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;

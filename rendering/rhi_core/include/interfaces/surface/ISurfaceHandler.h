@@ -7,11 +7,12 @@
 namespace narc_engine {
     class IWindow;
 
-    class ISurfacesHandler : public narc_core::IService
+    class ISurface : public narc_core::IInitialisable
     {
     public:
-        ~ISurfacesHandler() override = default;
+        ~ISurface() override = default;
 
         NARC_PURE_VIRTUAL_GETTER(const IWindow*, getMainSurface);
+        NARC_PURE_VIRTUAL_GETTER(SurfaceExtent, getSurfaceExtent);
     };
 }

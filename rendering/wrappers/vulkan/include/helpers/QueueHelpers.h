@@ -5,12 +5,12 @@
 #pragma once
 
 namespace narc_engine {
-    class ISurface;
+    class IVulkanSurface;
     constexpr uint32_t QUEUE_INDEX_NONE = std::numeric_limits<uint32_t>::max();
 
-    VulkanServiceQuery<QueueFamilyIndices> queryQueueFamilyIndices(const VkPhysicalDevice& physicalDevice, const ISurface* surface) noexcept;
+    VulkanServiceQuery<QueueFamilyIndices> queryQueueFamilyIndices(const VkPhysicalDevice& physicalDevice, const IVulkanSurface* surface) noexcept;
 
-    bool queueFamilyIndexSupportPresentation(const ISurface* surface, const VkPhysicalDevice& physicalDevice,
+    bool queueFamilyIndexSupportPresentation(const IVulkanSurface* surface, const VkPhysicalDevice& physicalDevice,
                                              uint32_t queueFamilyIndex) noexcept;
 
     VulkanServiceQuery<std::vector<QueueFamilyIndex>> getUniqueIndices(const QueueFamilyIndices& queueFamilyIndices) noexcept;

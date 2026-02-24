@@ -50,6 +50,6 @@
 #include "services/MemoryAllocationService.h"
 #include "services/SwapChainService.h"
 
-#include "surface/ISurface.h"
+#include "surface/IVulkanSurface.h"
 
 #include "instance/VulkanGraphicsInstance.h"
