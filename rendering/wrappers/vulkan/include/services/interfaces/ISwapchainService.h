@@ -11,7 +11,7 @@ namespace narc_engine {
     {
     public:
         ~ISwapchainService() override = default;
-
+#pragma warning (disable:4127)
         NARC_PURE_VIRTUAL_QUERY(VulkanServiceQuery<SwapChainSupportInfoVulkan>, querySwapChainSupportInfo,
                                 const VkPhysicalDevice& physicalDevice,
                                 const VkSurfaceKHR& surface);

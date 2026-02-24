@@ -48,7 +48,6 @@
 
 #include "services/CmdService.h"
 #include "services/MemoryAllocationService.h"
-#include "services/SwapChainService.h"
 
 #include "surface/IVulkanSurface.h"
 

@@ -5,10 +5,12 @@
 #include "swapchain/VulkanSwapChain.h"
 
 #include "device/VulkanDevice.h"
+#include "helpers/SwapChainHelpers.h"
 #include "mapping/mappingFromVk.h"
 #include "mapping/mappingToVk.h"
-#include "services/SwapChainService.h"
 #include "surface/IVulkanSurface.h"
+
+#include "cxxabi.h"
 
 namespace narc_engine {
     VulkanSwapChain::VulkanSwapChain(const VulkanDevice* device, const IVulkanSurface* surface) :
@@ -21,16 +23,10 @@ namespace narc_engine {
 
     void VulkanSwapChain::init()
     {
-        if (m_surface == nullptr)
-        {
-            NARC_ERROR_RUNTIME("Surface not set for VulkanSwapChain.");
-        }
-        
-        NARC_GUARD_RAW_PTR(m_device, "Failed to get Device");
-        const auto surface = nullptr;
-        NARC_ERROR_NOT_IMPLEMENTED("Surface is not defined");
+        NARC_GUARD_RAW_PTR(m_surface, "Surface not set for VulkanSwapChain.");
+        NARC_GUARD_RAW_PTR(m_device, "Failed to get Device.");
 
-        const auto swapchainSupport = m_swapChainService->querySwapChainSupportInfo(m_device->getPhysicalDeviceHandle(), surface)
+        const auto swapchainSupport = querySwapChainSupportInfo(m_device->getPhysicalDeviceHandle(), m_surface->getHandle())
                                                         .transform_error([](const auto& err) {
                                                             NARC_ERROR_RUNTIME("Surface not supported by current device");
                                                             return err;
@@ -48,7 +44,7 @@ namespace narc_engine {
 
         VkSwapchainCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = surface;
+        createInfo.surface = m_surface->getHandle();
         createInfo.minImageCount = imageCount;
         createInfo.imageFormat = surfaceFormat.format;
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -83,7 +79,9 @@ namespace narc_engine {
             NARC_ERROR_RUNTIME("Could not create Vulkan Swap Chain.");
         }
 
-        m_swapChainImages = m_swapChainService->querySwapChainImages(m_device->getHandle(), m_swapChain).transform_error([](const auto& err) {
+        NARC_LOG_DEBUG("Vulkan SwapChain created successfully!");
+
+        m_swapChainImages = querySwapChainImages(m_device->getHandle(), m_swapChain).transform_error([](const auto& err) {
             NARC_ERROR_RUNTIME("Surface not supported by current device");
             return err;
         }).value();
@@ -136,6 +134,8 @@ namespace narc_engine {
                 NARC_ERROR_RUNTIME("failed to create image views!");
             }
         }
+
+        NARC_LOG_DEBUG("SwapChainImage views created successfully!");
     }
 
     VkPresentModeKHR VulkanSwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) const

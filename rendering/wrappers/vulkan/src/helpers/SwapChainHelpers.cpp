@@ -30,4 +30,20 @@ namespace narc_engine {
 
         return supportInfo;
     }
+
+    VulkanServiceQuery<std::vector<VkImage>> querySwapChainImages(const VkDevice& device, const VkSwapchainKHR& swapChain)
+    {
+        uint32_t imageCount;
+        vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
+
+        if (imageCount == 0)
+        {
+            return vulkanServiceUnexpected("Failed to find swapchain images!");
+        }
+
+        std::vector<VkImage> images(imageCount);
+        vkGetSwapchainImagesKHR(device, swapChain, &imageCount, images.data());
+
+        return images;
+    }
 }
