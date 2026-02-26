@@ -4,7 +4,12 @@
 
 #include "instance/VulkanGraphicsInstance.h"
 
+#include "descriptor/VulkanDescriptorPool.h"
+#include "descriptor/VulkanDescriptorSetLayout.h"
 #include "instance/VulkanInstance.h"
+#include "pipeline/VulkanGraphicsPipeline.h"
+#include "pipeline/VulkanPipelineLayout.h"
+#include "pipeline/VulkanRenderPass.h"
 #include "surface/VulkanLinuxSurface.h"
 #include "swapchain/VulkanSwapChain.h"
 
@@ -14,6 +19,18 @@ namespace narc_engine {
     {
         m_instance = std::make_unique<VulkanInstance>();
         m_device = std::make_unique<VulkanDevice>(m_instance.get());
+        m_descriptorPool = std::make_unique<VulkanDescriptorPool>(m_device.get());
+        m_descriptorSetLayout = std::make_unique<VulkanDescriptorSetLayout>(m_device.get());
+        m_descriptorSetLayout->addBinding({
+                .BindingIndex = 0,
+                .Stage = Vertex,
+                .Type = UniformBuffer
+        });
+        m_descriptorSetLayout->addBinding({
+                .BindingIndex = 1,
+                .Stage = Fragment,
+                .Type = Sampler
+        });
     }
 
     VulkanGraphicsInstance::~VulkanGraphicsInstance() noexcept = default;
@@ -24,15 +41,17 @@ namespace narc_engine {
 
         const auto surface = createSurface(m_mainWindow);
         surface->init();
-
         m_device->setMainWindowSurface(static_cast<IVulkanSurface*>(surface.get()));
         m_device->init();
-
         surface->shutdown();
+
+        m_descriptorPool->setDescriptorCount(2); //TODO: Change hardcoded value
+        m_descriptorSetLayout->init();
     }
 
     void VulkanGraphicsInstance::shutdown()
     {
+        m_descriptorSetLayout->shutdown();
         m_device->shutdown();
         m_instance->shutdown();
     }
@@ -49,7 +68,26 @@ namespace narc_engine {
 
     std::unique_ptr<ISwapchain> VulkanGraphicsInstance::createSwapChain(const ISurface* surface) const noexcept
     {
-        return std::make_unique<VulkanSwapChain>(m_device.get(), static_cast<const IVulkanSurface*>(surface));
+        return std::make_unique<VulkanSwapChain>(m_device.get(), dynamic_cast<const IVulkanSurface*>(surface));
+    }
+
+    std::unique_ptr<IPipelineLayout> VulkanGraphicsInstance::createPipelineLayout(const ISwapchain* swapChain) const noexcept
+    {
+        auto layout = std::make_unique<VulkanPipelineLayout>(m_device.get());
+        layout->addDescriptorSetLayoutBinding(m_descriptorSetLayout.get());
+
+        return layout;
+    }
+
+    std::unique_ptr<IGraphicsPipeline> VulkanGraphicsInstance::createPipeline(const IPipelineLayout* layout,
+                                                                              const ISwapchain* swapChain) const noexcept
+    {
+        auto renderPass = std::make_unique<VulkanRenderPass>(m_device.get(), static_cast<const VulkanSwapChain*>(swapChain));
+
+        return std::make_unique<VulkanGraphicsPipeline>(m_device.get(),
+                                                        static_cast<const VulkanSwapChain*>(swapChain),
+                                                        static_cast<const VulkanPipelineLayout*>(layout),
+                                                        renderPass);
     }
 
     std::unique_ptr<ISurface> VulkanGraphicsInstance::createSurface(const IWindow* window) const noexcept

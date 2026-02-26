@@ -7,6 +7,9 @@
 #include "device/VulkanDevice.h"
 
 namespace narc_engine {
+    class VulkanDescriptorSetLayout;
+    class VulkanDescriptorPool;
+
     class VulkanGraphicsInstance : public IGraphicsInstance
     {
     public:
@@ -23,6 +26,8 @@ namespace narc_engine {
 
         NARC_QUERY_OVERRIDE(std::unique_ptr<ISurface>, createSurface, const IWindow* window);
         NARC_QUERY_OVERRIDE(std::unique_ptr<ISwapchain>, createSwapChain, const ISurface* surface);
+        NARC_QUERY_OVERRIDE(std::unique_ptr<IPipelineLayout>, createPipelineLayout, const ISwapchain* swapChain);
+        NARC_QUERY_OVERRIDE(std::unique_ptr<IGraphicsPipeline>, createPipeline, const IPipelineLayout* layout, const ISwapchain* swapChain);
 
         void attachWindow(const IWindow* window) noexcept override;
 
@@ -31,5 +36,7 @@ namespace narc_engine {
 
         std::unique_ptr<VulkanInstance> m_instance;
         std::unique_ptr<VulkanDevice> m_device;
+        std::unique_ptr<VulkanDescriptorPool> m_descriptorPool;
+        std::unique_ptr<VulkanDescriptorSetLayout> m_descriptorSetLayout;//TODO: MOVE FROM HERE
     };
 }

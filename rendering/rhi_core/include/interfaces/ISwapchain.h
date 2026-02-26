@@ -9,5 +9,7 @@ namespace narc_engine {
     {
     public:
         ~ISwapchain() override = default;
+
+        NARC_PURE_VIRTUAL_GETTER(SurfaceExtent, getSwapChainExtent);
     };
 }

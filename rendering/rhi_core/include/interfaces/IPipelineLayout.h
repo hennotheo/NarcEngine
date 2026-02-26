@@ -5,8 +5,7 @@
 #pragma once
 
 namespace narc_engine {
-    class IPipelineLayout
+    class IPipelineLayout : public narc_core::IInitialisable
     {
-
     };
 }

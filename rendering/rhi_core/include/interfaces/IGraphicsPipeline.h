@@ -5,7 +5,7 @@
 #pragma once
 
 namespace narc_engine {
-    class IGraphicsPipeline
+    class IGraphicsPipeline : public narc_core::IInitialisable
     {
 
     };

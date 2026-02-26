@@ -12,17 +12,17 @@ namespace narc_engine {
     class VulkanDescriptorPool : narc_core::IInitialisable
     {
     public:
-        explicit VulkanDescriptorPool(NARC_DI_IMPORT_COMPONENT(VulkanDevice));
+        explicit VulkanDescriptorPool(const VulkanDevice* device);
         ~VulkanDescriptorPool() override;
         
         NARC_IMPL_INITIALISABLE();
         
-        NARC_SETTER(uint32_t, DescriptorCount, m_descriptorCount);
+        NARC_SETTER(uint32_t, setDescriptorCount, m_descriptorCount);
         
         NO_DISCARD std::vector<VulkanDescriptorSet> allocateDescriptorSet(std::vector<VulkanDescriptorSetLayout> layouts);
         
     private:
-        narc_core::injected_component<VulkanDevice> m_device;
+        const VulkanDevice* m_device;
         
         VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
         

@@ -28,14 +28,21 @@ int main(int argc, char** argv)
 
         const auto surface = graphicsInstance->createSurface(window.get());
         const auto swapChain = graphicsInstance->createSwapChain(surface.get());
+        const auto pipelineLayout = graphicsInstance->createPipelineLayout(swapChain.get());
+        const auto pipeline = graphicsInstance->createPipeline(pipelineLayout.get(), swapChain.get());
+
         surface->init();
         swapChain->init();
+        pipelineLayout->init();
+        pipeline->init();
 
         while (!window->shouldClose())
         {
-            
+
         }
 
+        pipeline->shutdown();
+        pipelineLayout->shutdown();
         swapChain->shutdown();
         surface->shutdown();
 

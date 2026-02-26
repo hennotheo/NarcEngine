@@ -8,7 +8,7 @@ namespace narc_engine {
     class IVulkanSurface;
     class ISwapchainService;
 
-    class VulkanSwapChain final : public ISwapchain, public narc_core::IInitialisable
+    class VulkanSwapChain final : public ISwapchain
     {
     public:
         explicit VulkanSwapChain(const VulkanDevice* device, const IVulkanSurface* surface);
@@ -16,7 +16,7 @@ namespace narc_engine {
 
         NARC_IMPL_INITIALISABLE();
 
-        NARC_GETTER(SurfaceExtent, getSwapChainExtent, m_swapChainExtent);
+        NARC_OVERRIDE_GETTER(SurfaceExtent, getSwapChainExtent, m_swapChainExtent);
         NARC_GETTER(VkFormat, getSwapChainImageFormat, m_swapChainImageFormat);
 
         NARC_GETTER(std::span<const VkImageView>, getSwapChainImageViews, m_swapChainImageViews);

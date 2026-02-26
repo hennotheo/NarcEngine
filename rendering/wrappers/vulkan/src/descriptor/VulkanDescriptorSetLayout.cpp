@@ -7,8 +7,8 @@
 #include "device/VulkanDevice.h"
 
 namespace narc_engine {
-    VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(NARC_DI_IMPORT_COMPONENT(VulkanDevice)) :
-        NARC_DI_IMPL_COMPONENT(VulkanDevice, m_device)
+    VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(const VulkanDevice* device) :
+        m_device(device)
     {
         //Empty constructor.
     }
@@ -41,6 +41,7 @@ namespace narc_engine {
     void VulkanDescriptorSetLayout::shutdown()
     {
         vkDestroyDescriptorSetLayout(m_device->getHandle(), m_descriptorSetLayout, nullptr);
+        m_descriptorSetLayout = nullptr;
     }
 
     void VulkanDescriptorSetLayout::addBinding(DescriptorSetBindingInfo binding)

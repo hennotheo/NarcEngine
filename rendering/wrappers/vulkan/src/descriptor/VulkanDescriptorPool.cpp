@@ -9,8 +9,8 @@
 #include "descriptor/VulkanDescriptorSetLayout.h"
 
 namespace narc_engine {
-    VulkanDescriptorPool::VulkanDescriptorPool(NARC_DI_IMPORT_COMPONENT(VulkanDevice)) :
-        NARC_DI_IMPL_COMPONENT(VulkanDevice, m_device)
+    VulkanDescriptorPool::VulkanDescriptorPool(const VulkanDevice* device) :
+        m_device(device)
     {
         //Empty Constructor
     }

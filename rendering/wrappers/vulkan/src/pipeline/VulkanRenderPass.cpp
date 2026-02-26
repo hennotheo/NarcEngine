@@ -10,9 +10,9 @@
 #include "swapchain/VulkanSwapChain.h"
 
 namespace narc_engine {
-    VulkanRenderPass::VulkanRenderPass(const std::unique_ptr<VulkanSwapChain>& swapChain, const std::weak_ptr<VulkanDevice>& device) :
+    VulkanRenderPass::VulkanRenderPass(const VulkanDevice* device, const VulkanSwapChain* swapChain) :
         m_device(device),
-        m_swapChain(swapChain.get())
+        m_swapChain(swapChain)
     {
 
     }
@@ -57,8 +57,8 @@ namespace narc_engine {
         renderPassInfo.dependencyCount = 1;
         renderPassInfo.pDependencies = &dependency;
 
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Vulkan Device.");
-        if (vkCreateRenderPass(device->getHandle(), &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS)
+        NARC_GUARD_RAW_PTR(m_device, "Failed to get Vulkan Device.");
+        if (vkCreateRenderPass(m_device->getHandle(), &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS)
         {
             NARC_ERROR_RUNTIME("Failed to create render pass!");
         }
@@ -66,9 +66,9 @@ namespace narc_engine {
 
     void VulkanRenderPass::shutdown()
     {
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Vulkan Device.");
+        NARC_GUARD_RAW_PTR(m_device, "Failed to get Vulkan Device.");
 
-        vkDestroyRenderPass(device->getHandle(), m_renderPass, nullptr);
+        vkDestroyRenderPass(m_device->getHandle(), m_renderPass, nullptr);
         m_renderPass = VK_NULL_HANDLE;
     }
 
