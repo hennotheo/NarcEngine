@@ -12,6 +12,8 @@
 #include "pipeline/VulkanRenderPass.h"
 #include "surface/VulkanLinuxSurface.h"
 #include "swapchain/VulkanSwapChain.h"
+#include "sync/VulkanFence.h"
+#include "sync/VulkanSemaphore.h"
 
 namespace narc_engine {
     VulkanGraphicsInstance::VulkanGraphicsInstance() :
@@ -88,6 +90,16 @@ namespace narc_engine {
                                                         static_cast<const VulkanSwapChain*>(swapChain),
                                                         static_cast<const VulkanPipelineLayout*>(layout),
                                                         renderPass);
+    }
+
+    std::unique_ptr<ISemaphore> VulkanGraphicsInstance::createSemaphore() const noexcept
+    {
+        return std::make_unique<VulkanSemaphore>(m_device.get());
+    }
+
+    std::unique_ptr<IFence> VulkanGraphicsInstance::createFence() const noexcept
+    {
+        return std::make_unique<VulkanFence>(m_device.get());
     }
 
     std::unique_ptr<ISurface> VulkanGraphicsInstance::createSurface(const IWindow* window) const noexcept

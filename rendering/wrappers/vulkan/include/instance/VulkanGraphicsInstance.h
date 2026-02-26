@@ -28,6 +28,8 @@ namespace narc_engine {
         NARC_QUERY_OVERRIDE(std::unique_ptr<ISwapchain>, createSwapChain, const ISurface* surface);
         NARC_QUERY_OVERRIDE(std::unique_ptr<IPipelineLayout>, createPipelineLayout, const ISwapchain* swapChain);
         NARC_QUERY_OVERRIDE(std::unique_ptr<IGraphicsPipeline>, createPipeline, const IPipelineLayout* layout, const ISwapchain* swapChain);
+        NARC_QUERY_OVERRIDE(std::unique_ptr<ISemaphore>, createSemaphore);
+        NARC_QUERY_OVERRIDE(std::unique_ptr<IFence>, createFence);
 
         void attachWindow(const IWindow* window) noexcept override;
 

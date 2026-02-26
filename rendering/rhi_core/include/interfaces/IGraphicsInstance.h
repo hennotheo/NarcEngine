@@ -5,6 +5,8 @@
 #pragma once
 
 namespace narc_engine {
+    class IFence;
+    class ISemaphore;
     class IPipelineLayout;
     class ISwapchain;
     class IQueue;
@@ -25,6 +27,8 @@ namespace narc_engine {
         NARC_PURE_VIRTUAL_QUERY(std::unique_ptr<ISwapchain>, createSwapChain, const ISurface* surface);
         NARC_PURE_VIRTUAL_QUERY(std::unique_ptr<IPipelineLayout>, createPipelineLayout, const ISwapchain* swapChain);
         NARC_PURE_VIRTUAL_QUERY(std::unique_ptr<IGraphicsPipeline>, createPipeline, const IPipelineLayout* surface, const ISwapchain* swapChain);
+        NARC_PURE_VIRTUAL_QUERY(std::unique_ptr<ISemaphore>, createSemaphore);
+        NARC_PURE_VIRTUAL_QUERY(std::unique_ptr<IFence>, createFence);
 
         virtual void attachWindow(const IWindow* window) noexcept = 0;
     };

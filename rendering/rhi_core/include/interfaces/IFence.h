@@ -5,7 +5,7 @@
 #pragma once
 
 namespace narc_engine {
-    class IFence
+    class IFence : public narc_core::IInitialisable
     {
 
     };

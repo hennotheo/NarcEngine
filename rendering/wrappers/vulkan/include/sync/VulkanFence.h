@@ -7,10 +7,10 @@
 namespace narc_engine {
     class VulkanDevice;
 
-    class VulkanFence final : public narc_core::IInitialisable
+    class VulkanFence final : public IFence
     {
     public:
-        explicit VulkanFence(std::weak_ptr<VulkanDevice> device);
+        explicit VulkanFence(const VulkanDevice* device);
         ~VulkanFence() override;
 
         NARC_IMPL_INITIALISABLE();
@@ -21,7 +21,7 @@ namespace narc_engine {
         NARC_GETTER(VkFence, getHandle, m_fence);
         
     private:
-        std::weak_ptr<VulkanDevice> m_device;
+        const VulkanDevice* m_device;
         
         VkFence m_fence = VK_NULL_HANDLE;
     };

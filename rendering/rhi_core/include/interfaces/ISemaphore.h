@@ -5,7 +5,7 @@
 #pragma once
 
 namespace narc_engine {
-    class ISemaphore
+    class ISemaphore : public narc_core::IInitialisable
     {
 
     };

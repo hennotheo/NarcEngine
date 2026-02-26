@@ -7,8 +7,8 @@
 #include "device/VulkanDevice.h"
 
 namespace narc_engine {
-    VulkanSemaphore::VulkanSemaphore(std::weak_ptr<VulkanDevice> device) :
-        m_device(std::move(device))
+    VulkanSemaphore::VulkanSemaphore(const VulkanDevice* device) :
+        m_device(device)
     {
     }
 
@@ -16,12 +16,12 @@ namespace narc_engine {
 
     void VulkanSemaphore::init()
     {
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Vulkan Device.");
+        NARC_GUARD_RAW_PTR(m_device, "Failed to get Vulkan Device.");
 
         VkSemaphoreCreateInfo semaphoreInfo{};
         semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
         
-        if (vkCreateSemaphore(device->getHandle(), &semaphoreInfo, nullptr, &m_semaphore) != VK_SUCCESS)
+        if (vkCreateSemaphore(m_device->getHandle(), &semaphoreInfo, nullptr, &m_semaphore) != VK_SUCCESS)
         {
             NARC_ERROR_RUNTIME("Failed to create semaphore!");
         }
@@ -29,8 +29,8 @@ namespace narc_engine {
 
     void VulkanSemaphore::shutdown()
     {
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Vulkan Device.");
+        NARC_GUARD_RAW_PTR(m_device, "Failed to get Vulkan Device.");
         
-        vkDestroySemaphore(device->getHandle(), m_semaphore, nullptr);
+        vkDestroySemaphore(m_device->getHandle(), m_semaphore, nullptr);
     }
 } // narc_engine
