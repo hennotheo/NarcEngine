@@ -15,6 +15,7 @@
 #include "ApplicationInfo.h"
 
 #include "models/NativeWindowHandle.h"
+#include "models/BufferAllocationInfo.h"
 
 #include "device/IVulkanExtension.h"
 #include "device/PhysicalDeviceCriteria.h"
@@ -26,9 +27,11 @@
 #include "interfaces/surface/IWindow.h"
 #include "interfaces/IGraphicsInstance.h"
 #include "interfaces/ICommandBuffer.h"
+#include "interfaces/ICommandBufferPool.h"
 #include "interfaces/IFence.h"
 #include "interfaces/IGraphicsPipeline.h"
 #include "interfaces/IImage.h"
+#include "interfaces/IBuffer.h"
 #include "interfaces/IPipelineLayout.h"
 #include "interfaces/IQueue.h"
 #include "interfaces/ISampler.h"

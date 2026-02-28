@@ -5,10 +5,10 @@
 #pragma once
 
 namespace narc_engine {
-    class IVulkanBuffer
+    class IVulkanBuffer : public IBuffer
     {
     public:
-        virtual ~IVulkanBuffer() = default;
+        ~IVulkanBuffer() override = default;
 
         NARC_PURE_VIRTUAL_GETTER(const VkBuffer&, getHandle);
     };

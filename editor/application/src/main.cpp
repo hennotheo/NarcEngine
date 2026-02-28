@@ -32,6 +32,7 @@ int main(int argc, char** argv)
         const auto swapChain = graphicsInstance->createSwapChain(surface.get());
         const auto pipelineLayout = graphicsInstance->createPipelineLayout(swapChain.get());
         const auto pipeline = graphicsInstance->createPipeline(pipelineLayout.get(), swapChain.get());
+        const auto cmdPool = graphicsInstance->createCommandBufferPool();
 
         std::vector<std::unique_ptr<narc_engine::ISemaphore>> imageAvailableSemaphores;
         std::vector<std::unique_ptr<narc_engine::ISemaphore>> renderFinishedSemaphores;
@@ -54,11 +55,15 @@ int main(int argc, char** argv)
         pipelineLayout->init();
         pipeline->init();
 
+        cmdPool->init();
+
+        std::vector<std::unique_ptr<narc_engine::ICommandBuffer>> commandBuffers;
         for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
         {
             imageAvailableSemaphores[i]->init();
             renderFinishedSemaphores[i]->init();
             inFlightFences[i]->init();
+            commandBuffers.push_back(cmdPool->allocateCommandBuffer().value());
         }
 
         while (!window->shouldClose())
@@ -72,6 +77,8 @@ int main(int argc, char** argv)
             renderFinishedSemaphores[i]->shutdown();
             inFlightFences[i]->shutdown();
         }
+
+        cmdPool->shutdown();
 
         pipeline->shutdown();
         pipelineLayout->shutdown();

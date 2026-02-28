@@ -11,6 +11,7 @@ namespace narc_engine {
     class ISwapchain;
     class IQueue;
     class IGraphicsPipeline;
+    class ICommandBufferPool;
 
     class IGraphicsInstance : public narc_core::IInitialisable
     {
@@ -29,6 +30,7 @@ namespace narc_engine {
         NARC_PURE_VIRTUAL_QUERY(std::unique_ptr<IGraphicsPipeline>, createPipeline, const IPipelineLayout* surface, const ISwapchain* swapChain);
         NARC_PURE_VIRTUAL_QUERY(std::unique_ptr<ISemaphore>, createSemaphore);
         NARC_PURE_VIRTUAL_QUERY(std::unique_ptr<IFence>, createFence);
+        NARC_PURE_VIRTUAL_QUERY(std::unique_ptr<ICommandBufferPool>, createCommandBufferPool);
 
         virtual void attachWindow(const IWindow* window) noexcept = 0;
     };

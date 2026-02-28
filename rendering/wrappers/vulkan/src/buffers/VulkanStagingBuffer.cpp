@@ -51,11 +51,10 @@ namespace narc_engine {
 
     void VulkanStagingBuffer::copyToBuffer(const IVulkanBuffer& buffer)
     {
-        VkBufferCopy copy{};
-        copy.size = m_allocationInfo.size;
-        
-        m_cmdService->doCmdActionAndSubmit([this, copy, &buffer](auto& cmd) {            
-            cmd.cmdCopyBuffer(copy, *this, buffer);
-        });
+        //VkBufferCopy copy{};
+        //copy.size = m_allocationInfo.size;
+        //m_cmdService->doCmdActionAndSubmit([this, copy, &buffer](auto* cmd) {
+        //    cmd->copyBuffer(copy, *this, buffer);
+        //});
     }
 }

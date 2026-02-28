@@ -51,31 +51,31 @@ namespace narc_engine {
         staging.allocate(m_allocationInfo.size);
         staging.setData(imageStream->getData());
 
-        m_cmdService->doCmdActionAndSubmit([this, staging, &imageStream](auto& cmd) {
-            transitionImageLayout(cmd,
-                      VK_IMAGE_LAYOUT_UNDEFINED,
-                      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                      VK_IMAGE_ASPECT_COLOR_BIT,
-                      1);
-
-            VkBufferImageCopy region{};
-            region.bufferOffset = 0;
-            region.bufferRowLength = 0; // tightly packed
-            region.bufferImageHeight = 0; // tightly packed
-            region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            region.imageSubresource.mipLevel = 0;
-            region.imageSubresource.baseArrayLayer = 0;
-            region.imageSubresource.layerCount = 1;
-            region.imageOffset = {0, 0, 0};
-            region.imageExtent = {static_cast<uint32_t>(imageStream->getWidth()), static_cast<uint32_t>(imageStream->getHeight()), 1};
-
-            cmd.cmdCopyBufferToImage(staging, m_image, region);
-
-            transitionImageLayout(cmd,
-                      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                      VK_IMAGE_ASPECT_COLOR_BIT,
-                      1);
+        m_cmdService->doCmdActionAndSubmit([this, staging, &imageStream](const auto* cmd) {
+            // transitionImageLayout(cmd,
+            //                       VK_IMAGE_LAYOUT_UNDEFINED,
+            //                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            //                       VK_IMAGE_ASPECT_COLOR_BIT,
+            //                       1);
+            //
+            // VkBufferImageCopy region{};
+            // region.bufferOffset = 0;
+            // region.bufferRowLength = 0; // tightly packed
+            // region.bufferImageHeight = 0; // tightly packed
+            // region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            // region.imageSubresource.mipLevel = 0;
+            // region.imageSubresource.baseArrayLayer = 0;
+            // region.imageSubresource.layerCount = 1;
+            // region.imageOffset = {0, 0, 0};
+            // region.imageExtent = {static_cast<uint32_t>(imageStream->getWidth()), static_cast<uint32_t>(imageStream->getHeight()), 1};
+            //
+            // cmd.cmdCopyBufferToImage(staging, m_image, region);
+            //
+            // transitionImageLayout(cmd,
+            //                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            //                       VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            //                       VK_IMAGE_ASPECT_COLOR_BIT,
+            //                       1);
         });
 
         staging.deallocate();

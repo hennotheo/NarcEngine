@@ -4,6 +4,7 @@
 
 #include "instance/VulkanGraphicsInstance.h"
 
+#include "command/VulkanCommandPool.h"
 #include "descriptor/VulkanDescriptorPool.h"
 #include "descriptor/VulkanDescriptorSetLayout.h"
 #include "instance/VulkanInstance.h"
@@ -100,6 +101,11 @@ namespace narc_engine {
     std::unique_ptr<IFence> VulkanGraphicsInstance::createFence() const noexcept
     {
         return std::make_unique<VulkanFence>(m_device.get());
+    }
+
+    std::unique_ptr<ICommandBufferPool> VulkanGraphicsInstance::createCommandBufferPool() const noexcept
+    {
+        return std::make_unique<VulkanCommandPool>(m_device.get());
     }
 
     std::unique_ptr<ISurface> VulkanGraphicsInstance::createSurface(const IWindow* window) const noexcept

@@ -8,4 +8,14 @@ namespace narc_engine {
     using SurfaceExtent = narc_math::Extent;
     using VulkanMemory = void;
     using SurfacePtr = void*;
+
+    using RhiQueryError = std::string;
+
+    constexpr std::unexpected<RhiQueryError> RhiUnexpected(const std::string_view& msg)
+    {
+        return std::unexpected(RhiQueryError{msg});
+    }
+
+    template<typename T>
+    using RhiQuery = std::expected<T, RhiQueryError>;
 }

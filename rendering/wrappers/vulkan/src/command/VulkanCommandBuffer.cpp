@@ -23,27 +23,6 @@ namespace narc_engine {
 
     VulkanCommandBuffer::~VulkanCommandBuffer() noexcept = default;
 
-    void VulkanCommandBuffer::begin()
-    {
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = Flags;
-        beginInfo.pInheritanceInfo = nullptr;
-
-        if (vkBeginCommandBuffer(m_commandBuffer, &beginInfo) != VK_SUCCESS)
-        {
-            NARC_ERROR_RUNTIME("Failed to begin recording command buffer!");
-        }
-    }
-
-    void VulkanCommandBuffer::end()
-    {
-        if (vkEndCommandBuffer(m_commandBuffer) != VK_SUCCESS)
-        {
-            NARC_ERROR_RUNTIME("Failed to record command buffer!");
-        }
-    }
-
     IRenderPassCmdBuffer* VulkanCommandBuffer::beginRenderPass(const VulkanFramebuffer& framebuffer, const VulkanRenderPass& renderPass)
     {
         const auto infos = renderPass.getRenderPassBeginInfo(framebuffer);
@@ -149,5 +128,31 @@ namespace narc_engine {
     void VulkanCommandBuffer::reset()
     {
         vkResetCommandBuffer(m_commandBuffer, 0);
+    }
+
+    narc_core::result VulkanCommandBuffer::begin() const noexcept
+    {
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = Flags;
+        beginInfo.pInheritanceInfo = nullptr;
+
+        if (vkBeginCommandBuffer(m_commandBuffer, &beginInfo) != VK_SUCCESS)
+        {
+            NARC_ERROR_RUNTIME("Failed to begin recording command buffer!");
+        }
+    }
+
+    narc_core::result VulkanCommandBuffer::end() const noexcept
+    {
+        if (vkEndCommandBuffer(m_commandBuffer) != VK_SUCCESS)
+        {
+            NARC_ERROR_RUNTIME("Failed to record command buffer!");
+        }
+    }
+
+    narc_core::result VulkanCommandBuffer::copyBuffer(const ICommandBuffer* source, const ICommandBuffer* destination) const noexcept
+    {
+
     }
 } // narc_engine

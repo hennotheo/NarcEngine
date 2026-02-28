@@ -34,17 +34,14 @@ namespace narc_engine {
         virtual void endRenderPass() = 0;
     };
 
-    class VulkanCommandBuffer final : public IRenderPassCmdBuffer
+    class VulkanCommandBuffer final : public ICommandBuffer, public IRenderPassCmdBuffer
     {
     public:
         VkCommandBufferUsageFlags Flags = 0;
         
     public:
         explicit VulkanCommandBuffer(VkCommandBuffer m_commandBuffer);
-        ~VulkanCommandBuffer() noexcept;
-
-        void begin();
-        void end();
+        ~VulkanCommandBuffer() noexcept override;
 
         IRenderPassCmdBuffer* beginRenderPass(const VulkanFramebuffer& framebuffer, const VulkanRenderPass& renderPass);
         void endRenderPass() override;
@@ -63,7 +60,11 @@ namespace narc_engine {
 
         void reset();
 
-        NARC_GETTER(VkCommandBuffer, getHandle, m_commandBuffer);
+        NARC_GETTER(VkCommandBuffer, getHandle, m_commandBuffer)
+
+        narc_core::result begin() const noexcept override;
+        narc_core::result end() const noexcept override;
+        narc_core::result copyBuffer(const ICommandBuffer* source, const ICommandBuffer* destination) const noexcept override;
 
     private:
         std::shared_ptr<VulkanCommandPool> m_commandPool;
