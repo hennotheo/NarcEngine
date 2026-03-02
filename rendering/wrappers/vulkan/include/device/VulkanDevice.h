@@ -5,6 +5,7 @@
 #pragma once
 
 #include "VulkanQueue.h"
+#include "services/VulkanMemoryAllocator.h"
 
 namespace narc_engine {
     class IVulkanSurface;
@@ -34,6 +35,10 @@ namespace narc_engine {
         NARC_SETTER(PhysicalDeviceCriteria&, setPhysicalDeviceCriteria, m_physicalDeviceCriteria);
         NARC_SETTER(IVulkanSurface*, setMainWindowSurface, m_mainWindowSurface);
 
+        NARC_QUERY(RhiQuery<std::unique_ptr<IBuffer>>, createBuffer, BufferAllocationInfo infos);
+
+        narc_core::result waitForFences(std::span<const IFence*> fences) const;
+        narc_core::result resetFences(std::span<const IFence*> fences) const;
         void waitIdle() const;
 
     private:
@@ -48,6 +53,7 @@ namespace narc_engine {
 
         VulkanQueue m_graphicsQueue;
         VulkanQueue m_presentQueue;
+        VulkanMemoryAllocator m_memoryAllocator;
 
         VkPhysicalDeviceProperties m_properties{};
 

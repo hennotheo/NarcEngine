@@ -25,6 +25,8 @@ namespace narc_engine {
 
         NARC_GETTER(VkQueue, getHandle, m_queue);
 
+        NARC_CMD_OVERRIDE(submit, QueueSubmitInfos infos);
+
     private:
         const VulkanDevice* m_device = nullptr;
 

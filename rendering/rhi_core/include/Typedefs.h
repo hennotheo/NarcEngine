@@ -6,7 +6,8 @@
 
 namespace narc_engine {
     using SurfaceExtent = narc_math::Extent;
-    using VulkanMemory = void;
+    using Memory = void;
+    using MemorySize = uint64_t;
     using SurfacePtr = void*;
 
     using RhiQueryError = std::string;

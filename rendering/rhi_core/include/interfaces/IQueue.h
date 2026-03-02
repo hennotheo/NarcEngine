@@ -7,6 +7,9 @@
 namespace narc_engine {
     class IQueue
     {
+    public:
+        virtual ~IQueue() = default;
 
+        NARC_PURE_VIRTUAL_CMD(submit, QueueSubmitInfos infos);
     };
 }

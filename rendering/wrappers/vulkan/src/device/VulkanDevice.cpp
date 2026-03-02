@@ -5,13 +5,16 @@
 #include "device/VulkanDevice.h"
 
 #include "instance/VulkanInstance.h"
+#include "sync/VulkanFence.h"
 
 #include "helpers/DeviceHelpers.h"
 #include "helpers/QueueHelpers.h"
+#include "mapping/mappingToVk.h"
 
 namespace narc_engine {
     VulkanDevice::VulkanDevice(const VulkanInstance* instance) :
-        m_instance(instance)
+        m_instance(instance),
+        m_memoryAllocator(instance, this)
     {
 
     }
@@ -29,11 +32,15 @@ namespace narc_engine {
         m_graphicsQueue.init();
         m_presentQueue.init();
 
+        m_memoryAllocator.init();
+
         NARC_LOG_DEBUG("Vulkan Device created successfully!");
     }
 
     void VulkanDevice::shutdown()
     {
+        m_memoryAllocator.shutdown();
+
         m_presentQueue.shutdown();
         m_graphicsQueue.shutdown();
 
@@ -41,6 +48,42 @@ namespace narc_engine {
 
         m_device = VK_NULL_HANDLE;
         m_physicalDevice = VK_NULL_HANDLE;
+    }
+
+    RhiQuery<std::unique_ptr<IBuffer>> VulkanDevice::createBuffer(const BufferAllocationInfo infos) const noexcept
+    {
+        VkBufferCreateInfo createInfo{};
+        createInfo.size = static_cast<VkDeviceSize>(infos.Size);
+
+        // VulkanBuffer buffer;
+        // m_memoryAllocator.allocBuffer(createInfo, &buffer.m_buffer, &buffer.m_allocation);
+        return nullptr;
+    }
+
+    narc_core::result VulkanDevice::waitForFences(const std::span<const IFence*> fences) const
+    {
+        const auto vkFences = mapping::toVkFenceArray(fences);
+
+        if (vkWaitForFences(m_device, vkFences.size(), vkFences.data(), VK_TRUE, UINT64_MAX) != VK_SUCCESS)
+        {
+            NARC_LOG_ERROR("Waiting for fences has failed.");
+            return false;
+        }
+
+        return true;
+    }
+
+    narc_core::result VulkanDevice::resetFences(const std::span<const IFence*> fences) const
+    {
+        const auto vkFences = mapping::toVkFenceArray(fences);
+
+        if (vkResetFences(m_device, vkFences.size(), vkFences.data()) != VK_SUCCESS)
+        {
+            NARC_LOG_ERROR("Resetting fences has failed.");
+            return false;
+        }
+
+        return true;
     }
 
     void VulkanDevice::waitIdle() const

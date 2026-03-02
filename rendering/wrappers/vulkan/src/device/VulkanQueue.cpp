@@ -7,6 +7,7 @@
 #include "device/VulkanDevice.h"
 #include "sync/VulkanFence.h"
 #include "helpers/QueueHelpers.h"
+#include "mapping/mappingToVk.h"
 
 namespace narc_engine {
     VulkanQueue::VulkanQueue() :
@@ -36,13 +37,21 @@ namespace narc_engine {
     VkResult VulkanQueue::submit(const uint32_t submitCount, const VkSubmitInfo& infos, const VulkanFence* fence) const
     {
         VkFence pfence = fence == nullptr ? VK_NULL_HANDLE : fence->getHandle();
-        
+
         return vkQueueSubmit(m_queue, submitCount, &infos, pfence);
     }
 
     void VulkanQueue::waitIdle() const
     {
         vkQueueWaitIdle(m_queue);
+    }
+
+    narc_core::result VulkanQueue::submit(const QueueSubmitInfos infos) const noexcept
+    {
+        const auto submitInfos = mapping::mapFromQueueSubmitInfos(infos);
+        const VkFence fence = infos.Fence == nullptr ? VK_NULL_HANDLE : dynamic_cast<const VulkanFence*>(infos.Fence)->getHandle();
+
+        return vkQueueSubmit(m_queue, 1, &submitInfos, fence);
     }
 
     bool VulkanQueue::isIndexDefined(const uint32_t& index)

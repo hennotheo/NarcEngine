@@ -34,7 +34,7 @@ namespace narc_engine {
         m_allocator->deallocBuffer(m_buffer, m_allocation);
     }
 
-    void VulkanUniformBuffer::setData(const VkDeviceSize& size, const VulkanMemory* data)
+    void VulkanUniformBuffer::setData(const VkDeviceSize& size, const Memory* data)
     {
         m_allocator->mapMemory(data, size, m_allocation);
     }

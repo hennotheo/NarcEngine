@@ -7,6 +7,7 @@
 #include "device/VulkanDevice.h"
 
 namespace narc_engine {
+    class VulkanMemoryAllocator;
     class VulkanDescriptorSetLayout;
     class VulkanDescriptorPool;
 
@@ -31,6 +32,10 @@ namespace narc_engine {
         NARC_QUERY_OVERRIDE(std::unique_ptr<ISemaphore>, createSemaphore);
         NARC_QUERY_OVERRIDE(std::unique_ptr<IFence>, createFence);
         NARC_QUERY_OVERRIDE(std::unique_ptr<ICommandBufferPool>, createCommandBufferPool);
+        NARC_QUERY_OVERRIDE(std::unique_ptr<IBuffer>, createBuffer, const BufferAllocationInfo& allocationInfo);
+
+        NARC_CMD_OVERRIDE(waitForFences, std::span<const IFence*> fences);
+        NARC_CMD_OVERRIDE(resetFences, std::span<const IFence*> fences);
 
         void attachWindow(const IWindow* window) noexcept override;
 

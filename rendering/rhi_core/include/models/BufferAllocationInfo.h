@@ -7,9 +7,10 @@
 namespace narc_engine {
     struct BufferAllocationInfo
     {
-    public:
-        BufferAllocationInfo();
+        BufferAllocationInfo() = default;
 
-        bool IsStaging { false };
+        bool IsStaging{false};
+        bool IsIndexBuffer{false};
+        MemorySize Size{};
     };
 }

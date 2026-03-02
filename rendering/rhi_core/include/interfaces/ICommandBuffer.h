@@ -5,6 +5,8 @@
 #pragma once
 
 namespace narc_engine {
+    class IBuffer;
+
     class ICommandBuffer
     {
     public:
@@ -12,6 +14,6 @@ namespace narc_engine {
 
         NARC_PURE_VIRTUAL_CMD(begin);
         NARC_PURE_VIRTUAL_CMD(end);
-        NARC_PURE_VIRTUAL_CMD(copyBuffer, const ICommandBuffer* source, const ICommandBuffer* destination);
+        NARC_PURE_VIRTUAL_CMD(copyBuffer, const IBuffer* source, const IBuffer* destination);
     };
 }

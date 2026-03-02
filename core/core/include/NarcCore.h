@@ -99,6 +99,38 @@ namespace narc_core {
 
         NO_DISCARD virtual std::unique_ptr<T> create() const noexcept = 0;
     };
+
+    template<template<typename...> class Container>
+    struct to
+    {
+        // Tag
+    };
+
+    // | operator
+    template<std::ranges::input_range R, template<typename...> class Container>
+    auto operator|(R&& range, to<Container> const&)
+    {
+        using T = std::ranges::range_value_t<R>;
+        return Container<T>(std::begin(range), std::end(range));
+    }
+
+    template<typename T>
+    struct transform_to_concrete_class
+    {
+    };
+
+    // | operator
+    template<std::ranges::input_range R, typename T>
+    auto operator|(R&& range, transform_to_concrete_class<T> const&)
+    {
+        return std::forward<R>(range)
+               | std::views::transform([](auto* cmdBuffer) noexcept {
+                   return dynamic_cast<T*>(cmdBuffer);
+               })
+               | std::views::filter([](auto* ptr) noexcept {
+                   return ptr != nullptr;
+               });
+    }
 }
 
 #define QUERY(result, error) DEPRECATED NO_DISCARD std::expected<result, error>

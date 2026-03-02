@@ -64,7 +64,7 @@ namespace narc_engine {
 
         narc_core::result begin() const noexcept override;
         narc_core::result end() const noexcept override;
-        narc_core::result copyBuffer(const ICommandBuffer* source, const ICommandBuffer* destination) const noexcept override;
+        narc_core::result copyBuffer(const IBuffer* source, const IBuffer* destination) const noexcept override;
 
     private:
         std::shared_ptr<VulkanCommandPool> m_commandPool;

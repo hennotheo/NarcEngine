@@ -11,6 +11,7 @@
 #include "pipeline/VulkanGraphicsPipeline.h"
 #include "pipeline/VulkanPipelineLayout.h"
 #include "pipeline/VulkanRenderPass.h"
+#include "services/VulkanMemoryAllocator.h"
 #include "surface/VulkanLinuxSurface.h"
 #include "swapchain/VulkanSwapChain.h"
 #include "sync/VulkanFence.h"
@@ -55,6 +56,7 @@ namespace narc_engine {
     void VulkanGraphicsInstance::shutdown()
     {
         m_descriptorSetLayout->shutdown();
+
         m_device->shutdown();
         m_instance->shutdown();
     }
@@ -106,6 +108,21 @@ namespace narc_engine {
     std::unique_ptr<ICommandBufferPool> VulkanGraphicsInstance::createCommandBufferPool() const noexcept
     {
         return std::make_unique<VulkanCommandPool>(m_device.get());
+    }
+
+    std::unique_ptr<IBuffer> VulkanGraphicsInstance::createBuffer(const BufferAllocationInfo& allocationInfo) const noexcept
+    {
+        return m_device->createBuffer(allocationInfo).value_or(nullptr);
+    }
+
+    narc_core::result VulkanGraphicsInstance::waitForFences(const std::span<const IFence*> fences) const noexcept
+    {
+        return m_device->waitForFences(fences);
+    }
+
+    narc_core::result VulkanGraphicsInstance::resetFences(const std::span<const IFence*> fences) const noexcept
+    {
+        return m_device->resetFences(fences);
     }
 
     std::unique_ptr<ISurface> VulkanGraphicsInstance::createSurface(const IWindow* window) const noexcept

@@ -151,7 +151,7 @@ namespace narc_engine {
         }
     }
 
-    narc_core::result VulkanCommandBuffer::copyBuffer(const ICommandBuffer* source, const ICommandBuffer* destination) const noexcept
+    narc_core::result VulkanCommandBuffer::copyBuffer(const IBuffer* source, const IBuffer* destination) const noexcept
     {
 
     }

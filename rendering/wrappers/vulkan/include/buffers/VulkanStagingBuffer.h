@@ -18,7 +18,7 @@ namespace narc_engine {
         void allocate(const VkDeviceSize& size);
         void deallocate();
         
-        void setData(const VulkanMemory* data);
+        void setData(const Memory* data);
         void copyToBuffer(const IVulkanBuffer &buffer);
     
     private:

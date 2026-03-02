@@ -39,7 +39,7 @@ namespace narc_engine {
         m_allocator->deallocBuffer(m_vertexBuffer, m_allocation);
     }
 
-    void VulkanStagingBuffer::setData(const VulkanMemory* data)
+    void VulkanStagingBuffer::setData(const Memory* data)
     {
         if (m_allocation == VK_NULL_HANDLE)
         {
