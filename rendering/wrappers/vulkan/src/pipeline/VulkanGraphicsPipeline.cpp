@@ -26,7 +26,7 @@ namespace narc_engine {
         NARC_GUARD_RAW_PTR(m_pipelineLayout, "PipelineLayout not set for VulkanGraphicsPipeline.");
         NARC_GUARD_RAW_PTR(m_renderPass, "RenderPass not set for VulkanGraphicsPipeline.");
 
-        m_renderPass->init();//TODO: Out of here
+        m_renderPass->init();//TODO: Out of here, must have cache of passess
 
         auto fragShaderModule = VulkanShaderModule(m_device, "shaders/shader_frag.spv");
         fragShaderModule.init();

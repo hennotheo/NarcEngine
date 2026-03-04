@@ -48,8 +48,6 @@ int main(int argc, char** argv)
             inFlightFences.push_back(std::move(inFlightFence));
         }
 
-
-
         surface->init();
         swapChain->init();
         pipelineLayout->init();
@@ -66,9 +64,61 @@ int main(int argc, char** argv)
             commandBuffers.push_back(cmdPool->allocateCommandBuffer().value());
         }
 
+        uint32_t flightInFenceIndex = 0;
         while (!window->shouldClose())
         {
+            std::vector<const narc_engine::IFence*> fences = {inFlightFences[flightInFenceIndex].get()};
+            graphicsInstance->waitForFences(fences);
+            graphicsInstance->resetFences(fences);
 
+            narc_engine::ImageIndex imageIndex = swapChain->acquireNextImage(imageAvailableSemaphores[flightInFenceIndex].get(), nullptr).value();
+
+            auto* cmdBuffer = commandBuffers[imageIndex].get();
+            cmdBuffer->reset();
+
+            //RECORD -------------------------
+            cmdBuffer->begin();
+
+            cmdBuffer->beginRenderPass(
+                    swapChain.get(),
+                    {
+                            .TEMPPipeline = pipeline.get(),
+                            .TEMPFrameInFlightIndex = flightInFenceIndex
+                    });
+
+            cmdBuffer->bindPipeline(pipeline.get());
+            cmdBuffer->bindScissors({
+                .Offset = narc_math::Vec2{0, 0},
+                .Extent = swapChain->getSwapChainExtent()
+            });
+            cmdBuffer->bindViewPort({
+                    .Position = narc_math::Vec2{0, 0},
+                    .Dimensions = swapChain->getSwapChainExtent()
+            });
+
+            cmdBuffer->draw();
+
+            cmdBuffer->endRenderPass();
+
+            cmdBuffer->end();
+            //END RECORD ---------------------
+
+            const auto submitQueue = graphicsInstance->getGraphicsQueue();
+            submitQueue->submit({
+                    .WaitStages = {narc_engine::SubmitWaitStageMask::ColorAttachmentOutput},
+                    .CommandBuffers = {cmdBuffer},
+                    .SignalSemaphores = {renderFinishedSemaphores[flightInFenceIndex].get()},
+                    .WaitSemaphores = {imageAvailableSemaphores[flightInFenceIndex].get()},
+                    .Fence = inFlightFences[flightInFenceIndex].get()
+            });
+
+            const auto presentQueue = graphicsInstance->getPresentQueue();
+            presentQueue->present(
+            {
+                    .ImageIndices = {imageIndex},
+                    .SwapChains = {swapChain.get()},
+                    .WaitSemaphores = {imageAvailableSemaphores[flightInFenceIndex].get()}
+            });
         }
 
         for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)

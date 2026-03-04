@@ -73,7 +73,13 @@ namespace narc_engine {
 
     std::unique_ptr<ISwapchain> VulkanGraphicsInstance::createSwapChain(const ISurface* surface) const noexcept
     {
-        return std::make_unique<VulkanSwapChain>(m_device.get(), dynamic_cast<const IVulkanSurface*>(surface));
+        auto swapchain = std::make_unique<VulkanSwapChain>(m_device.get(), dynamic_cast<const IVulkanSurface*>(surface), 2);//TODO: 2 HARDCODED
+
+        m_swapChainRenderPasses.emplace(std::make_pair(swapchain.get(), std::make_unique<VulkanRenderPass>(m_device.get(), swapchain.get())));
+
+        swapchain->setRenderPass(m_swapChainRenderPasses[swapchain.get()].get());
+
+        return swapchain;
     }
 
     std::unique_ptr<IPipelineLayout> VulkanGraphicsInstance::createPipelineLayout(const ISwapchain* swapChain) const noexcept

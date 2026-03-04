@@ -17,6 +17,7 @@
 #include "models/NativeWindowHandle.h"
 #include "models/BufferAllocationInfo.h"
 #include "models/QueueSubmitInfos.h"
+#include "models/QueuePresentInfos.h"
 
 #include "device/IVulkanExtension.h"
 #include "device/PhysicalDeviceCriteria.h"

@@ -14,6 +14,8 @@
 // #include "mapping/mappingToVk.h"
 // #include "mapping/mappingFromVk.h"
 
+#include "surface/IVulkanSurface.h"
+
 #include "models/SwapChainSupportInfoVulkan.h"
 
 #include "buffers/VulkanIndexBuffer.h"
@@ -48,7 +50,5 @@
 
 #include "services/CmdService.h"
 #include "services/VulkanMemoryAllocator.h"
-
-#include "surface/IVulkanSurface.h"
 
 #include "instance/VulkanGraphicsInstance.h"

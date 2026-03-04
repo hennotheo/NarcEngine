@@ -5,6 +5,7 @@
 #include "mapping/mappingToVk.h"
 
 #include "command/VulkanCommandBuffer.h"
+#include "swapchain/VulkanSwapChain.h"
 #include "sync/VulkanFence.h"
 #include "sync/VulkanSemaphore.h"
 
@@ -30,38 +31,127 @@ namespace narc_engine::mapping {
         };
     }
 
-    VkSubmitInfo mapFromQueueSubmitInfos(const QueueSubmitInfos& value) noexcept
+    VkPipelineStageFlags mapFromSubmitPipelineWaitStage(const SubmitWaitStageMask& stages) noexcept
     {
-        const auto vulkanCommandBuffers = value.CommandBuffers
-                                          | narc_core::transform_to_concrete_class<VulkanCommandBuffer>()
-                                          | std::views::transform([](auto* cmdBuffer) noexcept {
-                                              return cmdBuffer->getHandle();
-                                          })
-                                          | narc_core::to<std::vector>();
-        const auto waitSemaphores = value.WaitSemaphores
-                                    | narc_core::transform_to_concrete_class<VulkanSemaphore>()
-                                    | std::views::transform([](auto* cmdBuffer) noexcept {
-                                        return cmdBuffer->getHandle();
-                                    })
-                                    | narc_core::to<std::vector>();
-        const auto signalSemaphores = value.SignalSemaphores
-                                      | narc_core::transform_to_concrete_class<VulkanSemaphore>()
-                                      | std::views::transform([](auto* cmdBuffer) noexcept {
-                                          return cmdBuffer->getHandle();
-                                      })
-                                      | narc_core::to<std::vector>();
+        VkPipelineStageFlags flags = 0;
 
-        return VkSubmitInfo{
+        const auto value = static_cast<uint32_t>(stages);
+
+        if (value & static_cast<uint32_t>(SubmitWaitStageMask::ColorAttachmentOutput))
+        {
+            flags |= VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        }
+
+        if (value & static_cast<uint32_t>(SubmitWaitStageMask::VertexShader))
+        {
+            flags |= VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+        }
+
+        if (value & static_cast<uint32_t>(SubmitWaitStageMask::FragmentShader))
+        {
+            flags |= VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        }
+
+        if (value & static_cast<uint32_t>(SubmitWaitStageMask::ComputeShader))
+        {
+            flags |= VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+        }
+
+        return flags;
+    }
+
+    VkViewport mapFromViewPortInfos(const ViewPortInfos& value) noexcept
+    {
+        return VkViewport{
+            .x = value.Position.x,
+            .y = value.Position.y,
+            .width = static_cast<float>(value.Dimensions.Width),
+            .height = static_cast<float>(value.Dimensions.Height),
+            .minDepth = 0.0f,
+            .maxDepth = 1.0f
+        };
+    }
+
+    VkRect2D mapFromScissorsInfos(const ScissorsInfos& value) noexcept
+    {
+        return {
+            .offset = {
+                .x = value.Offset.x,
+                .y = value.Offset.y
+            },
+            .extent = {
+                .width = value.Extent.Width,
+                .height = value.Extent.Height
+            }
+        };
+    }
+
+    VulkanSubmitInfo mapFromQueueSubmitInfos(const QueueSubmitInfos& value) noexcept
+    {
+        VulkanSubmitInfo info{};
+        info.CommandBuffers = value.CommandBuffers
+                              | narc_core::transform_to_concrete_class<VulkanCommandBuffer>()
+                              | std::views::transform([](auto* cmdBuffer) noexcept {
+                                  return cmdBuffer->getHandle();
+                              })
+                              | narc_core::to<std::vector>();
+        info.WaitSemaphores = value.WaitSemaphores
+                              | narc_core::transform_to_concrete_class<VulkanSemaphore>()
+                              | std::views::transform([](auto* cmdBuffer) noexcept {
+                                  return cmdBuffer->getHandle();
+                              })
+                              | narc_core::to<std::vector>();
+        info.SignalSemaphores = value.SignalSemaphores
+                                | narc_core::transform_to_concrete_class<VulkanSemaphore>()
+                                | std::views::transform([](auto* cmdBuffer) noexcept {
+                                    return cmdBuffer->getHandle();
+                                })
+                                | narc_core::to<std::vector>();
+        info.WaitStageMask = mapFromSubmitPipelineWaitStage(value.WaitStages);
+
+        info.Infos = VkSubmitInfo{
                 .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
                 .pNext = nullptr,
-                .waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size()),
-                .pWaitSemaphores = waitSemaphores.data(),
-                .pWaitDstStageMask = nullptr,
-                .commandBufferCount = static_cast<uint32_t>(vulkanCommandBuffers.size()),
-                .pCommandBuffers = vulkanCommandBuffers.data(),
-                .signalSemaphoreCount = static_cast<uint32_t>(signalSemaphores.size()),
-                .pSignalSemaphores = signalSemaphores.data(),
+                .waitSemaphoreCount = static_cast<uint32_t>(info.WaitSemaphores.size()),
+                .pWaitSemaphores = info.WaitSemaphores.data(),
+                .pWaitDstStageMask = &info.WaitStageMask,
+                .commandBufferCount = static_cast<uint32_t>(info.CommandBuffers.size()),
+                .pCommandBuffers = info.CommandBuffers.data(),
+                .signalSemaphoreCount = static_cast<uint32_t>(info.SignalSemaphores.size()),
+                .pSignalSemaphores = info.SignalSemaphores.data()
         };
+
+        return info;
+    }
+
+    VulkanPresentInfo mapFromQueuePresentInfos(const QueuePresentInfos& value) noexcept
+    {
+        VulkanPresentInfo infos{};
+        infos.SwapChains = value.SwapChains
+                           | narc_core::transform_to_concrete_class<VulkanSwapChain>()
+                           | std::views::transform([](auto* swapchain) noexcept {
+                               return swapchain->getHandle();
+                           })
+                           | narc_core::to<std::vector>();
+        infos.WaitSemaphores = value.WaitSemaphores
+                               | narc_core::transform_to_concrete_class<VulkanSemaphore>()
+                               | std::views::transform([](auto* cmdBuffer) noexcept {
+                                   return cmdBuffer->getHandle();
+                               })
+                               | narc_core::to<std::vector>();
+
+        infos.Infos = VkPresentInfoKHR{
+                .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+                .pNext = nullptr,
+                .waitSemaphoreCount = static_cast<uint32_t>(infos.WaitSemaphores.size()),
+                .pWaitSemaphores = infos.WaitSemaphores.data(),
+                .swapchainCount = static_cast<uint32_t>(infos.SwapChains.size()),
+                .pSwapchains = infos.SwapChains.data(),
+                .pImageIndices = value.ImageIndices.data(),
+                .pResults = nullptr
+        };
+
+        return infos;
     }
 
     std::vector<VkFence_T*> toVkFenceArray(std::span<const IFence*> fences) noexcept

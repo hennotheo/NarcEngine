@@ -77,6 +77,23 @@ namespace di = boost::di;
 
 namespace narc_core {
 
+    template<typename T, typename U>
+    const T* backend_cast(const U* base)
+    {
+        static_assert(std::is_base_of_v<U, T>);
+        if (base == nullptr)
+        {
+            return nullptr;
+        }
+#ifdef NARC_BUILD_DEBUG
+        const auto* derived = dynamic_cast<const T*>(base);
+        assert(derived && "Backend type mismatch");
+        return derived;
+#else
+        return static_cast<const T*>(base);
+#endif
+    }
+
 #define NARC_DI_SERVICE_NAME(type) type##Injected
 
     template<typename T>
@@ -125,7 +142,7 @@ namespace narc_core {
     {
         return std::forward<R>(range)
                | std::views::transform([](auto* cmdBuffer) noexcept {
-                   return dynamic_cast<T*>(cmdBuffer);
+                   return backend_cast<T>(cmdBuffer);
                })
                | std::views::filter([](auto* ptr) noexcept {
                    return ptr != nullptr;

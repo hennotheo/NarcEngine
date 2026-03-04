@@ -3,26 +3,33 @@
 //
 
 #pragma once
+#include "VulkanFramebuffer.h"
 
 namespace narc_engine {
+    class VulkanFramebuffer;
+    class VulkanFence;
+    class VulkanSemaphore;
     class IVulkanSurface;
     class ISwapchainService;
 
     class VulkanSwapChain final : public ISwapchain
     {
     public:
-        explicit VulkanSwapChain(const VulkanDevice* device, const IVulkanSurface* surface);
+        explicit VulkanSwapChain(const VulkanDevice* device, const IVulkanSurface* surface, const uint32_t frameInFlightIndex);
         ~VulkanSwapChain() noexcept override;
 
         NARC_IMPL_INITIALISABLE();
 
         NARC_OVERRIDE_GETTER(SurfaceExtent, getSwapChainExtent, m_swapChainExtent);
+        NARC_QUERY_OVERRIDE(RhiQuery<ImageIndex>, acquireNextImage, const ISemaphore* semaphore, const IFence* fence);
         NARC_GETTER(VkFormat, getSwapChainImageFormat, m_swapChainImageFormat);
 
         NARC_GETTER(std::span<const VkImageView>, getSwapChainImageViews, m_swapChainImageViews);
-        
+        NARC_GETTER(const VulkanFramebuffer*, getFrameBuffer, &m_swapChainFrameBuffers[frameInFlightIndex], const uint32_t frameInFlightIndex);//TODO: CHANGE
+
         NARC_GETTER(VkSwapchainKHR, getHandle, m_swapChain);
-        
+
+        void setRenderPass(VulkanRenderPass* renderPass);
         void setSurface(const std::unique_ptr<IVulkanSurface>& surface) { m_surface = surface.get(); }
 
     private:
@@ -30,6 +37,7 @@ namespace narc_engine {
 
         const VulkanDevice* m_device;
         const IVulkanSurface* m_surface;
+        VulkanRenderPass* m_renderPass;
 
         VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
 
@@ -38,8 +46,12 @@ namespace narc_engine {
 
         std::vector<VkImage> m_swapChainImages;
         std::vector<VkImageView> m_swapChainImageViews;
+        std::vector<VulkanFramebuffer> m_swapChainFrameBuffers;
 
         void createImageViews();
+        void initFrameBuffers();
+
+        NARC_QUERY(RhiQuery<ImageIndex>, acquireNextImageImpl, const VulkanSemaphore* semaphore, const VulkanFence* fence);
 
         //TODO: To query
         NO_DISCARD VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) const;

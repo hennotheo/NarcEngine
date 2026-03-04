@@ -51,7 +51,24 @@ namespace narc_engine {
         const auto submitInfos = mapping::mapFromQueueSubmitInfos(infos);
         const VkFence fence = infos.Fence == nullptr ? VK_NULL_HANDLE : dynamic_cast<const VulkanFence*>(infos.Fence)->getHandle();
 
-        return vkQueueSubmit(m_queue, 1, &submitInfos, fence);
+        if (vkQueueSubmit(m_queue, 1, &submitInfos.Infos, fence) != VK_SUCCESS)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    narc_core::result VulkanQueue::present(const QueuePresentInfos infos) const noexcept
+    {
+        const auto submitInfos = mapping::mapFromQueuePresentInfos(infos);
+
+        if (vkQueuePresentKHR(m_queue, &submitInfos.Infos) != VK_SUCCESS)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     bool VulkanQueue::isIndexDefined(const uint32_t& index)

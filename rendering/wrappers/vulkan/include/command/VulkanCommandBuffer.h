@@ -23,7 +23,6 @@ namespace narc_engine {
         ~IRenderPassCmdBuffer() = default;
 
     public:
-        virtual void cmdBindPipeline(const VulkanGraphicsPipeline& pipeline) = 0;
         virtual void cmdBindVertexBuffers(VulkanVertexBuffer& vertexBuffer) = 0;
         virtual void cmdBindIndexBuffers(VulkanIndexBuffer& indexBuffer) = 0;
         virtual void cmdBindDescriptorSets(std::span<VulkanDescriptorSet> descriptorSets, VulkanPipelineLayout& pipelineLayout) = 0;
@@ -31,7 +30,6 @@ namespace narc_engine {
         virtual void cmdSetScissor(const VkRect2D& scissor) = 0;
         virtual void cmdDraw() = 0;
         virtual void cmdDrawIndexed(uint32_t indexCount) = 0;
-        virtual void endRenderPass() = 0;
     };
 
     class VulkanCommandBuffer final : public ICommandBuffer, public IRenderPassCmdBuffer
@@ -42,12 +40,9 @@ namespace narc_engine {
     public:
         explicit VulkanCommandBuffer(VkCommandBuffer m_commandBuffer);
         ~VulkanCommandBuffer() noexcept override;
-
-        IRenderPassCmdBuffer* beginRenderPass(const VulkanFramebuffer& framebuffer, const VulkanRenderPass& renderPass);
-        void endRenderPass() override;
         
         void cmdPipelineBarrier(const VkPipelineStageFlags& srcStage, const VkPipelineStageFlags& dstStage, uint32_t imageBarrierCount, const VkImageMemoryBarrier& barrier) const;
-        void cmdBindPipeline(const VulkanGraphicsPipeline& pipeline) override;
+
         void cmdBindVertexBuffers(VulkanVertexBuffer& vertexBuffer) override;
         void cmdBindIndexBuffers(VulkanIndexBuffer& indexBuffer) override;
         void cmdBindDescriptorSets(std::span<VulkanDescriptorSet> descriptorSets, VulkanPipelineLayout& pipelineLayout) override;
@@ -58,13 +53,18 @@ namespace narc_engine {
         void cmdCopyBuffer(const VkBufferCopy& infos, const IVulkanBuffer& src, const IVulkanBuffer& dst);
         void cmdCopyBufferToImage(const IVulkanBuffer& src, const VkImage& dst, const VkBufferImageCopy& infos);
 
-        void reset();
-
         NARC_GETTER(VkCommandBuffer, getHandle, m_commandBuffer)
 
         narc_core::result begin() const noexcept override;
         narc_core::result end() const noexcept override;
+        narc_core::result reset() const noexcept override;
         narc_core::result copyBuffer(const IBuffer* source, const IBuffer* destination) const noexcept override;
+        narc_core::result beginRenderPass(const ISwapchain* swapChain, const RenderPassInfos& infos) const noexcept override;
+        narc_core::result endRenderPass() const noexcept override;
+        narc_core::result bindPipeline(const IGraphicsPipeline* pipeline) const noexcept override;
+        narc_core::result bindViewPort(const ViewPortInfos& viewport) const noexcept override;
+        narc_core::result draw() const noexcept override;
+        narc_core::result bindScissors(const ScissorsInfos& scissors) const noexcept override;
 
     private:
         std::shared_ptr<VulkanCommandPool> m_commandPool;

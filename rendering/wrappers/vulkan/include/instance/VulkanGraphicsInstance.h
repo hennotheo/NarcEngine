@@ -7,6 +7,8 @@
 #include "device/VulkanDevice.h"
 
 namespace narc_engine {
+    class VulkanSwapChain;
+    class VulkanRenderPass;
     class VulkanMemoryAllocator;
     class VulkanDescriptorSetLayout;
     class VulkanDescriptorPool;
@@ -46,5 +48,6 @@ namespace narc_engine {
         std::unique_ptr<VulkanDevice> m_device;
         std::unique_ptr<VulkanDescriptorPool> m_descriptorPool;
         std::unique_ptr<VulkanDescriptorSetLayout> m_descriptorSetLayout;//TODO: MOVE FROM HERE
+        mutable std::unordered_map<const VulkanSwapChain*, std::unique_ptr<VulkanRenderPass>> m_swapChainRenderPasses;
     };
 }

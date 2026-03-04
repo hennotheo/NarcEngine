@@ -4,15 +4,17 @@
 
 #include "command/VulkanCommandBuffer.h"
 
-#include "command/VulkanCommandPool.h"
-#include "../../include/buffers/interfaces/IVulkanBuffer.h"
+#include <X11/Xlib.h>
+
+#include "buffers/interfaces/IVulkanBuffer.h"
 #include "descriptor/VulkanDescriptorSet.h"
-#include "device/VulkanDevice.h"
 #include "pipeline/VulkanGraphicsPipeline.h"
 #include "pipeline/VulkanPipelineLayout.h"
 #include "pipeline/VulkanRenderPass.h"
 #include "buffers/VulkanVertexBuffer.h"
 #include "buffers/VulkanIndexBuffer.h"
+#include "mapping/mappingToVk.h"
+#include "swapchain/VulkanSwapChain.h"
 
 namespace narc_engine {
     VulkanCommandBuffer::VulkanCommandBuffer(const VkCommandBuffer commandBuffer) :
@@ -22,24 +24,6 @@ namespace narc_engine {
     }
 
     VulkanCommandBuffer::~VulkanCommandBuffer() noexcept = default;
-
-    IRenderPassCmdBuffer* VulkanCommandBuffer::beginRenderPass(const VulkanFramebuffer& framebuffer, const VulkanRenderPass& renderPass)
-    {
-        const auto infos = renderPass.getRenderPassBeginInfo(framebuffer);
-        vkCmdBeginRenderPass(m_commandBuffer, &infos, VK_SUBPASS_CONTENTS_INLINE);
-
-        for (int i = 0; i < infos.clearValueCount; ++i)
-        {
-            const auto& name = infos.pClearValues[i];
-        }
-
-        return this;
-    }
-
-    void VulkanCommandBuffer::endRenderPass()
-    {
-        vkCmdEndRenderPass(m_commandBuffer);
-    }
 
     void VulkanCommandBuffer::cmdPipelineBarrier(const VkPipelineStageFlags& srcStage,
                                                  const VkPipelineStageFlags& dstStage,
@@ -56,11 +40,6 @@ namespace narc_engine {
                              nullptr,
                              imageBarrierCount,
                              &barrier);
-    }
-
-    void VulkanCommandBuffer::cmdBindPipeline(const VulkanGraphicsPipeline& pipeline)
-    {
-        vkCmdBindPipeline(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.getHandle());
     }
 
     void VulkanCommandBuffer::cmdBindVertexBuffers(VulkanVertexBuffer& vertexBuffer)
@@ -120,14 +99,10 @@ namespace narc_engine {
         vkCmdCopyBuffer(m_commandBuffer, src.getHandle(), dst.getHandle(), 1, &infos);
     }
 
-    void VulkanCommandBuffer::cmdCopyBufferToImage(const IVulkanBuffer& src, const VkImage& dst, const VkBufferImageCopy& infos)//TODO: Edit vkimg to img
+    void VulkanCommandBuffer::cmdCopyBufferToImage(const IVulkanBuffer& src, const VkImage& dst, const VkBufferImageCopy& infos)
+    //TODO: Edit vkimg to img
     {
-        vkCmdCopyBufferToImage(m_commandBuffer, src.getHandle(), dst, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,1, &infos);
-    }
-
-    void VulkanCommandBuffer::reset()
-    {
-        vkResetCommandBuffer(m_commandBuffer, 0);
+        vkCmdCopyBufferToImage(m_commandBuffer, src.getHandle(), dst, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &infos);
     }
 
     narc_core::result VulkanCommandBuffer::begin() const noexcept
@@ -139,20 +114,88 @@ namespace narc_engine {
 
         if (vkBeginCommandBuffer(m_commandBuffer, &beginInfo) != VK_SUCCESS)
         {
-            NARC_ERROR_RUNTIME("Failed to begin recording command buffer!");
+            return false;
         }
+
+        return true;
     }
 
     narc_core::result VulkanCommandBuffer::end() const noexcept
     {
-        if (vkEndCommandBuffer(m_commandBuffer) != VK_SUCCESS)
-        {
-            NARC_ERROR_RUNTIME("Failed to record command buffer!");
-        }
+        return vkEndCommandBuffer(m_commandBuffer) == VK_SUCCESS;
+    }
+
+    narc_core::result VulkanCommandBuffer::reset() const noexcept
+    {
+        return vkResetCommandBuffer(m_commandBuffer, 0) == VK_SUCCESS;
     }
 
     narc_core::result VulkanCommandBuffer::copyBuffer(const IBuffer* source, const IBuffer* destination) const noexcept
     {
+        return false;
+    }
 
+    narc_core::result VulkanCommandBuffer::beginRenderPass(const ISwapchain* swapChain, const RenderPassInfos& infos) const noexcept
+    {
+        auto extent = swapChain->getSwapChainExtent();
+        auto vkSwapChain = backend_cast<VulkanSwapChain>(swapChain);
+        auto vkPipeline = backend_cast<VulkanGraphicsPipeline>(infos.TEMPPipeline);
+        NARC_LOG_WARNING("Temporary bad Architecture for begining renderpass.");
+
+        VkRenderPassBeginInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = vkPipeline->getRenderPass()->getHandle();
+        renderPassInfo.framebuffer = vkSwapChain->getFrameBuffer(infos.TEMPFrameInFlightIndex)->getHandle();
+        renderPassInfo.renderArea.offset = {0, 0};
+        renderPassInfo.renderArea.extent = {extent.Width, extent.Height};
+
+        VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+        renderPassInfo.clearValueCount = 1; //TODO: HARDCODED
+        renderPassInfo.pClearValues = &clearColor;
+
+        vkCmdBeginRenderPass(m_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+        return true;
+    }
+
+    narc_core::result VulkanCommandBuffer::endRenderPass() const noexcept
+    {
+        vkCmdEndRenderPass(m_commandBuffer);
+
+        return true;
+    }
+
+    narc_core::result VulkanCommandBuffer::bindPipeline(const IGraphicsPipeline* pipeline) const noexcept
+    {
+        const auto& vkPipeline = backend_cast<VulkanGraphicsPipeline>(pipeline);
+
+        vkCmdBindPipeline(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline->getHandle());
+
+        return true;
+    }
+
+    narc_core::result VulkanCommandBuffer::bindViewPort(const ViewPortInfos& viewport) const noexcept
+    {
+        const auto vkViewport = mapping::mapFromViewPortInfos(viewport);
+
+        vkCmdSetViewport(m_commandBuffer, 0, 1, &vkViewport);
+
+        return true;
+    }
+
+    narc_core::result VulkanCommandBuffer::draw() const noexcept
+    {
+        vkCmdDraw(m_commandBuffer, 0, 0, 0, 0);
+
+        return true;
+    }
+
+    narc_core::result VulkanCommandBuffer::bindScissors(const ScissorsInfos& scissors) const noexcept
+    {
+        const auto vkScissors = mapping::mapFromScissorsInfos(scissors);
+
+        vkCmdSetScissor(m_commandBuffer, 0, 1, &vkScissors);
+
+        return true;
     }
 } // narc_engine

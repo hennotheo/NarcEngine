@@ -11,5 +11,6 @@ namespace narc_engine {
         virtual ~IQueue() = default;
 
         NARC_PURE_VIRTUAL_CMD(submit, QueueSubmitInfos infos);
+        NARC_PURE_VIRTUAL_CMD(present, QueuePresentInfos infos);
     };
 }
