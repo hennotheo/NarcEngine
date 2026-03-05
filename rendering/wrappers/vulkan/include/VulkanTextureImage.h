@@ -5,15 +5,14 @@
 #pragma once
 
 namespace narc_engine {
+    class VulkanMemoryAllocator;
     class VulkanCommandBuffer;
     class VulkanCommandPool;
 
     class VulkanTextureImage : narc_core::IInitialisable
     {
     public:
-        explicit VulkanTextureImage(NARC_DI_IMPORT_SERVICE(IVulkanMemoryAllocationService),
-                                    NARC_DI_IMPORT_COMPONENT(VulkanCommandPool),
-                                    NARC_DI_IMPORT_SERVICE(ICmdService));
+        explicit VulkanTextureImage(const VulkanMemoryAllocator* allocator);
 
         ~VulkanTextureImage() override;
 
@@ -26,9 +25,7 @@ namespace narc_engine {
         NARC_GETTER(VkSampler, getSampler, m_sampler);
 
     private:
-        narc_core::injected_service<IVulkanMemoryAllocationService> m_allocator;
-        narc_core::injected_component<VulkanCommandPool> m_commandPool;
-        narc_core::injected_service<ICmdService> m_cmdService;
+        const VulkanMemoryAllocator* m_allocator;
 
         std::string m_path;
 

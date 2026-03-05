@@ -19,4 +19,46 @@ namespace narc_engine {
 
     template<typename T>
     using RhiQuery = std::expected<T, RhiQueryError>;
+
+    enum VertexAttributeFormat
+    {
+        Float,
+        Float2,
+        Float3,
+        Float4,
+    };
+
+    //TODO: MOVE LATER
+    struct VertexAttribute
+    {
+        uint32_t Location;
+        uint32_t Binding;
+        VertexAttributeFormat Format;
+        uint32_t Offset;
+    };
+
+    struct VertexLayout
+    {
+        std::vector<VertexAttribute> Attributes;
+        uint32_t Stride;
+    };
+
+    enum ShaderStage
+    {
+        VertexStage = 0b0001,
+        FragmentStage = 0b0010
+    };
+
+    enum DescriptorType
+    {
+        Sampler,
+        UniformBuffer
+    };
+
+    struct DescriptorSetBindingInfo
+    {
+        uint32_t BindingIndex;
+        ShaderStage Stage;
+        DescriptorType Type;
+    };
 }

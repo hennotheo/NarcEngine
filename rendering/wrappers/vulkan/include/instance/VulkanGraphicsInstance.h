@@ -12,6 +12,7 @@ namespace narc_engine {
     class VulkanMemoryAllocator;
     class VulkanDescriptorSetLayout;
     class VulkanDescriptorPool;
+    class IDescriptorBinding;
 
     class VulkanGraphicsInstance : public IGraphicsInstance
     {
@@ -35,9 +36,12 @@ namespace narc_engine {
         NARC_QUERY_OVERRIDE(std::unique_ptr<IFence>, createFence);
         NARC_QUERY_OVERRIDE(std::unique_ptr<ICommandBufferPool>, createCommandBufferPool);
         NARC_QUERY_OVERRIDE(std::unique_ptr<IBuffer>, createBuffer, const BufferAllocationInfo& allocationInfo);
+        NARC_QUERY_OVERRIDE(std::unique_ptr<IDescriptorLayout>, createDescriptorLayout);
+        NARC_QUERY_OVERRIDE(std::vector<std::unique_ptr<IDescriptorBinding>>, createDescriptorBinding, const IDescriptorLayout* layout);
 
         NARC_CMD_OVERRIDE(waitForFences, std::span<const IFence*> fences);
         NARC_CMD_OVERRIDE(resetFences, std::span<const IFence*> fences);
+        NARC_CMD_OVERRIDE(waitIdle);
 
         void attachWindow(const IWindow* window) noexcept override;
 
@@ -47,7 +51,7 @@ namespace narc_engine {
         std::unique_ptr<VulkanInstance> m_instance;
         std::unique_ptr<VulkanDevice> m_device;
         std::unique_ptr<VulkanDescriptorPool> m_descriptorPool;
-        std::unique_ptr<VulkanDescriptorSetLayout> m_descriptorSetLayout;//TODO: MOVE FROM HERE
+        // std::unique_ptr<VulkanDescriptorSetLayout> m_descriptorSetLayout;//TODO: MOVE FROM HERE
         mutable std::unordered_map<const VulkanSwapChain*, std::unique_ptr<VulkanRenderPass>> m_swapChainRenderPasses;
     };
 }

@@ -6,19 +6,23 @@
 
 #include <vk_mem_alloc.h>
 
-namespace narc_engine {    
+namespace narc_engine {
+    class VulkanMemoryAllocator;
+
     class VulkanVertexBuffer : public IVulkanBuffer
     {
     public:
-        explicit VulkanVertexBuffer(NARC_DI_IMPORT_COMPONENT(IVulkanMemoryAllocationService));
+        explicit VulkanVertexBuffer(const VulkanMemoryAllocator* memoryAllocator);
         ~VulkanVertexBuffer() override;
 
-        NARC_OVERRIDE_GETTER(const VkBuffer&, getHandle, m_vertexBuffer);
+        NARC_OVERRIDE_GETTER(const VkBuffer&, getHandle, m_vertexBuffer)
+        void setData(const void* data) override;
 
     private:
-        narc_core::injected_component<IVulkanMemoryAllocationService> m_allocator;
+        const VulkanMemoryAllocator* m_allocator;
 
         VkBuffer m_vertexBuffer = VK_NULL_HANDLE;
         VmaAllocation m_allocation = VK_NULL_HANDLE;
+        VmaAllocationInfo m_allocationInfo = {};
     };
 } // narc_engine

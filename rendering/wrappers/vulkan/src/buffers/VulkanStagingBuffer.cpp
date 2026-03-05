@@ -4,24 +4,15 @@
 
 #include "buffers/VulkanStagingBuffer.h"
 
-#include "command/VulkanCommandPool.h"
-#include "device/VulkanQueue.h"
+#include "services/VulkanMemoryAllocator.h"
 
 namespace narc_engine {
-    VulkanStagingBuffer::VulkanStagingBuffer(NARC_DI_IMPORT_SERVICE(IVulkanMemoryAllocationService), NARC_DI_IMPORT_SERVICE(ICmdService)) :
-        NARC_DI_IMPL_SERVICE(IVulkanMemoryAllocationService, m_allocator),
-        NARC_DI_IMPL_SERVICE(ICmdService, m_cmdService)
-    {
-        //Empty Constructor.
-    }
-
-    VulkanStagingBuffer::~VulkanStagingBuffer() = default;
-
-    void VulkanStagingBuffer::allocate(const VkDeviceSize& size)
+    VulkanStagingBuffer::VulkanStagingBuffer(const VulkanMemoryAllocator* memoryAllocator, const VkDeviceSize memorySize)
+        : m_allocator(memoryAllocator)
     {
         VkBufferCreateInfo bufferInfo{};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-        bufferInfo.size = size;
+        bufferInfo.size = memorySize;
         bufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
@@ -34,12 +25,12 @@ namespace narc_engine {
         m_allocationInfo = query.value();
     }
 
-    void VulkanStagingBuffer::deallocate()
+    VulkanStagingBuffer::~VulkanStagingBuffer()
     {
         m_allocator->deallocBuffer(m_vertexBuffer, m_allocation);
     }
 
-    void VulkanStagingBuffer::setData(const Memory* data)
+    void VulkanStagingBuffer::setData(const void* data)
     {
         if (m_allocation == VK_NULL_HANDLE)
         {
@@ -47,14 +38,5 @@ namespace narc_engine {
         }
 
         m_allocator->mapMemory(data, m_allocationInfo.size, m_allocation);
-    }
-
-    void VulkanStagingBuffer::copyToBuffer(const IVulkanBuffer& buffer)
-    {
-        //VkBufferCopy copy{};
-        //copy.size = m_allocationInfo.size;
-        //m_cmdService->doCmdActionAndSubmit([this, copy, &buffer](auto* cmd) {
-        //    cmd->copyBuffer(copy, *this, buffer);
-        //});
     }
 }

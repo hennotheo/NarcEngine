@@ -42,7 +42,7 @@ namespace narc_engine {
         vkDestroyDescriptorPool(m_device->getHandle(), descriptorPool, nullptr);
     }
 
-    std::vector<VulkanDescriptorSet> VulkanDescriptorPool::allocateDescriptorSet(std::vector<VulkanDescriptorSetLayout> layouts)
+    std::vector<std::unique_ptr<IDescriptorBinding>> VulkanDescriptorPool::allocateDescriptorSet(std::span<const VulkanDescriptorSetLayout*> layouts) const
     {
         const auto layoutCount = static_cast<uint32_t>(layouts.size());
 
@@ -50,27 +50,24 @@ namespace narc_engine {
         out.reserve(layoutCount);
         std::ranges::transform(layouts,
                                std::back_inserter(out),
-                               [](const VulkanDescriptorSetLayout& layout) {
-                                   return layout.getHandle();
+                               [](const VulkanDescriptorSetLayout* layout) {
+                                   return layout->getHandle();
                                });
 
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocInfo.descriptorPool = descriptorPool;
-        allocInfo.descriptorSetCount = m_descriptorCount;
+        allocInfo.descriptorSetCount = layouts.size();
         allocInfo.pSetLayouts = out.data();
 
-        std::vector<VkDescriptorSet> descriptorSets;
-        descriptorSets.resize(m_descriptorCount);
+        std::vector<VkDescriptorSet> descriptorSets(m_descriptorCount);
         vkAllocateDescriptorSets(m_device->getHandle(), &allocInfo, descriptorSets.data());
 
-        std::vector<VulkanDescriptorSet> sets;
-        sets.reserve(m_descriptorCount);
-        std::ranges::transform(descriptorSets,
-                               std::back_inserter(sets),
-                               [](const VkDescriptorSet& set) {
-                                   return VulkanDescriptorSet(set);
-                               });
+        std::vector<std::unique_ptr<IDescriptorBinding>> sets;
+        for (int i = 0; i < layouts.size(); ++i)
+        {
+            sets.push_back(std::make_unique<VulkanDescriptorSet>(layouts[i], descriptorSets[i]));
+        }
 
         return sets;
     }

@@ -157,7 +157,7 @@ namespace narc_engine {
         }
 
         memcpy(ptr, data, dataSize);
-        vmaFlushAllocation(m_allocator, alloc, 0, VK_WHOLE_SIZE);
+        vmaFlushAllocation(m_allocator, alloc, 0, dataSize);
         vmaUnmapMemory(m_allocator, alloc);
 
         return true;

@@ -5,15 +5,18 @@
 #pragma once
 
 namespace narc_engine {
-    class VulkanDescriptorSet
+    class VulkanDescriptorSet : public IDescriptorBinding
     {
     public:
-        explicit VulkanDescriptorSet(const VkDescriptorSet& descriptorSet);
-        ~VulkanDescriptorSet();
-        
+        explicit VulkanDescriptorSet(const IDescriptorLayout* layout, const VkDescriptorSet& descriptorSet);
+        ~VulkanDescriptorSet() override;
+
+        NARC_OVERRIDE_GETTER(const IDescriptorLayout*, getLayout, m_layout);
         NARC_GETTER(VkDescriptorSet, getHandle, m_descriptorSet);
         
     private:
+        const IDescriptorLayout* m_layout;
+
         VkDescriptorSet m_descriptorSet;
     };
 } // narc_engine

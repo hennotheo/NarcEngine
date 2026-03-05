@@ -4,6 +4,7 @@
 
 #include "pipeline/VulkanPipelineLayout.h"
 
+#include "VulkanShaderModule.h"
 #include "descriptor/VulkanDescriptorSetLayout.h"
 #include "device/VulkanDevice.h"
 
@@ -60,5 +61,41 @@ namespace narc_engine {
         }
 
         m_setLayouts.push_back(layout);
+    }
+
+    VulkanShaderModule VulkanPipelineLayout::createVertexShaderModule() const
+    {
+        return VulkanShaderModule(m_device, m_vertexShaderPath);
+    }
+
+    VulkanShaderModule VulkanPipelineLayout::createFragmentShaderModule() const
+    {
+        return VulkanShaderModule(m_device, m_fragmentShaderPath);
+    }
+
+    IPipelineLayout* VulkanPipelineLayout::setVertexShader(const std::string& path)
+    {
+        m_vertexShaderPath = path;
+        return this;
+    }
+
+    IPipelineLayout* VulkanPipelineLayout::setFragmentShader(const std::string& path)
+    {
+        m_fragmentShaderPath = path;
+        return this;
+    }
+
+    IPipelineLayout* VulkanPipelineLayout::setVertexLayout(const VertexLayout& layout)
+    {
+        m_vertexLayout = layout;
+        return this;
+    }
+
+    IPipelineLayout* VulkanPipelineLayout::addBinding(const IDescriptorLayout* binding)
+    {
+        const auto vkBinding = narc_core::backend_cast<VulkanDescriptorSetLayout>(binding);
+
+        m_setLayouts.push_back(vkBinding);
+        return this;
     }
 } // narc_engine

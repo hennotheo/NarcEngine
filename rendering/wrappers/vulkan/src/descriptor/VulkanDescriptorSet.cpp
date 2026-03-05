@@ -5,10 +5,11 @@
 #include "descriptor/VulkanDescriptorSet.h"
 
 namespace narc_engine {
-    VulkanDescriptorSet::VulkanDescriptorSet(const VkDescriptorSet& descriptorSet)
-        : m_descriptorSet(descriptorSet)
+    VulkanDescriptorSet::VulkanDescriptorSet(const IDescriptorLayout* layout, const VkDescriptorSet& descriptorSet) :
+        m_layout(layout),
+        m_descriptorSet(descriptorSet)
     {
-        //Empty constructor.
+        // const auto bindings = layout->
     }
 
     VulkanDescriptorSet::~VulkanDescriptorSet() = default;

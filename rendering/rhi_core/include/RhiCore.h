@@ -14,6 +14,8 @@
 
 #include "ApplicationInfo.h"
 
+#include "geometry/Vertex.h"
+
 #include "models/NativeWindowHandle.h"
 #include "models/BufferAllocationInfo.h"
 #include "models/QueueSubmitInfos.h"
@@ -23,7 +25,6 @@
 #include "device/PhysicalDeviceCriteria.h"
 #include "device/QueueFamilyIndices.h"
 
-#include "geometry/Vertex.h"
 
 #include "interfaces/surface/ISurfaceHandler.h"
 #include "interfaces/surface/IWindow.h"
@@ -31,6 +32,8 @@
 #include "interfaces/ICommandBuffer.h"
 #include "interfaces/ICommandBufferPool.h"
 #include "interfaces/IFence.h"
+#include "interfaces/IDescriptorLayout.h"
+#include "interfaces/IDescriptorBinding.h"
 #include "interfaces/IGraphicsPipeline.h"
 #include "interfaces/IImage.h"
 #include "interfaces/IBuffer.h"

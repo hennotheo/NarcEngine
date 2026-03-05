@@ -58,13 +58,16 @@ namespace narc_engine {
         narc_core::result begin() const noexcept override;
         narc_core::result end() const noexcept override;
         narc_core::result reset() const noexcept override;
-        narc_core::result copyBuffer(const IBuffer* source, const IBuffer* destination) const noexcept override;
+        narc_core::result copyBuffer(const IBuffer* source, const IBuffer* destination, MemorySize size) const noexcept override;
         narc_core::result beginRenderPass(const ISwapchain* swapChain, const RenderPassInfos& infos) const noexcept override;
         narc_core::result endRenderPass() const noexcept override;
         narc_core::result bindPipeline(const IGraphicsPipeline* pipeline) const noexcept override;
         narc_core::result bindViewPort(const ViewPortInfos& viewport) const noexcept override;
         narc_core::result draw() const noexcept override;
+        narc_core::result drawIndexed(uint32_t indexCount) const noexcept override;
         narc_core::result bindScissors(const ScissorsInfos& scissors) const noexcept override;
+        narc_core::result bindVertexBuffers(const IBuffer* buffer) const noexcept override;
+        narc_core::result bindIndexBuffer(const IBuffer* buffer) const noexcept override;
 
     private:
         std::shared_ptr<VulkanCommandPool> m_commandPool;

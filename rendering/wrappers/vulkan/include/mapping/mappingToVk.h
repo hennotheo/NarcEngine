@@ -31,6 +31,9 @@ namespace narc_engine::mapping {
 
     VulkanSubmitInfo mapFromQueueSubmitInfos(const QueueSubmitInfos& value) noexcept;
     VulkanPresentInfo mapFromQueuePresentInfos(const QueuePresentInfos& value) noexcept;
+    VkFormat mapFromVertexAttributeFormat(const VertexAttributeFormat& value) noexcept;
+    VkVertexInputAttributeDescription mapFromVertexAttribute(const VertexAttribute& value) noexcept;
+    VkVertexInputBindingDescription mapFromVertexLayout(const VertexLayout& value) noexcept;
 
     std::vector<VkFence_T*> toVkFenceArray(std::span<const IFence*> fences) noexcept;
 }

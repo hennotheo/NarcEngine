@@ -6,7 +6,7 @@
 
 namespace narc_core {
 #define NARC_IMPL_INITIALISABLE()                                                                                                                    \
-    void init() override;                                                                                                                  \
+    void init() override;                                                                                                                            \
     void shutdown() override
 
     class IInitialisable
@@ -16,5 +16,7 @@ namespace narc_core {
 
         virtual void init() = 0;
         virtual void shutdown() = 0;
+        // virtual void onInit() = 0;
+        // virtual void onShutdown() = 0;
     };
 } // namespace narc_core

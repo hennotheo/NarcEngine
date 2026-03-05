@@ -63,26 +63,26 @@ namespace narc_engine::mapping {
     VkViewport mapFromViewPortInfos(const ViewPortInfos& value) noexcept
     {
         return VkViewport{
-            .x = value.Position.x,
-            .y = value.Position.y,
-            .width = static_cast<float>(value.Dimensions.Width),
-            .height = static_cast<float>(value.Dimensions.Height),
-            .minDepth = 0.0f,
-            .maxDepth = 1.0f
+                .x = value.Position.x,
+                .y = value.Position.y,
+                .width = static_cast<float>(value.Dimensions.Width),
+                .height = static_cast<float>(value.Dimensions.Height),
+                .minDepth = 0.0f,
+                .maxDepth = 1.0f
         };
     }
 
     VkRect2D mapFromScissorsInfos(const ScissorsInfos& value) noexcept
     {
         return {
-            .offset = {
-                .x = value.Offset.x,
-                .y = value.Offset.y
-            },
-            .extent = {
-                .width = value.Extent.Width,
-                .height = value.Extent.Height
-            }
+                .offset = {
+                        .x = value.Offset.x,
+                        .y = value.Offset.y
+                },
+                .extent = {
+                        .width = value.Extent.Width,
+                        .height = value.Extent.Height
+                }
         };
     }
 
@@ -152,6 +152,41 @@ namespace narc_engine::mapping {
         };
 
         return infos;
+    }
+
+    VkFormat mapFromVertexAttributeFormat(const VertexAttributeFormat& value) noexcept
+    {
+        switch (value)
+        {
+            case VertexAttributeFormat::Float: return VK_FORMAT_R32_SFLOAT;
+            case VertexAttributeFormat::Float2: return VK_FORMAT_R32G32_SFLOAT;
+            case VertexAttributeFormat::Float3: return VK_FORMAT_R32G32B32_SFLOAT;
+            case VertexAttributeFormat::Float4: return VK_FORMAT_R32G32B32A32_SFLOAT;
+        }
+
+        NARC_LOG_WARNING("VertexAttributeFormat is not implemented in Vulkan.");
+        return VK_FORMAT_UNDEFINED;
+    }
+
+    VkVertexInputAttributeDescription mapFromVertexAttribute(const VertexAttribute& value) noexcept
+    {
+        VkVertexInputAttributeDescription description{};
+        description.binding = value.Binding;
+        description.location = value.Location;
+        description.format = mapFromVertexAttributeFormat(value.Format);
+        description.offset = value.Offset;
+
+        return description;
+    }
+
+    VkVertexInputBindingDescription mapFromVertexLayout(const VertexLayout& value) noexcept
+    {
+        VkVertexInputBindingDescription bindingDescription{};
+        bindingDescription.binding = 0; //TEMP
+        bindingDescription.stride = value.Stride;
+        bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX; //TEMP
+
+        return bindingDescription;
     }
 
     std::vector<VkFence_T*> toVkFenceArray(std::span<const IFence*> fences) noexcept

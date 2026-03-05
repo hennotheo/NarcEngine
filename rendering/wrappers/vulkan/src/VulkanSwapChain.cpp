@@ -20,10 +20,6 @@ namespace narc_engine {
         m_device(device),
         m_surface(surface)
     {
-        for (int i = 0; i < frameInFlightIndex; ++i)
-        {
-            m_swapChainFrameBuffers.push_back(VulkanFramebuffer(m_device, this));
-        }
     }
 
     VulkanSwapChain::~VulkanSwapChain() noexcept = default;
@@ -211,11 +207,15 @@ namespace narc_engine {
 
     void VulkanSwapChain::initFrameBuffers()
     {
-        for (auto& framebuffer: m_swapChainFrameBuffers)
+        m_swapChainFrameBuffers.resize(m_swapChainImageViews.size(), VulkanFramebuffer{m_device, this});
+
+        for (size_t i = 0; i < m_swapChainImageViews.size(); ++i)
         {
-            framebuffer.setRenderPass(m_renderPass);
-            framebuffer.setAttachments(m_swapChainImageViews);
-            framebuffer.init();
+            auto& fb = m_swapChainFrameBuffers.at(i);
+
+            fb.setRenderPass(m_renderPass);
+            fb.setAttachments({ m_swapChainImageViews[i] });
+            fb.init();
         }
     }
 

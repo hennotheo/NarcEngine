@@ -18,8 +18,7 @@ namespace narc_engine {
 
         NARC_IMPL_INITIALISABLE();
 
-        static VkVertexInputBindingDescription getBindingDescription();
-        static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions();
+        static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions(const VertexLayout& value);
 
         NARC_GETTER(VulkanRenderPass*, getRenderPass, m_renderPass.get());
         NARC_GETTER(VkPipeline, getHandle, m_pipeline);

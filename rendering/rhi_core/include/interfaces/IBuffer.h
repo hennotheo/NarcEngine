@@ -9,5 +9,7 @@ namespace narc_engine {
     {
     public:
         virtual ~IBuffer() = default;
+
+        virtual void setData(const void* data) = 0;
     };
 }

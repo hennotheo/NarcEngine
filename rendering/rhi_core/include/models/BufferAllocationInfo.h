@@ -11,6 +11,7 @@ namespace narc_engine {
 
         bool IsStaging{false};
         bool IsIndexBuffer{false};
+        bool IsVertexBuffer{false};
         MemorySize Size{};
     };
 }

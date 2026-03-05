@@ -7,11 +7,11 @@
 #include "command/VulkanCommandPool.h"
 #include "descriptor/VulkanDescriptorPool.h"
 #include "descriptor/VulkanDescriptorSetLayout.h"
+#include "descriptor/VulkanDescriptorSet.h"
 #include "instance/VulkanInstance.h"
 #include "pipeline/VulkanGraphicsPipeline.h"
 #include "pipeline/VulkanPipelineLayout.h"
 #include "pipeline/VulkanRenderPass.h"
-#include "services/VulkanMemoryAllocator.h"
 #include "surface/VulkanLinuxSurface.h"
 #include "swapchain/VulkanSwapChain.h"
 #include "sync/VulkanFence.h"
@@ -24,17 +24,6 @@ namespace narc_engine {
         m_instance = std::make_unique<VulkanInstance>();
         m_device = std::make_unique<VulkanDevice>(m_instance.get());
         m_descriptorPool = std::make_unique<VulkanDescriptorPool>(m_device.get());
-        m_descriptorSetLayout = std::make_unique<VulkanDescriptorSetLayout>(m_device.get());
-        m_descriptorSetLayout->addBinding({
-                .BindingIndex = 0,
-                .Stage = Vertex,
-                .Type = UniformBuffer
-        });
-        m_descriptorSetLayout->addBinding({
-                .BindingIndex = 1,
-                .Stage = Fragment,
-                .Type = Sampler
-        });
     }
 
     VulkanGraphicsInstance::~VulkanGraphicsInstance() noexcept = default;
@@ -50,13 +39,10 @@ namespace narc_engine {
         surface->shutdown();
 
         m_descriptorPool->setDescriptorCount(2); //TODO: Change hardcoded value
-        m_descriptorSetLayout->init();
     }
 
     void VulkanGraphicsInstance::shutdown()
     {
-        m_descriptorSetLayout->shutdown();
-
         m_device->shutdown();
         m_instance->shutdown();
     }
@@ -84,10 +70,7 @@ namespace narc_engine {
 
     std::unique_ptr<IPipelineLayout> VulkanGraphicsInstance::createPipelineLayout(const ISwapchain* swapChain) const noexcept
     {
-        auto layout = std::make_unique<VulkanPipelineLayout>(m_device.get());
-        layout->addDescriptorSetLayoutBinding(m_descriptorSetLayout.get());
-
-        return layout;
+        return std::make_unique<VulkanPipelineLayout>(m_device.get());
     }
 
     std::unique_ptr<IGraphicsPipeline> VulkanGraphicsInstance::createPipeline(const IPipelineLayout* layout,
@@ -121,6 +104,19 @@ namespace narc_engine {
         return m_device->createBuffer(allocationInfo).value_or(nullptr);
     }
 
+    std::unique_ptr<IDescriptorLayout> VulkanGraphicsInstance::createDescriptorLayout() const noexcept
+    {
+        return std::make_unique<VulkanDescriptorSetLayout>(m_device.get());
+    }
+
+    std::vector<std::unique_ptr<IDescriptorBinding>> VulkanGraphicsInstance::createDescriptorBinding(const IDescriptorLayout* layout) const noexcept
+    {
+        const auto vkLayout = narc_core::backend_cast<VulkanDescriptorSetLayout>(layout);
+
+        std::vector layouts {vkLayout};
+        return m_descriptorPool->allocateDescriptorSet(layouts);
+    }
+
     narc_core::result VulkanGraphicsInstance::waitForFences(const std::span<const IFence*> fences) const noexcept
     {
         return m_device->waitForFences(fences);
@@ -129,6 +125,12 @@ namespace narc_engine {
     narc_core::result VulkanGraphicsInstance::resetFences(const std::span<const IFence*> fences) const noexcept
     {
         return m_device->resetFences(fences);
+    }
+
+    narc_core::result VulkanGraphicsInstance::waitIdle() const noexcept
+    {
+        m_device->waitIdle();
+        return true;
     }
 
     std::unique_ptr<ISurface> VulkanGraphicsInstance::createSurface(const IWindow* window) const noexcept

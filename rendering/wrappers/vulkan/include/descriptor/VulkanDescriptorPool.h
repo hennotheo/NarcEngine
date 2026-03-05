@@ -19,7 +19,7 @@ namespace narc_engine {
         
         NARC_SETTER(uint32_t, setDescriptorCount, m_descriptorCount);
         
-        NO_DISCARD std::vector<VulkanDescriptorSet> allocateDescriptorSet(std::vector<VulkanDescriptorSetLayout> layouts);
+        NO_DISCARD std::vector<std::unique_ptr<IDescriptorBinding>> allocateDescriptorSet(std::span<const VulkanDescriptorSetLayout*> layouts) const;
         
     private:
         const VulkanDevice* m_device;

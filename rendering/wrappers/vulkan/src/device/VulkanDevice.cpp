@@ -4,6 +4,9 @@
 
 #include "device/VulkanDevice.h"
 
+#include "buffers/VulkanIndexBuffer.h"
+#include "buffers/VulkanStagingBuffer.h"
+#include "buffers/VulkanVertexBuffer.h"
 #include "instance/VulkanInstance.h"
 #include "sync/VulkanFence.h"
 
@@ -52,8 +55,24 @@ namespace narc_engine {
 
     RhiQuery<std::unique_ptr<IBuffer>> VulkanDevice::createBuffer(const BufferAllocationInfo infos) const noexcept
     {
+        if (infos.IsVertexBuffer)
+        {
+            return std::make_unique<VulkanVertexBuffer>(&m_memoryAllocator);
+        }
+
+        if (infos.IsIndexBuffer)
+        {
+            return std::make_unique<VulkanIndexBuffer>(&m_memoryAllocator);
+        }
+
+        if (infos.IsStaging)
+        {
+            return std::make_unique<VulkanStagingBuffer>(&m_memoryAllocator, infos.Size);
+        }
+
         VkBufferCreateInfo createInfo{};
         createInfo.size = static_cast<VkDeviceSize>(infos.Size);
+
 
         // VulkanBuffer buffer;
         // m_memoryAllocator.allocBuffer(createInfo, &buffer.m_buffer, &buffer.m_allocation);

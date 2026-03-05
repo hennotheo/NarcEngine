@@ -44,9 +44,9 @@ namespace narc_engine {
         m_descriptorSetLayout = nullptr;
     }
 
-    void VulkanDescriptorSetLayout::addBinding(DescriptorSetBindingInfo binding)
+    void VulkanDescriptorSetLayout::addBinding(const DescriptorSetBindingInfo& value) noexcept
     {
-        m_bindings.push_back(binding);
+        m_bindings.push_back(value);
     }
 
     VkDescriptorSetLayoutBinding VulkanDescriptorSetLayout::mapFromDescriptorSetBindingInfo(DescriptorSetBindingInfo binding)
@@ -64,12 +64,12 @@ namespace narc_engine {
     {
         VkShaderStageFlags flags = 0;
 
-        if (stage == ShaderStage::Vertex)
+        if (stage == ShaderStage::VertexStage)
         {
             flags |= VK_SHADER_STAGE_VERTEX_BIT;
         }
 
-        if (stage == ShaderStage::Fragment)
+        if (stage == ShaderStage::FragmentStage)
         {
             flags |= VK_SHADER_STAGE_FRAGMENT_BIT;
         }

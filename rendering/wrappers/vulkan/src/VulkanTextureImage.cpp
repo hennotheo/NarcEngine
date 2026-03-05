@@ -5,18 +5,12 @@
 #include "VulkanTextureImage.h"
 
 #include "command/VulkanCommandBuffer.h"
-#include "command/VulkanCommandPool.h"
-#include "buffers/VulkanStagingBuffer.h"
+#include "services/VulkanMemoryAllocator.h"
 
 namespace narc_engine {
-    VulkanTextureImage::VulkanTextureImage(
-            NARC_DI_IMPORT_SERVICE(IVulkanMemoryAllocationService), NARC_DI_IMPORT_COMPONENT(VulkanCommandPool),
-            NARC_DI_IMPORT_SERVICE(ICmdService)) :
-        NARC_DI_IMPL_SERVICE(IVulkanMemoryAllocationService, m_allocator),
-        NARC_DI_IMPL_COMPONENT(VulkanCommandPool, m_commandPool),
-        NARC_DI_IMPL_SERVICE(ICmdService, m_cmdService)
+    VulkanTextureImage::VulkanTextureImage(const VulkanMemoryAllocator* allocator) :
+        m_allocator(allocator)
     {
-        //Empty Constructor.
     }
 
     VulkanTextureImage::~VulkanTextureImage() = default;
@@ -47,8 +41,8 @@ namespace narc_engine {
 
         m_allocationInfo = query.value();
 
-        VulkanStagingBuffer staging{m_allocator, m_cmdService};
-        staging.allocate(m_allocationInfo.size);
+        /*
+        VulkanStagingBuffer staging{m_allocator, m_allocationInfo.size};
         staging.setData(imageStream->getData());
 
         m_cmdService->doCmdActionAndSubmit([this, staging, &imageStream](const auto* cmd) {
@@ -106,6 +100,7 @@ namespace narc_engine {
         }
 
         m_sampler = result.value();
+        */
     }
 
     void VulkanTextureImage::shutdown()

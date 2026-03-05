@@ -4,8 +4,6 @@
 
 #include "command/VulkanCommandBuffer.h"
 
-#include <X11/Xlib.h>
-
 #include "buffers/interfaces/IVulkanBuffer.h"
 #include "descriptor/VulkanDescriptorSet.h"
 #include "pipeline/VulkanGraphicsPipeline.h"
@@ -130,22 +128,32 @@ namespace narc_engine {
         return vkResetCommandBuffer(m_commandBuffer, 0) == VK_SUCCESS;
     }
 
-    narc_core::result VulkanCommandBuffer::copyBuffer(const IBuffer* source, const IBuffer* destination) const noexcept
+    narc_core::result VulkanCommandBuffer::copyBuffer(const IBuffer* source, const IBuffer* destination, const MemorySize size) const noexcept
     {
+        const auto vkSrc = narc_core::backend_cast<IVulkanBuffer>(source);
+        const auto vkDst = narc_core::backend_cast<IVulkanBuffer>(destination);
+
+        VkBufferCopy copyRegion{};
+        copyRegion.srcOffset = 0; // Optional
+        copyRegion.dstOffset = 0; // Optional
+        copyRegion.size = size;
+
+        vkCmdCopyBuffer(m_commandBuffer, vkSrc->getHandle(), vkDst->getHandle(), 1, &copyRegion);
+
         return false;
     }
 
     narc_core::result VulkanCommandBuffer::beginRenderPass(const ISwapchain* swapChain, const RenderPassInfos& infos) const noexcept
     {
         auto extent = swapChain->getSwapChainExtent();
-        auto vkSwapChain = backend_cast<VulkanSwapChain>(swapChain);
-        auto vkPipeline = backend_cast<VulkanGraphicsPipeline>(infos.TEMPPipeline);
-        NARC_LOG_WARNING("Temporary bad Architecture for begining renderpass.");
+        auto vkSwapChain = narc_core::backend_cast<VulkanSwapChain>(swapChain);
+        auto vkPipeline = narc_core::backend_cast<VulkanGraphicsPipeline>(infos.TEMPPipeline);
+        //TODO: NARC_LOG_WARNING("Temporary bad Architecture for begining renderpass.");
 
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassInfo.renderPass = vkPipeline->getRenderPass()->getHandle();
-        renderPassInfo.framebuffer = vkSwapChain->getFrameBuffer(infos.TEMPFrameInFlightIndex)->getHandle();
+        renderPassInfo.framebuffer = vkSwapChain->getFrameBuffer(infos.TEMPImageIndex)->getHandle();
         renderPassInfo.renderArea.offset = {0, 0};
         renderPassInfo.renderArea.extent = {extent.Width, extent.Height};
 
@@ -185,7 +193,14 @@ namespace narc_engine {
 
     narc_core::result VulkanCommandBuffer::draw() const noexcept
     {
-        vkCmdDraw(m_commandBuffer, 0, 0, 0, 0);
+        vkCmdDraw(m_commandBuffer, 4, 1, 0, 0);
+
+        return true;
+    }
+
+    narc_core::result VulkanCommandBuffer::drawIndexed(const uint32_t indexCount) const noexcept
+    {
+        vkCmdDrawIndexed(m_commandBuffer, indexCount, 1, 0, 0, 0);
 
         return true;
     }
@@ -195,6 +210,27 @@ namespace narc_engine {
         const auto vkScissors = mapping::mapFromScissorsInfos(scissors);
 
         vkCmdSetScissor(m_commandBuffer, 0, 1, &vkScissors);
+
+        return true;
+    }
+
+    narc_core::result VulkanCommandBuffer::bindIndexBuffer(const IBuffer* buffer) const noexcept
+    {
+        const auto vkBuffer = narc_core::backend_cast<IVulkanBuffer>(buffer);
+
+        vkCmdBindIndexBuffer(m_commandBuffer, vkBuffer->getHandle(), 0, VK_INDEX_TYPE_UINT16);
+
+        return true;
+    }
+
+    narc_core::result VulkanCommandBuffer::bindVertexBuffers(const IBuffer* buffer) const noexcept
+    {
+        //TODO: Multiple buffer binding support
+        auto vkBuffer = narc_core::backend_cast<IVulkanBuffer>(buffer);
+        std::array vertexBuffers = {vkBuffer->getHandle()};
+        const std::vector<VkDeviceSize> offsets = {0};
+
+        vkCmdBindVertexBuffers(m_commandBuffer, 0, vertexBuffers.size(), vertexBuffers.data(), offsets.data());
 
         return true;
     }

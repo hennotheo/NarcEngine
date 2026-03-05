@@ -3,25 +3,40 @@
 //
 
 #include "buffers/VulkanIndexBuffer.h"
+#include "services/VulkanMemoryAllocator.h"
 
 namespace narc_engine {
-    VulkanIndexBuffer::VulkanIndexBuffer(NARC_DI_IMPORT_SERVICE(IVulkanMemoryAllocationService)) :
-        NARC_DI_IMPL_SERVICE(IVulkanMemoryAllocationService, m_allocator)
+    VulkanIndexBuffer::VulkanIndexBuffer(const VulkanMemoryAllocator* memoryAllocator)
+        : m_allocator(memoryAllocator)
     {
+        //TODO: DISGUSTING HARD CODE
         VkBufferCreateInfo bufferInfo{};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         bufferInfo.size = sizeof(s_indices[0]) * s_indices.size();
         bufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (!m_allocator->allocBuffer(bufferInfo, m_vertexBuffer, m_allocation))
+        const auto query = m_allocator->allocBuffer(bufferInfo, m_vertexBuffer, m_allocation);
+        if (!query.has_value())
         {
             NARC_LOG_FATAL("Index buffer allocation failed.");
         }
+
+        m_allocationInfo = query.value();
     }
 
     VulkanIndexBuffer::~VulkanIndexBuffer()
     {
         m_allocator->deallocBuffer(m_vertexBuffer, m_allocation);
+    }
+
+    void VulkanIndexBuffer::setData(const void* data)
+    {
+        if (m_allocation == VK_NULL_HANDLE)
+        {
+            NARC_LOG_FATAL("Allocation is null.");
+        }
+
+        m_allocator->mapMemory(data, m_allocationInfo.size, m_allocation);
     }
 } // narc_engine

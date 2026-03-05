@@ -5,6 +5,7 @@
 #pragma once
 
 namespace narc_engine {
+    class IDescriptorLayout;
     class IBuffer;
     class IFence;
     class ISemaphore;
@@ -13,6 +14,7 @@ namespace narc_engine {
     class IQueue;
     class IGraphicsPipeline;
     class ICommandBufferPool;
+    class IDescriptorBinding;
 
     class IGraphicsInstance : public narc_core::IInitialisable
     {
@@ -32,11 +34,14 @@ namespace narc_engine {
         NARC_PURE_VIRTUAL_QUERY(std::unique_ptr<ISemaphore>, createSemaphore);
         NARC_PURE_VIRTUAL_QUERY(std::unique_ptr<IFence>, createFence);
         NARC_PURE_VIRTUAL_QUERY(std::unique_ptr<ICommandBufferPool>, createCommandBufferPool);
+        NARC_PURE_VIRTUAL_QUERY(std::unique_ptr<IDescriptorLayout>, createDescriptorLayout);
+        NARC_PURE_VIRTUAL_QUERY(std::vector<std::unique_ptr<IDescriptorBinding>>, createDescriptorBinding, const IDescriptorLayout* layout);
 
         NARC_PURE_VIRTUAL_QUERY(std::unique_ptr<IBuffer>, createBuffer, const BufferAllocationInfo& allocationInfo);
 
         NARC_PURE_VIRTUAL_CMD(waitForFences, std::span<const IFence*> fences);
         NARC_PURE_VIRTUAL_CMD(resetFences, std::span<const IFence*> fences);
+        NARC_PURE_VIRTUAL_CMD(waitIdle);
 
         virtual void attachWindow(const IWindow* window) noexcept = 0;
     };
