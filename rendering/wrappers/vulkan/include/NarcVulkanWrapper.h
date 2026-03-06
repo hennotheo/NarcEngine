@@ -29,6 +29,7 @@
 #include "descriptor/VulkanDescriptorPool.h"
 #include "descriptor/VulkanDescriptorSet.h"
 #include "descriptor/VulkanDescriptorSetLayout.h"
+#include "descriptor/VulkanDescriptorBindingUpdater.h"
 
 #include "device/VulkanDevice.h"
 #include "device/VulkanQueue.h"

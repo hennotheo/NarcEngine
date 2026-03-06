@@ -4,13 +4,20 @@
 
 #include "descriptor/VulkanDescriptorSet.h"
 
+#include "descriptor/VulkanDescriptorBindingUpdater.h"
+
 namespace narc_engine {
-    VulkanDescriptorSet::VulkanDescriptorSet(const IDescriptorLayout* layout, const VkDescriptorSet& descriptorSet) :
+    VulkanDescriptorSet::VulkanDescriptorSet(const VulkanDevice* device, const IDescriptorLayout* layout, const VkDescriptorSet& descriptorSet) :
         m_layout(layout),
-        m_descriptorSet(descriptorSet)
+        m_descriptorSet(descriptorSet),
+        m_device(device)
     {
-        // const auto bindings = layout->
     }
 
     VulkanDescriptorSet::~VulkanDescriptorSet() = default;
+
+    std::unique_ptr<IDescriptorBindingUpdater> VulkanDescriptorSet::createUpdater()
+    {
+        return std::make_unique<VulkanDescriptorBindingUpdater>(m_device, this);
+    }
 } // narc_engine

@@ -5,6 +5,14 @@
 #pragma once
 
 namespace narc_engine {
+    struct ImageAllocationInfo
+    {
+        ImageAllocationInfo() = default;
+
+        MemorySize Size{};
+        std::string Path{};
+    };
+
     struct BufferAllocationInfo
     {
         BufferAllocationInfo() = default;

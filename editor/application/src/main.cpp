@@ -2,6 +2,8 @@
 
 constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
 
+#include "Ubo.h"
+
 std::unique_ptr<narc_engine::IGraphicsInstance> graphicsInstance = nullptr;
 std::unique_ptr<narc_engine::ICommandBufferPool> cmdPool = nullptr;
 
@@ -27,10 +29,30 @@ void stageAndCopyBuffer(const narc_engine::IBuffer* buffer, narc_engine::MemoryS
 
     graphicsInstance->getGraphicsQueue()->submit(
     {
-        .CommandBuffers = { cmd.get() }
+            .CommandBuffers = {cmd.get()}
     });
 
     graphicsInstance->waitIdle();
+}
+
+UniformBufferObject getUniformBufferObject(const narc_math::Extent swapchainExtent)
+{
+    static auto startTime = std::chrono::steady_clock::now();
+
+    auto currentTime = std::chrono::steady_clock::now();
+    float time = std::chrono::duration<float>(currentTime - startTime).count();
+
+    UniformBufferObject ubo{
+            .model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+            .view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+            .proj = glm::perspective(glm::radians(45.0f),
+                                     swapchainExtent.Width / (float) swapchainExtent.Height,
+                                     0.1f,
+                                     10.0f)
+    };
+    ubo.proj[1][1] *= -1;
+
+    return ubo;
 }
 
 int main(int argc, char** argv)
@@ -59,19 +81,22 @@ int main(int argc, char** argv)
         graphicsInstance->attachWindow(window.get());
         graphicsInstance->init();
 
+        constexpr uint32_t UBO_BINDING_INDEX = 0;
+        constexpr uint32_t SAMPLER_BINDING_INDEX = 0;
+
         const auto surface = graphicsInstance->createSurface(window.get());
         const auto swapChain = graphicsInstance->createSwapChain(surface.get());
         const auto descriptorSetLayout = graphicsInstance->createDescriptorLayout();
         descriptorSetLayout->addBinding({
-                .BindingIndex = 0,
+                .BindingIndex = UBO_BINDING_INDEX,
                 .Stage = narc_engine::VertexStage,
                 .Type = narc_engine::UniformBuffer
         });
-        descriptorSetLayout->addBinding({
-                .BindingIndex = 1,
-                .Stage = narc_engine::FragmentStage,
-                .Type = narc_engine::Sampler
-        });
+        // descriptorSetLayout->addBinding({
+        //         .BindingIndex = SAMPLER_BINDING_INDEX,
+        //         .Stage = narc_engine::FragmentStage,
+        //         .Type = narc_engine::Sampler
+        // });
 
         const auto pipelineLayout = graphicsInstance->createPipelineLayout(swapChain.get());
         const auto pipeline = graphicsInstance->createPipeline(pipelineLayout.get(), swapChain.get());
@@ -136,10 +161,16 @@ int main(int argc, char** argv)
             commandBuffers.push_back(cmdPool->allocateCommandBuffer().value());
         }
 
+        // graphicsInstance->createImage(narc_engine::ImageAllocationInfo{
+        //     .Size = 0,
+        //     .Path = "textures/tex_test_uv_0.png"
+        // });
+
         {
             //Buffer lifetime
             const auto verticesSize = narc_engine::s_vertices.size() * sizeof(narc_engine::s_vertices[0]);
             const auto indicesSize = narc_engine::s_indices.size() * sizeof(narc_engine::s_indices[0]);
+            constexpr auto uboSize = sizeof(UniformBufferObject);
 
             narc_engine::BufferAllocationInfo vertexBufferInfo{};
             vertexBufferInfo.IsVertexBuffer = true;
@@ -153,16 +184,34 @@ int main(int argc, char** argv)
             const auto indexBuffer = graphicsInstance->createBuffer(indexBufferInfo);
             stageAndCopyBuffer(indexBuffer.get(), indicesSize, narc_engine::s_indices.data());
 
-            uint32_t flightInFenceIndex = 0;
+            narc_engine::BufferAllocationInfo uboBufferInfo{};
+            uboBufferInfo.Size = uboSize;
+            const auto uboBuffer = graphicsInstance->createBuffer(uboBufferInfo);
+
+            const auto uboBinding = graphicsInstance->createDescriptorBinding(descriptorSetLayout.get());
+            for (auto& binding: uboBinding)
+            {
+                const auto updater = binding->createUpdater();
+                updater->updateBuffer(UBO_BINDING_INDEX, uboBuffer.get());
+                updater->updateImageSampler(SAMPLER_BINDING_INDEX, uboBuffer.get());
+                updater->update();
+            }
+
+            uint32_t frameInFlight = 0;
             while (!window->shouldClose())
             {
-                std::vector<const narc_engine::IFence*> fences = {inFlightFences[flightInFenceIndex].get()};
+                //Game Update ---------------------
+                auto ubo = getUniformBufferObject(swapChain->getSwapChainExtent());
+                uboBuffer->setData(&ubo);
+
+                //Graphics Update ------------------
+                std::vector<const narc_engine::IFence*> fences = {inFlightFences[frameInFlight].get()};
                 graphicsInstance->waitForFences(fences);
                 graphicsInstance->resetFences(fences);
 
-                narc_engine::ImageIndex imageIndex = swapChain->acquireNextImage(imageAvailableSemaphores[flightInFenceIndex].get(), nullptr).value();
+                narc_engine::ImageIndex imageIndex = swapChain->acquireNextImage(imageAvailableSemaphores[frameInFlight].get(), nullptr).value();
 
-                auto* cmdBuffer = commandBuffers[flightInFenceIndex].get();
+                auto* cmdBuffer = commandBuffers[frameInFlight].get();
                 cmdBuffer->reset();
 
                 //RECORD -------------------------
@@ -187,6 +236,7 @@ int main(int argc, char** argv)
 
                 cmdBuffer->bindVertexBuffers(vertexBuffer.get());
                 cmdBuffer->bindIndexBuffer(indexBuffer.get());
+                cmdBuffer->bindDescriptorSets(pipelineLayout.get(), uboBinding[frameInFlight].get());
 
                 cmdBuffer->drawIndexed(narc_engine::s_indices.size());
 
@@ -199,9 +249,9 @@ int main(int argc, char** argv)
                 submitQueue->submit({
                         .WaitStages = {narc_engine::SubmitWaitStageMask::ColorAttachmentOutput},
                         .CommandBuffers = {cmdBuffer},
-                        .SignalSemaphores = {renderFinishedSemaphores[flightInFenceIndex].get()},
-                        .WaitSemaphores = {imageAvailableSemaphores[flightInFenceIndex].get()},
-                        .Fence = inFlightFences[flightInFenceIndex].get()
+                        .SignalSemaphores = {renderFinishedSemaphores[frameInFlight].get()},
+                        .WaitSemaphores = {imageAvailableSemaphores[frameInFlight].get()},
+                        .Fence = inFlightFences[frameInFlight].get()
                 });
 
                 const auto presentQueue = graphicsInstance->getPresentQueue();
@@ -209,10 +259,10 @@ int main(int argc, char** argv)
                 {
                         .ImageIndices = {imageIndex},
                         .SwapChains = {swapChain.get()},
-                        .WaitSemaphores = {renderFinishedSemaphores[flightInFenceIndex].get()}
+                        .WaitSemaphores = {renderFinishedSemaphores[frameInFlight].get()}
                 });
 
-                flightInFenceIndex = (flightInFenceIndex + 1) % MAX_FRAMES_IN_FLIGHT;
+                frameInFlight = (frameInFlight + 1) % MAX_FRAMES_IN_FLIGHT;
             }
 
             graphicsInstance->waitIdle();

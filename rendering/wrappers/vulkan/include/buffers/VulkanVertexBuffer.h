@@ -16,6 +16,7 @@ namespace narc_engine {
         ~VulkanVertexBuffer() override;
 
         NARC_OVERRIDE_GETTER(const VkBuffer&, getHandle, m_vertexBuffer)
+        NARC_OVERRIDE_GETTER(MemorySize, getSize, m_allocationInfo.size);
         void setData(const void* data) override;
 
     private:

@@ -223,6 +223,29 @@ namespace narc_engine {
         return true;
     }
 
+    narc_core::result VulkanCommandBuffer::bindDescriptorSets(const IPipelineLayout* layout, const IDescriptorBinding* binding) const noexcept
+    {
+        // std::vector<VkDescriptorSet> layouts;
+        // layouts.reserve(descriptorSets.size());
+        // std::ranges::transform(descriptorSets, std::back_inserter(layouts),
+        //                        [](const VulkanDescriptorSet& descriptorSet) {
+        //                            return descriptorSet.getHandle();
+        //                        });
+        const auto set = narc_core::backend_cast<VulkanDescriptorSet>(binding);
+        const auto vkPipelineLayout = narc_core::backend_cast<VulkanPipelineLayout>(layout);
+
+        const std::array sets { set->getHandle() };
+        vkCmdBindDescriptorSets(m_commandBuffer,
+                                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                vkPipelineLayout->getHandle(),
+                                0,
+                                sets.size(),
+                                sets.data(),
+                                0,
+                                nullptr);
+        return true;
+    }
+
     narc_core::result VulkanCommandBuffer::bindVertexBuffers(const IBuffer* buffer) const noexcept
     {
         //TODO: Multiple buffer binding support

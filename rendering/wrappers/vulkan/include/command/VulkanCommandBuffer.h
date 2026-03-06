@@ -68,6 +68,7 @@ namespace narc_engine {
         narc_core::result bindScissors(const ScissorsInfos& scissors) const noexcept override;
         narc_core::result bindVertexBuffers(const IBuffer* buffer) const noexcept override;
         narc_core::result bindIndexBuffer(const IBuffer* buffer) const noexcept override;
+        narc_core::result bindDescriptorSets(const IPipelineLayout* layout, const IDescriptorBinding* binding) const noexcept override;
 
     private:
         std::shared_ptr<VulkanCommandPool> m_commandPool;

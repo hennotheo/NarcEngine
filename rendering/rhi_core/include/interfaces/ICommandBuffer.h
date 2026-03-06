@@ -44,5 +44,6 @@ namespace narc_engine {
         NARC_PURE_VIRTUAL_CMD(bindPipeline, const IGraphicsPipeline* pipeline);
         NARC_PURE_VIRTUAL_CMD(bindViewPort, const ViewPortInfos& viewport);
         NARC_PURE_VIRTUAL_CMD(bindScissors, const ScissorsInfos& scissors);
+        NARC_PURE_VIRTUAL_CMD(bindDescriptorSets, const IPipelineLayout* layout, const IDescriptorBinding* binding);
     };
 }

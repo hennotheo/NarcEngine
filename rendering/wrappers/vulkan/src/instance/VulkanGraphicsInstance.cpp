@@ -4,6 +4,7 @@
 
 #include "instance/VulkanGraphicsInstance.h"
 
+#include "VulkanTextureImage.h"
 #include "command/VulkanCommandPool.h"
 #include "descriptor/VulkanDescriptorPool.h"
 #include "descriptor/VulkanDescriptorSetLayout.h"
@@ -39,10 +40,12 @@ namespace narc_engine {
         surface->shutdown();
 
         m_descriptorPool->setDescriptorCount(2); //TODO: Change hardcoded value
+        m_descriptorPool->init();
     }
 
     void VulkanGraphicsInstance::shutdown()
     {
+        m_descriptorPool->shutdown();
         m_device->shutdown();
         m_instance->shutdown();
     }
@@ -104,6 +107,11 @@ namespace narc_engine {
         return m_device->createBuffer(allocationInfo).value_or(nullptr);
     }
 
+    std::unique_ptr<IImage> VulkanGraphicsInstance::createImage(const ImageAllocationInfo& allocationInfo) const noexcept
+    {
+        return m_device->createImage(allocationInfo).value_or(nullptr);
+    }
+
     std::unique_ptr<IDescriptorLayout> VulkanGraphicsInstance::createDescriptorLayout() const noexcept
     {
         return std::make_unique<VulkanDescriptorSetLayout>(m_device.get());
@@ -113,7 +121,7 @@ namespace narc_engine {
     {
         const auto vkLayout = narc_core::backend_cast<VulkanDescriptorSetLayout>(layout);
 
-        std::vector layouts {vkLayout};
+        std::vector layouts {vkLayout, vkLayout};//TODO: TEMP pour alloc plusieurs Bindings pour les frame in flight
         return m_descriptorPool->allocateDescriptorSet(layouts);
     }
 

@@ -5,6 +5,8 @@
 #pragma once
 
 namespace narc_engine {
+    struct ImageAllocationInfo;
+    class IImage;
     class IDescriptorLayout;
     class IBuffer;
     class IFence;
@@ -38,6 +40,7 @@ namespace narc_engine {
         NARC_PURE_VIRTUAL_QUERY(std::vector<std::unique_ptr<IDescriptorBinding>>, createDescriptorBinding, const IDescriptorLayout* layout);
 
         NARC_PURE_VIRTUAL_QUERY(std::unique_ptr<IBuffer>, createBuffer, const BufferAllocationInfo& allocationInfo);
+        NARC_PURE_VIRTUAL_QUERY(std::unique_ptr<IImage>, createImage, const ImageAllocationInfo& allocationInfo);
 
         NARC_PURE_VIRTUAL_CMD(waitForFences, std::span<const IFence*> fences);
         NARC_PURE_VIRTUAL_CMD(resetFences, std::span<const IFence*> fences);

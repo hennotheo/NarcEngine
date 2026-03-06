@@ -24,7 +24,7 @@ namespace narc_engine {
     private:
         const VulkanDevice* m_device;
         
-        VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
+        VkDescriptorPool m_descriptorPool = VK_NULL_HANDLE;
         
         uint32_t m_descriptorCount = 0;
     };

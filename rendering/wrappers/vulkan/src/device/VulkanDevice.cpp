@@ -4,8 +4,11 @@
 
 #include "device/VulkanDevice.h"
 
+#include "VulkanTextureImage.h"
+#include "buffers/VulkanBuffer.h"
 #include "buffers/VulkanIndexBuffer.h"
 #include "buffers/VulkanStagingBuffer.h"
+#include "buffers/VulkanUniformBuffer.h"
 #include "buffers/VulkanVertexBuffer.h"
 #include "instance/VulkanInstance.h"
 #include "sync/VulkanFence.h"
@@ -70,13 +73,15 @@ namespace narc_engine {
             return std::make_unique<VulkanStagingBuffer>(&m_memoryAllocator, infos.Size);
         }
 
-        VkBufferCreateInfo createInfo{};
-        createInfo.size = static_cast<VkDeviceSize>(infos.Size);
+        return std::make_unique<VulkanUniformBuffer>(&m_memoryAllocator, infos.Size);
+    }
 
+    RhiQuery<std::unique_ptr<IImage>> VulkanDevice::createImage(ImageAllocationInfo infos) const noexcept
+    {
+        auto texture = std::make_unique<VulkanTextureImage>(&m_memoryAllocator);
+        texture->path(infos.Path);
 
-        // VulkanBuffer buffer;
-        // m_memoryAllocator.allocBuffer(createInfo, &buffer.m_buffer, &buffer.m_allocation);
-        return nullptr;
+        return texture;
     }
 
     narc_core::result VulkanDevice::waitForFences(const std::span<const IFence*> fences) const

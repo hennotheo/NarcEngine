@@ -5,8 +5,9 @@
 #pragma once
 
 namespace narc_engine {
-    class IImage
+    class IImage : public narc_core::IInitialisable
     {
-
+    public:
+        ~IImage() override = default;
     };
 }

@@ -9,7 +9,7 @@ namespace narc_engine {
     class VulkanCommandBuffer;
     class VulkanCommandPool;
 
-    class VulkanTextureImage : narc_core::IInitialisable
+    class VulkanTextureImage : public IImage
     {
     public:
         explicit VulkanTextureImage(const VulkanMemoryAllocator* allocator);
