@@ -20,7 +20,8 @@ namespace narc_engine {
 
         NARC_GETTER(VkCommandPool, getHandle, m_commandPool);
 
-        void freeBuffer(const VulkanCommandBuffer& buffers);
+        void freeBuffer(const VulkanCommandBuffer* buffers);
+        void destroyOneTimeBuffer(const ICommandBuffer* cmd) override;
 
     private:
         const VulkanDevice* m_device;

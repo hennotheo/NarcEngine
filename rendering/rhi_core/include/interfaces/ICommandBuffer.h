@@ -34,6 +34,7 @@ namespace narc_engine {
         NARC_PURE_VIRTUAL_CMD(end);
         NARC_PURE_VIRTUAL_CMD(reset);
         NARC_PURE_VIRTUAL_CMD(copyBuffer, const IBuffer* source, const IBuffer* destination, MemorySize size);
+        NARC_PURE_VIRTUAL_CMD(copyBufferToImage, const IBuffer* source, const IImage* destination);
         NARC_PURE_VIRTUAL_CMD(beginRenderPass, const ISwapchain* swapChain, const RenderPassInfos& infos);
         NARC_PURE_VIRTUAL_CMD(endRenderPass);
         NARC_PURE_VIRTUAL_CMD(bindVertexBuffers, const IBuffer* buffer);
@@ -45,5 +46,7 @@ namespace narc_engine {
         NARC_PURE_VIRTUAL_CMD(bindViewPort, const ViewPortInfos& viewport);
         NARC_PURE_VIRTUAL_CMD(bindScissors, const ScissorsInfos& scissors);
         NARC_PURE_VIRTUAL_CMD(bindDescriptorSets, const IPipelineLayout* layout, const IDescriptorBinding* binding);
+
+        NARC_PURE_VIRTUAL_CMD(transitionImageLayout, const IImage* image, ImageLayout oldLayout, ImageLayout newLayout);
     };
 }

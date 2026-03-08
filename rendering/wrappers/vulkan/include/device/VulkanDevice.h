@@ -36,7 +36,7 @@ namespace narc_engine {
         NARC_SETTER(IVulkanSurface*, setMainWindowSurface, m_mainWindowSurface);
 
         NARC_QUERY(RhiQuery<std::unique_ptr<IBuffer>>, createBuffer, BufferAllocationInfo infos);
-        NARC_QUERY(RhiQuery<std::unique_ptr<IImage>>, createImage, ImageAllocationInfo infos);
+        NARC_QUERY(RhiQuery<std::unique_ptr<IImage>>, createImage, const ImageAllocationInfo &infos);
 
         narc_core::result waitForFences(std::span<const IFence*> fences) const;
         narc_core::result resetFences(std::span<const IFence*> fences) const;

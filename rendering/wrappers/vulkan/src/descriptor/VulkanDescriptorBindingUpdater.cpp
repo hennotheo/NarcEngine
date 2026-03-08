@@ -40,7 +40,7 @@ namespace narc_engine {
     void VulkanDescriptorBindingUpdater::update()
     {
         std::vector<VkWriteDescriptorSet> writes;
-        for (const auto& [binding, samplerInfos]: m_samplers)
+        for (const auto& [binding, imageInfos]: m_samplers)
         {
             VkWriteDescriptorSet write{};
             write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -49,7 +49,7 @@ namespace narc_engine {
             write.dstArrayElement = 0;
             write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             write.descriptorCount = 1;
-            write.pImageInfo = &samplerInfos;
+            write.pImageInfo = &imageInfos;
             writes.push_back(write);
         }
 

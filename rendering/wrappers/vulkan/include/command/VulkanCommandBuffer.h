@@ -70,6 +70,9 @@ namespace narc_engine {
         narc_core::result bindIndexBuffer(const IBuffer* buffer) const noexcept override;
         narc_core::result bindDescriptorSets(const IPipelineLayout* layout, const IDescriptorBinding* binding) const noexcept override;
 
+        narc_core::result copyBufferToImage(const IBuffer* source, const IImage* destination) const noexcept override;
+        narc_core::result transitionImageLayout(const IImage* image, ImageLayout oldLayout, ImageLayout newLayout) const noexcept override;
+
     private:
         std::shared_ptr<VulkanCommandPool> m_commandPool;
         std::weak_ptr<VulkanDevice> m_device;

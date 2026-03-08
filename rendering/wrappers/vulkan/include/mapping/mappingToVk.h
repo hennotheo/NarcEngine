@@ -34,6 +34,7 @@ namespace narc_engine::mapping {
     VkFormat mapFromVertexAttributeFormat(const VertexAttributeFormat& value) noexcept;
     VkVertexInputAttributeDescription mapFromVertexAttribute(const VertexAttribute& value) noexcept;
     VkVertexInputBindingDescription mapFromVertexLayout(const VertexLayout& value) noexcept;
+    VkImageLayout mapFromImageLayout(const ImageLayout& value) noexcept;
 
     std::vector<VkFence_T*> toVkFenceArray(std::span<const IFence*> fences) noexcept;
 }

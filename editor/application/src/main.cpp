@@ -20,19 +20,43 @@ void stageAndCopyBuffer(const narc_engine::IBuffer* buffer, narc_engine::MemoryS
     {
         NARC_ERROR_RUNTIME("CMD Buffer allocation Failed");
     }
-    const auto& cmd = result.value();
-    cmd->begin();
+    const auto& oneTimeCmd = result.value();
+    oneTimeCmd->begin();
 
-    cmd->copyBuffer(stagingBuffer.get(), buffer, size);
+    oneTimeCmd->copyBuffer(stagingBuffer.get(), buffer, size);
 
-    cmd->end();
+    oneTimeCmd->end();
 
     graphicsInstance->getGraphicsQueue()->submit(
     {
-            .CommandBuffers = {cmd.get()}
+            .CommandBuffers = {oneTimeCmd.get()}
     });
 
     graphicsInstance->waitIdle();
+    cmdPool->destroyOneTimeBuffer(oneTimeCmd.get());
+}
+
+void copyBufferToImage(const narc_engine::IBuffer* buffer, const narc_engine::IImage* image)
+{
+    const auto result = cmdPool->allocateOneTimeBuffer();
+    if (!result.has_value())
+    {
+        NARC_ERROR_RUNTIME("CMD Buffer allocation Failed");
+    }
+    const auto& oneTimeCmd = result.value();
+    oneTimeCmd->begin();
+
+    oneTimeCmd->copyBufferToImage(buffer, image);
+
+    oneTimeCmd->end();
+
+    graphicsInstance->getGraphicsQueue()->submit(
+    {
+            .CommandBuffers = {oneTimeCmd.get()}
+    });
+
+    graphicsInstance->waitIdle();
+    cmdPool->destroyOneTimeBuffer(oneTimeCmd.get());
 }
 
 UniformBufferObject getUniformBufferObject(const narc_math::Extent swapchainExtent)
@@ -53,6 +77,55 @@ UniformBufferObject getUniformBufferObject(const narc_math::Extent swapchainExte
     ubo.proj[1][1] *= -1;
 
     return ubo;
+}
+
+std::unique_ptr<narc_engine::IImage> createImageTexture(const std::string& path)
+{
+    const auto imageStream = narc_io::FileReaderService::readImage(path);
+    auto alloc = narc_engine::ImageAllocationInfo();
+    alloc.Extent = {imageStream->getWidth(), imageStream->getHeight()};
+
+    auto image = graphicsInstance->createImage(alloc);
+    image->init();
+
+    narc_engine::BufferAllocationInfo imgStagingBufferInfo{};
+    imgStagingBufferInfo.IsStaging = true;
+    imgStagingBufferInfo.Size = imageStream->getWidth() * imageStream->getHeight() * 4;
+    const auto imgStagingBuffer = graphicsInstance->createBuffer(imgStagingBufferInfo);
+
+    imgStagingBuffer->setData(imageStream->getData());
+
+    //TRANSITION IMAGE LAYOUT : narc_engine::Undefined -> narc_engine::TransferDestination
+    {
+        const auto imageLayoutBuffer = cmdPool->allocateOneTimeBuffer().value();
+        imageLayoutBuffer->begin();
+        imageLayoutBuffer->transitionImageLayout(image.get(), narc_engine::Undefined, narc_engine::TransferDestination);
+        imageLayoutBuffer->end();
+        graphicsInstance->getGraphicsQueue()->submit(
+        {
+                .CommandBuffers = {imageLayoutBuffer.get()}
+        });
+        graphicsInstance->getGraphicsQueue()->waitQueueIdle();
+        cmdPool->destroyOneTimeBuffer(imageLayoutBuffer.get());
+    }
+
+    copyBufferToImage(imgStagingBuffer.get(), image.get());
+
+    //TRANSITION IMAGE LAYOUT : narc_engine::TransferDestination -> narc_engine::ShaderReadOnly
+    {
+        const auto imageLayoutBuffer = cmdPool->allocateOneTimeBuffer().value();
+        imageLayoutBuffer->begin();
+        imageLayoutBuffer->transitionImageLayout(image.get(), narc_engine::TransferDestination, narc_engine::ShaderReadOnly);
+        imageLayoutBuffer->end();
+        graphicsInstance->getGraphicsQueue()->submit(
+        {
+                .CommandBuffers = {imageLayoutBuffer.get()}
+        });
+        graphicsInstance->getGraphicsQueue()->waitQueueIdle();
+        cmdPool->destroyOneTimeBuffer(imageLayoutBuffer.get());
+    }
+
+    return image;
 }
 
 int main(int argc, char** argv)
@@ -82,7 +155,7 @@ int main(int argc, char** argv)
         graphicsInstance->init();
 
         constexpr uint32_t UBO_BINDING_INDEX = 0;
-        constexpr uint32_t SAMPLER_BINDING_INDEX = 0;
+        constexpr uint32_t SAMPLER_BINDING_INDEX = 1;
 
         const auto surface = graphicsInstance->createSurface(window.get());
         const auto swapChain = graphicsInstance->createSwapChain(surface.get());
@@ -92,11 +165,11 @@ int main(int argc, char** argv)
                 .Stage = narc_engine::VertexStage,
                 .Type = narc_engine::UniformBuffer
         });
-        // descriptorSetLayout->addBinding({
-        //         .BindingIndex = SAMPLER_BINDING_INDEX,
-        //         .Stage = narc_engine::FragmentStage,
-        //         .Type = narc_engine::Sampler
-        // });
+        descriptorSetLayout->addBinding({
+                .BindingIndex = SAMPLER_BINDING_INDEX,
+                .Stage = narc_engine::FragmentStage,
+                .Type = narc_engine::Sampler
+        });
 
         const auto pipelineLayout = graphicsInstance->createPipelineLayout(swapChain.get());
         const auto pipeline = graphicsInstance->createPipeline(pipelineLayout.get(), swapChain.get());
@@ -161,10 +234,8 @@ int main(int argc, char** argv)
             commandBuffers.push_back(cmdPool->allocateCommandBuffer().value());
         }
 
-        // graphicsInstance->createImage(narc_engine::ImageAllocationInfo{
-        //     .Size = 0,
-        //     .Path = "textures/tex_test_uv_0.png"
-        // });
+        std::unique_ptr<narc_engine::IImage> image = createImageTexture("textures/tex_test_uv_0.png");
+
 
         {
             //Buffer lifetime
@@ -193,7 +264,7 @@ int main(int argc, char** argv)
             {
                 const auto updater = binding->createUpdater();
                 updater->updateBuffer(UBO_BINDING_INDEX, uboBuffer.get());
-                updater->updateImageSampler(SAMPLER_BINDING_INDEX, uboBuffer.get());
+                updater->updateImageSampler(SAMPLER_BINDING_INDEX, image.get());
                 updater->update();
             }
 
@@ -267,6 +338,8 @@ int main(int argc, char** argv)
 
             graphicsInstance->waitIdle();
         }
+
+        image->shutdown();
 
         for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
         {

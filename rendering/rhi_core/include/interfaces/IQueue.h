@@ -12,5 +12,6 @@ namespace narc_engine {
 
         NARC_PURE_VIRTUAL_CMD(submit, QueueSubmitInfos infos);
         NARC_PURE_VIRTUAL_CMD(present, QueuePresentInfos infos);
+        NARC_PURE_VIRTUAL_CMD(waitQueueIdle);
     };
 }

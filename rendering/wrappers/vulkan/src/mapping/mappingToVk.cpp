@@ -189,6 +189,20 @@ namespace narc_engine::mapping {
         return bindingDescription;
     }
 
+    VkImageLayout mapFromImageLayout(const ImageLayout& value) noexcept
+    {
+        switch (value)
+        {
+            case Undefined: return VK_IMAGE_LAYOUT_UNDEFINED;
+            case TransferSource: return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+            case TransferDestination: return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            case ShaderReadOnly: return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        }
+
+        NARC_LOG_WARNING("This Image Layout is not implemented in Vulkan.");
+        return VK_IMAGE_LAYOUT_UNDEFINED;
+    }
+
     std::vector<VkFence_T*> toVkFenceArray(std::span<const IFence*> fences) noexcept
     {
         return fences

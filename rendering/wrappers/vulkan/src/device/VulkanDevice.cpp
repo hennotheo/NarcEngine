@@ -76,10 +76,10 @@ namespace narc_engine {
         return std::make_unique<VulkanUniformBuffer>(&m_memoryAllocator, infos.Size);
     }
 
-    RhiQuery<std::unique_ptr<IImage>> VulkanDevice::createImage(ImageAllocationInfo infos) const noexcept
+    RhiQuery<std::unique_ptr<IImage>> VulkanDevice::createImage(const ImageAllocationInfo& infos) const noexcept
     {
         auto texture = std::make_unique<VulkanTextureImage>(&m_memoryAllocator);
-        texture->path(infos.Path);
+        texture->setExtent(infos.Extent);
 
         return texture;
     }

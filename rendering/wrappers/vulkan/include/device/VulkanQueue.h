@@ -27,6 +27,7 @@ namespace narc_engine {
 
         NARC_CMD_OVERRIDE(submit, QueueSubmitInfos infos);
         NARC_CMD_OVERRIDE(present, QueuePresentInfos infos);
+        NARC_CMD_OVERRIDE(waitQueueIdle);
 
     private:
         const VulkanDevice* m_device = nullptr;

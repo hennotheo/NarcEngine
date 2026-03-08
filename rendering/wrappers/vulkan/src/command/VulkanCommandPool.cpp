@@ -76,9 +76,15 @@ namespace narc_engine {
         return std::make_unique<VulkanCommandBuffer>(commandBuffer);
     }
 
-    void VulkanCommandPool::freeBuffer(const VulkanCommandBuffer& buffers)
+    void VulkanCommandPool::freeBuffer(const VulkanCommandBuffer* buffers)
     {
-        const std::array commandBuffers{buffers.getHandle()};
+        const std::array commandBuffers{buffers->getHandle()};
         vkFreeCommandBuffers(m_device->getHandle(), m_commandPool,1, commandBuffers.data());
+    }
+
+    void VulkanCommandPool::destroyOneTimeBuffer(const ICommandBuffer* cmd)
+    {
+        const auto vkCmd = narc_core::backend_cast<VulkanCommandBuffer>(cmd);
+        freeBuffer(vkCmd);
     }
 } // narc_engine

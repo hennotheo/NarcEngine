@@ -61,4 +61,12 @@ namespace narc_engine {
         ShaderStage Stage;
         DescriptorType Type;
     };
+
+    enum ImageLayout
+    {
+        Undefined,
+        TransferSource,
+        TransferDestination,
+        ShaderReadOnly
+    };
 }

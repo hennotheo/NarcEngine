@@ -9,5 +9,7 @@ namespace narc_engine {
     {
     public:
         ~IImage() override = default;
+
+        NARC_PURE_VIRTUAL_GETTER(narc_math::Extent, getExtent);
     };
 }

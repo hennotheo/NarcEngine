@@ -63,12 +63,12 @@ namespace narc_engine {
     {
         const auto submitInfos = mapping::mapFromQueuePresentInfos(infos);
 
-        if (vkQueuePresentKHR(m_queue, &submitInfos.Infos) != VK_SUCCESS)
-        {
-            return false;
-        }
+        return vkQueuePresentKHR(m_queue, &submitInfos.Infos) != VK_SUCCESS;
+    }
 
-        return true;
+    narc_core::result VulkanQueue::waitQueueIdle() const noexcept
+    {
+        return vkQueueWaitIdle(m_queue) == VK_SUCCESS;
     }
 
     bool VulkanQueue::isIndexDefined(const uint32_t& index)

@@ -9,8 +9,7 @@ namespace narc_engine {
     {
         ImageAllocationInfo() = default;
 
-        MemorySize Size{};
-        std::string Path{};
+        narc_math::Extent Extent{};
     };
 
     struct BufferAllocationInfo
