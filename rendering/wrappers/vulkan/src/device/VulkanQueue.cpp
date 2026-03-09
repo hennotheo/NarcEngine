@@ -59,11 +59,21 @@ namespace narc_engine {
         return true;
     }
 
-    narc_core::result VulkanQueue::present(const QueuePresentInfos infos) const noexcept
+    QueuePresentResult VulkanQueue::present(const QueuePresentInfos infos) const noexcept
     {
         const auto submitInfos = mapping::mapFromQueuePresentInfos(infos);
 
-        return vkQueuePresentKHR(m_queue, &submitInfos.Infos) != VK_SUCCESS;
+        const auto result = vkQueuePresentKHR(m_queue, &submitInfos.Infos);
+        if (result != VK_SUCCESS)
+        {
+            return QueuePresentResult{
+                    .HasError = true,
+                    .IsOutOfDate = result == VK_ERROR_OUT_OF_DATE_KHR,
+                    .IsSuboptimal = result == VK_SUBOPTIMAL_KHR,
+            };
+        }
+
+        return QueuePresentResult{};
     }
 
     narc_core::result VulkanQueue::waitQueueIdle() const noexcept

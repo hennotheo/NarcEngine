@@ -29,6 +29,10 @@ namespace narc_engine {
         const auto display = glfwGetX11Display();
         const auto window = glfwGetX11Window(m_window);
 
+        glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback);
+        glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
+        glfwSetWindowUserPointer(m_window, this);
+
         m_handles = NativeWindowHandle{};
         m_handles.Connection = XGetXCBConnection(display);
         m_handles.Window = static_cast<xcb_window_t>(window);
@@ -48,8 +52,6 @@ namespace narc_engine {
 
     bool GlfwWindow::shouldClose() const noexcept
     {
-        //TODO: TEMP
-        glfwPollEvents();
         return glfwWindowShouldClose(m_window);
     }
 
@@ -65,8 +67,29 @@ namespace narc_engine {
         };
     }
 
+    void GlfwWindow::update()
+    {
+        //Reset then poll
+        m_framebufferResized = false;
+
+        glfwPollEvents();
+    }
+
     void GlfwWindow::setTitle(const std::string& value) noexcept
     {
         m_title = value;
+    }
+
+    void GlfwWindow::framebufferResizeCallback(GLFWwindow* glfwWindow, int width, int height)
+    {
+        const auto window = reinterpret_cast<GlfwWindow*>(glfwGetWindowUserPointer(glfwWindow));
+        window->m_framebufferResized = true;
+        NARC_LOG_DEBUG("GlfwWindow framebuffer resized.");
+    }
+
+    void GlfwWindow::mouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods)
+    {
+        const auto window = reinterpret_cast<GlfwWindow*>(glfwGetWindowUserPointer(glfwWindow));
+        NARC_LOG_DEBUG("GlfwWindow Mouse but.{} {} {}", button, action, mods);
     }
 }

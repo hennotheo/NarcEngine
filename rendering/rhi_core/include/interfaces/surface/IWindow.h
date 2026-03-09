@@ -19,5 +19,8 @@ namespace narc_engine {
         NARC_PURE_VIRTUAL_GETTER(NativeWindowHandle, getNativeHandle);
 
         NARC_PURE_VIRTUAL_GETTER(std::string_view, getTitle);
+        NARC_PURE_VIRTUAL_GETTER(bool, isResizing);
+
+        virtual void update() = 0;
     };
 } // narc_engine

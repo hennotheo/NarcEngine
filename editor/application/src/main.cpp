@@ -128,6 +128,15 @@ std::unique_ptr<narc_engine::IImage> createImageTexture(const std::string& path)
     return image;
 }
 
+void recreateSwapChain(narc_engine::IWindow* window, narc_engine::ISwapchain* swapChain)
+{
+    graphicsInstance->waitIdle();
+
+    swapChain->shutdown();
+
+    swapChain->init();
+}
+
 int main(int argc, char** argv)
 {
     spdlog::set_level(spdlog::level::debug);
@@ -236,7 +245,6 @@ int main(int argc, char** argv)
 
         std::unique_ptr<narc_engine::IImage> image = createImageTexture("textures/tex_test_uv_0.png");
 
-
         {
             //Buffer lifetime
             const auto verticesSize = narc_engine::s_vertices.size() * sizeof(narc_engine::s_vertices[0]);
@@ -269,8 +277,19 @@ int main(int argc, char** argv)
             }
 
             uint32_t frameInFlight = 0;
-            while (!window->shouldClose())
+            while (true)
             {
+                window->update();
+                if (window->shouldClose())
+                {
+                    break;
+                }
+                if (window->isResizing())
+                {
+                    recreateSwapChain(window.get(), swapChain.get());
+                    continue;
+                }
+
                 //Game Update ---------------------
                 auto ubo = getUniformBufferObject(swapChain->getSwapChainExtent());
                 uboBuffer->setData(&ubo);
@@ -278,9 +297,24 @@ int main(int argc, char** argv)
                 //Graphics Update ------------------
                 std::vector<const narc_engine::IFence*> fences = {inFlightFences[frameInFlight].get()};
                 graphicsInstance->waitForFences(fences);
-                graphicsInstance->resetFences(fences);
 
-                narc_engine::ImageIndex imageIndex = swapChain->acquireNextImage(imageAvailableSemaphores[frameInFlight].get(), nullptr).value();
+                //AQCUIRE SWAPCHAIN IMAGE
+                const auto result = swapChain->acquireNextImage(imageAvailableSemaphores[frameInFlight].get(), nullptr);
+                if (result.HasError)
+                {
+                    if (result.IsOutOfDate)
+                    {
+                        recreateSwapChain(window.get(), swapChain.get());
+                        continue;
+                    }
+                    if (!result.IsSuboptimal)
+                    {
+                        NARC_ERROR_RUNTIME("Failed to acquire swapchain image.");
+                    }
+                }
+                const auto imageIndex = result.ImageIndex;
+
+                graphicsInstance->resetFences(fences);
 
                 auto* cmdBuffer = commandBuffers[frameInFlight].get();
                 cmdBuffer->reset();
@@ -326,12 +360,23 @@ int main(int argc, char** argv)
                 });
 
                 const auto presentQueue = graphicsInstance->getPresentQueue();
-                presentQueue->present(
+                const auto presentResult = presentQueue->present(
                 {
                         .ImageIndices = {imageIndex},
                         .SwapChains = {swapChain.get()},
                         .WaitSemaphores = {renderFinishedSemaphores[frameInFlight].get()}
                 });
+                if (presentResult.HasError)
+                {
+                    if (presentResult.IsOutOfDate || presentResult.IsSuboptimal)
+                    {
+                        recreateSwapChain(window.get(), swapChain.get());
+                    }
+                    else
+                    {
+                        NARC_ERROR_RUNTIME("Failed to present Swapchain Image.");
+                    }
+                }
 
                 frameInFlight = (frameInFlight + 1) % MAX_FRAMES_IN_FLIGHT;
             }

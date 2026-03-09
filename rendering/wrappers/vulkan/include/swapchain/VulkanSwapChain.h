@@ -21,11 +21,12 @@ namespace narc_engine {
         NARC_IMPL_INITIALISABLE();
 
         NARC_OVERRIDE_GETTER(SurfaceExtent, getSwapChainExtent, m_swapChainExtent);
-        NARC_QUERY_OVERRIDE(RhiQuery<ImageIndex>, acquireNextImage, const ISemaphore* semaphore, const IFence* fence);
+        NARC_QUERY_OVERRIDE(SwapchainAcquireImageResult, acquireNextImage, const ISemaphore* semaphore, const IFence* fence);
         NARC_GETTER(VkFormat, getSwapChainImageFormat, m_swapChainImageFormat);
 
         NARC_GETTER(std::span<const VkImageView>, getSwapChainImageViews, m_swapChainImageViews);
-        NARC_GETTER(const VulkanFramebuffer*, getFrameBuffer, &m_swapChainFrameBuffers[frameInFlightIndex], const uint32_t frameInFlightIndex);//TODO: CHANGE
+        NARC_GETTER(const VulkanFramebuffer*, getFrameBuffer, &m_swapChainFrameBuffers[frameInFlightIndex],
+                    const uint32_t frameInFlightIndex); //TODO: CHANGE
 
         NARC_GETTER(VkSwapchainKHR, getHandle, m_swapChain);
 
@@ -51,7 +52,7 @@ namespace narc_engine {
         void createImageViews();
         void initFrameBuffers();
 
-        NARC_QUERY(RhiQuery<ImageIndex>, acquireNextImageImpl, const VulkanSemaphore* semaphore, const VulkanFence* fence);
+        NARC_QUERY(SwapchainAcquireImageResult, acquireNextImageImpl, const VulkanSemaphore* semaphore, const VulkanFence* fence);
 
         //TODO: To query
         NO_DISCARD VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) const;

@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include <GLFW/glfw3.h>
 
 struct GLFWwindow;
 
@@ -21,6 +22,9 @@ namespace narc_engine {
         NARC_QUERY_OVERRIDE(SurfaceExtent, getSurfaceExtent);
 
         NARC_OVERRIDE_GETTER(std::string_view, getTitle, m_title);
+        NARC_OVERRIDE_GETTER(bool, isResizing, m_framebufferResized);
+
+        void update() override;
 
         void setTitle(const std::string& value) noexcept override;
 
@@ -29,7 +33,11 @@ namespace narc_engine {
         NativeWindowHandle m_handles{};
 
         bool m_isOpen = false;
+        bool m_framebufferResized = false;
 
         std::string m_title;
+
+        static void framebufferResizeCallback(GLFWwindow* glfwWindow, int width, int height);
+        static void mouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods);
     };
 }

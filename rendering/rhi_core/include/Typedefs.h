@@ -9,6 +9,7 @@ namespace narc_engine {
     using Memory = void;
     using MemorySize = uint64_t;
     using SurfacePtr = void*;
+    using ImageIndex = uint32_t;
 
     using RhiQueryError = std::string;
 
@@ -19,6 +20,22 @@ namespace narc_engine {
 
     template<typename T>
     using RhiQuery = std::expected<T, RhiQueryError>;
+
+    struct QueuePresentResult
+    {
+        bool HasError{false};
+        bool IsOutOfDate{false};
+        bool IsSuboptimal{false};
+    };
+
+    struct SwapchainAcquireImageResult
+    {
+        ImageIndex ImageIndex;
+
+        bool HasError{false};
+        bool IsOutOfDate{false};
+        bool IsSuboptimal{false};
+    };
 
     enum VertexAttributeFormat
     {

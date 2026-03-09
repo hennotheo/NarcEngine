@@ -26,7 +26,7 @@ namespace narc_engine {
         NARC_GETTER(VkQueue, getHandle, m_queue);
 
         NARC_CMD_OVERRIDE(submit, QueueSubmitInfos infos);
-        NARC_CMD_OVERRIDE(present, QueuePresentInfos infos);
+        NO_DISCARD QueuePresentResult present(QueuePresentInfos infos) const noexcept override;
         NARC_CMD_OVERRIDE(waitQueueIdle);
 
     private:

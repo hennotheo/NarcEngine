@@ -6,6 +6,7 @@
 
 namespace narc_engine {
     class IFence;
+    class SwapchainAcquireImageResult;
 
     using ImageIndex = uint32_t;
 
@@ -15,6 +16,6 @@ namespace narc_engine {
         ~ISwapchain() override = default;
 
         NARC_PURE_VIRTUAL_GETTER(SurfaceExtent, getSwapChainExtent);
-        NARC_PURE_VIRTUAL_QUERY(RhiQuery<ImageIndex>, acquireNextImage, const ISemaphore* semaphore, const IFence* fence);
+        NARC_PURE_VIRTUAL_QUERY(SwapchainAcquireImageResult, acquireNextImage, const ISemaphore* semaphore, const IFence* fence);
     };
 }

@@ -118,7 +118,7 @@ namespace narc_engine {
         m_swapChainImageFormat = VK_FORMAT_UNDEFINED;
     }
 
-    RhiQuery<ImageIndex> VulkanSwapChain::acquireNextImage(const ISemaphore* semaphore, const IFence* fence) const noexcept
+    SwapchainAcquireImageResult VulkanSwapChain::acquireNextImage(const ISemaphore* semaphore, const IFence* fence) const noexcept
     {
         const VulkanSemaphore* vkSemaphore = backend_cast<VulkanSemaphore>(semaphore);
         const VulkanFence* vkFence = backend_cast<VulkanFence>(fence);
@@ -162,18 +162,26 @@ namespace narc_engine {
         NARC_LOG_DEBUG("SwapChainImage views created successfully!");
     }
 
-    RhiQuery<ImageIndex> VulkanSwapChain::acquireNextImageImpl(const VulkanSemaphore* semaphore, const VulkanFence* fence) const noexcept
+    SwapchainAcquireImageResult VulkanSwapChain::acquireNextImageImpl(const VulkanSemaphore* semaphore, const VulkanFence* fence) const noexcept
     {
         const auto vkSemaphore = semaphore != nullptr ? semaphore->getHandle() : VK_NULL_HANDLE;
         const auto vkFence = fence != nullptr ? fence->getHandle() : VK_NULL_HANDLE;
 
         uint32_t imageIndex = 0;
-        if (vkAcquireNextImageKHR(m_device->getHandle(), m_swapChain, UINT64_MAX, vkSemaphore, vkFence, &imageIndex) != VK_SUCCESS)
+        if (const auto result = vkAcquireNextImageKHR(m_device->getHandle(), m_swapChain, UINT64_MAX, vkSemaphore, vkFence, &imageIndex);
+            result != VK_SUCCESS)
         {
-            return RhiUnexpected("Could not acquire image index!");
+            return SwapchainAcquireImageResult{
+                    .ImageIndex = imageIndex,
+                    .HasError = true,
+                    .IsOutOfDate = result == VK_ERROR_OUT_OF_DATE_KHR,
+                    .IsSuboptimal = result == VK_SUBOPTIMAL_KHR
+            };
         }
 
-        return imageIndex;
+        return SwapchainAcquireImageResult{
+                .ImageIndex = imageIndex
+        };
     }
 
     VkPresentModeKHR VulkanSwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) const
@@ -214,7 +222,7 @@ namespace narc_engine {
             auto& fb = m_swapChainFrameBuffers.at(i);
 
             fb.setRenderPass(m_renderPass);
-            fb.setAttachments({ m_swapChainImageViews[i] });
+            fb.setAttachments({m_swapChainImageViews[i]});
             fb.init();
         }
     }
