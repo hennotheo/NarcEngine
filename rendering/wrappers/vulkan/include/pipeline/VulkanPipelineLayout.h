@@ -5,14 +5,14 @@
 #pragma once
 
 namespace narc_engine {
+    class VulkanShaderModule;
     class VulkanDescriptorSetLayout;
     class VulkanDevice;
 
-    class VulkanPipelineLayout final : public narc_core::IInitialisable
+    class VulkanPipelineLayout final : public IPipelineLayout
     {
     public:
-        explicit VulkanPipelineLayout(const std::weak_ptr<VulkanDevice>& device);
-
+        explicit VulkanPipelineLayout(const VulkanDevice* device);
         ~VulkanPipelineLayout() override;
 
         NARC_IMPL_INITIALISABLE();
@@ -21,8 +21,22 @@ namespace narc_engine {
         
         void addDescriptorSetLayoutBinding(const VulkanDescriptorSetLayout* layout);
 
+        VulkanShaderModule createVertexShaderModule() const;
+        VulkanShaderModule createFragmentShaderModule() const;
+        NARC_GETTER(const VertexLayout&, getVertexLayout, m_vertexLayout);
+
+        //RHI
+        IPipelineLayout* setVertexShader(const std::string& path) override;
+        IPipelineLayout* setFragmentShader(const std::string& path) override;
+        IPipelineLayout* setVertexLayout(const VertexLayout& layout) override;
+        IPipelineLayout* addBinding(const IDescriptorLayout* binding) override;
+
     private:
-        std::weak_ptr<VulkanDevice> m_device;
+        const VulkanDevice* m_device;
+
+        std::string m_vertexShaderPath{};
+        std::string m_fragmentShaderPath{};
+        VertexLayout m_vertexLayout{};
 
         VkPipelineLayout m_pipelineLayout = VK_NULL_HANDLE;
         

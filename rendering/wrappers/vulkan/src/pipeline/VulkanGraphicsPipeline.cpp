@@ -8,36 +8,30 @@
 #include "pipeline/VulkanPipelineLayout.h"
 #include "pipeline/VulkanRenderPass.h"
 #include "VulkanShaderModule.h"
-#include "swapchain/VulkanSwapChain.h"
+#include "mapping/mappingToVk.h"
 
 namespace narc_engine {
-    VulkanGraphicsPipeline::VulkanGraphicsPipeline(const std::weak_ptr<VulkanDevice>& device, const std::unique_ptr<VulkanSwapChain>& swapChain) :
+    VulkanGraphicsPipeline::VulkanGraphicsPipeline(const VulkanDevice* device, const VulkanSwapChain* swapChain,
+                                                   const VulkanPipelineLayout* pipelineLayout, std::unique_ptr<VulkanRenderPass>& renderPass) :
         m_device(device),
-        m_swapChain(swapChain.get())
+        m_swapChain(swapChain),
+        m_pipelineLayout(pipelineLayout),
+        m_renderPass(std::move(renderPass))
     {
-        
     }
 
     VulkanGraphicsPipeline::~VulkanGraphicsPipeline() = default;
-    
+
     void VulkanGraphicsPipeline::init()
-    {        
-        if (m_renderPass == nullptr)
-        {
-            NARC_ERROR_RUNTIME("RenderPass not set for VulkanGraphicsPipeline.");
-        }
-        m_renderPass->init();
+    {
+        NARC_GUARD_RAW_PTR(m_pipelineLayout, "PipelineLayout not set for VulkanGraphicsPipeline.");
+        NARC_GUARD_RAW_PTR(m_renderPass, "RenderPass not set for VulkanGraphicsPipeline.");
 
-        if (m_pipelineLayout == nullptr)
-        {
-            NARC_ERROR_RUNTIME("PipelineLayout not set for VulkanGraphicsPipeline.");
-        }
-        m_pipelineLayout->init();
+        m_renderPass->init(); //TODO: Out of here, must have cache of passess
 
-        
-        auto fragShaderModule = VulkanShaderModule(m_device, "shaders/shader_frag.spv");
+        auto fragShaderModule = m_pipelineLayout->createFragmentShaderModule();
         fragShaderModule.init();
-        auto vertShaderModule = VulkanShaderModule(m_device, "shaders/shader_vert.spv");
+        auto vertShaderModule = m_pipelineLayout->createVertexShaderModule();
         vertShaderModule.init();
 
         VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
@@ -69,15 +63,17 @@ namespace narc_engine {
         //Vert input
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        
-        auto bindingDescription = getBindingDescription();
-        auto attributeDescriptions = getAttributeDescriptions();
 
+        const auto& vertexLayout = m_pipelineLayout->getVertexLayout();
+
+        auto bindingDescription = mapping::mapFromVertexLayout(vertexLayout);
         vertexInputInfo.vertexBindingDescriptionCount = 1;
-        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
         vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-        vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
+        auto attributeDescriptions = getAttributeDescriptions(vertexLayout);
+
+        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+        vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
         //Input Assembly
         VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
@@ -85,10 +81,7 @@ namespace narc_engine {
         inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         inputAssembly.primitiveRestartEnable = VK_FALSE;
 
-        if (m_swapChain == nullptr)
-        {
-            NARC_ERROR_RUNTIME("SwapChain not set for VulkanGraphicsPipeline.");
-        }
+        NARC_GUARD_RAW_PTR(m_swapChain, "SwapChain not set for VulkanGraphicsPipeline.");
 
         VkPipelineViewportStateCreateInfo viewportState{};
         viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -154,8 +147,8 @@ namespace narc_engine {
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
         pipelineInfo.basePipelineIndex = -1; // Optional
 
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Vulkan Device.");
-        if (vkCreateGraphicsPipelines(device->getHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) != VK_SUCCESS)
+        NARC_GUARD_RAW_PTR(m_device, "Failed to get Vulkan Device.");
+        if (vkCreateGraphicsPipelines(m_device->getHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) != VK_SUCCESS)
         {
             NARC_ERROR_RUNTIME("Failed to create graphics pipeline!");
         }
@@ -166,50 +159,19 @@ namespace narc_engine {
 
     void VulkanGraphicsPipeline::shutdown()
     {
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Vulkan Device.");
-        vkDestroyPipeline(device->getHandle(), m_pipeline, nullptr);
+        NARC_GUARD_RAW_PTR(m_device, "Failed to get Vulkan Device.");
+        vkDestroyPipeline(m_device->getHandle(), m_pipeline, nullptr);
 
         m_renderPass->shutdown();
-        m_pipelineLayout->shutdown();
     }
 
-    void VulkanGraphicsPipeline::setLayout(std::unique_ptr<VulkanPipelineLayout>& pipelineLayout)
+    std::vector<VkVertexInputAttributeDescription> VulkanGraphicsPipeline::getAttributeDescriptions(const VertexLayout& value)
     {
-        m_pipelineLayout = std::move(pipelineLayout);
-    }
-
-    void VulkanGraphicsPipeline::setRenderPass(std::unique_ptr<VulkanRenderPass>& renderPass)
-    {
-        m_renderPass = std::move(renderPass);
-    }
-
-    VkVertexInputBindingDescription VulkanGraphicsPipeline::getBindingDescription()
-    {
-        VkVertexInputBindingDescription bindingDescription{};
-        bindingDescription.binding = 0;
-        bindingDescription.stride = sizeof(Vertex);
-        bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-        return bindingDescription;
-    }
-
-    std::array<VkVertexInputAttributeDescription, 3> VulkanGraphicsPipeline::getAttributeDescriptions()
-    {
-        std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
-        attributeDescriptions[0].binding = 0;
-        attributeDescriptions[0].location = 0;
-        attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-        attributeDescriptions[0].offset = offsetof(Vertex, pos);
-
-        attributeDescriptions[1].binding = 0;
-        attributeDescriptions[1].location = 1;
-        attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[1].offset = offsetof(Vertex, color);
-
-        attributeDescriptions[2].binding = 0;
-        attributeDescriptions[2].location = 2;
-        attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-        attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
+        std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
+        for (auto attribute: value.Attributes)
+        {
+            attributeDescriptions.push_back(mapping::mapFromVertexAttribute(attribute));
+        }
 
         return attributeDescriptions;
     }

@@ -5,40 +5,22 @@
 #pragma once
 
 namespace narc_engine {
-    enum ShaderStage
-    {
-        Vertex = 0b0001,
-        Fragment = 0b0010
-    };
-
-    enum DescriptorType
-    {
-        Sampler,
-        UniformBuffer
-    };
-
-    struct DescriptorSetBindingInfo
-    {
-        uint32_t BindingIndex;
-        ShaderStage Stage;
-        DescriptorType Type;
-    };
-
-    class VulkanDescriptorSetLayout : narc_core::IInitialisable
+    class VulkanDescriptorSetLayout : public IDescriptorLayout
     {
     public:
-        explicit VulkanDescriptorSetLayout(NARC_DI_IMPORT_COMPONENT(VulkanDevice));
+        explicit VulkanDescriptorSetLayout(const VulkanDevice* device);
         ~VulkanDescriptorSetLayout() override;
         
         NARC_IMPL_INITIALISABLE();
 
-        void addBinding(DescriptorSetBindingInfo binding);
-
         NARC_GETTER(VkDescriptorSetLayout, getHandle, m_descriptorSetLayout);
-        
+
+        NARC_OVERRIDE_GETTER(std::span<const DescriptorSetBindingInfo>, getBindings, m_bindings);
+        void addBinding(const DescriptorSetBindingInfo& value) noexcept override;
+
     private:
-        narc_core::injected_component<VulkanDevice> m_device;
-        
+        const VulkanDevice* m_device;
+
         VkDescriptorSetLayout m_descriptorSetLayout = VK_NULL_HANDLE;
 
         std::vector<DescriptorSetBindingInfo> m_bindings;

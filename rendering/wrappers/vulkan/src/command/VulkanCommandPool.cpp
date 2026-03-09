@@ -8,8 +8,8 @@
 #include "device/VulkanDevice.h"
 
 namespace narc_engine {
-    VulkanCommandPool::VulkanCommandPool(std::weak_ptr<VulkanDevice> device) :
-        m_device(std::move(device))
+    VulkanCommandPool::VulkanCommandPool(const VulkanDevice* device) :
+        m_device(device)
     {
     }
 
@@ -17,16 +17,16 @@ namespace narc_engine {
 
     void VulkanCommandPool::init()
     {
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Vulkan Device.");
+        NARC_GUARD_RAW_PTR(m_device, "Failed to get Vulkan Device.");
 
-        const auto queueFamilyIndices = device->getQueueFamilyIndices();
+        const auto queueFamilyIndices = m_device->getQueueFamilyIndices();
 
         VkCommandPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
         poolInfo.queueFamilyIndex = queueFamilyIndices.GraphicsFamily.value();
 
-        if (vkCreateCommandPool(device->getHandle(), &poolInfo, nullptr, &m_commandPool) != VK_SUCCESS)
+        if (vkCreateCommandPool(m_device->getHandle(), &poolInfo, nullptr, &m_commandPool) != VK_SUCCESS)
         {
             NARC_ERROR_RUNTIME("Failed to create command pool!");
         }
@@ -34,15 +34,13 @@ namespace narc_engine {
 
     void VulkanCommandPool::shutdown()
     {
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Vulkan Device.");
+        NARC_GUARD_RAW_PTR(m_device, "Failed to get Vulkan Device.");
         
-        vkDestroyCommandPool(device->getHandle(), m_commandPool, nullptr);
+        vkDestroyCommandPool(m_device->getHandle(), m_commandPool, nullptr);
     }
 
-    std::unique_ptr<VulkanCommandBuffer> VulkanCommandPool::allocateOneTimeBuffer() const
+    RhiQuery<std::unique_ptr<ICommandBuffer>> VulkanCommandPool::allocateOneTimeBuffer() const noexcept
     {
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Vulkan Device.");
-
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.commandPool = m_commandPool;
@@ -50,9 +48,9 @@ namespace narc_engine {
         allocInfo.commandBufferCount = 1;
 
         VkCommandBuffer commandBuffer;
-        if (vkAllocateCommandBuffers(device->getHandle(), &allocInfo, &commandBuffer) != VK_SUCCESS)
+        if (vkAllocateCommandBuffers(m_device->getHandle(), &allocInfo, &commandBuffer) != VK_SUCCESS)
         {
-            NARC_ERROR_RUNTIME("Failed to allocate command buffers!");
+            return RhiUnexpected("Failed to allocate command buffers!");
         }
         
         auto cmdBuffer = std::make_unique<VulkanCommandBuffer>(commandBuffer);
@@ -61,10 +59,8 @@ namespace narc_engine {
         return cmdBuffer;
     }
 
-    std::unique_ptr<VulkanCommandBuffer> VulkanCommandPool::allocateCommandBuffer() const
+    RhiQuery<std::unique_ptr<ICommandBuffer>> VulkanCommandPool::allocateCommandBuffer() const noexcept
     {
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Vulkan Device.");
-        
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.commandPool = m_commandPool;
@@ -72,19 +68,23 @@ namespace narc_engine {
         allocInfo.commandBufferCount = 1;
 
         VkCommandBuffer commandBuffer;
-        if (vkAllocateCommandBuffers(device->getHandle(), &allocInfo, &commandBuffer) != VK_SUCCESS)
+        if (vkAllocateCommandBuffers(m_device->getHandle(), &allocInfo, &commandBuffer) != VK_SUCCESS)
         {
-            NARC_ERROR_RUNTIME("Failed to allocate command buffers!");
+            return RhiUnexpected("Failed to allocate command buffers!");
         }
         
         return std::make_unique<VulkanCommandBuffer>(commandBuffer);
     }
 
-    void VulkanCommandPool::freeBuffer(const VulkanCommandBuffer& buffers)
+    void VulkanCommandPool::freeBuffer(const VulkanCommandBuffer* buffers)
     {
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Vulkan Device.");
+        const std::array commandBuffers{buffers->getHandle()};
+        vkFreeCommandBuffers(m_device->getHandle(), m_commandPool,1, commandBuffers.data());
+    }
 
-        const std::array commandBuffers{buffers.getHandle()};
-        vkFreeCommandBuffers(device->getHandle(), m_commandPool,1, commandBuffers.data());
+    void VulkanCommandPool::destroyOneTimeBuffer(const ICommandBuffer* cmd)
+    {
+        const auto vkCmd = narc_core::backend_cast<VulkanCommandBuffer>(cmd);
+        freeBuffer(vkCmd);
     }
 } // narc_engine

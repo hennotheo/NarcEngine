@@ -4,18 +4,17 @@
 
 #include "pipeline/VulkanPipelineLayout.h"
 
+#include "VulkanShaderModule.h"
 #include "descriptor/VulkanDescriptorSetLayout.h"
 #include "device/VulkanDevice.h"
 
 namespace narc_engine {
-    VulkanPipelineLayout::VulkanPipelineLayout(const std::weak_ptr<VulkanDevice>& device) :
+    VulkanPipelineLayout::VulkanPipelineLayout(const VulkanDevice* device) :
         m_device(device)
     {
     }
 
-    VulkanPipelineLayout::~VulkanPipelineLayout()
-    {
-    }
+    VulkanPipelineLayout::~VulkanPipelineLayout() = default;
 
     void VulkanPipelineLayout::init()
     {
@@ -32,21 +31,26 @@ namespace narc_engine {
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = setLayouts.size();
         pipelineLayoutInfo.pSetLayouts = setLayouts.data();
-        pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
-        pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Device.");
+        pipelineLayoutInfo.pushConstantRangeCount = 0;
+        pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-        if (vkCreatePipelineLayout(device->getHandle(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
+        NARC_GUARD_RAW_PTR(m_device, "Failed to get Device.");
+
+        if (vkCreatePipelineLayout(m_device->getHandle(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
         {
             NARC_ERROR_RUNTIME("Failed to create pipeline layout!");
         }
+
+        NARC_LOG_DEBUG("Pipeline Layout Created successfully.");
     }
 
     void VulkanPipelineLayout::shutdown()
     {
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Device.");
+        NARC_GUARD_RAW_PTR(m_device, "Failed to get Device.");
 
-        vkDestroyPipelineLayout(device->getHandle(), m_pipelineLayout, nullptr);
+        vkDestroyPipelineLayout(m_device->getHandle(), m_pipelineLayout, nullptr);
+
+        NARC_LOG_DEBUG("Pipeline Layout Destroyed successfully.");
     }
 
     void VulkanPipelineLayout::addDescriptorSetLayoutBinding(const VulkanDescriptorSetLayout* layout)
@@ -57,5 +61,41 @@ namespace narc_engine {
         }
 
         m_setLayouts.push_back(layout);
+    }
+
+    VulkanShaderModule VulkanPipelineLayout::createVertexShaderModule() const
+    {
+        return VulkanShaderModule(m_device, m_vertexShaderPath);
+    }
+
+    VulkanShaderModule VulkanPipelineLayout::createFragmentShaderModule() const
+    {
+        return VulkanShaderModule(m_device, m_fragmentShaderPath);
+    }
+
+    IPipelineLayout* VulkanPipelineLayout::setVertexShader(const std::string& path)
+    {
+        m_vertexShaderPath = path;
+        return this;
+    }
+
+    IPipelineLayout* VulkanPipelineLayout::setFragmentShader(const std::string& path)
+    {
+        m_fragmentShaderPath = path;
+        return this;
+    }
+
+    IPipelineLayout* VulkanPipelineLayout::setVertexLayout(const VertexLayout& layout)
+    {
+        m_vertexLayout = layout;
+        return this;
+    }
+
+    IPipelineLayout* VulkanPipelineLayout::addBinding(const IDescriptorLayout* binding)
+    {
+        const auto vkBinding = narc_core::backend_cast<VulkanDescriptorSetLayout>(binding);
+
+        m_setLayouts.push_back(vkBinding);
+        return this;
     }
 } // narc_engine

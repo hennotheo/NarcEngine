@@ -4,28 +4,27 @@
 
 #pragma once
 
-#include "VulkanCommandBuffer.h"
-
 namespace narc_engine {
     class VulkanDevice;
     
-    class VulkanCommandPool final : public narc_core::IInitialisable
+    class VulkanCommandPool final : public ICommandBufferPool
     {
     public:
-        explicit VulkanCommandPool(std::weak_ptr<VulkanDevice> device);
+        explicit VulkanCommandPool(const VulkanDevice* device);
         ~VulkanCommandPool() noexcept override;
 
         NARC_IMPL_INITIALISABLE();
 
+        NARC_QUERY_OVERRIDE(RhiQuery<std::unique_ptr<ICommandBuffer>>, allocateOneTimeBuffer);
+        NARC_QUERY_OVERRIDE(RhiQuery<std::unique_ptr<ICommandBuffer>>, allocateCommandBuffer);
+
         NARC_GETTER(VkCommandPool, getHandle, m_commandPool);
-        
-        std::unique_ptr<VulkanCommandBuffer> allocateOneTimeBuffer() const;
-        std::unique_ptr<VulkanCommandBuffer> allocateCommandBuffer() const;
-        
-        void freeBuffer(const VulkanCommandBuffer& buffers);
+
+        void freeBuffer(const VulkanCommandBuffer* buffers);
+        void destroyOneTimeBuffer(const ICommandBuffer* cmd) override;
 
     private:
-        std::weak_ptr<VulkanDevice> m_device;
+        const VulkanDevice* m_device;
         
         VkCommandPool m_commandPool = VK_NULL_HANDLE;
     };

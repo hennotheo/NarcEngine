@@ -35,7 +35,7 @@ NO_DISCARD virtual bool displayName(__VA_ARGS__) const noexcept { return result;
 NO_DISCARD inline bool displayName(__VA_ARGS__) const noexcept override { return result; }
 
 #define NARC_SETTER(type, displayName, property) \
-inline void set##displayName(const type& value) noexcept { property = value; }
+inline void displayName(const type value) noexcept { property = value; }
 
 #define NARC_PURE_VIRTUAL_SETTER(type, displayName) \
-inline void set##displayName(const type& value) noexcept = 0
+virtual void displayName(const type& value) noexcept = 0

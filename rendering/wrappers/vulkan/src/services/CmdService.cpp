@@ -4,6 +4,7 @@
 
 #include "services/CmdService.h"
 
+#include "command/VulkanCommandBuffer.h"
 #include "command/VulkanCommandPool.h"
 #include "device/VulkanDevice.h"
 
@@ -17,14 +18,26 @@ namespace narc_engine {
 
     CmdService::~CmdService() = default;
 
-    narc_core::result CmdService::doCmdActionAndSubmit(const std::function<void(VulkanCommandBuffer&)> action) const noexcept
+    narc_core::result CmdService::doCmdActionAndSubmit(std::function<void(const ICommandBuffer*)> action) const noexcept
     {
-        const auto cmd = m_commandPool->allocateOneTimeBuffer();
-        cmd->begin();
+        const auto result = m_commandPool->allocateOneTimeBuffer();
+        if (!result)
+        {
+            return false;
+        }
 
-        action(*cmd);
+        const auto cmd = dynamic_cast<VulkanCommandBuffer*>(result.value().get());
+        if (!cmd->begin())
+        {
+            return false;
+        }
 
-        cmd->end();
+        action(cmd);
+
+        if (!cmd->end())
+        {
+            return false;
+        }
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -41,7 +54,7 @@ namespace narc_engine {
 
         //TODO: Replace this later by a fence, vkQueueWaitIdle is overkill and high cost but fine in tests
         graphicsQueue->waitIdle();
-        
+
         return true;
     }
 } // narc_engine

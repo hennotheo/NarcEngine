@@ -12,17 +12,16 @@ namespace narc_engine {
     class VulkanFramebuffer final : public narc_core::IInitialisable
     {
     public:
-        explicit VulkanFramebuffer(std::weak_ptr<VulkanDevice> device, const VulkanSwapChain* swapChain,
-                          const VulkanRenderPass* renderPass);
+        explicit VulkanFramebuffer(const VulkanDevice* device, const VulkanSwapChain* swapChain);
         ~VulkanFramebuffer() noexcept override;
 
         NARC_IMPL_INITIALISABLE();
 
         NARC_GETTER(VkFramebuffer, getHandle, m_framebuffer);
-
+        void setRenderPass(const VulkanRenderPass* renderPass);
         void setAttachments(const std::vector<VkImageView>& attachments) { m_attachments = attachments; }
     private:
-        std::weak_ptr<VulkanDevice> m_device;
+        const VulkanDevice* m_device;
         const VulkanSwapChain* m_swapChain;
         const VulkanRenderPass* m_renderPass;
         

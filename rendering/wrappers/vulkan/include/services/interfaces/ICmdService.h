@@ -12,6 +12,6 @@ namespace narc_engine {
     public:
         ~ICmdService() override = default;
         
-        NARC_PURE_VIRTUAL_CMD(doCmdActionAndSubmit, std::function<void(VulkanCommandBuffer&)> action);
+        NARC_PURE_VIRTUAL_CMD(doCmdActionAndSubmit, std::function<void(const ICommandBuffer*)> action);
     };
 }

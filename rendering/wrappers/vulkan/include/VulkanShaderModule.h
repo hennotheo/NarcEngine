@@ -9,7 +9,7 @@ namespace narc_engine {
     class VulkanShaderModule final : public narc_core::IInitialisable
     {
     public:
-        explicit VulkanShaderModule(const std::weak_ptr<VulkanDevice>& device, std::string path);
+        explicit VulkanShaderModule(const VulkanDevice* device, std::string path);
         ~VulkanShaderModule() override;
 
         NARC_IMPL_INITIALISABLE();
@@ -17,7 +17,7 @@ namespace narc_engine {
         NARC_GETTER(const VkShaderModule&, getHandle, m_shaderModule);
         
     private:
-        std::weak_ptr<VulkanDevice> m_device;
+        const VulkanDevice* m_device;
         
         std::string m_path;
 

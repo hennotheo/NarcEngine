@@ -6,11 +6,9 @@
 
 namespace narc_engine {
     struct QueueFamilyIndices;
-    class ISurface;
+    class IWindow;
     class VulkanDevice;
     class VulkanQueue;
-
-    inline static constexpr uint32_t QUEUE_INDEX_NONE = std::numeric_limits<uint32_t>::max();
 
     class IDeviceQueueService : public narc_core::IService
     {
@@ -19,7 +17,7 @@ namespace narc_engine {
 
         NARC_PURE_VIRTUAL_QUERY(VulkanServiceQuery<QueueFamilyIndices>, queryQueueFamilyIndices, const VkPhysicalDevice& physicalDevice);
         NARC_PURE_VIRTUAL_QUERY(bool, queueFamilyIndexSupportPresentation,
-                                const ISurface* surface,
+                                const IWindow* surface,
                                 const VkPhysicalDevice& physicalDevice,
                                 uint32_t queueFamilyIndex);
         NARC_PURE_VIRTUAL_QUERY(VulkanServiceQuery<std::vector<QueueFamilyIndex>>, getUniqueIndices, const QueueFamilyIndices& queueFamilyIndices);

@@ -4,6 +4,7 @@
 
 #pragma once
 
+#define VK_USE_PLATFORM_XLIB_KHR
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
 
@@ -12,6 +13,8 @@
 //TODO: For testing editor
 // #include "mapping/mappingToVk.h"
 // #include "mapping/mappingFromVk.h"
+
+#include "surface/IVulkanSurface.h"
 
 #include "models/SwapChainSupportInfoVulkan.h"
 
@@ -26,6 +29,7 @@
 #include "descriptor/VulkanDescriptorPool.h"
 #include "descriptor/VulkanDescriptorSet.h"
 #include "descriptor/VulkanDescriptorSetLayout.h"
+#include "descriptor/VulkanDescriptorBindingUpdater.h"
 
 #include "device/VulkanDevice.h"
 #include "device/VulkanQueue.h"
@@ -46,8 +50,6 @@
 #include "VulkanTextureImage.h"
 
 #include "services/CmdService.h"
-#include "services/DeviceQueueService.h"
-#include "services/InstanceService.h"
-#include "services/MemoryAllocationService.h"
-#include "services/PhysicalDeviceService.h"
-#include "services/SwapChainService.h"
+#include "services/VulkanMemoryAllocator.h"
+
+#include "instance/VulkanGraphicsInstance.h"

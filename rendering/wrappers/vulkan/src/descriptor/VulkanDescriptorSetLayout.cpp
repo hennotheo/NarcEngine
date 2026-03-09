@@ -7,8 +7,8 @@
 #include "device/VulkanDevice.h"
 
 namespace narc_engine {
-    VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(NARC_DI_IMPORT_COMPONENT(VulkanDevice)) :
-        NARC_DI_IMPL_COMPONENT(VulkanDevice, m_device)
+    VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(const VulkanDevice* device) :
+        m_device(device)
     {
         //Empty constructor.
     }
@@ -41,11 +41,12 @@ namespace narc_engine {
     void VulkanDescriptorSetLayout::shutdown()
     {
         vkDestroyDescriptorSetLayout(m_device->getHandle(), m_descriptorSetLayout, nullptr);
+        m_descriptorSetLayout = nullptr;
     }
 
-    void VulkanDescriptorSetLayout::addBinding(DescriptorSetBindingInfo binding)
+    void VulkanDescriptorSetLayout::addBinding(const DescriptorSetBindingInfo& value) noexcept
     {
-        m_bindings.push_back(binding);
+        m_bindings.push_back(value);
     }
 
     VkDescriptorSetLayoutBinding VulkanDescriptorSetLayout::mapFromDescriptorSetBindingInfo(DescriptorSetBindingInfo binding)
@@ -63,12 +64,12 @@ namespace narc_engine {
     {
         VkShaderStageFlags flags = 0;
 
-        if (stage == ShaderStage::Vertex)
+        if (stage == ShaderStage::VertexStage)
         {
             flags |= VK_SHADER_STAGE_VERTEX_BIT;
         }
 
-        if (stage == ShaderStage::Fragment)
+        if (stage == ShaderStage::FragmentStage)
         {
             flags |= VK_SHADER_STAGE_FRAGMENT_BIT;
         }

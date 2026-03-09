@@ -7,7 +7,7 @@
 #include "device/VulkanDevice.h"
 
 namespace narc_engine {
-    VulkanShaderModule::VulkanShaderModule(const std::weak_ptr<VulkanDevice>& device, std::string path) :
+    VulkanShaderModule::VulkanShaderModule(const VulkanDevice* device, std::string path) :
         m_device(device),
         m_path(std::move(path))
     {
@@ -25,15 +25,15 @@ namespace narc_engine {
 
     void VulkanShaderModule::shutdown()
     {
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Vulkan Device.");
+        NARC_GUARD_RAW_PTR(m_device, "Failed to get Vulkan Device.");
         
-        vkDestroyShaderModule(device->getHandle(), m_shaderModule, nullptr);
+        vkDestroyShaderModule(m_device->getHandle(), m_shaderModule, nullptr);
         m_shaderModule = VK_NULL_HANDLE;
     }
 
     VkShaderModule VulkanShaderModule::createShaderModule(const std::vector<char>& code)
     {
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Vulkan Device.");
+        NARC_GUARD_RAW_PTR(m_device, "Failed to get Vulkan Device.");
 
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -41,7 +41,7 @@ namespace narc_engine {
         createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
         VkShaderModule shaderModule;
-        if (vkCreateShaderModule(device->getHandle(), &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+        if (vkCreateShaderModule(m_device->getHandle(), &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
         {
             NARC_ERROR_RUNTIME("Failed to create shader module!");
         }

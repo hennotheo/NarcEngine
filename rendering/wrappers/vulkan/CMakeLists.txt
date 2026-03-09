@@ -9,5 +9,5 @@ narc_testable_add_include_directory(NarcVulkanWrapper PUBLIC
 target_precompile_headers(NarcVulkanWrapper PRIVATE "include/pch.h")
 
 narc_testable_link_library(NarcVulkanWrapper PUBLIC
-        NarcRenderingCore
+        RhiCore
         NarcEngineDependencies)

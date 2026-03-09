@@ -1,264 +1,449 @@
 #ifndef NARC_TEST_BUILD
 
-#include <NarcLog.h>
-#include <Rhi.h>
+constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
 
 #include "Ubo.h"
-#include "SurfaceManager.h"
-#include "TestDeviceExtension.h"
-#include "layers/VulkanValidationLogger.h"
 
-class Creator final : public narc_core::ICreator<narc_engine::VulkanSwapChain>
+std::unique_ptr<narc_engine::IGraphicsInstance> graphicsInstance = nullptr;
+std::unique_ptr<narc_engine::ICommandBufferPool> cmdPool = nullptr;
+
+void stageAndCopyBuffer(const narc_engine::IBuffer* buffer, narc_engine::MemorySize size, const void* data)
 {
-public:
-    std::function<std::unique_ptr<narc_engine::VulkanSwapChain>()> CreateVulkanSwapChain;
+    narc_engine::BufferAllocationInfo stagingBufferInfo{};
+    stagingBufferInfo.IsStaging = true;
+    stagingBufferInfo.Size = size;
+    const auto stagingBuffer = graphicsInstance->createBuffer(stagingBufferInfo);
 
-    [[nodiscard]] std::unique_ptr<narc_engine::VulkanSwapChain> create() const noexcept override
+    stagingBuffer->setData(data);
+    const auto result = cmdPool->allocateOneTimeBuffer();
+    if (!result.has_value())
     {
-        return CreateVulkanSwapChain();
+        NARC_ERROR_RUNTIME("CMD Buffer allocation Failed");
+    }
+    const auto& oneTimeCmd = result.value();
+    oneTimeCmd->begin();
+
+    oneTimeCmd->copyBuffer(stagingBuffer.get(), buffer, size);
+
+    oneTimeCmd->end();
+
+    graphicsInstance->getGraphicsQueue()->submit(
+    {
+            .CommandBuffers = {oneTimeCmd.get()}
+    });
+
+    graphicsInstance->waitIdle();
+    cmdPool->destroyOneTimeBuffer(oneTimeCmd.get());
+}
+
+void copyBufferToImage(const narc_engine::IBuffer* buffer, const narc_engine::IImage* image)
+{
+    const auto result = cmdPool->allocateOneTimeBuffer();
+    if (!result.has_value())
+    {
+        NARC_ERROR_RUNTIME("CMD Buffer allocation Failed");
+    }
+    const auto& oneTimeCmd = result.value();
+    oneTimeCmd->begin();
+
+    oneTimeCmd->copyBufferToImage(buffer, image);
+
+    oneTimeCmd->end();
+
+    graphicsInstance->getGraphicsQueue()->submit(
+    {
+            .CommandBuffers = {oneTimeCmd.get()}
+    });
+
+    graphicsInstance->waitIdle();
+    cmdPool->destroyOneTimeBuffer(oneTimeCmd.get());
+}
+
+UniformBufferObject getUniformBufferObject(const narc_math::Extent swapchainExtent)
+{
+    static auto startTime = std::chrono::steady_clock::now();
+
+    auto currentTime = std::chrono::steady_clock::now();
+    float time = std::chrono::duration<float>(currentTime - startTime).count();
+
+    float aspect = static_cast<float>(swapchainExtent.Width) / static_cast<float>(swapchainExtent.Height);
+    UniformBufferObject ubo{
+            .model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+            .view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.5f), glm::vec3(0.0f, 0.0f, 1.0f)),
+            .proj = glm::perspective(glm::radians(45.0f),
+                                     aspect,
+                                     0.1f,
+                                     10.0f)
+    };
+    ubo.proj[1][1] *= -1;
+
+    return ubo;
+}
+
+std::unique_ptr<narc_engine::IImage> createImageTexture(const std::string& path)
+{
+    const auto imageStream = narc_io::FileReaderService::readImage(path);
+    auto alloc = narc_engine::ImageAllocationInfo();
+    alloc.Extent = {imageStream->getWidth(), imageStream->getHeight()};
+
+    auto image = graphicsInstance->createImage(alloc);
+    image->init();
+
+    narc_engine::BufferAllocationInfo imgStagingBufferInfo{};
+    imgStagingBufferInfo.IsStaging = true;
+    imgStagingBufferInfo.Size = imageStream->getWidth() * imageStream->getHeight() * 4;
+    const auto imgStagingBuffer = graphicsInstance->createBuffer(imgStagingBufferInfo);
+
+    imgStagingBuffer->setData(imageStream->getData());
+
+    //TRANSITION IMAGE LAYOUT : narc_engine::Undefined -> narc_engine::TransferDestination
+    {
+        const auto imageLayoutBuffer = cmdPool->allocateOneTimeBuffer().value();
+        imageLayoutBuffer->begin();
+        imageLayoutBuffer->transitionImageLayout(image.get(), narc_engine::Undefined, narc_engine::TransferDestination);
+        imageLayoutBuffer->end();
+        graphicsInstance->getGraphicsQueue()->submit(
+        {
+                .CommandBuffers = {imageLayoutBuffer.get()}
+        });
+        graphicsInstance->getGraphicsQueue()->waitQueueIdle();
+        cmdPool->destroyOneTimeBuffer(imageLayoutBuffer.get());
     }
 
-};
+    copyBufferToImage(imgStagingBuffer.get(), image.get());
 
+    //TRANSITION IMAGE LAYOUT : narc_engine::TransferDestination -> narc_engine::ShaderReadOnly
+    {
+        const auto imageLayoutBuffer = cmdPool->allocateOneTimeBuffer().value();
+        imageLayoutBuffer->begin();
+        imageLayoutBuffer->transitionImageLayout(image.get(), narc_engine::TransferDestination, narc_engine::ShaderReadOnly);
+        imageLayoutBuffer->end();
+        graphicsInstance->getGraphicsQueue()->submit(
+        {
+                .CommandBuffers = {imageLayoutBuffer.get()}
+        });
+        graphicsInstance->getGraphicsQueue()->waitQueueIdle();
+        cmdPool->destroyOneTimeBuffer(imageLayoutBuffer.get());
+    }
+
+    return image;
+}
+
+void recreateSwapChain(narc_engine::IWindow* window, narc_engine::ISwapchain* swapChain)
+{
+    graphicsInstance->waitIdle();
+
+    swapChain->shutdown();
+
+    swapChain->init();
+}
+
+std::vector<uint16_t> createIndexDataFromModel(const narc_io::Model3D& model)
+{
+    std::vector<uint16_t> indexData;
+    indexData.reserve(model.getIndicesCount());
+
+    for (const auto& index: model.getIndices())
+    {
+        indexData.push_back(index);
+    }
+
+    return indexData;
+}
+
+std::vector<narc_engine::Vertex> createVertexInputDataFromModel(const narc_io::Model3D& model)
+{
+    std::vector<narc_engine::Vertex> vertices(model.getVerticesCount());
+    const auto v = model.getVertices();
+    const auto uv = model.getTexCoords();
+    const auto col = model.getColors();
+
+    for (int i = 0; i < vertices.size(); ++i)
+    {
+        vertices[i] = narc_engine::Vertex{
+                .pos = v[i],
+                .color = col[i],
+                .texCoord = uv[i]
+        };
+    }
+
+    return vertices;
+}
 
 int main(int argc, char** argv)
 {
     spdlog::set_level(spdlog::level::debug);
     narc_log::init_signal_handling();
 
-    const auto injector = di::make_injector(
-            di::bind<narc_engine::ISurface>.to<narc_engine::GlfwVulkanSurface>(),
-            di::bind<narc_engine::IInstanceService>.to<narc_engine::InstanceService>(),
-            di::bind<narc_engine::ISwapchainService>.to<narc_engine::SwapChainService>(),
-            di::bind<narc_engine::IDeviceService>.to<narc_engine::DeviceService>(),
-            di::bind<narc_engine::IDeviceQueueService>.to<narc_engine::DeviceQueueService>(),
-            di::bind<narc_engine::ISurfacesHandler>.to<SurfaceManager>(),
-            di::bind<narc_engine::IVulkanMemoryAllocationService>.to<narc_engine::MemoryAllocationService>(),
-            di::bind<narc_engine::ICmdService>.to<narc_engine::CmdService>(),
-            di::bind<narc_engine::VulkanSurfacesManager>.to<SurfaceManager>(),
-            di::bind<narc_core::ICreator<narc_engine::VulkanSwapChain>>.to<Creator>().in(di::singleton)
-            );
-
-    {
-        const auto creator = injector.create<std::shared_ptr<Creator>>();
-        creator->CreateVulkanSwapChain = [&injector] {
-            return injector.create<std::unique_ptr<narc_engine::VulkanSwapChain>>();
-        };
-    }
+    const auto model = narc_io::FileReaderService::load3DModel("models/mdl_sphere.obj");
 
     try
     {
-        std::vector<std::shared_ptr<narc_engine::IVulkanExtension>> vulkanExtensions;
-        vulkanExtensions.push_back(std::make_shared<TestDeviceExtensions>());
+        const auto window = narc_engine::createWindow(narc_engine::Glfw);
+        window->setTitle("NarcEngine Editor");
+        window->init();
 
-        const auto instance = injector.create<std::shared_ptr<narc_engine::VulkanInstance>>();
-        instance->setApplicationInfo(narc_engine::ApplicationInfo{
+        graphicsInstance = narc_engine::createGraphicsInstance(narc_engine::Vulkan);
+        graphicsInstance->setApplicationInfo({
                 .ApplicationName = "NarcEngine Editor",
                 .EngineName = "NarcEngine"
         });
-        instance->addExtension(injector.create<std::unique_ptr<narc_engine::VulkanGlfwExtension>>());
-        instance->addExtension(injector.create<std::unique_ptr<narc_engine::VulkanValidationLogger>>());
-
-        const auto device = injector.create<std::shared_ptr<narc_engine::VulkanDevice>>();
-        device->setPhysicalDeviceCriteria(narc_engine::PhysicalDeviceCriteria{
+        graphicsInstance->setDeviceCriteria({
                 .RequireGeometryShader = false,
                 .RequireDiscreteGPU = false,
-                .DeviceRequiredExtensions = vulkanExtensions,
+                .DeviceRequiredExtensions = {},
                 .PreferDiscreteGPU = true
         });
 
-        const auto surfacesManager = injector.create<std::shared_ptr<narc_engine::VulkanSurfacesManager>>();
-        surfacesManager->setDevice(device);
+        graphicsInstance->attachWindow(window.get());
+        graphicsInstance->init();
 
-        const auto cmdPool = injector.create<std::shared_ptr<narc_engine::VulkanCommandPool>>();
-        auto mainWindow = injector.create<std::unique_ptr<narc_engine::ISurface>>();
+        constexpr uint32_t UBO_BINDING_INDEX = 0;
+        constexpr uint32_t SAMPLER_BINDING_INDEX = 1;
 
-        std::vector<std::unique_ptr<narc_engine::VulkanSemaphore>> imageAvailableSemaphores;
-        std::vector<std::unique_ptr<narc_engine::VulkanSemaphore>> renderFinishedSemaphores;
-        std::vector<std::unique_ptr<narc_engine::VulkanFence>> inFlightFences;
+        const auto surface = graphicsInstance->createSurface(window.get());
+        const auto swapChain = graphicsInstance->createSwapChain(surface.get());
+        const auto descriptorSetLayout = graphicsInstance->createDescriptorLayout();
+        descriptorSetLayout->addBinding({
+                .BindingIndex = UBO_BINDING_INDEX,
+                .Stage = narc_engine::VertexStage,
+                .Type = narc_engine::UniformBuffer
+        });
+        descriptorSetLayout->addBinding({
+                .BindingIndex = SAMPLER_BINDING_INDEX,
+                .Stage = narc_engine::FragmentStage,
+                .Type = narc_engine::Sampler
+        });
+
+        const auto pipelineLayout = graphicsInstance->createPipelineLayout(swapChain.get());
+        const auto pipeline = graphicsInstance->createPipeline(pipelineLayout.get(), swapChain.get());
+        cmdPool = graphicsInstance->createCommandBufferPool();
+
+        std::vector<std::unique_ptr<narc_engine::ISemaphore>> imageAvailableSemaphores;
+        std::vector<std::unique_ptr<narc_engine::ISemaphore>> renderFinishedSemaphores;
+        std::vector<std::unique_ptr<narc_engine::IFence>> inFlightFences;
         for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
         {
-            auto imageAvailableSemaphore = injector.create<std::unique_ptr<narc_engine::VulkanSemaphore>>();
-            auto renderFinishedSemaphore = injector.create<std::unique_ptr<narc_engine::VulkanSemaphore>>();
-            auto inFlightFence = injector.create<std::unique_ptr<narc_engine::VulkanFence>>();
+            auto imageAvailableSemaphore = graphicsInstance->createSemaphore();
+            auto renderFinishedSemaphore = graphicsInstance->createSemaphore();
+            auto inFlightFence = graphicsInstance->createFence();
 
             imageAvailableSemaphores.push_back(std::move(imageAvailableSemaphore));
             renderFinishedSemaphores.push_back(std::move(renderFinishedSemaphore));
             inFlightFences.push_back(std::move(inFlightFence));
         }
 
-        instance->setApplicationInfo(narc_engine::ApplicationInfo{
-                .ApplicationName = "NarcEngine Editor",
-                .EngineName = "NarcEngine"
-        });
+        surface->init();
+        swapChain->init();
 
-        auto descriptorSetPool = injector.create<std::shared_ptr<narc_engine::VulkanDescriptorPool>>();
-        descriptorSetPool->setDescriptorCount(MAX_FRAMES_IN_FLIGHT);
+        narc_engine::VertexLayout vertexLayout{};
+        vertexLayout.Stride = sizeof(narc_engine::Vertex);
+        vertexLayout.Attributes = std::vector<narc_engine::VertexAttribute>(3);
+        vertexLayout.Attributes[0] = narc_engine::VertexAttribute{
+                .Location = 0,
+                .Binding = 0,
+                .Format = narc_engine::Float3,
+                .Offset = offsetof(narc_engine::Vertex, pos)
+        };
+        vertexLayout.Attributes[1] = narc_engine::VertexAttribute{
+                .Location = 1,
+                .Binding = 0,
+                .Format = narc_engine::Float3,
+                .Offset = offsetof(narc_engine::Vertex, color)
+        };
+        vertexLayout.Attributes[2] = narc_engine::VertexAttribute{
+                .Location = 2,
+                .Binding = 0,
+                .Format = narc_engine::Float2,
+                .Offset = offsetof(narc_engine::Vertex, texCoord)
+        };
 
-        auto descriptorSetLayout = injector.create<narc_engine::VulkanDescriptorSetLayout>();
-        descriptorSetLayout.addBinding({
-                .BindingIndex = 0,
-                .Stage = narc_engine::Vertex,
-                .Type = narc_engine::UniformBuffer
-        });
-        descriptorSetLayout.addBinding({
-                .BindingIndex = 1,
-                .Stage = narc_engine::Fragment,
-                .Type = narc_engine::Sampler
-        });
-
-        instance->init();
-        mainWindow->init();
-
-        const auto surfaceComponent = surfacesManager->pushSurface(mainWindow);
-        surfaceComponent.Layout->addDescriptorSetLayoutBinding(&descriptorSetLayout);
-        device->init();
-        descriptorSetLayout.init();
-        surfacesManager->init();
-        const auto surf = dynamic_cast<SurfaceManager*>(surfacesManager.get());
-        surf->descriptor_set_layout = &descriptorSetLayout;
-        surf->imageAvailableSemaphores = &imageAvailableSemaphores;
-        surf->inFlightFences = &inFlightFences;
-        surf->renderFinishedSemaphores = &renderFinishedSemaphores;
-        surf->graphicsQueue = const_cast<narc_engine::VulkanQueue*>(device->getGraphicsQueue());
-        surf->presentQueue = const_cast<narc_engine::VulkanQueue*>(device->getPresentQueue());
-        surf->setDevice(device);
+        descriptorSetLayout->init();
+        pipelineLayout
+                ->setVertexLayout(vertexLayout)
+                ->setVertexShader("shaders/shader_vert.spv")
+                ->setFragmentShader("shaders/shader_frag.spv")
+                ->addBinding(descriptorSetLayout.get())
+                ->init();
+        pipeline->init();
 
         cmdPool->init();
 
+        std::vector<std::unique_ptr<narc_engine::ICommandBuffer>> commandBuffers;
+        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
         {
-            auto vertexBuffer = injector.create<std::unique_ptr<narc_engine::VulkanVertexBuffer>>();
-            auto stagingBuffer = injector.create<std::unique_ptr<narc_engine::VulkanStagingBuffer>>();
-            stagingBuffer->allocate(narc_engine::s_vertices.size() * sizeof(narc_engine::s_vertices[0]));
-            stagingBuffer->setData(narc_engine::s_vertices.data());
-            stagingBuffer->copyToBuffer(*vertexBuffer);
-            stagingBuffer->deallocate();
-
-            auto indexBuffer = injector.create<std::unique_ptr<narc_engine::VulkanIndexBuffer>>();
-            stagingBuffer->allocate(narc_engine::s_indices.size() * sizeof(narc_engine::s_indices[0]));
-            stagingBuffer->setData(narc_engine::s_indices.data());
-            stagingBuffer->copyToBuffer(*indexBuffer);
-            stagingBuffer->deallocate();
-
-            auto textureImage = injector.create<std::unique_ptr<narc_engine::VulkanTextureImage>>();
-            textureImage->setpath(std::string("textures/tex_test_uv_0.png"));
-            textureImage->init();
-
-            //Store size in class
-            surf->vertexBuffer = vertexBuffer.get();
-            surf->indexBuffer = indexBuffer.get();
-
-
-            std::vector<narc_engine::VulkanUniformBuffer> uniformBuffers;
-            uniformBuffers.reserve(MAX_FRAMES_IN_FLIGHT);
-            for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-            {
-                uniformBuffers.push_back(injector.create<narc_engine::VulkanUniformBuffer>());
-            }
-
-            for (auto& uniform_buffer: uniformBuffers)
-            {
-                uniform_buffer.allocate(sizeof(UniformBufferObject));
-            }
-
-            descriptorSetPool->init();
-
-            auto sets = descriptorSetPool->allocateDescriptorSet(std::vector(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout));
-            for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-            {
-                VkDescriptorBufferInfo bufferInfo{};
-                bufferInfo.buffer = uniformBuffers[i].getHandle();
-                bufferInfo.offset = 0;
-                bufferInfo.range = sizeof(UniformBufferObject);
-
-                VkDescriptorImageInfo imageInfo{};
-                imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                imageInfo.imageView = textureImage->getView();
-                imageInfo.sampler = textureImage->getSampler();
-
-                std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
-                descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                descriptorWrites[0].dstSet = sets[i].getHandle();
-                descriptorWrites[0].dstBinding = 0;
-                descriptorWrites[0].dstArrayElement = 0;
-                descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                descriptorWrites[0].descriptorCount = 1;
-                descriptorWrites[0].pBufferInfo = &bufferInfo;
-                descriptorWrites[0].pImageInfo = nullptr;
-                descriptorWrites[0].pTexelBufferView = nullptr;
-
-                descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                descriptorWrites[1].dstSet = sets[i].getHandle();
-                descriptorWrites[1].dstBinding = 1;
-                descriptorWrites[1].dstArrayElement = 0;
-                descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                descriptorWrites[1].descriptorCount = 1;
-                descriptorWrites[1].pImageInfo = &imageInfo;
-
-                vkUpdateDescriptorSets(device->getHandle(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-            }
-            surf->descriptor_sets = sets;
-
-            for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-            {
-                imageAvailableSemaphores[i]->init();
-                renderFinishedSemaphores[i]->init();
-                inFlightFences[i]->init();
-            }
-
-
-            std::vector<std::unique_ptr<narc_engine::VulkanCommandBuffer>> commandBuffers;
-            for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-            {
-                commandBuffers.push_back(cmdPool->allocateCommandBuffer());
-            }
-            surf->cmdBuffer = &commandBuffers;
-
-            surf->uniform_buffers = &uniformBuffers;
-
-
-            //---------------- RUNTIME ----------------------
-
-            while (!surfacesManager->getMainSurface()->shouldClose())
-            {
-                glfwPollEvents();
-
-                surfacesManager->updateSurfaces();
-            }
-            device->waitIdle();
-
-            //---------------- END RUNTIME ----------------------
-
-            textureImage->shutdown();
-
-            for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-            {
-                imageAvailableSemaphores[i]->shutdown();
-                renderFinishedSemaphores[i]->shutdown();
-                inFlightFences[i]->shutdown();
-            }
-
-            descriptorSetPool->shutdown();
-
-            for (auto& uniform_buffer: uniformBuffers)
-            {
-                uniform_buffer.deallocate();
-            }
+            imageAvailableSemaphores[i]->init();
+            renderFinishedSemaphores[i]->init();
+            inFlightFences[i]->init();
+            commandBuffers.push_back(cmdPool->allocateCommandBuffer().value());
         }
 
+        std::unique_ptr<narc_engine::IImage> image = createImageTexture("textures/tex_test_uv_0.png");
+
+        {
+            const auto vertices = createVertexInputDataFromModel(model);
+            const auto indices = createIndexDataFromModel(model);
+
+            //Buffer lifetime
+            const auto verticesSize = vertices.size() * sizeof(vertices[0]);
+            const auto indicesSize = indices.size() * sizeof(indices[0]);
+            constexpr auto uboSize = sizeof(UniformBufferObject);
+
+            narc_engine::BufferAllocationInfo vertexBufferInfo{};
+            vertexBufferInfo.IsVertexBuffer = true;
+            vertexBufferInfo.Size = verticesSize;
+            const auto vertexBuffer = graphicsInstance->createBuffer(vertexBufferInfo);
+            stageAndCopyBuffer(vertexBuffer.get(), verticesSize, vertices.data());
+
+            narc_engine::BufferAllocationInfo indexBufferInfo{};
+            indexBufferInfo.IsIndexBuffer = true;
+            indexBufferInfo.Size = indicesSize;
+            const auto indexBuffer = graphicsInstance->createBuffer(indexBufferInfo);
+            stageAndCopyBuffer(indexBuffer.get(), indicesSize, indices.data());
+
+            narc_engine::BufferAllocationInfo uboBufferInfo{};
+            uboBufferInfo.Size = uboSize;
+            const auto uboBuffer = graphicsInstance->createBuffer(uboBufferInfo);
+
+            const auto uboBinding = graphicsInstance->createDescriptorBinding(descriptorSetLayout.get());
+            for (auto& binding: uboBinding)
+            {
+                const auto updater = binding->createUpdater();
+                updater->updateBuffer(UBO_BINDING_INDEX, uboBuffer.get());
+                updater->updateImageSampler(SAMPLER_BINDING_INDEX, image.get());
+                updater->update();
+            }
+
+            uint32_t frameInFlight = 0;
+            while (true)
+            {
+                window->update();
+                if (window->shouldClose())
+                {
+                    break;
+                }
+                if (window->isResizing())
+                {
+                    recreateSwapChain(window.get(), swapChain.get());
+                    continue;
+                }
+
+                //Game Update ---------------------
+                auto ubo = getUniformBufferObject(swapChain->getSwapChainExtent());
+                uboBuffer->setData(&ubo);
+
+                //Graphics Update ------------------
+                std::vector<const narc_engine::IFence*> fences = {inFlightFences[frameInFlight].get()};
+                graphicsInstance->waitForFences(fences);
+
+                //AQCUIRE SWAPCHAIN IMAGE
+                const auto result = swapChain->acquireNextImage(imageAvailableSemaphores[frameInFlight].get(), nullptr);
+                if (result.HasError)
+                {
+                    if (result.IsOutOfDate)
+                    {
+                        recreateSwapChain(window.get(), swapChain.get());
+                        continue;
+                    }
+                    if (!result.IsSuboptimal)
+                    {
+                        NARC_ERROR_RUNTIME("Failed to acquire swapchain image.");
+                    }
+                }
+                const auto imageIndex = result.ImageIndex;
+
+                graphicsInstance->resetFences(fences);
+
+                auto* cmdBuffer = commandBuffers[frameInFlight].get();
+                cmdBuffer->reset();
+
+                //RECORD -------------------------
+                cmdBuffer->begin();
+
+                cmdBuffer->beginRenderPass(
+                        swapChain.get(),
+                        {
+                                .TEMPPipeline = pipeline.get(),
+                                .TEMPImageIndex = imageIndex
+                        });
+
+                cmdBuffer->bindPipeline(pipeline.get());
+                cmdBuffer->bindViewPort({
+                        .Position = narc_math::Vec2{0, 0},
+                        .Dimensions = swapChain->getSwapChainExtent()
+                });
+                cmdBuffer->bindScissors({
+                        .Offset = narc_math::Vec2{0, 0},
+                        .Extent = swapChain->getSwapChainExtent()
+                });
+
+                cmdBuffer->bindVertexBuffers(vertexBuffer.get());
+                cmdBuffer->bindIndexBuffer(indexBuffer.get());
+                cmdBuffer->bindDescriptorSets(pipelineLayout.get(), uboBinding[frameInFlight].get());
+
+                cmdBuffer->drawIndexed(model.getIndicesCount());
+
+                cmdBuffer->endRenderPass();
+
+                cmdBuffer->end();
+                //END RECORD ---------------------
+
+                const auto submitQueue = graphicsInstance->getGraphicsQueue();
+                submitQueue->submit({
+                        .WaitStages = {narc_engine::SubmitWaitStageMask::ColorAttachmentOutput},
+                        .CommandBuffers = {cmdBuffer},
+                        .SignalSemaphores = {renderFinishedSemaphores[frameInFlight].get()},
+                        .WaitSemaphores = {imageAvailableSemaphores[frameInFlight].get()},
+                        .Fence = inFlightFences[frameInFlight].get()
+                });
+
+                const auto presentQueue = graphicsInstance->getPresentQueue();
+                const auto presentResult = presentQueue->present(
+                {
+                        .ImageIndices = {imageIndex},
+                        .SwapChains = {swapChain.get()},
+                        .WaitSemaphores = {renderFinishedSemaphores[frameInFlight].get()}
+                });
+                if (presentResult.HasError)
+                {
+                    if (presentResult.IsOutOfDate || presentResult.IsSuboptimal)
+                    {
+                        recreateSwapChain(window.get(), swapChain.get());
+                    }
+                    else
+                    {
+                        NARC_ERROR_RUNTIME("Failed to present Swapchain Image.");
+                    }
+                }
+
+                frameInFlight = (frameInFlight + 1) % MAX_FRAMES_IN_FLIGHT;
+            }
+
+            graphicsInstance->waitIdle();
+        }
+
+        image->shutdown();
+
+        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+        {
+            imageAvailableSemaphores[i]->shutdown();
+            renderFinishedSemaphores[i]->shutdown();
+            inFlightFences[i]->shutdown();
+        }
 
         cmdPool->shutdown();
 
-        surfacesManager->shutdown();
-        descriptorSetLayout.shutdown();
-        device->shutdown();
-        instance->shutdown();
-    }
+        pipeline->shutdown();
+        pipelineLayout->shutdown();
+        descriptorSetLayout->shutdown();
+        swapChain->shutdown();
+        surface->shutdown();
 
-    catch
-    (
-        const std::exception& e
-    )
+        graphicsInstance->shutdown();
+
+        window->shutdown();
+    }
+    catch (const std::exception& e)
     {
         NARC_LOG_ERROR("Exception caught: {}", e.what());
     }

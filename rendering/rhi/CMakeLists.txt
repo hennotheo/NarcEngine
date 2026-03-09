@@ -1,7 +1,5 @@
 narc_blob_source_files()
 
-find_package(glfw3 REQUIRED)
-
 add_library(NarcRHI STATIC include/Rhi.h ${CPP_FILES} ${HPP_FILES})
 narc_decl_testable_target(NarcRHI)
 
@@ -11,5 +9,8 @@ narc_testable_add_include_directory(NarcRHI PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 narc_testable_link_library(NarcRHI PUBLIC
+        RhiCore)
+
+narc_testable_link_library(NarcRHI PRIVATE
         NarcVulkanWrapper
-        glfw)
+        NarcGlfwWrapper)

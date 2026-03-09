@@ -4,20 +4,25 @@
 
 #include "device/VulkanDevice.h"
 
+#include "VulkanTextureImage.h"
+#include "buffers/VulkanBuffer.h"
+#include "buffers/VulkanIndexBuffer.h"
+#include "buffers/VulkanStagingBuffer.h"
+#include "buffers/VulkanUniformBuffer.h"
+#include "buffers/VulkanVertexBuffer.h"
 #include "instance/VulkanInstance.h"
+#include "sync/VulkanFence.h"
 
-#include "../../../../rhi/include/layers/VulkanGlfwExtension.h"
-#include "layers/VulkanValidationLogger.h"
+#include "helpers/DeviceHelpers.h"
+#include "helpers/QueueHelpers.h"
+#include "mapping/mappingToVk.h"
 
 namespace narc_engine {
-    VulkanDevice::VulkanDevice(NARC_DI_IMPORT_SERVICE(IDeviceService),
-                               NARC_DI_IMPORT_COMPONENT(VulkanInstance),
-                               NARC_DI_IMPORT_SERVICE(IDeviceQueueService)) :
-        NARC_DI_IMPL_COMPONENT(VulkanInstance, m_instance),
-        NARC_DI_IMPL_SERVICE(IDeviceService, m_deviceService),
-        NARC_DI_IMPL_SERVICE(IDeviceQueueService, m_queueService)
+    VulkanDevice::VulkanDevice(const VulkanInstance* instance) :
+        m_instance(instance),
+        m_memoryAllocator(instance, this)
     {
-        //Empty constructor.
+
     }
 
     VulkanDevice::~VulkanDevice() = default;
@@ -29,16 +34,19 @@ namespace narc_engine {
 
         createDevice();
 
-        m_queueService->fillQueues(shared_from_this(), m_queueFamilyIndices, m_graphicsQueue, m_presentQueue);
-
+        fillQueues(m_queueFamilyIndices);
         m_graphicsQueue.init();
         m_presentQueue.init();
+
+        m_memoryAllocator.init();
 
         NARC_LOG_DEBUG("Vulkan Device created successfully!");
     }
 
     void VulkanDevice::shutdown()
     {
+        m_memoryAllocator.shutdown();
+
         m_presentQueue.shutdown();
         m_graphicsQueue.shutdown();
 
@@ -48,6 +56,60 @@ namespace narc_engine {
         m_physicalDevice = VK_NULL_HANDLE;
     }
 
+    RhiQuery<std::unique_ptr<IBuffer>> VulkanDevice::createBuffer(const BufferAllocationInfo infos) const noexcept
+    {
+        if (infos.IsVertexBuffer)
+        {
+            return std::make_unique<VulkanVertexBuffer>(&m_memoryAllocator, infos.Size);
+        }
+
+        if (infos.IsIndexBuffer)
+        {
+            return std::make_unique<VulkanIndexBuffer>(&m_memoryAllocator, infos.Size);
+        }
+
+        if (infos.IsStaging)
+        {
+            return std::make_unique<VulkanStagingBuffer>(&m_memoryAllocator, infos.Size);
+        }
+
+        return std::make_unique<VulkanUniformBuffer>(&m_memoryAllocator, infos.Size);
+    }
+
+    RhiQuery<std::unique_ptr<IImage>> VulkanDevice::createImage(const ImageAllocationInfo& infos) const noexcept
+    {
+        auto texture = std::make_unique<VulkanTextureImage>(&m_memoryAllocator);
+        texture->setExtent(infos.Extent);
+
+        return texture;
+    }
+
+    narc_core::result VulkanDevice::waitForFences(const std::span<const IFence*> fences) const
+    {
+        const auto vkFences = mapping::toVkFenceArray(fences);
+
+        if (vkWaitForFences(m_device, vkFences.size(), vkFences.data(), VK_TRUE, UINT64_MAX) != VK_SUCCESS)
+        {
+            NARC_LOG_ERROR("Waiting for fences has failed.");
+            return false;
+        }
+
+        return true;
+    }
+
+    narc_core::result VulkanDevice::resetFences(const std::span<const IFence*> fences) const
+    {
+        const auto vkFences = mapping::toVkFenceArray(fences);
+
+        if (vkResetFences(m_device, vkFences.size(), vkFences.data()) != VK_SUCCESS)
+        {
+            NARC_LOG_ERROR("Resetting fences has failed.");
+            return false;
+        }
+
+        return true;
+    }
+
     void VulkanDevice::waitIdle() const
     {
         vkDeviceWaitIdle(m_device);
@@ -55,13 +117,13 @@ namespace narc_engine {
 
     void VulkanDevice::selectPhysicalDeviceFromCriteria()
     {
-        const auto devices = m_deviceService->queryAllPhysicalDevices();
+        const auto devices = m_instance->queryAllPhysicalDevices();
         if (!devices.has_value())
         {
             NARC_ERROR_RUNTIME("No suitable device found!");
         }
 
-        const auto bestDeviceResult = m_deviceService->queryBestPhysicalDevices(devices.value(), m_physicalDeviceCriteria);
+        const auto bestDeviceResult = queryBestPhysicalDevices(devices.value(), m_physicalDeviceCriteria, m_mainWindowSurface);
         if (!bestDeviceResult.has_value())
         {
             NARC_ERROR_RUNTIME("No suitable device found!");
@@ -73,7 +135,7 @@ namespace narc_engine {
 
     void VulkanDevice::selectQueueFamily()
     {
-        const auto queueFamilyIndicesResult = m_queueService->queryQueueFamilyIndices(m_physicalDevice);
+        const auto queueFamilyIndicesResult = queryQueueFamilyIndices(m_physicalDevice, m_mainWindowSurface);
         if (!queueFamilyIndicesResult.has_value())
         {
             NARC_ERROR_RUNTIME("Failed to find required queue families.");
@@ -89,7 +151,7 @@ namespace narc_engine {
 
     void VulkanDevice::createDevice()
     {
-        const auto uniqueQueueFamilies = m_queueService->getUniqueIndices(m_queueFamilyIndices).transform_error(
+        const auto uniqueQueueFamilies = getUniqueIndices(m_queueFamilyIndices).transform_error(
                 [](const auto& err) {
                     NARC_ERROR_RUNTIME("Uniques queues not supported by current device");
                     return err;
@@ -129,5 +191,17 @@ namespace narc_engine {
         {
             NARC_ERROR_RUNTIME("Failed to create logical device!");
         }
+    }
+
+    void VulkanDevice::fillQueues(const QueueFamilyIndices& queueFamilyIndices)
+    {
+        m_presentQueue.setDevice(this);
+        m_graphicsQueue.setDevice(this);
+
+        m_presentQueue.setQueueIndex(0); //Cf vulkan doc
+        m_graphicsQueue.setQueueIndex(0);
+
+        m_presentQueue.setQueueFamilyIndex(queueFamilyIndices.PresentationFamily.value_or(QUEUE_INDEX_NONE));
+        m_graphicsQueue.setQueueFamilyIndex(queueFamilyIndices.GraphicsFamily.value_or(QUEUE_INDEX_NONE));
     }
 } // namespace narc_engine

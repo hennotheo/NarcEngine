@@ -36,9 +36,14 @@
 #include "interfaces/IGetter.h"
 #include "interfaces/IInitialisable.h"
 #include "interfaces/ILoadable.h"
-#include "interfaces/IHandler.h"
 
 #include "utils/UtilsFunctions.h"
+
+#define NARC_GUARD_RAW_PTR(ptr, errorMsg)                                                                                                                                                                                                        \
+    if (ptr == nullptr)                                                                                                                                  \
+    {                                                                                                                                                \
+        NARC_ERROR_RUNTIME(errorMsg);                                                                                                                \
+    }
 
 #define NARC_GUARD_WEAK(varName, weakPtr, errorMsg)                                                                                                  \
     const auto varName = (weakPtr).lock();                                                                                                           \
@@ -72,6 +77,23 @@ namespace di = boost::di;
 
 namespace narc_core {
 
+    template<typename T, typename U>
+    const T* backend_cast(const U* base)
+    {
+        static_assert(std::is_base_of_v<U, T>);
+        if (base == nullptr)
+        {
+            return nullptr;
+        }
+#ifdef NARC_BUILD_DEBUG
+        const auto* derived = dynamic_cast<const T*>(base);
+        assert(derived && "Backend type mismatch");
+        return derived;
+#else
+        return static_cast<const T*>(base);
+#endif
+    }
+
 #define NARC_DI_SERVICE_NAME(type) type##Injected
 
     template<typename T>
@@ -94,13 +116,47 @@ namespace narc_core {
 
         NO_DISCARD virtual std::unique_ptr<T> create() const noexcept = 0;
     };
+
+    template<template<typename...> class Container>
+    struct to
+    {
+        // Tag
+    };
+
+    // | operator
+    template<std::ranges::input_range R, template<typename...> class Container>
+    auto operator|(R&& range, to<Container> const&)
+    {
+        using T = std::ranges::range_value_t<R>;
+        return Container<T>(std::begin(range), std::end(range));
+    }
+
+    template<typename T>
+    struct transform_to_concrete_class
+    {
+    };
+
+    // | operator
+    template<std::ranges::input_range R, typename T>
+    auto operator|(R&& range, transform_to_concrete_class<T> const&)
+    {
+        return std::forward<R>(range)
+               | std::views::transform([](auto* cmdBuffer) noexcept {
+                   return backend_cast<T>(cmdBuffer);
+               })
+               | std::views::filter([](auto* ptr) noexcept {
+                   return ptr != nullptr;
+               });
+    }
 }
 
 #define QUERY(result, error) DEPRECATED NO_DISCARD std::expected<result, error>
 #define NARC_VIRTUAL_QUERY(type, displayName, ...) NO_DISCARD virtual type displayName(__VA_ARGS__) const noexcept
 #define NARC_PURE_VIRTUAL_QUERY(type, displayName, ...) NO_DISCARD virtual type displayName(__VA_ARGS__) const noexcept = 0
 #define NARC_QUERY_OVERRIDE(type, displayName, ...) NO_DISCARD virtual type displayName(__VA_ARGS__) const noexcept override
+#define NARC_QUERY(type, displayName, ...) NO_DISCARD type displayName(__VA_ARGS__) const noexcept
 
+//TODO: REMOVE THIS OR CONVERT TO
 #define NARC_VIRTUAL_CMD(displayName, ...) virtual narc_core::result displayName(__VA_ARGS__) const noexcept
 #define NARC_PURE_VIRTUAL_CMD(displayName, ...) virtual narc_core::result displayName(__VA_ARGS__) const noexcept = 0
 #define NARC_CMD_OVERRIDE(displayName, ...) narc_core::result displayName(__VA_ARGS__) const noexcept override

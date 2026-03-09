@@ -8,7 +8,7 @@ namespace narc_engine {
     class VulkanFence;
     class VulkanDevice;
 
-    class VulkanQueue final : public narc_core::IInitialisable
+    class VulkanQueue final : public narc_core::IInitialisable, public IQueue
     {
     public:
         explicit VulkanQueue();
@@ -18,21 +18,26 @@ namespace narc_engine {
 
         void setQueueFamilyIndex(const QueueFamilyIndex index) { m_queueFamilyIndex = index; }
         void setQueueIndex(const QueueIndex index) { m_queueIndex = index; }
-        void setDevice(std::weak_ptr<VulkanDevice> device) { m_device = std::move(device); }
+        void setDevice(const VulkanDevice* device) { m_device = device; }
         
         VkResult submit(uint32_t submitCount, const VkSubmitInfo& infos, const VulkanFence* fence) const;
         void waitIdle() const;
 
         NARC_GETTER(VkQueue, getHandle, m_queue);
 
-    private:
-        std::weak_ptr<VulkanDevice> m_device;
+        NARC_CMD_OVERRIDE(submit, QueueSubmitInfos infos);
+        NO_DISCARD QueuePresentResult present(QueuePresentInfos infos) const noexcept override;
+        NARC_CMD_OVERRIDE(waitQueueIdle);
 
-        QueueFamilyIndex m_queueFamilyIndex = QUEUE_INDEX_NONE;
-        QueueIndex m_queueIndex = QUEUE_INDEX_NONE;
+    private:
+        const VulkanDevice* m_device = nullptr;
+
+        QueueFamilyIndex m_queueFamilyIndex;
+        QueueIndex m_queueIndex;
 
         VkQueue m_queue = VK_NULL_HANDLE;
 
-        static void assertIndexDefined(const uint32_t& index);
+        bool isIndexDefined(const uint32_t& index);
+        bool checkIndicesDefined();
     };
 } // namespace narc_engine

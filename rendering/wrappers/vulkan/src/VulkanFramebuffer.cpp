@@ -8,10 +8,9 @@
 #include "pipeline/VulkanRenderPass.h"
 
 namespace narc_engine {
-    VulkanFramebuffer::VulkanFramebuffer(std::weak_ptr<VulkanDevice> device, const VulkanSwapChain* swapChain, const VulkanRenderPass* renderPass) :
-        m_device(std::move(device)),
-        m_swapChain(swapChain),
-        m_renderPass(renderPass)
+    VulkanFramebuffer::VulkanFramebuffer(const VulkanDevice* device, const VulkanSwapChain* swapChain) :
+        m_device(device),
+        m_swapChain(swapChain)
     {
     }
 
@@ -19,7 +18,7 @@ namespace narc_engine {
 
     void VulkanFramebuffer::init()
     {
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Vulkan Device.");
+        NARC_GUARD_RAW_PTR(m_device, "Failed to get Vulkan Device.");
 
         VkFramebufferCreateInfo framebufferInfo{};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -30,7 +29,7 @@ namespace narc_engine {
         framebufferInfo.height = m_swapChain->getSwapChainExtent().Height;
         framebufferInfo.layers = 1;
 
-        if (vkCreateFramebuffer(device->getHandle(), &framebufferInfo, nullptr, &m_framebuffer) != VK_SUCCESS)
+        if (vkCreateFramebuffer(m_device->getHandle(), &framebufferInfo, nullptr, &m_framebuffer) != VK_SUCCESS)
         {
             NARC_ERROR_RUNTIME("Failed to create framebuffer!");
         }
@@ -38,9 +37,14 @@ namespace narc_engine {
 
     void VulkanFramebuffer::shutdown()
     {
-        NARC_GUARD_WEAK(device, m_device, "Failed to get Vulkan Device.");
-        
-        vkDestroyFramebuffer(device->getHandle(), m_framebuffer, nullptr);
+        NARC_GUARD_RAW_PTR(m_device, "Failed to get Vulkan Device.");
+
+        vkDestroyFramebuffer(m_device->getHandle(), m_framebuffer, nullptr);
         m_framebuffer = VK_NULL_HANDLE;
+    }
+
+    void VulkanFramebuffer::setRenderPass(const VulkanRenderPass* renderPass)
+    {
+        m_renderPass = renderPass;
     }
 } // narc_engine

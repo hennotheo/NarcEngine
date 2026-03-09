@@ -7,6 +7,7 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <cassert>
 #include <cstdint>
 #include <cstring>
 #include <ctime>

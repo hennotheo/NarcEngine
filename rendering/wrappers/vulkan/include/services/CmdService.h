@@ -13,8 +13,8 @@ namespace narc_engine {
     public:
         explicit CmdService(NARC_DI_IMPORT_COMPONENT(VulkanDevice), NARC_DI_IMPORT_COMPONENT(VulkanCommandPool));
         ~CmdService() override;
-        
-        NARC_CMD_OVERRIDE(doCmdActionAndSubmit, std::function<void(VulkanCommandBuffer&)> action);
+
+        NARC_CMD_OVERRIDE(doCmdActionAndSubmit, std::function<void(const ICommandBuffer*)> action);
         
     private:
         narc_core::injected_component<VulkanDevice> m_device;

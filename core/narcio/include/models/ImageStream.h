@@ -1,5 +1,7 @@
 #pragma once
 
+#include "interfaces/IImageStream.h"
+
 namespace narc_io {
     class ImageStream final : public IImageStream
     {
@@ -7,8 +9,8 @@ namespace narc_io {
         explicit ImageStream(std::string_view path);
         ~ImageStream() override;
 
-        NARC_OVERRIDE_GETTER(int, getWidth, m_width);
-        NARC_OVERRIDE_GETTER(int, getHeight, m_height);
+        NARC_OVERRIDE_GETTER(uint32_t, getWidth, m_width);
+        NARC_OVERRIDE_GETTER(uint32_t, getHeight, m_height);
         NARC_OVERRIDE_GETTER(int, getChannels, m_channels);
         NARC_OVERRIDE_GETTER(void*, getData, m_pixels);
 

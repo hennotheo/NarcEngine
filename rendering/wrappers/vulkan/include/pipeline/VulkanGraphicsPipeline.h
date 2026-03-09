@@ -10,29 +10,26 @@ namespace narc_engine {
     class VulkanRenderPass;
     class VulkanDevice;
 
-    class VulkanGraphicsPipeline final : public narc_core::IInitialisable
+    class VulkanGraphicsPipeline final : public IGraphicsPipeline
     {
     public:
-        explicit VulkanGraphicsPipeline(const std::weak_ptr<VulkanDevice>& device, const std::unique_ptr<VulkanSwapChain>& swapChain);
+        explicit VulkanGraphicsPipeline(const VulkanDevice* device, const VulkanSwapChain* swapChain, const VulkanPipelineLayout* pipelineLayout, std::unique_ptr<VulkanRenderPass>& renderPass);
         ~VulkanGraphicsPipeline() override;
 
         NARC_IMPL_INITIALISABLE();
 
-        void setLayout(std::unique_ptr<VulkanPipelineLayout>& pipelineLayout);
-        void setRenderPass(std::unique_ptr<VulkanRenderPass>& renderPass);
-        static VkVertexInputBindingDescription getBindingDescription();
-        static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions();
+        static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions(const VertexLayout& value);
 
         NARC_GETTER(VulkanRenderPass*, getRenderPass, m_renderPass.get());
         NARC_GETTER(VkPipeline, getHandle, m_pipeline);
-        NARC_GETTER(VulkanPipelineLayout*, getLayout, m_pipelineLayout.get());
+        NARC_GETTER(const VulkanPipelineLayout*, getLayout, m_pipelineLayout);
         
     private:
-        std::weak_ptr<VulkanDevice> m_device;
-        VulkanSwapChain* m_swapChain;
-        
+        const VulkanDevice* m_device;
+        const VulkanSwapChain* m_swapChain;
+        const VulkanPipelineLayout* m_pipelineLayout;
+
         std::unique_ptr<VulkanRenderPass> m_renderPass;
-        std::unique_ptr<VulkanPipelineLayout> m_pipelineLayout;
 
         VkPipeline m_pipeline = VK_NULL_HANDLE;
     };

@@ -1,12 +1,13 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
+// #include <GLFW/glfw3.h>
 
-#include <NarcRenderingCore.h>
-#include <NarcVulkanWrapper.h>
+#include <RhiCore.h>
+// #include <NarcVulkanWrapper.h>
 
-#include "RhiCore.h"
+#include "Core.h"
+#include "RhiFactory.h"
 
-#include "GlfwVulkanSurface.h"
-#include "layers/VulkanGlfwExtension.h"
-#include "VulkanSurfacesManager.h"
+// #include "GlfwVulkanSurface.h"
+// #include "layers/VulkanGlfwExtension.h"
+// #include "VulkanSurfacesManager.h"
