@@ -1,5 +1,7 @@
 #pragma once
 
+#include "interfaces/IImageStream.h"
+
 namespace narc_io {
     class ImageStream final : public IImageStream
     {

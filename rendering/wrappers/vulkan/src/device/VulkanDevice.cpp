@@ -60,12 +60,12 @@ namespace narc_engine {
     {
         if (infos.IsVertexBuffer)
         {
-            return std::make_unique<VulkanVertexBuffer>(&m_memoryAllocator);
+            return std::make_unique<VulkanVertexBuffer>(&m_memoryAllocator, infos.Size);
         }
 
         if (infos.IsIndexBuffer)
         {
-            return std::make_unique<VulkanIndexBuffer>(&m_memoryAllocator);
+            return std::make_unique<VulkanIndexBuffer>(&m_memoryAllocator, infos.Size);
         }
 
         if (infos.IsStaging)

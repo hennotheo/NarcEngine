@@ -10,7 +10,7 @@ namespace narc_engine {
     class VulkanIndexBuffer : public IVulkanBuffer
     {
     public:
-        explicit VulkanIndexBuffer(const VulkanMemoryAllocator* memoryAllocator);
+        explicit VulkanIndexBuffer(const VulkanMemoryAllocator* memoryAllocator, MemorySize size);
         ~VulkanIndexBuffer() override;
 
         NARC_OVERRIDE_GETTER(const VkBuffer&, getHandle, m_vertexBuffer)

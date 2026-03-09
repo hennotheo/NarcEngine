@@ -226,12 +226,6 @@ namespace narc_engine {
 
     narc_core::result VulkanCommandBuffer::bindDescriptorSets(const IPipelineLayout* layout, const IDescriptorBinding* binding) const noexcept
     {
-        // std::vector<VkDescriptorSet> layouts;
-        // layouts.reserve(descriptorSets.size());
-        // std::ranges::transform(descriptorSets, std::back_inserter(layouts),
-        //                        [](const VulkanDescriptorSet& descriptorSet) {
-        //                            return descriptorSet.getHandle();
-        //                        });
         const auto set = narc_core::backend_cast<VulkanDescriptorSet>(binding);
         const auto vkPipelineLayout = narc_core::backend_cast<VulkanPipelineLayout>(layout);
 
@@ -288,7 +282,7 @@ namespace narc_engine {
         }
         else
         {
-            throw std::invalid_argument("unsupported layout transition!");
+            return false;
         }
 
         vkCmdPipelineBarrier(

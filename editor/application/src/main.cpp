@@ -66,11 +66,12 @@ UniformBufferObject getUniformBufferObject(const narc_math::Extent swapchainExte
     auto currentTime = std::chrono::steady_clock::now();
     float time = std::chrono::duration<float>(currentTime - startTime).count();
 
+    float aspect = static_cast<float>(swapchainExtent.Width) / static_cast<float>(swapchainExtent.Height);
     UniformBufferObject ubo{
             .model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-            .view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+            .view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.5f), glm::vec3(0.0f, 0.0f, 1.0f)),
             .proj = glm::perspective(glm::radians(45.0f),
-                                     swapchainExtent.Width / (float) swapchainExtent.Height,
+                                     aspect,
                                      0.1f,
                                      10.0f)
     };
@@ -137,10 +138,44 @@ void recreateSwapChain(narc_engine::IWindow* window, narc_engine::ISwapchain* sw
     swapChain->init();
 }
 
+std::vector<uint16_t> createIndexDataFromModel(const narc_io::Model3D& model)
+{
+    std::vector<uint16_t> indexData;
+    indexData.reserve(model.getIndicesCount());
+
+    for (const auto& index: model.getIndices())
+    {
+        indexData.push_back(index);
+    }
+
+    return indexData;
+}
+
+std::vector<narc_engine::Vertex> createVertexInputDataFromModel(const narc_io::Model3D& model)
+{
+    std::vector<narc_engine::Vertex> vertices(model.getVerticesCount());
+    const auto v = model.getVertices();
+    const auto uv = model.getTexCoords();
+    const auto col = model.getColors();
+
+    for (int i = 0; i < vertices.size(); ++i)
+    {
+        vertices[i] = narc_engine::Vertex{
+                .pos = v[i],
+                .color = col[i],
+                .texCoord = uv[i]
+        };
+    }
+
+    return vertices;
+}
+
 int main(int argc, char** argv)
 {
     spdlog::set_level(spdlog::level::debug);
     narc_log::init_signal_handling();
+
+    const auto model = narc_io::FileReaderService::load3DModel("models/mdl_sphere.obj");
 
     try
     {
@@ -207,7 +242,7 @@ int main(int argc, char** argv)
         vertexLayout.Attributes[0] = narc_engine::VertexAttribute{
                 .Location = 0,
                 .Binding = 0,
-                .Format = narc_engine::Float2,
+                .Format = narc_engine::Float3,
                 .Offset = offsetof(narc_engine::Vertex, pos)
         };
         vertexLayout.Attributes[1] = narc_engine::VertexAttribute{
@@ -246,22 +281,25 @@ int main(int argc, char** argv)
         std::unique_ptr<narc_engine::IImage> image = createImageTexture("textures/tex_test_uv_0.png");
 
         {
+            const auto vertices = createVertexInputDataFromModel(model);
+            const auto indices = createIndexDataFromModel(model);
+
             //Buffer lifetime
-            const auto verticesSize = narc_engine::s_vertices.size() * sizeof(narc_engine::s_vertices[0]);
-            const auto indicesSize = narc_engine::s_indices.size() * sizeof(narc_engine::s_indices[0]);
+            const auto verticesSize = vertices.size() * sizeof(vertices[0]);
+            const auto indicesSize = indices.size() * sizeof(indices[0]);
             constexpr auto uboSize = sizeof(UniformBufferObject);
 
             narc_engine::BufferAllocationInfo vertexBufferInfo{};
             vertexBufferInfo.IsVertexBuffer = true;
             vertexBufferInfo.Size = verticesSize;
             const auto vertexBuffer = graphicsInstance->createBuffer(vertexBufferInfo);
-            stageAndCopyBuffer(vertexBuffer.get(), verticesSize, narc_engine::s_vertices.data());
+            stageAndCopyBuffer(vertexBuffer.get(), verticesSize, vertices.data());
 
             narc_engine::BufferAllocationInfo indexBufferInfo{};
             indexBufferInfo.IsIndexBuffer = true;
             indexBufferInfo.Size = indicesSize;
             const auto indexBuffer = graphicsInstance->createBuffer(indexBufferInfo);
-            stageAndCopyBuffer(indexBuffer.get(), indicesSize, narc_engine::s_indices.data());
+            stageAndCopyBuffer(indexBuffer.get(), indicesSize, indices.data());
 
             narc_engine::BufferAllocationInfo uboBufferInfo{};
             uboBufferInfo.Size = uboSize;
@@ -343,7 +381,7 @@ int main(int argc, char** argv)
                 cmdBuffer->bindIndexBuffer(indexBuffer.get());
                 cmdBuffer->bindDescriptorSets(pipelineLayout.get(), uboBinding[frameInFlight].get());
 
-                cmdBuffer->drawIndexed(narc_engine::s_indices.size());
+                cmdBuffer->drawIndexed(model.getIndicesCount());
 
                 cmdBuffer->endRenderPass();
 

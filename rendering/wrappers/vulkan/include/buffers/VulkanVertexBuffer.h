@@ -12,7 +12,7 @@ namespace narc_engine {
     class VulkanVertexBuffer : public IVulkanBuffer
     {
     public:
-        explicit VulkanVertexBuffer(const VulkanMemoryAllocator* memoryAllocator);
+        explicit VulkanVertexBuffer(const VulkanMemoryAllocator* memoryAllocator, MemorySize size);
         ~VulkanVertexBuffer() override;
 
         NARC_OVERRIDE_GETTER(const VkBuffer&, getHandle, m_vertexBuffer)

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 namespace narc_io {
-    struct ImageStream;
+    class IImageStream;
     struct Model3D;
 
     class NARC_IO_API FileReaderService

@@ -6,13 +6,13 @@
 #include "services/VulkanMemoryAllocator.h"
 
 namespace narc_engine {
-    VulkanIndexBuffer::VulkanIndexBuffer(const VulkanMemoryAllocator* memoryAllocator)
+    VulkanIndexBuffer::VulkanIndexBuffer(const VulkanMemoryAllocator* memoryAllocator, const MemorySize size)
         : m_allocator(memoryAllocator)
     {
         //TODO: DISGUSTING HARD CODE
         VkBufferCreateInfo bufferInfo{};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-        bufferInfo.size = sizeof(s_indices[0]) * s_indices.size();
+        bufferInfo.size = size;
         bufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
