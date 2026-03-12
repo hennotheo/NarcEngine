@@ -19,6 +19,12 @@
 #define NARC_LOG_ERROR(...) narc_log::log(ERROR, __VA_ARGS__)
 #define NARC_LOG_FATAL(...) narc_log::log(FATAL, __VA_ARGS__)
 
+#define NARC_GUARD_RAW_PTR(ptr, errorMsg)                                                                                                                                                                                                        \
+    if (ptr == nullptr)                                                                                                                                  \
+    {                                                                                                                                                \
+        NARC_ERROR_RUNTIME(errorMsg);                                                                                                                \
+    }
+
 namespace narc_log {
     [[maybe_unused]] NARC_LOG_API void init_signal_handling();
 
@@ -27,11 +33,16 @@ namespace narc_log {
     {
         switch (level)
         {
-            case DEBUG: spdlog::debug(fmt, std::forward<Args>(args)...); break;
-            case INFO: spdlog::info(fmt, std::forward<Args>(args)...); break;
-            case WARNING: spdlog::warn(fmt, std::forward<Args>(args)...); break;
-            case ERROR: spdlog::error(fmt, std::forward<Args>(args)...); break;
-            case FATAL: spdlog::critical(fmt, std::forward<Args>(args)...); break;
+            case DEBUG: spdlog::debug(fmt, std::forward<Args>(args)...);
+                break;
+            case INFO: spdlog::info(fmt, std::forward<Args>(args)...);
+                break;
+            case WARNING: spdlog::warn(fmt, std::forward<Args>(args)...);
+                break;
+            case ERROR: spdlog::error(fmt, std::forward<Args>(args)...);
+                break;
+            case FATAL: spdlog::critical(fmt, std::forward<Args>(args)...);
+                break;
         }
     }
 

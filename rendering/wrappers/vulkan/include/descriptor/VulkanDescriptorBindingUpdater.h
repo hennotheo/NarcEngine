@@ -5,6 +5,7 @@
 #pragma once
 
 namespace narc_engine {
+    class VulkanDevice;
     class VulkanDescriptorSet;
 
     class VulkanDescriptorBindingUpdater : public IDescriptorBindingUpdater

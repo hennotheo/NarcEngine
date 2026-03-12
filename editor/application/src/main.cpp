@@ -68,7 +68,7 @@ UniformBufferObject getUniformBufferObject(const narc_math::Extent swapchainExte
 
     float aspect = static_cast<float>(swapchainExtent.Width) / static_cast<float>(swapchainExtent.Height);
     UniformBufferObject ubo{
-            .model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+            .model = narc_math::Matrix4::Identity().rotate(narc_math::Vec3(0.0f, 0.0f, 1.0f), time * 90.0f * 0.01745329251994329576923690768489f),
             .view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.5f), glm::vec3(0.0f, 0.0f, 1.0f)),
             .proj = glm::perspective(glm::radians(45.0f),
                                      aspect,

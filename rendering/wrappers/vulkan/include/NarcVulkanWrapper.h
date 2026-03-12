@@ -49,7 +49,6 @@
 #include "VulkanShaderModule.h"
 #include "VulkanTextureImage.h"
 
-#include "services/CmdService.h"
 #include "services/VulkanMemoryAllocator.h"
 
 #include "instance/VulkanGraphicsInstance.h"

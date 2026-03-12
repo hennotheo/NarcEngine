@@ -11,11 +11,7 @@
 namespace narc_engine {
     std::unique_ptr<IGraphicsInstance> createVulkanGraphicsInstance()
     {
-        const auto injector = di::make_injector(
-                di::bind<IGraphicsInstance>().to<VulkanGraphicsInstance>()
-                );
-
-        return injector.create<std::unique_ptr<IGraphicsInstance>>();
+        return std::make_unique<VulkanGraphicsInstance>();
     }
 
     std::unique_ptr<IGraphicsInstance> createGraphicsInstance(const GraphicBackend backend)

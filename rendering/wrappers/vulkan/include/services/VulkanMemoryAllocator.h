@@ -5,6 +5,7 @@
 #pragma once
 
 namespace narc_engine {
+    class VulkanDevice;
     class VulkanInstance;
 
     class VulkanMemoryAllocator : public narc_core::IInitialisable

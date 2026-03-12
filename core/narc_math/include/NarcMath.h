@@ -4,17 +4,13 @@
 
 #pragma once
 
-#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define GLM_ENABLE_EXPERIMENTAL
-
-#include <glm/glm.hpp>
-#include <glm/gtx/hash.hpp>
-#include <glm/ext/matrix_clip_space.hpp>
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/ext/scalar_constants.hpp>
-
 #include "pch.h"
+
+//TODO: TEMP
+#include "../src/GlmCore.h"
+
+#include "matrices/Matrix4.h"
+#include "vectors/Vec3.h"
 
 #define NARC_KB_SIZEOF(obj) (static_cast<double>(sizeof(obj)) / 1024.0)
 
@@ -22,7 +18,6 @@ namespace narc_math {
     using Vec2 = glm::vec2;
     using Vec2Int = glm::ivec2;
 
-    using Vec3 = glm::vec3;
     using Vec3Int = glm::ivec3;
 }
 
