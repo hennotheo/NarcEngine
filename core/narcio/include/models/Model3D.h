@@ -7,8 +7,8 @@
 
 namespace narc_io
 {
-    typedef std::vector<glm::vec3> VertexList;
-    typedef std::vector<glm::vec3> ColorList;
+    typedef std::vector<narc_math::Vec3> VertexList;
+    typedef std::vector<narc_math::Vec3> ColorList;
     typedef std::vector<glm::vec2> TexCoordList;
     typedef std::vector<uint32_t> IndexList;
 
@@ -26,9 +26,9 @@ namespace narc_io
         NARC_GETTER(const ColorList&, getColors, m_colors);
 
     private:
-        std::vector<glm::vec3> m_vertices{};
+        std::vector<narc_math::Vec3> m_vertices{};
         std::vector<glm::vec2> m_texCoords{};
-        std::vector<glm::vec3> m_colors{};
+        std::vector<narc_math::Vec3> m_colors{};
         std::vector<uint32_t> m_indices;
     };
 } // narcio
