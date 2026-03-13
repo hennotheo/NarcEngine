@@ -8,6 +8,7 @@
 #include <atomic>
 #include <chrono>
 #include <cassert>
+#include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <ctime>

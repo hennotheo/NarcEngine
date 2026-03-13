@@ -15,6 +15,8 @@
 #define NARC_KB_SIZEOF(obj) (static_cast<double>(sizeof(obj)) / 1024.0)
 
 namespace narc_math {
+    constexpr float EPSILON_F = 1e-6f;
+
     using Vec2 = glm::vec2;
     using Vec2Int = glm::ivec2;
 

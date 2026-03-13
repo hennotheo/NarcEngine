@@ -16,7 +16,27 @@ namespace narc_math {
 
         ~Vec3();
 
+        NARC_GETTER(float, X, Data[0])
+        NARC_GETTER(float, Y, Data[1])
+        NARC_GETTER(float, Z, Data[2])
+
+        NARC_SETTER(float, setX, Data[0])
+        NARC_SETTER(float, setY, Data[1])
+        NARC_SETTER(float, setZ, Data[2])
 
         bool operator==(const Vec3& other) const;
+        bool operator!=(const Vec3& other) const { return !(*this == other); }
+        Vec3 operator+(const Vec3& other) const;
+        Vec3 operator-(const Vec3& other) const;
+        Vec3 operator*(float scalar) const;
+        Vec3& operator+=(const Vec3& other);
+        Vec3& operator-=(const Vec3& other);
+        Vec3& operator*=(float scalar);
+
+        NO_DISCARD float dot(const Vec3& other) const;
+        NO_DISCARD Vec3 cross(const Vec3& other) const;
+        NO_DISCARD float length() const;
+        NO_DISCARD Vec3 normalized() const;
+        NO_DISCARD float distance(const Vec3& other) const;
     };
 }
