@@ -28,10 +28,7 @@ namespace narc_math {
         return reinterpret_cast<const glm::vec3&>(vector);
     }
 
-    Matrix4::Matrix4()
-    {
-
-    }
+    Matrix4::Matrix4() = default;
 
     Matrix4::~Matrix4() = default;
 
@@ -71,9 +68,19 @@ namespace narc_math {
 
     Matrix4 Matrix4::translation(const Vec3& delta)
     {
+        Matrix4 result;
+
+        ToGlm(result) = glm::translate(ToGlm(*this), ToGlmV(delta));
+
+        return result;
     }
 
     Matrix4 Matrix4::scale(const Vec3& scale)
     {
+        Matrix4 result;
+
+        ToGlm(result) = glm::scale(ToGlm(*this), ToGlmV(scale));
+
+        return result;
     }
 }

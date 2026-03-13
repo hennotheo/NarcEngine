@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
+from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
 
 
 class NarcEngineConan(ConanFile):
@@ -7,6 +7,14 @@ class NarcEngineConan(ConanFile):
     version = "0.2"
 
     settings = "os", "arch", "compiler", "build_type"
+
+    options = {
+        "build_tests": [True, False]
+    }
+
+    default_options = {
+        "build_tests": False
+    }
 
     requires = (
         "glm/1.0.1",
@@ -21,12 +29,14 @@ class NarcEngineConan(ConanFile):
         "imgui/1.92.2b",
     )
 
-    generators = ("CMakeDeps", "CMakeToolchain")
-
     tool_requires = (
         "ninja/1.11.1",
         "shaderc/2025.3"
     )
+
+    def build_requirements(self):
+        if self.options.build_tests:
+            self.test_requires("catch2/3.5.0")
 
     def configure(self):
         # Configurer GLFW pour éviter les dépendances inutiles
@@ -35,6 +45,14 @@ class NarcEngineConan(ConanFile):
         self.options["glfw"].with_x11 = True  # Garder X11 (nécessaire sur Linux)
 
         self.options["di"].with_extensions = True  # Activer les extensions pour di
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["ENABLE_TESTS"] = self.options.build_tests
+        tc.generate()
+
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def layout(self):
         cmake_layout(self)
