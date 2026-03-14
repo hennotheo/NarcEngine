@@ -1,3 +1,65 @@
+#option(ENABLE_COVERAGE "Enable code coverage" OFF)
+
+if (ENABLE_COVERAGE)
+    if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        message(STATUS "Building with coverage enabled")
+        add_compile_options(--coverage -O0 -g)
+        add_link_options(--coverage)
+    else ()
+        message(WARNING "Coverage only supported with GCC/Clang")
+    endif ()
+endif ()
+
+if (ENABLE_COVERAGE)
+    find_program(LCOV_EXEC lcov)
+    find_program(GENHTML_EXEC genhtml)
+
+    if (ENABLE_COVERAGE)
+
+        find_program(LCOV_EXEC lcov)
+        find_program(GENHTML_EXEC genhtml)
+
+        if (NOT LCOV_EXEC)
+            message(FATAL_ERROR "lcov not found")
+        endif ()
+
+        if (NOT GENHTML_EXEC)
+            message(FATAL_ERROR "genhtml not found")
+        endif ()
+
+        add_custom_target(NarcCoverage
+
+                # Reset counters
+                COMMAND ${LCOV_EXEC} --directory ${CMAKE_BINARY_DIR} --zerocounters
+
+                # Run tests
+                COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+
+                # Capture coverage
+                COMMAND ${LCOV_EXEC}
+                --directory ${CMAKE_BINARY_DIR}
+                --capture
+                --output-file coverage.info
+
+                # Remove system headers
+                COMMAND ${LCOV_EXEC}
+                --remove coverage.info '/usr/*' '*/.conan2/*' '*/tests/*'
+                --output-file coverage.info
+
+                # Generate HTML
+                COMMAND ${GENHTML_EXEC}
+                coverage.info
+                --output-directory coverage-report
+
+                WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+
+                COMMENT "Running tests and generating coverage report"
+        )
+
+    endif ()
+endif ()
+
+
 if (ENABLE_TESTS)
 
     add_compile_definitions(NARC_TEST_BUILD)
@@ -18,9 +80,9 @@ endfunction()
 function(narc_auto_setup_tests TARGET_NAME)
     narc_is_target_testable(IS_TESTABLE)
 
-    if(NOT ENABLE_TESTS OR NOT IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/tests")
+    if (NOT ENABLE_TESTS OR NOT IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/tests")
         return()
-    endif()
+    endif ()
 
     add_executable(Tests_${TARGET_NAME} tests/test_main.cpp)
 
@@ -44,7 +106,7 @@ function(narc_decl_testable_target TARGET_NAME)
     add_dependencies(Tests_${TARGET_NAME} ${TARGET_NAME})
     add_compile_definitions(Tests_${TARGET_NAME} PRIVATE NARC_TEST_BUILD)
     target_include_directories(Tests_${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/tests")
-#    target_compile_features(Tests_${TARGET_NAME} PRIVATE cxx_std_20)
+    #    target_compile_features(Tests_${TARGET_NAME} PRIVATE cxx_std_20)
 
     target_link_libraries(Tests_${TARGET_NAME} PRIVATE
             Catch2::Catch2WithMain

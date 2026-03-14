@@ -26,7 +26,7 @@ fi
 
 #OUT_DIR="build/${BUILD_TYPE}"
 OUT_DIR="./" # Use root dir to simplify CMake presets usage
-CONAN_ARGS=(--build=missing, -o build_tests=True)
+CONAN_ARGS=(--build=missing, -o build_tests=True -o coverage=True)
 SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # check conan

@@ -9,11 +9,13 @@ class NarcEngineConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 
     options = {
-        "build_tests": [True, False]
+        "build_tests": [True, False],
+        "coverage": [True, False]
     }
 
     default_options = {
-        "build_tests": False
+        "build_tests": False,
+        "coverage": False
     }
 
     requires = (
@@ -49,6 +51,7 @@ class NarcEngineConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["ENABLE_TESTS"] = self.options.build_tests
+        tc.variables["ENABLE_COVERAGE"] = self.options.coverage
         tc.generate()
 
         deps = CMakeDeps(self)
