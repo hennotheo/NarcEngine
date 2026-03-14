@@ -34,14 +34,14 @@ namespace narc_math {
         NO_DISCARD float dot(const Vec2& other) const;
         NO_DISCARD float cross(const Vec2& other) const;
         NO_DISCARD float length() const;
+        NO_DISCARD float lengthSquared() const;
         NO_DISCARD Vec2 normalized() const;
         NO_DISCARD float distance(const Vec2& other) const;
 
-        Vec2 perpendicular() const;
-        Vec2 reflect(const Vec2& normal) const;
-        Vec2 rotate(float radians) const;
+        NO_DISCARD Vec2 perpendicular() const;
+        NO_DISCARD Vec2 reflect(const Vec2& normal) const;
+        NO_DISCARD Vec2 rotate(float radians) const;
 
-        static Vec2 lerp(const Vec2& a, const Vec2& b, float t);
-        float lengthSquared() const;
+        NO_DISCARD static Vec2 lerp(const Vec2& a, const Vec2& b, float t);
     };
 }
