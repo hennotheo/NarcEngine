@@ -12,7 +12,7 @@ using namespace narc_math;
 
 TEST_CASE("Matrix4 Identity", "[Matrix4]")
 {
-    const auto m = Matrix4::Identity();
+    const auto m = Matrix4::identity();
 
     REQUIRE(m.Data[0] == 1.0f);
     REQUIRE(m.Data[5] == 1.0f);
@@ -26,8 +26,8 @@ TEST_CASE("Matrix4 Identity", "[Matrix4]")
 }
 
 TEST_CASE("Matrix4 multiplication", "[Matrix4]") {
-    const auto m1 = Matrix4::Identity();
-    const auto m2 = Matrix4::Identity();
+    const auto m1 = Matrix4::identity();
+    const auto m2 = Matrix4::identity();
 
     const auto result = m1 * m2;
 
@@ -39,7 +39,7 @@ TEST_CASE("Matrix4 multiplication", "[Matrix4]") {
 
 TEST_CASE("Matrix4 translation", "[Matrix4]") {
     const Vec3 t(1.0f, 2.0f, 3.0f);
-    auto m = Matrix4::Identity().translation(t);
+    auto m = Matrix4::identity().translation(t);
 
     REQUIRE(m.Data[12] == Approx(1.0f));
     REQUIRE(m.Data[13] == Approx(2.0f));
@@ -48,7 +48,7 @@ TEST_CASE("Matrix4 translation", "[Matrix4]") {
 
 TEST_CASE("Matrix4 scale", "[Matrix4]") {
     const Vec3 s(2.0f, 3.0f, 4.0f);
-    auto m = Matrix4::Identity().scale(s);
+    auto m = Matrix4::identity().scale(s);
 
     REQUIRE(m.Data[0] == Approx(2.0f));
     REQUIRE(m.Data[5] == Approx(3.0f));
@@ -59,7 +59,7 @@ TEST_CASE("Matrix4 rotation", "[Matrix4]") {
     const Vec3 axis(0, 1, 0); // Y rot
     const float angle = 3.14159265f / 2.0f; // 90 degres
 
-    auto m = Matrix4::Identity().rotate(axis, angle);
+    auto m = Matrix4::identity().rotate(axis, angle);
 
     REQUIRE(m.Data[0] == Approx(0.0f).margin(0.01f));
     REQUIRE(m.Data[2] == Approx(-1.0f).margin(0.01f));
@@ -73,7 +73,7 @@ TEST_CASE("Matrix4 perspective", "[Matrix4]") {
     float nearPlane = 0.1f;
     float farPlane = 100.0f;
 
-    auto m = Matrix4::Perspective(fov, aspect, nearPlane, farPlane);
+    auto m = Matrix4::perspective(fov, aspect, nearPlane, farPlane);
 
     // Values are ok ?
     REQUIRE(m.Data[0] > 0.0f);

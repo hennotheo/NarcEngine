@@ -12,7 +12,7 @@ struct vertex
 {
     narc_math::Vec3 pos;
     narc_math::Vec3 color;
-    glm::vec2 tex;
+    narc_math::Vec2 tex;
 
     bool operator==(const vertex& other) const { return pos == other.pos && tex == other.tex && color == other.color; }
 };
@@ -28,11 +28,20 @@ namespace std {
     };
 
     template<>
+    struct hash<narc_math::Vec2>
+    {
+        size_t operator()(narc_math::Vec2 const& vector) const
+        {
+            return ((hash<float>()(vector.Data[0]) ^ (hash<float>()(vector.Data[1]) << 1)) >> 1);
+        }
+    };
+
+    template<>
     struct hash<vertex>
     {
         size_t operator()(vertex const& vertex) const
         {
-            return ((hash<narc_math::Vec3>()(vertex.pos) ^ (hash<narc_math::Vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.tex) << 1);
+            return ((hash<narc_math::Vec3>()(vertex.pos) ^ (hash<narc_math::Vec3>()(vertex.color) << 1)) >> 1) ^ (hash<narc_math::Vec2>()(vertex.tex) << 1);
         }
     };
 } // namespace std

@@ -9,7 +9,7 @@ namespace narc_io
 {
     typedef std::vector<narc_math::Vec3> VertexList;
     typedef std::vector<narc_math::Vec3> ColorList;
-    typedef std::vector<glm::vec2> TexCoordList;
+    typedef std::vector<narc_math::Vec2> TexCoordList;
     typedef std::vector<uint32_t> IndexList;
 
     struct NARC_IO_API Model3D final
@@ -27,7 +27,7 @@ namespace narc_io
 
     private:
         std::vector<narc_math::Vec3> m_vertices{};
-        std::vector<glm::vec2> m_texCoords{};
+        std::vector<narc_math::Vec2> m_texCoords{};
         std::vector<narc_math::Vec3> m_colors{};
         std::vector<uint32_t> m_indices;
     };

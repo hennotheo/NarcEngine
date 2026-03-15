@@ -18,4 +18,5 @@ narc_testable_add_include_directory(NarcMath PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 
-narc_testable_link_library(NarcMath PUBLIC NarcCore glm::glm)
+narc_testable_link_library(NarcMath PUBLIC NarcCore)
+narc_testable_link_library(NarcMath PRIVATE glm::glm)

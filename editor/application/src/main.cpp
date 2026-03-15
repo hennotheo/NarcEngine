@@ -1,5 +1,3 @@
-#ifndef NARC_TEST_BUILD
-
 constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
 
 #include "Ubo.h"
@@ -68,14 +66,14 @@ UniformBufferObject getUniformBufferObject(const narc_math::Extent swapchainExte
 
     float aspect = static_cast<float>(swapchainExtent.Width) / static_cast<float>(swapchainExtent.Height);
     UniformBufferObject ubo{
-            .model = narc_math::Matrix4::Identity().rotate(narc_math::Vec3(0.0f, 0.0f, 1.0f), time * 90.0f * 0.01745329251994329576923690768489f),
-            .view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.5f), glm::vec3(0.0f, 0.0f, 1.0f)),
-            .proj = glm::perspective(glm::radians(45.0f),
+            .model = narc_math::Matrix4::identity().rotate(narc_math::Vec3(0.0f, 0.0f, 1.0f), time * 90.0f * 0.01745329251994329576923690768489f),
+            .view = narc_math::Matrix4::identity().lookAt(narc_math::Vec3(2.0f, 2.0f, 2.0f), narc_math::Vec3(0.0f, 0.0f, 0.5f), narc_math::Vec3(0.0f, 0.0f, 1.0f)),
+            .proj = narc_math::Matrix4::identity().perspective(45.0f,
                                      aspect,
                                      0.1f,
                                      10.0f)
     };
-    ubo.proj[1][1] *= -1;
+    ubo.proj(1,1) *= -1;
 
     return ubo;
 }
@@ -372,8 +370,8 @@ int main(int argc, char** argv)
                         .Position = narc_math::Vec2{0, 0},
                         .Dimensions = swapChain->getSwapChainExtent()
                 });
-                cmdBuffer->bindScissors({
-                        .Offset = narc_math::Vec2{0, 0},
+                cmdBuffer->bindScissors(narc_engine::ScissorsInfos{
+                        .Offset = {0, 0},
                         .Extent = swapChain->getSwapChainExtent()
                 });
 
@@ -448,5 +446,3 @@ int main(int argc, char** argv)
         NARC_LOG_ERROR("Exception caught: {}", e.what());
     }
 }
-
-#endif
