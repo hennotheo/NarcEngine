@@ -6,6 +6,7 @@
 #pragma once
 
 namespace narc_math {
+    struct Vec4;
     struct Vec3;
 
     struct alignas(16) NARC_ENGINE_API Matrix4
@@ -16,6 +17,7 @@ namespace narc_math {
         ~Matrix4();
 
         Matrix4 operator*(const Matrix4& other) const;
+        Vec4 operator*(const Vec4& other) const;
         float& operator()(size_t row, size_t col);
         const float& operator()(size_t row, size_t col) const;
 

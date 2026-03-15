@@ -6,11 +6,9 @@
 
 #include "pch.h"
 
-//TODO: TEMP
-// #include "../src/GlmCore.h"
-
 #include "matrices/Matrix4.h"
 #include "vectors/Vec3.h"
+#include "vectors/Vec4.h"
 #include "vectors/Vec2.h"
 #include "vectors/Vec2Int.h"
 

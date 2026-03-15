@@ -7,6 +7,7 @@
 #include "vectors/Vec3.h"
 
 #include "../GlmCore.h"
+#include "vectors/Vec4.h"
 
 namespace narc_math {
     static_assert(sizeof(glm::mat4) == sizeof(Matrix4));
@@ -39,6 +40,12 @@ namespace narc_math {
         ToGlm(result) = ToGlm(*this) * ToGlm(other);
 
         return result;
+    }
+
+    Vec4 Matrix4::operator*(const Vec4& other) const
+    {
+        //TODO:
+        return other;
     }
 
     float& Matrix4::operator()(const size_t row, const size_t col)
