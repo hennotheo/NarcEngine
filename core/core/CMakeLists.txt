@@ -1,6 +1,6 @@
 narc_blob_source_files()
 
-add_library(NarcCore STATIC include/NarcCore.h ${CPP_FILES} ${HPP_FILES})
+add_library(NarcCore SHARED include/NarcCore.h ${CPP_FILES} ${HPP_FILES})
 narc_decl_testable_target(NarcCore)
 
 narc_testable_add_compile_definition(NarcCore PRIVATE NARC_CORE_BUILD_DLL)
