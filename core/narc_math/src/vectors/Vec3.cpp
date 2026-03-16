@@ -7,6 +7,7 @@
 #include <glm/vec3.hpp>
 
 #include "NarcMath.h"
+#include "../GlmCore.h"
 
 namespace narc_math {
 
@@ -37,70 +38,64 @@ namespace narc_math {
 
     Vec3 Vec3::operator+(const Vec3& other) const
     {
-        return Vec3{
-                Data[0] + other.Data[0],
-                Data[1] + other.Data[1],
-                Data[2] + other.Data[2]
-        };
+        Vec3 result;
+
+        ToGlm(result) = ToGlm(*this) + ToGlm(other);
+
+        return result;
     }
 
     Vec3 Vec3::operator-(const Vec3& other) const
     {
-        return Vec3{
-                Data[0] - other.Data[0],
-                Data[1] - other.Data[1],
-                Data[2] - other.Data[2]
-        };
+        Vec3 result;
+
+        ToGlm(result) = ToGlm(*this) - ToGlm(other);
+
+        return result;
     }
 
     Vec3 Vec3::operator*(const float scalar) const
     {
-        return Vec3{
-                Data[0] * scalar,
-                Data[1] * scalar,
-                Data[2] * scalar
-        };
+        Vec3 result;
+
+        ToGlm(result) = ToGlm(*this) * scalar;
+
+        return result;
     }
 
     Vec3& Vec3::operator+=(const Vec3& other)
     {
-        Data[0] += other.Data[0];
-        Data[1] += other.Data[1];
-        Data[2] += other.Data[2];
+        ToGlm(*this) = ToGlm(*this) + ToGlm(other);
 
         return *this;
     }
 
     Vec3& Vec3::operator-=(const Vec3& other)
     {
-        Data[0] -= other.Data[0];
-        Data[1] -= other.Data[1];
-        Data[2] -= other.Data[2];
+        ToGlm(*this) = ToGlm(*this) - ToGlm(other);
 
         return *this;
     }
 
     Vec3& Vec3::operator*=(const float scalar)
     {
-        Data[0] *= scalar;
-        Data[1] *= scalar;
-        Data[2] *= scalar;
+        ToGlm(*this) = ToGlm(*this) * scalar;
 
         return *this;
     }
 
     float Vec3::dot(const Vec3& other) const
     {
-        return Data[0] * other.Data[0] + Data[1] * other.Data[1] + Data[2] * other.Data[2];
+        return glm::dot(ToGlm(*this), ToGlm(other));
     }
 
     Vec3 Vec3::cross(const Vec3& other) const
     {
-        return {
-                Data[1] * other.Data[2] - Data[2] * other.Data[1],
-                Data[2] * other.Data[0] - Data[0] * other.Data[2],
-                Data[0] * other.Data[1] - Data[1] * other.Data[0]
-        };
+        Vec3 result;
+
+        ToGlm(result) = glm::cross(ToGlm(*this), ToGlm(other));
+
+        return result;
     }
 
     float Vec3::length() const
@@ -110,11 +105,11 @@ namespace narc_math {
 
     Vec3 Vec3::normalized() const
     {
-        const float len = length();
+        Vec3 result;
 
-        return len < EPSILON_F
-                   ? Vec3{}
-                   : *this * (1.0f / len);
+        ToGlm(result) = glm::normalize(ToGlm(*this));
+
+        return result;
     }
 
     float Vec3::distance(const Vec3& other) const

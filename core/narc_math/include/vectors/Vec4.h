@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include "matrices/Matrix4.h"
 
 namespace narc_math {
     struct alignas(4) NARC_ENGINE_API Vec4
@@ -30,7 +31,6 @@ namespace narc_math {
         // Vec4 operator+(const Vec4& other) const;
         // Vec4 operator-(const Vec4& other) const;
         Vec4 operator*(float scalar) const;
-        Vec4 operator*(Vec4 vector) const;
         // Vec4& operator+=(const Vec4& other);
         // Vec4& operator-=(const Vec4& other);
         Vec4& operator*=(float scalar);

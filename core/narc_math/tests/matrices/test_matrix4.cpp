@@ -91,8 +91,8 @@ TEST_CASE("Matrix4 LookAt basic camera", "[Matrix4]")
 
     Matrix4 view = Matrix4::identity().lookAt(eye, center, up);
 
-    Vec4 world{0.0f, 0.0f, 0.0f, 1.0f};
-    Vec4 camera = view * world;
+    const Vec4 world{0.0f, 0.0f, 0.0f, 1.0f};
+    const Vec4 camera = view * world;
 
     REQUIRE(camera.Z() == Approx(-1.0f));
 }

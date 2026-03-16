@@ -14,21 +14,6 @@ namespace narc_math {
     static_assert(sizeof(glm::mat4) == 64);
     static_assert(sizeof(Matrix4) == 64);
 
-    static glm::mat4& ToGlm(Matrix4& matrix)
-    {
-        return *reinterpret_cast<glm::mat4*>(matrix.Data);
-    }
-
-    static const glm::mat4& ToGlm(const Matrix4& matrix)
-    {
-        return *reinterpret_cast<const glm::mat4*>(matrix.Data);
-    }
-
-    static const glm::vec3& ToGlmV(const Vec3& vector)
-    {
-        return reinterpret_cast<const glm::vec3&>(vector);
-    }
-
     Matrix4::Matrix4() = default;
 
     Matrix4::~Matrix4() = default;
@@ -44,8 +29,11 @@ namespace narc_math {
 
     Vec4 Matrix4::operator*(const Vec4& other) const
     {
-        //TODO:
-        return other;
+        Vec4 result;
+
+        ToGlm(result) = ToGlm(*this) * ToGlm(other);
+
+        return result;
     }
 
     float& Matrix4::operator()(const size_t row, const size_t col)
@@ -62,6 +50,7 @@ namespace narc_math {
     {
         Matrix4 result;
         ToGlm(result) = glm::mat4(1.0f);
+
         return result;
     }
 
@@ -78,7 +67,7 @@ namespace narc_math {
     {
         Matrix4 result;
 
-        ToGlm(result) = glm::rotate(ToGlm(*this), angle, ToGlmV(axis));
+        ToGlm(result) = glm::rotate(ToGlm(*this), angle, ToGlm(axis));
 
         return result;
     }
@@ -87,7 +76,7 @@ namespace narc_math {
     {
         Matrix4 result;
 
-        ToGlm(result) = glm::translate(ToGlm(*this), ToGlmV(delta));
+        ToGlm(result) = glm::translate(ToGlm(*this), ToGlm(delta));
 
         return result;
     }
@@ -96,18 +85,18 @@ namespace narc_math {
     {
         Matrix4 result;
 
-        ToGlm(result) = glm::scale(ToGlm(*this), ToGlmV(scale));
+        ToGlm(result) = glm::scale(ToGlm(*this), ToGlm(scale));
 
         return result;
     }
 
     Matrix4 Matrix4::lookAt(const Vec3& eye, const Vec3& center, const Vec3& up)
     {
-        Vec3 f = (center - eye).normalized();
-        Vec3 s = f.cross(up).normalized();
-        Vec3 u = s.cross(f);
+        const Vec3 f = (center - eye).normalized();
+        const Vec3 s = f.cross(up).normalized();
+        const Vec3 u = s.cross(f);
 
-        Matrix4 result = Matrix4::identity();
+        Matrix4 result = identity();
 
 
         result(0,0) = s.X();
