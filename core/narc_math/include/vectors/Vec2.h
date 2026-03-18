@@ -8,19 +8,21 @@
 namespace narc_math {
     struct alignas(4) NARC_ENGINE_API Vec2
     {
-        float Data[2] = {0, 0};
+        union
+        {
+            struct
+            {
+                float X, Y;
+            };
+
+            float Data[2] = {0, 0};
+        };
 
         Vec2();
         Vec2(const Vec2& vector);
         Vec2(float x, float y);
 
         ~Vec2();
-
-        NARC_GETTER(float, X, Data[0])
-        NARC_GETTER(float, Y, Data[1])
-
-        NARC_SETTER(float, setX, Data[0])
-        NARC_SETTER(float, setY, Data[1])
 
         bool operator==(const Vec2& other) const;
         bool operator!=(const Vec2& other) const { return !(*this == other); }

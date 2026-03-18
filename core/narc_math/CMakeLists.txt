@@ -8,7 +8,7 @@ endif()
 add_library(NarcMath SHARED include/NarcMath.h ${CPP_FILES} ${HPP_FILES})
 narc_decl_testable_target(NarcMath)
 
-add_dependencies(NarcMath NarcCore)
+add_dependencies(NarcMath NarcCore NarcLog)
 
 narc_testable_add_compile_definition(NarcMath PRIVATE NARC_MATH_BUILD_DLL)
 
@@ -18,5 +18,5 @@ narc_testable_add_include_directory(NarcMath PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 
-narc_testable_link_library(NarcMath PUBLIC NarcCore)
+narc_testable_link_library(NarcMath PUBLIC NarcCore NarcLog)
 narc_testable_link_library(NarcMath PRIVATE glm::glm)

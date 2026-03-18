@@ -1,7 +1,5 @@
 ﻿#include "FileReaderService.h"
 
-#include <NarcLog.h>
-#include <NarcMath.h>
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
@@ -96,7 +94,7 @@ namespace narc_io {
 
                 vertex.tex = {attrib.texcoords[2 * index.texcoord_index + 0], 1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
 
-                if (uniqueVertices.find(vertex) == uniqueVertices.end())
+                if (!uniqueVertices.contains(vertex))
                 {
                     uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
                     vertices.push_back(vertex.pos);
