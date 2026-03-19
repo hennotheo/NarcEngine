@@ -38,5 +38,12 @@ namespace narc_math {
         NO_DISCARD float length() const;
         NO_DISCARD Vec3 normalized() const;
         NO_DISCARD float distance(const Vec3& other) const;
+
+        static Vec3 up();
+        static Vec3 down();
+        static Vec3 right();
+        static Vec3 left();
+        static Vec3 forward();
+        static Vec3 backward();
     };
 }
