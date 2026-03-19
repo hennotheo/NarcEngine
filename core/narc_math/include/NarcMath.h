@@ -12,6 +12,8 @@
 #include "vectors/Vec2.h"
 #include "vectors/Vec2Int.h"
 
+#include "Quaternion.h"
+
 #include "Extent.h"
 
 #define NARC_KB_SIZEOF(obj) (static_cast<double>(sizeof(obj)) / 1024.0)

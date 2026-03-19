@@ -4,9 +4,6 @@
 
 #include "vectors/Vec3.h"
 
-#include <glm/vec3.hpp>
-
-#include "NarcMath.h"
 #include "../GlmCore.h"
 
 namespace narc_math {

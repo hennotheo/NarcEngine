@@ -11,14 +11,14 @@ using namespace Catch;
 
 TEST_CASE("Vec3 constructors", "[Vec3]") {
     Vec3 v1; // default
-    REQUIRE(v1.X() == Approx(0.0f));
-    REQUIRE(v1.Y() == Approx(0.0f));
-    REQUIRE(v1.Z() == Approx(0.0f));
+    REQUIRE(v1.X == Approx(0.0f));
+    REQUIRE(v1.Y == Approx(0.0f));
+    REQUIRE(v1.Z == Approx(0.0f));
 
     Vec3 v2(1.0f, 2.0f, 3.0f); // float constructor
-    REQUIRE(v2.X() == Approx(1.0f));
-    REQUIRE(v2.Y() == Approx(2.0f));
-    REQUIRE(v2.Z() == Approx(3.0f));
+    REQUIRE(v2.X == Approx(1.0f));
+    REQUIRE(v2.Y == Approx(2.0f));
+    REQUIRE(v2.Z == Approx(3.0f));
 
     Vec3 v3(v2); // copy constructor
     REQUIRE(v3 == v2);

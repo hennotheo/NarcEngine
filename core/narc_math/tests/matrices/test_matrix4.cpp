@@ -2,6 +2,8 @@
 // Created by theo on 3/13/26.
 //
 
+#include <random>
+
 #include "catch2/catch_all.hpp"
 
 #include "matrices/Matrix4.h"
@@ -26,7 +28,8 @@ TEST_CASE("Matrix4 Identity", "[Matrix4]")
     REQUIRE(m.Data[3] == 0.0f);
 }
 
-TEST_CASE("Matrix4 multiplication", "[Matrix4]") {
+TEST_CASE("Matrix4 multiplication", "[Matrix4]")
+{
     const auto m1 = Matrix4::identity();
     const auto m2 = Matrix4::identity();
 
@@ -38,7 +41,8 @@ TEST_CASE("Matrix4 multiplication", "[Matrix4]") {
     REQUIRE(result.Data[15] == 1.0f);
 }
 
-TEST_CASE("Matrix4 translation", "[Matrix4]") {
+TEST_CASE("Matrix4 translation", "[Matrix4]")
+{
     const Vec3 t(1.0f, 2.0f, 3.0f);
     auto m = Matrix4::identity().translation(t);
 
@@ -47,7 +51,8 @@ TEST_CASE("Matrix4 translation", "[Matrix4]") {
     REQUIRE(m.Data[14] == Approx(3.0f));
 }
 
-TEST_CASE("Matrix4 scale", "[Matrix4]") {
+TEST_CASE("Matrix4 scale", "[Matrix4]")
+{
     const Vec3 s(2.0f, 3.0f, 4.0f);
     auto m = Matrix4::identity().scale(s);
 
@@ -56,7 +61,8 @@ TEST_CASE("Matrix4 scale", "[Matrix4]") {
     REQUIRE(m.Data[10] == Approx(4.0f));
 }
 
-TEST_CASE("Matrix4 rotation", "[Matrix4]") {
+TEST_CASE("Matrix4 rotation", "[Matrix4]")
+{
     const Vec3 axis(0, 1, 0); // Y rot
     const float angle = 3.14159265f / 2.0f; // 90 degres
 
@@ -68,9 +74,10 @@ TEST_CASE("Matrix4 rotation", "[Matrix4]") {
     REQUIRE(m.Data[10] == Approx(0.0f).margin(0.01f));
 }
 
-TEST_CASE("Matrix4 perspective", "[Matrix4]") {
+TEST_CASE("Matrix4 perspective", "[Matrix4]")
+{
     float fov = 3.14159265f / 4.0f; // 45 deg
-    float aspect = 16.0f/9.0f;
+    float aspect = 16.0f / 9.0f;
     float nearPlane = 0.1f;
     float farPlane = 100.0f;
 
@@ -94,7 +101,7 @@ TEST_CASE("Matrix4 LookAt basic camera", "[Matrix4]")
     const Vec4 world{0.0f, 0.0f, 0.0f, 1.0f};
     const Vec4 camera = view * world;
 
-    REQUIRE(camera.Z() == Approx(-1.0f));
+    REQUIRE(camera.Z == Approx(-1.0f));
 }
 
 TEST_CASE("Matrix4 LookAt orthogonal axes", "[Matrix4]")
@@ -105,11 +112,32 @@ TEST_CASE("Matrix4 LookAt orthogonal axes", "[Matrix4]")
 
     Matrix4 view = Matrix4::identity().lookAt(eye, center, up);
 
-    const Vec3 right{view(0,0), view(1,0), view(2,0)};
-    const Vec3 newUp{view(0,1), view(1,1), view(2,1)};
-    const Vec3 forward{-view(0,2), -view(1,2), -view(2,2)};
+    const Vec3 right{view(0, 0), view(1, 0), view(2, 0)};
+    const Vec3 newUp{view(0, 1), view(1, 1), view(2, 1)};
+    const Vec3 forward{-view(0, 2), -view(1, 2), -view(2, 2)};
 
     REQUIRE(right.dot(newUp) == Approx(0.0f));
     REQUIRE(right.dot(forward) == Approx(0.0f));
     REQUIRE(newUp.dot(forward) == Approx(0.0f));
+}
+
+TEST_CASE("Matrix operator() access", "[Matrix]")
+{
+    Matrix4 m;
+
+    for (size_t row = 0; row < 4; ++row)
+    {
+        for (size_t col = 0; col < 4; ++col)
+        {
+            m(row, col) = static_cast<float>(row * 10 + col);
+        }
+    }
+
+    for (size_t row = 0; row < 4; ++row)
+    {
+        for (size_t col = 0; col < 4; ++col)
+        {
+            REQUIRE(m(row, col) == Catch::Approx(row * 10 + col));
+        }
+    }
 }

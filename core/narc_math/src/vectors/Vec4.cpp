@@ -5,7 +5,6 @@
 #include "vectors/Vec4.h"
 
 #include "../GlmCore.h"
-#include "matrices/Matrix4.h"
 
 namespace narc_math {
 

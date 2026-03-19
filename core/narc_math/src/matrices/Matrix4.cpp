@@ -99,17 +99,17 @@ namespace narc_math {
         Matrix4 result = identity();
 
 
-        result(0,0) = s.X();
-        result(1,0) = s.Y();
-        result(2,0) = s.Z();
+        result(0,0) = s.X;
+        result(1,0) = s.Y;
+        result(2,0) = s.Z;
 
-        result(0,1) = u.X();
-        result(1,1) = u.Y();
-        result(2,1) = u.Z();
+        result(0,1) = u.X;
+        result(1,1) = u.Y;
+        result(2,1) = u.Z;
 
-        result(0,2) = -f.X();
-        result(1,2) = -f.Y();
-        result(2,2) = -f.Z();
+        result(0,2) = -f.X;
+        result(1,2) = -f.Y;
+        result(2,2) = -f.Z;
 
         result(3,0) = -s.dot(eye);
         result(3,1) = -u.dot(eye);

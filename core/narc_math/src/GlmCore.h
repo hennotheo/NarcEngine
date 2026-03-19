@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "NarcMath.h"
+
 #define GLM_FORCE_COLUMN_MAJOR
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
@@ -15,6 +17,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/scalar_constants.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 namespace narc_math {
     static glm::mat4& ToGlm(Matrix4& matrix)
@@ -45,5 +48,15 @@ namespace narc_math {
     static const glm::vec4& ToGlm(const Vec4& vector)
     {
         return reinterpret_cast<const glm::vec4&>(vector);
+    }
+
+    static glm::quat& ToGlm(Quaternion& quaternion)
+    {
+        return reinterpret_cast<glm::quat&>(quaternion);
+    }
+
+    static const glm::quat& ToGlm(const Quaternion& quaternion)
+    {
+        return reinterpret_cast<const glm::quat&>(quaternion);
     }
 }
