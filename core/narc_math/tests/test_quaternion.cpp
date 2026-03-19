@@ -3,6 +3,7 @@
 //
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_approx.hpp>
+#include <matrices/Matrix4.h>
 
 #include "Quaternion.h"
 #include "vectors/Vec3.h"
@@ -173,4 +174,17 @@ TEST_CASE("Quaternion lookRotation", "[Quaternion]")
 
     // Should look in the same direction
     REQUIRE(result.Z == Catch::Approx(-1).margin(0.0001));
+}
+
+TEST_CASE("Quaternion model matrix", "[Quaternion]")
+{
+    const Vec3 pos(10, 0, 0);
+    const Quaternion rot = Quaternion::identity();
+    const Vec3 scale(1,1,1);
+
+    Matrix4 model = Matrix4::model(pos, rot, scale);
+
+    REQUIRE(pos.X == Catch::Approx(10).margin(0.0001));
+    REQUIRE(pos.Y == Catch::Approx(0).margin(0.0001));
+    REQUIRE(pos.Z == Catch::Approx(0).margin(0.0001));
 }

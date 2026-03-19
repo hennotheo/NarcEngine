@@ -6,6 +6,7 @@
 #pragma once
 
 namespace narc_math {
+    struct Matrix4;
     struct Vec3;
 
     struct NARC_ENGINE_API Quaternion
@@ -33,6 +34,7 @@ namespace narc_math {
         NO_DISCARD Vec3 toEulerAngles() const;
         NO_DISCARD float length() const;
         NO_DISCARD Quaternion normalized() const;
+        NO_DISCARD Matrix4 toMatrix() const;
         NO_DISCARD float dot(const Quaternion& v) const;
         NO_DISCARD Vec3 rotate(const Vec3& v) const;
 

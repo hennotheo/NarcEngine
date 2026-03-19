@@ -6,6 +6,7 @@
 #pragma once
 
 namespace narc_math {
+    struct Quaternion;
     struct Vec4;
     struct Vec3;
 
@@ -23,6 +24,7 @@ namespace narc_math {
 
         static Matrix4 identity();
         static Matrix4 perspective(float fov, float aspect, float nearPlane, float farPlane);
+        static Matrix4 model(const Vec3& delta, const Quaternion& rotation, const Vec3& scale);
 
         Matrix4 rotate(const Vec3& axis, float angle);
         Matrix4 translation(const Vec3& delta);

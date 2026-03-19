@@ -59,6 +59,15 @@ namespace narc_math {
         return result;
     }
 
+    Matrix4 Quaternion::toMatrix() const
+    {
+        Matrix4 result;
+
+        ToGlm(result) = glm::toMat4(ToGlm(*this));
+
+        return result;
+    }
+
     float Quaternion::dot(const Quaternion& v) const
     {
         return dot(*this, v);

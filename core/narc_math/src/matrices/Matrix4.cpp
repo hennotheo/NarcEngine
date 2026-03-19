@@ -63,7 +63,16 @@ namespace narc_math {
         return result;
     }
 
-    Matrix4 Matrix4::rotate(const Vec3& axis, float angle)
+    Matrix4 Matrix4::model(const Vec3& delta, const Quaternion& rotation, const Vec3& scale)
+    {
+        const Matrix4 translation = identity().translation(delta);
+        const Matrix4 rot = rotation.normalized().toMatrix();
+        const Matrix4 scaleMat = identity().scale(scale);
+
+        return translation * rot * scaleMat;
+    }
+
+    Matrix4 Matrix4::rotate(const Vec3& axis, const float angle)
     {
         Matrix4 result;
 
