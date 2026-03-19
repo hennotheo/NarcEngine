@@ -11,7 +11,7 @@ namespace narc_math {
 
     Quaternion::Quaternion(const Quaternion& other)
     {
-        memcpy(Data, other.Data, sizeof(Quaternion));
+        std::copy_n(other.Data, 4, Data);
     }
 
     Quaternion::Quaternion(const float x, const float y, const float z, const float w)
