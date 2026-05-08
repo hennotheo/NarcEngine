@@ -9,7 +9,7 @@ cmake_*/
 .venv/
 **/logs/**
 __cmake_systeminformation/
-CMakeUserPresets.json
+CMakePresets.json
 
 # Auto installed libraries
 vendors/**

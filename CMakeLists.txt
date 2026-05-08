@@ -1,9 +1,12 @@
-cmake_minimum_required(VERSION 3.31)
-cmake_policy(VERSION 3.31)
+cmake_minimum_required(VERSION 3.28)
+cmake_policy(VERSION 3.28)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+option(ENABLE_TESTS "Build test targets." OFF)
+option(ENABLE_COVERAGE "Enable coverage instrumentation." OFF)
 
 include(scripts/versionning.cmake)
 
@@ -16,8 +19,6 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         message(FATAL_ERROR "Clang 16+ required for C++23. Current: ${CMAKE_CXX_COMPILER_VERSION}")
     endif ()
 endif ()
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -std=c++23")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 

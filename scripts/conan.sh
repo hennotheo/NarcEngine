@@ -1,33 +1,84 @@
+#!/usr/bin/env bash
+
 set -euo pipefail
 
-# Usage:
-#   ./scripts/conan.sh [Debug|Release] [host_profile_path] [compiler_cppstd]
-# Examples:
-#   ./scripts/conan.sh                # Debug, no profile, no cppstd override
-#   ./scripts/conan.sh Release       # Release, no profile
-#   ./scripts/conan.sh Debug conan_profiles/host 20
-#   ./scripts/conan.sh Debug "" gnu20
+usage() {
+  cat <<'EOF'
+Usage:
+  ./scripts/conan.sh [debug|release|tests|coverage] [terminal|clion]
 
-BUILD_TYPE="${1:-Debug}"
-HOST_PROFILE="${2:-}"
-CPPSTD="${3:-}"
+Modes:
+  debug     Prepare Conan files for the `linux-debug` preset
+  release   Prepare Conan files for the `linux-release` preset
+  tests     Prepare Conan files for the `linux-tests` preset
+  coverage  Prepare Conan files for the `linux-coverage` preset
 
-# Normalize build type (accept any case)
-BUILD_TYPE_LOWER="${BUILD_TYPE,,}"  # lowercase
-if [[ "${BUILD_TYPE_LOWER}" == "debug" ]]; then
-  BUILD_TYPE="Debug"
-elif [[ "${BUILD_TYPE_LOWER}" == "release" ]]; then
-  BUILD_TYPE="Release"
-else
-  echo "Invalid build type: ${BUILD_TYPE}"
-  echo "Usage: $0 [Debug|Release] [host_profile_path] [compiler_cppstd]"
-  exit 1
-fi
+Layouts:
+  terminal  Generate files under build/linux/... for shell usage
+  clion     Generate files under build/clion/linux/... for CLion usage
+EOF
+}
 
-#OUT_DIR="build/${BUILD_TYPE}"
-OUT_DIR="./" # Use root dir to simplify CMake presets usage
-CONAN_ARGS=(--build=missing, -o build_tests=True -o coverage=True)
-SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MODE="${1:-debug}"
+MODE="${MODE,,}"
+LAYOUT="${2:-terminal}"
+LAYOUT="${LAYOUT,,}"
+
+case "${LAYOUT}" in
+  terminal)
+    BUILD_ROOT="build/linux"
+    PRESET_PREFIX="linux"
+    ;;
+  clion)
+    BUILD_ROOT="build/clion/linux"
+    PRESET_PREFIX="linux-clion"
+    ;;
+  *)
+    echo "Invalid layout: ${LAYOUT}"
+    usage
+    exit 1
+    ;;
+esac
+
+case "${MODE}" in
+  debug)
+    BUILD_TYPE="Debug"
+    PRESET_NAME="${PRESET_PREFIX}-debug"
+    BUILD_DIR="${BUILD_ROOT}/debug"
+    CMAKE_BINARY_DIR="${BUILD_DIR}/build/Debug"
+    ENABLE_TESTS="False"
+    ENABLE_COVERAGE="False"
+    ;;
+  release)
+    BUILD_TYPE="Release"
+    PRESET_NAME="${PRESET_PREFIX}-release"
+    BUILD_DIR="${BUILD_ROOT}/release"
+    CMAKE_BINARY_DIR="${BUILD_DIR}/build/Release"
+    ENABLE_TESTS="False"
+    ENABLE_COVERAGE="False"
+    ;;
+  tests)
+    BUILD_TYPE="Debug"
+    PRESET_NAME="${PRESET_PREFIX}-tests"
+    BUILD_DIR="${BUILD_ROOT}/tests"
+    CMAKE_BINARY_DIR="${BUILD_DIR}/build/Debug"
+    ENABLE_TESTS="True"
+    ENABLE_COVERAGE="False"
+    ;;
+  coverage)
+    BUILD_TYPE="Debug"
+    PRESET_NAME="${PRESET_PREFIX}-coverage"
+    BUILD_DIR="${BUILD_ROOT}/coverage"
+    CMAKE_BINARY_DIR="${BUILD_DIR}/build/Debug"
+    ENABLE_TESTS="True"
+    ENABLE_COVERAGE="True"
+    ;;
+  *)
+    echo "Invalid mode: ${MODE}"
+    usage
+    exit 1
+    ;;
+esac
 
 # check conan
 if ! command -v conan >/dev/null 2>&1; then
@@ -35,26 +86,41 @@ if ! command -v conan >/dev/null 2>&1; then
   exit 2
 fi
 
-# build conan install command
-CMD=(conan install . -s build_type="${BUILD_TYPE}" "${CONAN_ARGS[@]}" --build=missing --profile:build="${SCRIPT_PATH}/profile" --profile:host="${SCRIPT_PATH}/profile" -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True)
+conan profile detect --exist-ok >/dev/null
 
-if [[ -n "${HOST_PROFILE}" ]]; then
-  CMD+=(--profile:host "${HOST_PROFILE}")
-fi
+mkdir -p "${BUILD_DIR}"
 
-if [[ -n "${CPPSTD}" ]]; then
-  CMD+=(-s compiler.cppstd="${CPPSTD}")
-fi
+CMD=(
+  conan install .
+  --output-folder "${BUILD_DIR}"
+  --build=missing
+  --profile:build default
+  --profile:host default
+  -c tools.cmake.cmaketoolchain:generator="Unix Makefiles"
+  -s:h build_type="${BUILD_TYPE}"
+  -s:h compiler.cppstd=gnu23
+  -o build_tests="${ENABLE_TESTS}"
+  -o coverage="${ENABLE_COVERAGE}"
+  -c tools.system.package_manager:mode=install
+  -c tools.system.package_manager:sudo=True
+)
 
-# Run
 echo "Running: ${CMD[*]}"
 "${CMD[@]}"
 
 echo
-echo "Conan install finished. Generated files are in: ${OUT_DIR}/generators"
+echo "Conan install finished. Generated files are in: ${CMAKE_BINARY_DIR}/generators"
 echo "Next steps:"
-echo "  - Configure with CMake (example using Ninja):"
-echo "      cmake -S . -B ${OUT_DIR} -G Ninja -DCMAKE_TOOLCHAIN_FILE=${OUT_DIR}/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE}"
-echo "  - Or, if you have cmake >= 3.23 and Conan generated presets:"
-echo "      cmake --preset conan-${BUILD_TYPE,,}"
+echo "  - Configure with the repo-owned preset for ${LAYOUT}:"
+echo "      cmake --preset ${PRESET_NAME}"
+echo "  - Build:"
+echo "      cmake --build --preset ${PRESET_NAME}"
+if [[ "${ENABLE_TESTS}" == "True" ]]; then
+  echo "  - Run tests:"
+  echo "      ctest --preset ${PRESET_NAME}"
+fi
+if [[ "${ENABLE_COVERAGE}" == "True" ]]; then
+  echo "  - Generate the coverage report target:"
+  echo "      cmake --build --preset ${PRESET_NAME} --target NarcCoverage"
+fi
 echo
