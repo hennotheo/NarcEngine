@@ -30,7 +30,7 @@ namespace narc_engine {
 
         void newFrame();
         void endFrame();
-        void render();
+        void render(const ICommandBuffer* cmdBuffer);
         void createDescriptorPool();
 
     private:

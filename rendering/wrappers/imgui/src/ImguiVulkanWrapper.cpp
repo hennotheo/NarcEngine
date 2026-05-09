@@ -73,16 +73,24 @@ namespace narc_engine {
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+
+        ImGui::Begin("Debug");
+        ImGui::Text("Hello");
+        ImGui::End();
     }
 
     void ImguiVulkanWrapper::endFrame()
     {
-        ImGui::EndFrame();
+        ImGui::Render();
     }
 
-    void ImguiVulkanWrapper::render()
+    void ImguiVulkanWrapper::render(const ICommandBuffer* cmdBuffer)
     {
-        ImGui::Render();
+        const VulkanCommandBuffer* vulkanInstance =  narc_core::backend_cast<VulkanCommandBuffer, ICommandBuffer>(cmdBuffer);
+        ImGui_ImplVulkan_RenderDrawData(
+            ImGui::GetDrawData(),
+            vulkanInstance->getHandle()
+        );
     }
 
     void ImguiVulkanWrapper::createDescriptorPool()

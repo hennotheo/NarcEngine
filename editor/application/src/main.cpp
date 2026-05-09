@@ -392,10 +392,15 @@ int main(int argc, char** argv)
 
                 cmdBuffer->drawIndexed(model.getIndicesCount());
 
+                imgui.newFrame();
+                imgui.endFrame();
+                imgui.render(cmdBuffer);
+
                 cmdBuffer->endRenderPass();
 
                 cmdBuffer->end();
                 //END RECORD ---------------------
+
 
                 const auto submitQueue = graphicsInstance->getGraphicsQueue();
                 submitQueue->submit({
@@ -426,11 +431,6 @@ int main(int argc, char** argv)
                 }
 
                 frameInFlight = (frameInFlight + 1) % MAX_FRAMES_IN_FLIGHT;
-
-
-                imgui.newFrame();
-                imgui.endFrame();
-                imgui.render();
             }
 
             graphicsInstance->waitIdle();
