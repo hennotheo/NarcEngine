@@ -48,6 +48,9 @@ namespace narc_engine {
 
         void attachWindow(const IWindow* window) noexcept override;
 
+        NARC_GETTER(const VulkanInstance*, getInstance, m_instance.get());
+        NARC_GETTER(const VulkanDevice*, getDevice, m_device.get());
+
     private:
         const IWindow* m_mainWindow;
 

@@ -1,3 +1,4 @@
+#include "ImguiVulkanWrapper.h"
 constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
 
 #include "Ubo.h"
@@ -67,13 +68,14 @@ UniformBufferObject getUniformBufferObject(const narc_math::Extent swapchainExte
     float aspect = static_cast<float>(swapchainExtent.Width) / static_cast<float>(swapchainExtent.Height);
     UniformBufferObject ubo{
             .model = narc_math::Matrix4::identity().rotate(narc_math::Vec3(0.0f, 0.0f, 1.0f), time * 90.0f * 0.01745329251994329576923690768489f),
-            .view = narc_math::Matrix4::identity().lookAt(narc_math::Vec3(2.0f, 2.0f, 2.0f), narc_math::Vec3(0.0f, 0.0f, 0.5f), narc_math::Vec3(0.0f, 0.0f, 1.0f)),
+            .view = narc_math::Matrix4::identity().lookAt(narc_math::Vec3(2.0f, 2.0f, 2.0f), narc_math::Vec3(0.0f, 0.0f, 0.5f),
+                                                          narc_math::Vec3(0.0f, 0.0f, 1.0f)),
             .proj = narc_math::Matrix4::identity().perspective(45.0f,
-                                     aspect,
-                                     0.1f,
-                                     10.0f)
+                                                               aspect,
+                                                               0.1f,
+                                                               10.0f)
     };
-    ubo.proj(1,1) *= -1;
+    ubo.proj(1, 1) *= -1;
 
     return ubo;
 }
@@ -276,6 +278,15 @@ int main(int argc, char** argv)
             commandBuffers.push_back(cmdPool->allocateCommandBuffer().value());
         }
 
+        narc_engine::NarcImGuiContext imguiContext;
+        imguiContext.GraphicsInstance = graphicsInstance.get();
+        imguiContext.window = window.get();
+        imguiContext.MinImageCount = MAX_FRAMES_IN_FLIGHT;
+        imguiContext.ImageCount = MAX_FRAMES_IN_FLIGHT;
+        imguiContext.Pipeline = pipeline.get();
+        narc_engine::ImguiVulkanWrapper imgui(imguiContext);
+        imgui.init();
+
         std::unique_ptr<narc_engine::IImage> image = createImageTexture("textures/tex_test_uv_0.png");
 
         {
@@ -415,10 +426,17 @@ int main(int argc, char** argv)
                 }
 
                 frameInFlight = (frameInFlight + 1) % MAX_FRAMES_IN_FLIGHT;
+
+
+                imgui.newFrame();
+                imgui.endFrame();
+                imgui.render();
             }
 
             graphicsInstance->waitIdle();
         }
+
+        imgui.shutdown();
 
         image->shutdown();
 
