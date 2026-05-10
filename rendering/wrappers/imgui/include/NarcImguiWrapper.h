@@ -7,7 +7,7 @@
 #include "ImguiVulkanWrapper.h"
 
 namespace narc_engine {
-    class ImguiWrapper : narc_core::IInitialisable
+    class ImguiWrapper : public narc_core::IInitialisable, public IGui
     {
     public:
         explicit ImguiWrapper(std::unique_ptr<ImGuiBackend> backend);
@@ -22,10 +22,10 @@ namespace narc_engine {
         void endWindow();
         void endFrame();
         void render(const ICommandBuffer* cmdBuffer);
-        void drawDockspace();
 
     private:
-
         std::unique_ptr<ImGuiBackend> m_backend;
+
+        void drawDockspace();
     };
 }

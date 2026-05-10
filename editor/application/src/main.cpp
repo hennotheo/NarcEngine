@@ -1,5 +1,3 @@
-#include "ImguiVulkanWrapper.h"
-#include "NarcImguiWrapper.h"
 constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
 
 #include "Ubo.h"
@@ -171,7 +169,7 @@ std::vector<narc_engine::Vertex> createVertexInputDataFromModel(const narc_io::M
     return vertices;
 }
 
-void recordImgui(narc_engine::ImguiWrapper* imgui)
+void recordImgui(narc_engine::IGui* imgui)
 {
     imgui->startWindow("Settings");
 
@@ -286,15 +284,15 @@ int main(int argc, char** argv)
             commandBuffers.push_back(cmdPool->allocateCommandBuffer().value());
         }
 
-        narc_engine::NarcImGuiContext imguiContext;
+        narc_engine::GuiInitContext imguiContext;
         imguiContext.GraphicsInstance = graphicsInstance.get();
         imguiContext.window = window.get();
         imguiContext.MinImageCount = MAX_FRAMES_IN_FLIGHT;
         imguiContext.ImageCount = MAX_FRAMES_IN_FLIGHT;
         imguiContext.Pipeline = pipeline.get();
-        std::unique_ptr<narc_engine::ImGuiBackend> vulkanBackend = std::make_unique<narc_engine::ImguiVulkanWrapper>(imguiContext);
-        narc_engine::ImguiWrapper imgui(std::move(vulkanBackend));
-        imgui.init();
+        auto gui = narc_engine::createGui(narc_engine::Vulkan, imguiContext);
+
+        gui->init();
 
         std::unique_ptr<narc_engine::IImage> image = createImageTexture("textures/tex_test_uv_0.png");
 
@@ -376,9 +374,9 @@ int main(int argc, char** argv)
                 cmdBuffer->reset();
 
                 //RECORD -------------------------
-                imgui.newFrame();
+                gui->newFrame();
 
-                recordImgui(&imgui);
+                recordImgui(gui.get());
 
                 cmdBuffer->begin();
 
@@ -408,8 +406,8 @@ int main(int argc, char** argv)
                 // GUI -------------------------------------
 
 
-                imgui.endFrame();
-                imgui.render(cmdBuffer);
+                gui->endFrame();
+                gui->render(cmdBuffer);
 
                 // END GUI ---------------------------------
 
@@ -453,7 +451,7 @@ int main(int argc, char** argv)
             graphicsInstance->waitIdle();
         }
 
-        imgui.shutdown();
+        gui->shutdown();
 
         image->shutdown();
 

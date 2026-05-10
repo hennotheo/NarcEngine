@@ -11,7 +11,7 @@
 
 namespace narc_engine {
 
-    ImguiVulkanWrapper::ImguiVulkanWrapper(const NarcImGuiContext& context) : m_vulkanContext(context)
+    ImguiVulkanWrapper::ImguiVulkanWrapper(const GuiInitContext& context) : m_vulkanContext(context)
     {
     }
 

@@ -3,4 +3,4 @@
 #include <NarcIO.h>
 #include <NarcLog.h>
 #include <NarcMath.h>
-#include <Rhi.h>
+#include <../../../rendering/rhi/public/Rhi.h>

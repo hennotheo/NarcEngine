@@ -10,18 +10,9 @@
 struct ImGuiContext;
 
 namespace narc_engine {
+    struct GuiInitContext;
 
     class VulkanCommandBuffer;
-
-    struct NarcImGuiContext
-    {
-        IGraphicsInstance* GraphicsInstance;
-        IWindow* window;
-        IGraphicsPipeline* Pipeline;
-
-        uint32_t ImageCount;
-        uint32_t MinImageCount;
-    };
 
 
     class ImGuiBackend : public narc_core::IInitialisable
@@ -34,7 +25,7 @@ namespace narc_engine {
     class ImguiVulkanWrapper : public ImGuiBackend
     {
     public:
-        explicit ImguiVulkanWrapper(const NarcImGuiContext& context);
+        explicit ImguiVulkanWrapper(const GuiInitContext& context);
         ~ImguiVulkanWrapper() override;
 
         NARC_IMPL_INITIALISABLE();
@@ -47,7 +38,7 @@ namespace narc_engine {
     private:
 
         ImGuiContext* m_context = nullptr;
-        NarcImGuiContext m_vulkanContext{};
+        GuiInitContext m_vulkanContext{};
 
         VkDescriptorPool m_descriptorPool;
     };
