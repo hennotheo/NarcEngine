@@ -10,12 +10,16 @@ namespace narc_engine {
     public:
         ~IGui() override = default;
 
-        virtual void newFrame() = 0;
         virtual void startWindow(const std::string& name) = 0;
-        virtual void text(const std::string& content) = 0;
-        virtual void spacing() = 0;
         virtual void endWindow() = 0;
+
+        virtual void text(const std::string& content) = 0;
+
+        virtual void spacing() = 0;
+
+        virtual void newFrame() = 0;
         virtual void endFrame() = 0;
+
         virtual void render(const ICommandBuffer* cmdBuffer) = 0;
     };
 }

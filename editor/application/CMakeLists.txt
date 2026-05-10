@@ -8,5 +8,5 @@ add_dependencies(NarcEngineEditor NarcRHI)
 target_include_directories(NarcEngineEditor PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-target_link_libraries(NarcEngineEditor PRIVATE NarcRHI NarcLog NarcVulkanWrapper RhiCore NarcCore NarcMath NarcIO)
+target_link_libraries(NarcEngineEditor PRIVATE NarcRHI NarcLog NarcVulkanWrapper NarcCore NarcMath NarcIO)
 target_precompile_headers(NarcEngineEditor PRIVATE "include/pch.h")
