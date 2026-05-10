@@ -13,7 +13,6 @@ namespace narc_engine {
 
     ImguiVulkanWrapper::ImguiVulkanWrapper(const NarcImGuiContext& context) : m_vulkanContext(context)
     {
-
     }
 
     ImguiVulkanWrapper::~ImguiVulkanWrapper() = default;
@@ -26,11 +25,13 @@ namespace narc_engine {
         void* windowHandle = m_vulkanContext.window->getHandle();
         auto t = static_cast<GLFWwindow*>(windowHandle);
         ImGui_ImplGlfw_InitForVulkan(t, true);
-        // ImGui_ImplVulkan_Init();
 
         const VulkanGraphicsInstance* vulkanInstance =  narc_core::backend_cast<VulkanGraphicsInstance, IGraphicsInstance>(m_vulkanContext.GraphicsInstance);
         const auto* graphicsQueue = narc_core::backend_cast<VulkanQueue, IQueue>(vulkanInstance->getGraphicsQueue());
         const auto* pass = narc_core::backend_cast<VulkanGraphicsPipeline, IGraphicsPipeline>(m_vulkanContext.Pipeline);
+
+        ImGuiIO& io = ImGui::GetIO();
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
         createDescriptorPool();
 
@@ -43,8 +44,9 @@ namespace narc_engine {
         initInfo.DescriptorPool = m_descriptorPool;
         initInfo.MinImageCount = m_vulkanContext.MinImageCount;
         initInfo.ImageCount = m_vulkanContext.ImageCount;
-        initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-        initInfo.RenderPass = pass->getRenderPass()->getHandle();
+        initInfo.PipelineInfoMain.RenderPass = pass->getRenderPass()->getHandle();
+        initInfo.PipelineInfoMain.Subpass = 0;
+        initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 
         ImGui_ImplVulkan_Init(&initInfo);
     }
@@ -73,23 +75,20 @@ namespace narc_engine {
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
-        ImGui::Begin("Debug");
-        ImGui::Text("Hello");
-        ImGui::End();
     }
 
     void ImguiVulkanWrapper::endFrame()
     {
-        ImGui::Render();
+        // ImGui::EndFrame();
     }
 
-    void ImguiVulkanWrapper::render(const ICommandBuffer* cmdBuffer)
+    void ImguiVulkanWrapper::render(const VulkanCommandBuffer* cmdBuffer)const
     {
-        const VulkanCommandBuffer* vulkanInstance =  narc_core::backend_cast<VulkanCommandBuffer, ICommandBuffer>(cmdBuffer);
+        ImGui::Render();
+
         ImGui_ImplVulkan_RenderDrawData(
             ImGui::GetDrawData(),
-            vulkanInstance->getHandle()
+            cmdBuffer->getHandle()
         );
     }
 

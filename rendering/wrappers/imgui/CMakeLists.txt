@@ -25,6 +25,12 @@ target_sources(NarcImguiWrapper PRIVATE
         "${IMGUI_BINDINGS_DIR}/imgui_impl_glfw.cpp"
         "${IMGUI_BINDINGS_DIR}/imgui_impl_vulkan.cpp")
 
+set_source_files_properties(
+        "${IMGUI_BINDINGS_DIR}/imgui_impl_glfw.cpp"
+        "${IMGUI_BINDINGS_DIR}/imgui_impl_vulkan.cpp"
+        PROPERTIES SKIP_PRECOMPILE_HEADERS ON
+)
+
 narc_testable_link_library(NarcImguiWrapper PUBLIC
         RhiCore
         NarcEngineDependencies

@@ -5,11 +5,14 @@
 
 #pragma once
 
-struct ImGuiContext;
-
 #include <vulkan/vulkan.h>
 
+struct ImGuiContext;
+
 namespace narc_engine {
+
+    class VulkanCommandBuffer;
+
     struct NarcImGuiContext
     {
         IGraphicsInstance* GraphicsInstance;
@@ -20,7 +23,15 @@ namespace narc_engine {
         uint32_t MinImageCount;
     };
 
-    class ImguiVulkanWrapper : public narc_core::IInitialisable
+
+    class ImGuiBackend : public narc_core::IInitialisable
+    {
+    public:
+        virtual void newFrame() = 0;
+        virtual void endFrame() = 0;
+    };
+
+    class ImguiVulkanWrapper : public ImGuiBackend
     {
     public:
         explicit ImguiVulkanWrapper(const NarcImGuiContext& context);
@@ -28,12 +39,13 @@ namespace narc_engine {
 
         NARC_IMPL_INITIALISABLE();
 
-        void newFrame();
-        void endFrame();
-        void render(const ICommandBuffer* cmdBuffer);
+        void newFrame() override;
+        void endFrame() override;
+        void render(const VulkanCommandBuffer* cmdBuffer) const;
         void createDescriptorPool();
 
     private:
+
         ImGuiContext* m_context = nullptr;
         NarcImGuiContext m_vulkanContext{};
 

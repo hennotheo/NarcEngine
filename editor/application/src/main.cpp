@@ -1,4 +1,5 @@
 #include "ImguiVulkanWrapper.h"
+#include "NarcImguiWrapper.h"
 constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
 
 #include "Ubo.h"
@@ -170,6 +171,13 @@ std::vector<narc_engine::Vertex> createVertexInputDataFromModel(const narc_io::M
     return vertices;
 }
 
+void recordImgui(narc_engine::ImguiWrapper* imgui)
+{
+    imgui->startWindow("Settings");
+
+    imgui->endWindow();
+}
+
 int main(int argc, char** argv)
 {
     spdlog::set_level(spdlog::level::debug);
@@ -284,7 +292,8 @@ int main(int argc, char** argv)
         imguiContext.MinImageCount = MAX_FRAMES_IN_FLIGHT;
         imguiContext.ImageCount = MAX_FRAMES_IN_FLIGHT;
         imguiContext.Pipeline = pipeline.get();
-        narc_engine::ImguiVulkanWrapper imgui(imguiContext);
+        std::unique_ptr<narc_engine::ImGuiBackend> vulkanBackend = std::make_unique<narc_engine::ImguiVulkanWrapper>(imguiContext);
+        narc_engine::ImguiWrapper imgui(std::move(vulkanBackend));
         imgui.init();
 
         std::unique_ptr<narc_engine::IImage> image = createImageTexture("textures/tex_test_uv_0.png");
@@ -367,6 +376,10 @@ int main(int argc, char** argv)
                 cmdBuffer->reset();
 
                 //RECORD -------------------------
+                imgui.newFrame();
+
+                recordImgui(&imgui);
+
                 cmdBuffer->begin();
 
                 cmdBuffer->beginRenderPass(
@@ -392,9 +405,13 @@ int main(int argc, char** argv)
 
                 cmdBuffer->drawIndexed(model.getIndicesCount());
 
-                imgui.newFrame();
+                // GUI -------------------------------------
+
+
                 imgui.endFrame();
                 imgui.render(cmdBuffer);
+
+                // END GUI ---------------------------------
 
                 cmdBuffer->endRenderPass();
 

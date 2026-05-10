@@ -28,7 +28,7 @@ class NarcEngineConan(ConanFile):
         "vulkan-loader/1.3.243.0",
         "stb/cci.20240531",
         "tinyobjloader/2.0.0-rc10",
-        "imgui/1.92.2b",
+        "imgui/1.92.7-docking",
     )
 
     tool_requires = (
