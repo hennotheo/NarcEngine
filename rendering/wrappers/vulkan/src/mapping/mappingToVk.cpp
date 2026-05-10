@@ -63,8 +63,8 @@ namespace narc_engine::mapping {
     VkViewport mapFromViewPortInfos(const ViewPortInfos& value) noexcept
     {
         return VkViewport{
-                .x = value.Position.x,
-                .y = value.Position.y,
+                .x = value.Position.X,
+                .y = value.Position.Y,
                 .width = static_cast<float>(value.Dimensions.Width),
                 .height = static_cast<float>(value.Dimensions.Height),
                 .minDepth = 0.0f,
@@ -76,8 +76,8 @@ namespace narc_engine::mapping {
     {
         return {
                 .offset = {
-                        .x = value.Offset.x,
-                        .y = value.Offset.y
+                        .x = value.Offset.X,
+                        .y = value.Offset.Y
                 },
                 .extent = {
                         .width = value.Extent.Width,
@@ -212,4 +212,3 @@ namespace narc_engine::mapping {
 
     }
 }
-

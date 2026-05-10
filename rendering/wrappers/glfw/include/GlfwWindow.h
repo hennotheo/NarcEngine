@@ -17,6 +17,7 @@ namespace narc_engine {
         NARC_IMPL_INITIALISABLE();
 
         NARC_OVERRIDE_GETTER(NativeWindowHandle, getNativeHandle, m_handles);
+        NARC_OVERRIDE_GETTER(void*, getHandle, m_window);
 
         NARC_QUERY_OVERRIDE(bool, shouldClose);
         NARC_QUERY_OVERRIDE(SurfaceExtent, getSurfaceExtent);

@@ -5,6 +5,7 @@
 #include "descriptor/VulkanDescriptorSet.h"
 
 #include "descriptor/VulkanDescriptorBindingUpdater.h"
+#include "device/VulkanDevice.h"
 
 namespace narc_engine {
     VulkanDescriptorSet::VulkanDescriptorSet(const VulkanDevice* device, const IDescriptorLayout* layout, const VkDescriptorSet& descriptorSet) :

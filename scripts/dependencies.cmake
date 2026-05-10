@@ -18,7 +18,7 @@ message(STATUS "Fetching dependencies...")
 set(FETCHCONTENT_FULLY_DISCONNECTED OFF CACHE BOOL "Permet à FetchContent de réutiliser un dépôt local")
 
 # --- PYTHON ---
-find_package (Python COMPONENTS Interpreter)
+find_package(Python REQUIRED COMPONENTS Interpreter)
 
 # RE ENABLE ORIGINAL FLAGS
 set(CMAKE_C_FLAGS   "${_CFLAGS}")

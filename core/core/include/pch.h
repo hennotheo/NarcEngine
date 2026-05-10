@@ -8,6 +8,7 @@
 #include <atomic>
 #include <chrono>
 #include <cassert>
+#include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <ctime>
@@ -31,5 +32,3 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-
-#include <boost/di.hpp>

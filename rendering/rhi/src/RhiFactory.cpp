@@ -2,20 +2,19 @@
 // Created by theo on 2/18/26.
 //
 
-#include "RhiFactory.h"
+#include "factory/RhiFactory.h"
 
-#include <RhiCore.h>
 #include <NarcVulkanWrapper.h>
 #include <NarcGlfwWrapper.h>
+
+#include "ImguiVulkanWrapper.h"
+#include "NarcImguiWrapper.h"
+#include "models/GuiInitContext.h"
 
 namespace narc_engine {
     std::unique_ptr<IGraphicsInstance> createVulkanGraphicsInstance()
     {
-        const auto injector = di::make_injector(
-                di::bind<IGraphicsInstance>().to<VulkanGraphicsInstance>()
-                );
-
-        return injector.create<std::unique_ptr<IGraphicsInstance>>();
+        return std::make_unique<VulkanGraphicsInstance>();
     }
 
     std::unique_ptr<IGraphicsInstance> createGraphicsInstance(const GraphicBackend backend)
@@ -38,5 +37,24 @@ namespace narc_engine {
         }
 
         return nullptr;
+    }
+
+    std::unique_ptr<ImGuiBackend> createGuiBackend(const GraphicBackend backend, const GuiInitContext& context)
+    {
+        switch (backend)
+        {
+            case Vulkan: return std::make_unique<ImguiVulkanWrapper>(context);
+        }
+
+        NARC_ERROR_NOT_IMPLEMENTED("Backend not implemented.");
+    }
+
+    std::unique_ptr<IGui> createGui(const GraphicBackend& backend, const GuiInitContext& context)
+    {
+        auto backendInstance = createGuiBackend(backend, context);
+
+        return std::make_unique<ImguiWrapper>(
+            std::move(backendInstance)
+        );
     }
 }

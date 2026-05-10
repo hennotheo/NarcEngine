@@ -5,6 +5,7 @@
 #pragma once
 
 namespace narc_engine {
+    class VulkanCommandBuffer;
     class VulkanDevice;
     
     class VulkanCommandPool final : public ICommandBufferPool

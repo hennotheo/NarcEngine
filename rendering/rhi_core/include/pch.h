@@ -9,4 +9,6 @@
 #include <NarcLog.h>
 #include <NarcMath.h>
 
+#include <RhiCore.h>
+
 #include "Typedefs.h"

@@ -28,7 +28,7 @@ namespace narc_engine {
                 break;
 
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-                NARC_LOG_ERROR("Vk: {}", pCallbackData->pMessage);
+                NARC_LOG_FATAL("Vk: {}", pCallbackData->pMessage);
                 break;
 
             default:
@@ -38,8 +38,8 @@ namespace narc_engine {
         return VK_FALSE;
     }
 
-    VulkanValidationLogger::VulkanValidationLogger(NARC_DI_IMPORT_COMPONENT(VulkanInstance)) :
-        NARC_DI_IMPL_COMPONENT(VulkanInstance, m_instance)
+    VulkanValidationLogger::VulkanValidationLogger(const VulkanInstance* instance) :
+        m_instance(instance)
     {
         m_debugUtilsMessengerCreateInfo = {
                 .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,

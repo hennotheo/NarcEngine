@@ -4,7 +4,6 @@
 
 #include "instance/VulkanInstance.h"
 
-#include "layers/VulkanValidationLogger.h"
 #include "mapping/mappingToVk.h"
 
 namespace narc_engine {

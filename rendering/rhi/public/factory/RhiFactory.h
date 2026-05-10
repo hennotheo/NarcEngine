@@ -9,9 +9,12 @@
 
 namespace narc_engine {
     class IWindow;
+    class IGui;
     class IGraphicsInstance;
 
     std::unique_ptr<IGraphicsInstance> createGraphicsInstance(GraphicBackend backend);
 
     std::unique_ptr<IWindow> createWindow(WindowBackend backend);
+
+    std::unique_ptr<IGui> createGui(const GraphicBackend& backend, const GuiInitContext& context);
 }

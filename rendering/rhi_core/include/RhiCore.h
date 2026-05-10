@@ -20,6 +20,7 @@
 #include "models/BufferAllocationInfo.h"
 #include "models/QueueSubmitInfos.h"
 #include "models/QueuePresentInfos.h"
+#include "models/GuiInitContext.h"
 
 #include "device/IVulkanExtension.h"
 #include "device/PhysicalDeviceCriteria.h"
@@ -42,3 +43,4 @@
 #include "interfaces/ISampler.h"
 #include "interfaces/ISemaphore.h"
 #include "interfaces/ISwapchain.h"
+#include "interfaces/gui/IGui.h"

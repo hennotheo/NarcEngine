@@ -6,7 +6,10 @@
 // #include <NarcVulkanWrapper.h>
 
 #include "Core.h"
-#include "RhiFactory.h"
+
+#include "../../rhi_core/include/interfaces/gui/IGui.h"
+
+#include "factory/RhiFactory.h"
 
 // #include "GlfwVulkanSurface.h"
 // #include "layers/VulkanGlfwExtension.h"

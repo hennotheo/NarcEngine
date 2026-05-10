@@ -5,5 +5,6 @@
 #pragma once
 
 #include <NarcCore.h>
+#include <NarcLog.h>
 
 #include "Core.h"

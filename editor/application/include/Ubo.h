@@ -6,7 +6,7 @@
 
 struct UniformBufferObject
 {
-    glm::mat4 model;
-    glm::mat4 view;
-    glm::mat4 proj;
+    narc_math::Matrix4 model;
+    narc_math::Matrix4 view;
+    narc_math::Matrix4 proj;
 };

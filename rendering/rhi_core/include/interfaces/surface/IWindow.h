@@ -17,6 +17,7 @@ namespace narc_engine {
         NARC_PURE_VIRTUAL_QUERY(bool, shouldClose);
         NARC_PURE_VIRTUAL_QUERY(SurfaceExtent, getSurfaceExtent);
         NARC_PURE_VIRTUAL_GETTER(NativeWindowHandle, getNativeHandle);
+        NARC_PURE_VIRTUAL_GETTER(void*, getHandle);
 
         NARC_PURE_VIRTUAL_GETTER(std::string_view, getTitle);
         NARC_PURE_VIRTUAL_GETTER(bool, isResizing);

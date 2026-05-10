@@ -1,7 +1,5 @@
 ﻿#include "FileReaderService.h"
 
-#include <NarcLog.h>
-#include <NarcMath.h>
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
@@ -10,20 +8,38 @@
 
 struct vertex
 {
-    glm::vec3 pos;
-    glm::vec3 color;
-    glm::vec2 tex;
+    narc_math::Vec3 pos;
+    narc_math::Vec3 color;
+    narc_math::Vec2 tex;
 
     bool operator==(const vertex& other) const { return pos == other.pos && tex == other.tex && color == other.color; }
 };
 
 namespace std {
     template<>
+    struct hash<narc_math::Vec3>
+    {
+        size_t operator()(narc_math::Vec3 const& vector) const
+        {
+            return ((hash<float>()(vector.Data[0]) ^ (hash<float>()(vector.Data[1]) << 1)) >> 1) ^ (hash<float>()(vector.Data[2]) << 1);
+        }
+    };
+
+    template<>
+    struct hash<narc_math::Vec2>
+    {
+        size_t operator()(narc_math::Vec2 const& vector) const
+        {
+            return ((hash<float>()(vector.Data[0]) ^ (hash<float>()(vector.Data[1]) << 1)) >> 1);
+        }
+    };
+
+    template<>
     struct hash<vertex>
     {
         size_t operator()(vertex const& vertex) const
         {
-            return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.tex) << 1);
+            return ((hash<narc_math::Vec3>()(vertex.pos) ^ (hash<narc_math::Vec3>()(vertex.color) << 1)) >> 1) ^ (hash<narc_math::Vec2>()(vertex.tex) << 1);
         }
     };
 } // namespace std
@@ -78,7 +94,7 @@ namespace narc_io {
 
                 vertex.tex = {attrib.texcoords[2 * index.texcoord_index + 0], 1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
 
-                if (uniqueVertices.find(vertex) == uniqueVertices.end())
+                if (!uniqueVertices.contains(vertex))
                 {
                     uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
                     vertices.push_back(vertex.pos);

@@ -10,7 +10,7 @@ namespace narc_engine {
     class VulkanValidationLogger final : public IVulkanExtension
     {
     public:
-        explicit VulkanValidationLogger(NARC_DI_IMPORT_COMPONENT(VulkanInstance));
+        explicit VulkanValidationLogger(const VulkanInstance* instance);
         ~VulkanValidationLogger() override;
 
         NARC_IMPL_INITIALISABLE();
@@ -19,7 +19,7 @@ namespace narc_engine {
         NARC_OVERRIDE_GETTER(const void*, getCreationInfos, &m_debugUtilsMessengerCreateInfo)
 
     private:
-        narc_core::injected_component<VulkanInstance> m_instance;
+        const VulkanInstance* m_instance;
 
         VkDebugUtilsMessengerCreateInfoEXT m_debugUtilsMessengerCreateInfo{};
         VkDebugUtilsMessengerEXT m_debugUtilsMessenger = VK_NULL_HANDLE;

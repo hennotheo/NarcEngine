@@ -4,10 +4,10 @@
 
 #include "models/ImageStream.h"
 
+// Because of coverage, disable it late
+#define STBI_NO_SIMD
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-
-#include "NarcLog.h"
 
 namespace narc_io {
     ImageStream::ImageStream(const std::string_view path) :

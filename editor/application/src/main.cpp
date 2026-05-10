@@ -1,5 +1,3 @@
-#ifndef NARC_TEST_BUILD
-
 constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
 
 #include "Ubo.h"
@@ -68,14 +66,15 @@ UniformBufferObject getUniformBufferObject(const narc_math::Extent swapchainExte
 
     float aspect = static_cast<float>(swapchainExtent.Width) / static_cast<float>(swapchainExtent.Height);
     UniformBufferObject ubo{
-            .model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-            .view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.5f), glm::vec3(0.0f, 0.0f, 1.0f)),
-            .proj = glm::perspective(glm::radians(45.0f),
-                                     aspect,
-                                     0.1f,
-                                     10.0f)
+            .model = narc_math::Matrix4::identity().rotate(narc_math::Vec3(0.0f, 0.0f, 1.0f), time * 90.0f * 0.01745329251994329576923690768489f),
+            .view = narc_math::Matrix4::identity().lookAt(narc_math::Vec3(2.0f, 2.0f, 2.0f), narc_math::Vec3(0.0f, 0.0f, 0.5f),
+                                                          narc_math::Vec3(0.0f, 0.0f, 1.0f)),
+            .proj = narc_math::Matrix4::identity().perspective(45.0f,
+                                                               aspect,
+                                                               0.1f,
+                                                               10.0f)
     };
-    ubo.proj[1][1] *= -1;
+    ubo.proj(1, 1) *= -1;
 
     return ubo;
 }
@@ -168,6 +167,13 @@ std::vector<narc_engine::Vertex> createVertexInputDataFromModel(const narc_io::M
     }
 
     return vertices;
+}
+
+void recordImgui(narc_engine::IGui* imgui)
+{
+    imgui->startWindow("Settings");
+
+    imgui->endWindow();
 }
 
 int main(int argc, char** argv)
@@ -278,6 +284,16 @@ int main(int argc, char** argv)
             commandBuffers.push_back(cmdPool->allocateCommandBuffer().value());
         }
 
+        narc_engine::GuiInitContext imguiContext;
+        imguiContext.GraphicsInstance = graphicsInstance.get();
+        imguiContext.window = window.get();
+        imguiContext.MinImageCount = MAX_FRAMES_IN_FLIGHT;
+        imguiContext.ImageCount = MAX_FRAMES_IN_FLIGHT;
+        imguiContext.Pipeline = pipeline.get();
+        auto gui = narc_engine::createGui(narc_engine::Vulkan, imguiContext);
+
+        gui->init();
+
         std::unique_ptr<narc_engine::IImage> image = createImageTexture("textures/tex_test_uv_0.png");
 
         {
@@ -358,6 +374,10 @@ int main(int argc, char** argv)
                 cmdBuffer->reset();
 
                 //RECORD -------------------------
+                gui->newFrame();
+
+                recordImgui(gui.get());
+
                 cmdBuffer->begin();
 
                 cmdBuffer->beginRenderPass(
@@ -372,8 +392,8 @@ int main(int argc, char** argv)
                         .Position = narc_math::Vec2{0, 0},
                         .Dimensions = swapChain->getSwapChainExtent()
                 });
-                cmdBuffer->bindScissors({
-                        .Offset = narc_math::Vec2{0, 0},
+                cmdBuffer->bindScissors(narc_engine::ScissorsInfos{
+                        .Offset = {0, 0},
                         .Extent = swapChain->getSwapChainExtent()
                 });
 
@@ -383,10 +403,19 @@ int main(int argc, char** argv)
 
                 cmdBuffer->drawIndexed(model.getIndicesCount());
 
+                // GUI -------------------------------------
+
+
+                gui->endFrame();
+                gui->render(cmdBuffer);
+
+                // END GUI ---------------------------------
+
                 cmdBuffer->endRenderPass();
 
                 cmdBuffer->end();
                 //END RECORD ---------------------
+
 
                 const auto submitQueue = graphicsInstance->getGraphicsQueue();
                 submitQueue->submit({
@@ -422,6 +451,8 @@ int main(int argc, char** argv)
             graphicsInstance->waitIdle();
         }
 
+        gui->shutdown();
+
         image->shutdown();
 
         for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
@@ -448,5 +479,3 @@ int main(int argc, char** argv)
         NARC_LOG_ERROR("Exception caught: {}", e.what());
     }
 }
-
-#endif
