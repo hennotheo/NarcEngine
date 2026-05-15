@@ -1,0 +1,194 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "linux-base",
+      "hidden": true,
+      "generator": "Unix Makefiles",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "linux-debug",
+      "inherits": "linux-base",
+      "displayName": "Linux Debug",
+      "description": "Configure a Linux debug build with Conan-generated dependencies for terminal usage.",
+      "binaryDir": "${sourceDir}/build/linux/debug/build/Debug",
+      "toolchainFile": "${sourceDir}/build/linux/debug/build/Debug/generators/conan_toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ENABLE_TESTS": "OFF",
+        "ENABLE_COVERAGE": "OFF"
+      }
+    },
+    {
+      "name": "linux-release",
+      "inherits": "linux-base",
+      "displayName": "Linux Release",
+      "description": "Configure a Linux release build with Conan-generated dependencies for terminal usage.",
+      "binaryDir": "${sourceDir}/build/linux/release/build/Release",
+      "toolchainFile": "${sourceDir}/build/linux/release/build/Release/generators/conan_toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "ENABLE_TESTS": "OFF",
+        "ENABLE_COVERAGE": "OFF"
+      }
+    },
+    {
+      "name": "linux-tests",
+      "inherits": "linux-base",
+      "displayName": "Linux Tests",
+      "description": "Configure a Linux debug build with Catch2-based tests enabled for terminal usage.",
+      "binaryDir": "${sourceDir}/build/linux/tests/build/Debug",
+      "toolchainFile": "${sourceDir}/build/linux/tests/build/Debug/generators/conan_toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ENABLE_TESTS": "ON",
+        "ENABLE_COVERAGE": "OFF"
+      }
+    },
+    {
+      "name": "linux-coverage",
+      "inherits": "linux-base",
+      "displayName": "Linux Coverage",
+      "description": "Configure a Linux debug build with tests and coverage enabled for terminal usage.",
+      "binaryDir": "${sourceDir}/build/linux/coverage/build/Debug",
+      "toolchainFile": "${sourceDir}/build/linux/coverage/build/Debug/generators/conan_toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ENABLE_TESTS": "ON",
+        "ENABLE_COVERAGE": "ON"
+      }
+    },
+    {
+      "name": "linux-clion-debug",
+      "inherits": "linux-base",
+      "displayName": "Linux CLion Debug",
+      "description": "Configure a Linux debug build with Conan-generated dependencies for CLion.",
+      "binaryDir": "${sourceDir}/build/clion/linux/debug/build/Debug",
+      "toolchainFile": "${sourceDir}/build/clion/linux/debug/build/Debug/generators/conan_toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ENABLE_TESTS": "OFF",
+        "ENABLE_COVERAGE": "OFF"
+      }
+    },
+    {
+      "name": "linux-clion-release",
+      "inherits": "linux-base",
+      "displayName": "Linux CLion Release",
+      "description": "Configure a Linux release build with Conan-generated dependencies for CLion.",
+      "binaryDir": "${sourceDir}/build/clion/linux/release/build/Release",
+      "toolchainFile": "${sourceDir}/build/clion/linux/release/build/Release/generators/conan_toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "ENABLE_TESTS": "OFF",
+        "ENABLE_COVERAGE": "OFF"
+      }
+    },
+    {
+      "name": "linux-clion-tests",
+      "inherits": "linux-base",
+      "displayName": "Linux CLion Tests",
+      "description": "Configure a Linux debug build with Catch2-based tests enabled for CLion.",
+      "binaryDir": "${sourceDir}/build/clion/linux/tests/build/Debug",
+      "toolchainFile": "${sourceDir}/build/clion/linux/tests/build/Debug/generators/conan_toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ENABLE_TESTS": "ON",
+        "ENABLE_COVERAGE": "OFF"
+      }
+    },
+    {
+      "name": "linux-clion-coverage",
+      "inherits": "linux-base",
+      "displayName": "Linux CLion Coverage",
+      "description": "Configure a Linux debug build with tests and coverage enabled for CLion.",
+      "binaryDir": "${sourceDir}/build/clion/linux/coverage/build/Debug",
+      "toolchainFile": "${sourceDir}/build/clion/linux/coverage/build/Debug/generators/conan_toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ENABLE_TESTS": "ON",
+        "ENABLE_COVERAGE": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "linux-debug",
+      "configurePreset": "linux-debug",
+      "jobs": 8
+    },
+    {
+      "name": "linux-release",
+      "configurePreset": "linux-release",
+      "jobs": 8
+    },
+    {
+      "name": "linux-tests",
+      "configurePreset": "linux-tests",
+      "jobs": 8
+    },
+    {
+      "name": "linux-coverage",
+      "configurePreset": "linux-coverage",
+      "jobs": 8
+    },
+    {
+      "name": "linux-clion-debug",
+      "configurePreset": "linux-clion-debug",
+      "jobs": 8
+    },
+    {
+      "name": "linux-clion-release",
+      "configurePreset": "linux-clion-release",
+      "jobs": 8
+    },
+    {
+      "name": "linux-clion-tests",
+      "configurePreset": "linux-clion-tests",
+      "jobs": 8
+    },
+    {
+      "name": "linux-clion-coverage",
+      "configurePreset": "linux-clion-coverage",
+      "jobs": 8
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "linux-tests",
+      "configurePreset": "linux-tests",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "linux-coverage",
+      "configurePreset": "linux-coverage",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "linux-clion-tests",
+      "configurePreset": "linux-clion-tests",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "linux-clion-coverage",
+      "configurePreset": "linux-clion-coverage",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}

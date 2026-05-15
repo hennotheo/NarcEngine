@@ -181,7 +181,15 @@ int main(int argc, char** argv)
     spdlog::set_level(spdlog::level::debug);
     narc_log::init_signal_handling();
 
-    const auto model = narc_io::FileReaderService::load3DModel("models/mdl_sphere.obj");
+    auto builder = narc_engine::createGraphicsEngineBuilder();
+    auto engine = builder->useVulkan().build();
+
+    engine->init();
+
+    engine->shutdown();
+
+
+    return 0;
 
     try
     {
@@ -297,6 +305,7 @@ int main(int argc, char** argv)
         std::unique_ptr<narc_engine::IImage> image = createImageTexture("textures/tex_test_uv_0.png");
 
         {
+            const auto model = narc_io::FileReaderService::load3DModel("models/mdl_sphere.obj");
             const auto vertices = createVertexInputDataFromModel(model);
             const auto indices = createIndexDataFromModel(model);
 

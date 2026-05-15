@@ -2,14 +2,14 @@ x64/
 .vs/
 
 # CMake
-build*/
+build/
 cmake_*/
 .idea/
 .vscode/
 .venv/
 **/logs/**
 __cmake_systeminformation/
-CMakePresets.json
+CMakeUserPresets.json
 
 # Auto installed libraries
 vendors/**

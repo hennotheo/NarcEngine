@@ -7,7 +7,8 @@
 
 #include "Core.h"
 
-#include "../../rhi_core/include/interfaces/gui/IGui.h"
+#include "enums/GraphicBackend.h"
+#include "enums/WindowBackend.h"
 
 #include "factory/RhiFactory.h"
 

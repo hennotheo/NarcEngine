@@ -34,6 +34,7 @@ add_dependencies(NarcEngineDependencies
 add_subdirectory(rhi_core)
 add_subdirectory(wrappers)
 add_subdirectory(rhi)
+add_subdirectory(graphics_engine)
 
 #------------------
 #---- Keywords ----

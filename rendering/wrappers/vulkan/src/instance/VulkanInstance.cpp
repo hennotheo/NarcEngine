@@ -62,7 +62,8 @@ namespace narc_engine {
     {
         std::vector<const char*> deviceExtensionNames{
                 VK_KHR_SURFACE_EXTENSION_NAME,
-                VK_KHR_XCB_SURFACE_EXTENSION_NAME
+                VK_KHR_XCB_SURFACE_EXTENSION_NAME,
+                VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME
         };
         deviceExtensionNames.reserve(extensions.size());
         for (const auto& ext: extensions)

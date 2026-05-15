@@ -13,6 +13,7 @@
 #include "pipeline/VulkanGraphicsPipeline.h"
 #include "pipeline/VulkanPipelineLayout.h"
 #include "pipeline/VulkanRenderPass.h"
+#include "surface/VulkanHeadlessSurface.h"
 #include "surface/VulkanLinuxSurface.h"
 #include "swapchain/VulkanSwapChain.h"
 #include "sync/VulkanFence.h"
@@ -62,7 +63,7 @@ namespace narc_engine {
 
     std::unique_ptr<ISwapchain> VulkanGraphicsInstance::createSwapChain(const ISurface* surface) const noexcept
     {
-        auto swapchain = std::make_unique<VulkanSwapChain>(m_device.get(), dynamic_cast<const IVulkanSurface*>(surface), 2);//TODO: 2 HARDCODED
+        auto swapchain = std::make_unique<VulkanSwapChain>(m_device.get(), dynamic_cast<const IVulkanSurface*>(surface), 2); //TODO: 2 HARDCODED
 
         m_swapChainRenderPasses.emplace(std::make_pair(swapchain.get(), std::make_unique<VulkanRenderPass>(m_device.get(), swapchain.get())));
 
@@ -121,7 +122,7 @@ namespace narc_engine {
     {
         const auto vkLayout = narc_core::backend_cast<VulkanDescriptorSetLayout>(layout);
 
-        std::vector layouts {vkLayout, vkLayout};//TODO: TEMP pour alloc plusieurs Bindings pour les frame in flight
+        std::vector layouts{vkLayout, vkLayout}; //TODO: TEMP pour alloc plusieurs Bindings pour les frame in flight
         return m_descriptorPool->allocateDescriptorSet(layouts);
     }
 
@@ -143,6 +144,13 @@ namespace narc_engine {
 
     std::unique_ptr<ISurface> VulkanGraphicsInstance::createSurface(const IWindow* window) const noexcept
     {
+        if (window == nullptr)
+        {
+            NARC_LOG_WARNING("Creating surface without window.");
+
+            return std::make_unique<VulkanHeadlessSurface>(m_instance.get());
+        }
+
         return std::make_unique<VulkanLinuxSurface>(m_instance.get(), window);
     }
 
