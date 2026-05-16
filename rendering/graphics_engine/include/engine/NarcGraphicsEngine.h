@@ -8,6 +8,7 @@
 #include "interfaces/IGraphicsEngine.h"
 
 namespace narc_engine {
+    class RenderGraph;
 
     class NarcGraphicsEngine : public IGraphicsEngine
     {
@@ -19,5 +20,8 @@ namespace narc_engine {
 
     private:
         std::unique_ptr<IGraphicsInstance> m_graphicsInstance = nullptr;
+        std::unique_ptr<RenderGraph> m_renderGraph;
+
+        std::unique_ptr<IImage> m_image;
     };
 }

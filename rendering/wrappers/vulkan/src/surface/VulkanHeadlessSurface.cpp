@@ -31,12 +31,10 @@ namespace narc_engine {
         }
 
         NARC_LOG_DEBUG("Created Vulkan XCB surface!");
-        initialized = true;
     }
 
     void VulkanHeadlessSurface::shutdown()
     {
         vkDestroySurfaceKHR(m_instance->getHandled(), m_surface, nullptr);
-        initialized = false;
     }
 }

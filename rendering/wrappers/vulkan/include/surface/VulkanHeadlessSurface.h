@@ -26,7 +26,6 @@ namespace narc_engine {
     private:
         const VulkanInstance* m_instance = nullptr;
 
-        bool initialized = false;
         VkSurfaceKHR m_surface = VK_NULL_HANDLE;
         SurfaceExtent m_extent{};
     };
